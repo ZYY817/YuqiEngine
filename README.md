@@ -6,9 +6,17 @@
 [![下载量](https://img.shields.io/github/downloads/ZYY817/YuqiEngine/total?style=for-the-badge&color=22c55e&label=总下载量)](https://github.com/ZYY817/YuqiEngine/releases)
 [![系统](https://img.shields.io/badge/系统-Windows%2010%2F11-0ea5e9?style=for-the-badge)](https://github.com/ZYY817/YuqiEngine)
 <br/>
-
 ## **✅ 一键深度优化✅ 智能场景识别✅安全可还原<br><br>**[📥 立即下载](#-下载安装) · [✨ 功能介绍](#-核心功能) · [❓ 常见问题](#-常见问题)
+</div>
 
+<h3><strong> 
+💬智宇ZYY817: </strong></h3> 
+<div align="center">你好，我是一名重度游戏玩家。<br>
+在我的学生时代，电脑配置捉襟见肘，为了能流畅玩游戏，我研究过各种优化技巧、试过无数优化软件。<br>那时候就有一个念头：<em><strong><a href="https://github.com/ZYY817/YuqiEngine" title="Me">如果有一天我有能力，一定要做一款真正好用的优化工具。</a> </strong></em>
+<br>现在工作了，终于有能力实现这个小小的梦想。<br>于是，宇奇引擎诞生了。<br>
+<br><h3><strong>为什么叫「宇奇」？</strong></h3>
+「宇」取自我的名字，也寓意宇宙般的无限可能；<br>「奇」代表奇妙、奇迹，希望这款软件能为你的游戏体验带来奇迹般的提升。
+<h2>愿每一帧都流畅，每一局都畅快。
 </div>
 
 ---
@@ -107,7 +115,11 @@
 
 > 软件采用 **Obsidian 暗黑设计风格**，深邃黑底 + 靛蓝色点缀，专为长时间使用设计。
 
-
+![功能展示1](./assets/image/1.png)
+![功能展示2](./assets/image/2.png)
+![功能展示3](./assets/image/3.png)
+![功能展示4](./assets/image/4.png)
+![功能展示5](./assets/image/5.png)
 
 ---
 
@@ -153,6 +165,7 @@
 - 系统修复中心
 - 备份与还原系统
 - 中英文双语支持
+> 这是宇奇引擎的第一个版本，还有很多不完善的地方。但我会持续迭代，努力把它打造成最强的游戏优化工具。
 
 ---
 
@@ -167,16 +180,13 @@
 
 ## ⚠️ 免责声明
 
-本软件通过修改 Windows 系统设置来优化性能，虽然提供了完整的备份还原机制，但使用者需自行承担使用风险。建议在优化前确保已开启自动备份功能。
+本软件通过修改Windows系统来获得性能提升，虽然提供了完整的备份还原机制，但使用者需自行承担使用风险。  
+务必在优化前确保自动备份功能和Windows还原点备份功能正常生效,使用者启动软件后默认同意自行承担风险!
 
 ---
 
 <div align="center">
 
-**宇奇引擎** — 释放你的硬件潜能 🚀
-
-Made with ❤️ by ZYY817 by 智宇 QQ：571567759
-
-
-
+<h3><strong>宇奇⚙️引擎  —  释放你的硬件潜能 🚀 </strong></h3>
+<strong>Made with ❤️ <a href="https://github.com/ZYY817" title="ZY">智宇ZYY817</a> ❤️ QQ：571567759</strong>
 </div>
