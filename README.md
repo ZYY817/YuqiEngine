@@ -1,3 +1,11 @@
+> **English Statement for Open Source Transition & OpenAI Reviewers:**
+> *YuqiEngine is a 900,000-line global game optimization framework currently undergoing a massive refactoring process. As a solo maintainer, I am preparing to migrate the legacy codebase to this public repository. To protect our 30,000+ beta users' PC stability, the full raw source code will not be pushed until deep security and memory audits (via Codex) are completed. Currently establishing the foundational skeleton.*
+> 
+> *Beta showcase & community feedback (30k+ downloads): [Watch on Bilibili](https://www.bilibili.com/video/BV11RASzzELv/)*
+
+---
+
+
 <div align="center">
 
 # **宇奇⚙️引擎**  <br>⭐这是一个专业级的Windows 游戏性能优化工具
