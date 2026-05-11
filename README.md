@@ -27,19 +27,11 @@
 <h2>愿每一帧都流畅，每一局都畅快。
 </div>
 
----
-
-## Star History
-
-<a href="https://www.star-history.com/?repos=ZYY817%2FYuqiEngine&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=ZYY817/YuqiEngine&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=ZYY817/YuqiEngine&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=ZYY817/YuqiEngine&type=date&legend=top-left" />
- </picture>
-</a>
-
----
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date&theme=dark" />
+  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date" />
+  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date" />
+</picture>
 
 ## 📥 下载安装
 
