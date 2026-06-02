@@ -27,7 +27,11 @@
 <h2>愿每一帧都流畅，每一局都畅快。
 </div>
 
----
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date&theme=dark" />
+  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date" />
+  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date" />
+</picture>
 
 ## 📥 下载安装
 
@@ -124,10 +128,6 @@
 > 软件采用 **Obsidian 暗黑设计风格**，深邃黑底 + 靛蓝色点缀，专为长时间使用设计。
 
 ![功能展示1](./assets/image/1.png)
-![功能展示2](./assets/image/2.png)
-![功能展示3](./assets/image/3.png)
-![功能展示4](./assets/image/4.png)
-![功能展示5](./assets/image/5.png)
 
 ---
 
