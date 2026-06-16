@@ -1,4 +1,4 @@
-> **English Statement for Open Source Transition & OpenAI Reviewers:**
+> **English Statement for Open Source Transition & OpenAI Reviewers:**  
 > *YuqiEngine is a 900,000-line global game optimization framework currently undergoing a massive refactoring process. As a solo maintainer, I am preparing to migrate the legacy codebase to this public repository. To protect our 30,000+ beta users' PC stability, the full raw source code will not be pushed until deep security and memory audits (via Codex) are completed. Currently establishing the foundational skeleton.*
 > 
 > *Beta showcase & community feedback (30k+ downloads): [Watch on Bilibili](https://www.bilibili.com/video/BV11RASzzELv/)*
@@ -8,7 +8,10 @@
 
 <div align="center">
 
+
+
 # **宇奇⚙️引擎**  <br>⭐这是一个专业级的Windows 游戏性能优化工具
+<img width="850" height="478" alt="YQ" src="https://github.com/user-attachments/assets/83d3fb8b-1504-4900-a457-4c08a8753eb2" />
 
 [![最新版本](https://img.shields.io/github/v/release/ZYY817/YuqiEngine?style=for-the-badge&color=6366f1&label=最新版本)](https://github.com/ZYY817/YuqiEngine/releases/latest)
 [![下载量](https://img.shields.io/github/downloads/ZYY817/YuqiEngine/total?style=for-the-badge&color=22c55e&label=总下载量)](https://github.com/ZYY817/YuqiEngine/releases)
@@ -17,21 +20,29 @@
 ## **✅ 一键深度优化✅ 智能场景识别✅安全可还原<br><br>**[📥 立即下载](#-下载安装) · [✨ 功能介绍](#-核心功能) · [❓ 常见问题](#-常见问题)
 </div>
 
-<h3><strong> 
-💬智宇ZYY817: </strong></h3> 
-<div align="center">你好，我是一名重度游戏玩家。<br>
-在我的学生时代，电脑配置捉襟见肘，为了能流畅玩游戏，我研究过各种优化技巧、试过无数优化软件。<br>那时候就有一个念头：<em><strong><a href="https://github.com/ZYY817/YuqiEngine" title="Me">如果有一天我有能力，一定要做一款真正好用的优化工具。</a> </strong></em>
-<br>现在工作了，终于有能力实现这个小小的梦想。<br>于是，宇奇引擎诞生了。<br>
-<br><h3><strong>为什么叫「宇奇」？</strong></h3>
-「宇」取自我的名字，也寓意宇宙般的无限可能；<br>「奇」代表奇妙、奇迹，希望这款软件能为你的游戏体验带来奇迹般的提升。
+---
+---
+
+<div align="center">
+<h3><strong> 💬智宇ZYY817: </strong></h3> 
+你好，我是一名重度游戏玩家。<br>
+在我的学生时代，电脑配置捉襟见肘，为了能流畅玩游戏，我研究过各种优化技巧、试过无数优化软件。
+  <br>那时候就有一个念头：<em><strong><a href="https://github.com/ZYY817/YuqiEngine" title="Me">如果有一天我有能力，一定要做一款真正好用的优化工具。</a> </strong></em>
+<br>现在工作了，终于有能力实现这个小小的梦想，于是，宇奇引擎诞生了...<br>
 <h2>愿每一帧都流畅，每一局都畅快。
 </div>
+
+---
+---
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date&theme=dark" />
   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date" />
   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date" />
 </picture>
+
+---
+
 
 ## 📥 下载安装
 
@@ -40,6 +51,16 @@
 👉 **[点击这里下载最新版本](https://github.com/ZYY817/YuqiEngine/releases/latest)**
 
 在 Release 页面找到 `.zip` 压缩包，下载后解压，以**管理员身份**运行 `YuqiEngine.exe` 即可。
+
+---
+
+<div align="center"><h3><strong> ⚠️ 免责声明 </strong></h3>
+
+本软件通过修改Windows系统来获得性能提升，虽然提供了完整的备份还原机制，但使用者需自行承担使用风险。  
+务必在优化前确保自动备份功能和Windows还原点备份功能正常生效,使用者启动软件后默认同意自行承担风险!
+</div>
+
+---
 
 ### 系统要求
 
@@ -184,12 +205,7 @@
 - 📝 [提交 Issue](https://github.com/ZYY817/YuqiEngine/issues)（推荐）
 - 在 Issue 中请附上：问题描述、操作步骤、系统版本信息
 
----
 
-## ⚠️ 免责声明
-
-本软件通过修改Windows系统来获得性能提升，虽然提供了完整的备份还原机制，但使用者需自行承担使用风险。  
-务必在优化前确保自动备份功能和Windows还原点备份功能正常生效,使用者启动软件后默认同意自行承担风险!
 
 ---
 
