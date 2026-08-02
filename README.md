@@ -1,216 +1,273 @@
-> **English Statement for Open Source Transition & OpenAI Reviewers:**  
-> *YuqiEngine is a 900,000-line global game optimization framework currently undergoing a massive refactoring process. As a solo maintainer, I am preparing to migrate the legacy codebase to this public repository. To protect our 30,000+ beta users' PC stability, the full raw source code will not be pushed until deep security and memory audits (via Codex) are completed. Currently establishing the foundational skeleton.*
-> 
-> *Beta showcase & community feedback (30k+ downloads): [Watch on Bilibili](https://www.bilibili.com/video/BV11RASzzELv/)*
-
----
-
-
 <div align="center">
+  <img src="./assets/current/yuqi-logo.png" width="92" alt="宇奇引擎 Logo">
 
+# 宇奇引擎 · Yuqi Engine
 
+**面向 Windows 10 / 11 的模块化系统优化、状态检测、恢复与诊断工具**
 
-# **宇奇⚙️引擎**  <br>⭐这是一个专业级的Windows 游戏性能优化工具
-<img width="850" height="478" alt="YQ" src="https://github.com/user-attachments/assets/83d3fb8b-1504-4900-a457-4c08a8753eb2" />
+**简体中文** · [English](./README_EN.md)
 
-[![最新版本](https://img.shields.io/github/v/release/ZYY817/YuqiEngine?style=for-the-badge&color=6366f1&label=最新版本)](https://github.com/ZYY817/YuqiEngine/releases/latest)
-[![下载量](https://img.shields.io/github/downloads/ZYY817/YuqiEngine/total?style=for-the-badge&color=22c55e&label=总下载量)](https://github.com/ZYY817/YuqiEngine/releases)
-[![系统](https://img.shields.io/badge/系统-Windows%2010%2F11-0ea5e9?style=for-the-badge)](https://github.com/ZYY817/YuqiEngine)
-<br/>
-## **✅ 一键深度优化✅ 智能场景识别✅安全可还原<br><br>**[📥 立即下载](#-下载安装) · [✨ 功能介绍](#-核心功能) · [❓ 常见问题](#-常见问题)
-</div>
+[![版本](https://img.shields.io/badge/当前版本-v0.1.1-0f9f92?style=flat-square)](https://github.com/ZYY817/YuqiEngine/releases)
+[![GitHub Release 下载量](https://img.shields.io/github/downloads/ZYY817/YuqiEngine/total?style=flat-square&label=GitHub%20Release%20%E4%B8%8B%E8%BD%BD%E9%87%8F&color=22c55e)](https://github.com/ZYY817/YuqiEngine/releases)
+[![平台](https://img.shields.io/badge/平台-Windows%20x64-1677ff?style=flat-square)](#系统要求)
+[![语言](https://img.shields.io/badge/界面-中文%20%2F%20English-7c4dff?style=flat-square)](./README_EN.md)
+[![阶段](https://img.shields.io/badge/阶段-公开体验版-f59e0b?style=flat-square)](#当前版本状态)
 
----
----
+[下载安装](#下载安装) · [真实界面](#真实界面) · [使用前必读](#使用前必读) · [问题反馈](#问题反馈) · [English](./README_EN.md)
 
-<div align="center">
-<h3><strong> 💬智宇ZYY817: </strong></h3> 
-你好，我是一名重度游戏玩家。<br>
-在我的学生时代，电脑配置捉襟见肘，为了能流畅玩游戏，我研究过各种优化技巧、试过无数优化软件。
-  <br>那时候就有一个念头：<em><strong><a href="https://github.com/ZYY817/YuqiEngine" title="Me">如果有一天我有能力，一定要做一款真正好用的优化工具。</a> </strong></em>
-<br>现在工作了，终于有能力实现这个小小的梦想，于是，宇奇引擎诞生了...<br>
-<h2>愿每一帧都流畅，每一局都畅快。
-</div>
+<img src="./assets/current/startup-current.gif" width="800" alt="宇奇引擎 v0.1.1 当前启动动画">
 
----
----
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date&theme=dark" />
-  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date" />
-  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ZYY817/YuqiEngine&type=Date" />
-</picture>
-
----
-
-
-## 📥 下载安装
-
-### 下载最新发布版
-
-👉 **[点击这里下载最新版本](https://github.com/ZYY817/YuqiEngine/releases/latest)**
-
-在 Release 页面找到 `.zip` 压缩包，下载后解压，以**管理员身份**运行 `YuqiEngine.exe` 即可。
-
----
-
-<div align="center"><h3><strong> ⚠️ 免责声明 </strong></h3>
-
-本软件通过修改Windows系统来获得性能提升，虽然提供了完整的备份还原机制，但使用者需自行承担使用风险。  
-务必在优化前确保自动备份功能和Windows还原点备份功能正常生效,使用者启动软件后默认同意自行承担风险!
+<sub>上图由当前 v0.1.1 启动页代码真实渲染生成，不是概念效果图。</sub>
 </div>
 
 ---
 
-### 系统要求
+## 当前版本状态
+
+> [!IMPORTANT]
+> **宇奇引擎目前仍是公开体验版本，不是已经覆盖所有设备和场景的最终版本。**
+
+> [!WARNING]
+> **请在应用任何系统修改前完成备份。** 当前版本仍可能存在尚未发现的问题，也不能保证每项优化都适合你的电脑或带来性能提升。建议先创建宇奇引擎备份和 Windows 系统还原点，并单独备份重要个人文件。若你无法接受恢复设置、使用还原点或在极端情况下重装系统的风险，请只使用检测功能，不要应用系统修改。
+
+项目由个人独立开发和维护，现有设备条件无法覆盖所有 CPU、显卡、驱动、Windows 版本、区域策略和第三方安全软件组合。因此，即使已经进行自动化测试和实际使用验证，仍可能存在状态读取不完整、功能受系统策略限制、特定硬件不适用或交互细节不完善等问题。
+
+我会继续根据真实反馈定位和修复问题，但不会承诺每台电脑都能使用全部功能，也不会承诺固定的 FPS、延迟或性能提升。**如果遇到问题，请生成[问题包](#什么是问题包)并反馈；能复现、能确认的问题，我会尽力持续修复。**
+
+| 当前信息 | 内容 |
+|---|---|
+| 最新体验版本 | `v0.1.1` |
+| 支持系统 | Windows 10 1809（Build 17763）及以上、Windows 11，64 位 |
+| 发布形式 | 中英文安装版、ZIP 免安装版 |
+| 运行环境 | 自包含 .NET 8，并附带离线 WebView2 安装组件 |
+| 代码签名 | 当前体验版未购买受信任证书，Windows 可能显示“未知发布者”或 SmartScreen 提示 |
+| 产品定位 | 按模块检测、解释、选择、应用和恢复；不是“万能一键提速” |
+
+## 这是什么
+
+宇奇引擎把分散在 Windows 中的优化、诊断和恢复入口组织成统一界面。软件会尽量先读取真实系统状态，再告诉用户：
+
+- 当前设置是什么；
+- 该项目是否适用于当前电脑；
+- 为什么暂时不可用或需要管理员权限；
+- 修改后可能带来的作用、风险和恢复方式；
+- 操作是否真正完成，还是仍需重新读取或人工确认。
+
+软件不会因为检测失败就把项目标记为成功，也不会在用户只进行检测时自动写入系统设置。
+
+## 主要能力
+
+| 范围 | 当前提供的能力 |
+|---|---|
+| 游戏与性能 | 游戏优化中心、性能调优、CPU 调优、图形与显示、内存、音频、网络、外设 |
+| Windows 设置 | 隐私保护、系统调校、桌面体验、任务调度、系统服务、系统清理 |
+| 硬件与诊断 | 硬件信息、显卡型号工具、显卡驱动参考、显示模式检测、游戏安全诊断、网络测试 |
+| 恢复与维护 | 软件备份、系统还原点入口、修复中心、配置包、启动项管理、电源方案编辑 |
+| 进程工具 | CPU 核心调度、亲和性和优先级管理；需要相应权限并由用户明确选择进程 |
+| 持续保持 | 轻量守护助手只维护已经应用且符合安全恢复规则的项目，不会自动处理所有优化项 |
+| 可理解反馈 | 部分读取、权限不足、平台不支持、检测中断和应用未确认均使用不同状态说明 |
+
+> 功能数量不是效果保证。不同电脑能够读取、应用或持续保持的项目数量可能不同。
+
+## 下载安装
+
+前往 **[GitHub Releases](https://github.com/ZYY817/YuqiEngine/releases)** 下载最新体验版。国内用户也可使用作者提供的 **[夸克网盘备用下载](https://pan.quark.cn/s/432600ae9d8d)**。
+
+> 顶部下载量徽章只统计 GitHub Releases 的累计文件下载次数，不包含夸克网盘，也不代表安装人数、活跃用户数或独立用户数。
+
+| 版本 | 适合谁 | 使用方法 |
+|---|---|---|
+| 安装版（中英文双语） | 希望创建开始菜单/桌面入口的用户 | 启动安装程序后先选择中文或 English，再按向导安装 |
+| ZIP 免安装版（中英文双语） | 希望解压即用或便于测试的用户 | 完整解压 ZIP 后运行 `YuqiEngine.exe`，不要直接在压缩包内启动 |
+
+安装版和 ZIP 版功能一致，软件内均可切换中文与 English。部分系统级功能需要管理员权限；不需要相关权限的查看和检测入口仍可正常使用。
+
+### 为什么安装包比较大
+
+当前发布包约 530 MB，主要因为包含：
+
+- 自包含 .NET 8 运行环境；
+- WebView2 离线安装组件；
+- 完整功能模块、中英文资源和前端界面；
+- 备份恢复、诊断和持续保持助手。
+
+这样可以减少用户额外安装依赖时遇到的问题。后续可能在不破坏离线可用性的前提下提供精简版本。
+
+### 校验下载文件
+
+Release 会同时提供 SHA-256 文件。可在下载目录打开 PowerShell，执行：
+
+```powershell
+Get-FileHash -Algorithm SHA256 -LiteralPath '.\下载的文件名.exe'
+```
+
+ZIP 文件把扩展名改为 `.zip`。终端结果必须与同版本 SHA-256 文件完全一致。校验值只能确认文件完整性，不能代替代码签名。
+
+## 系统要求
 
 | 项目 | 要求 |
-|------|------|
-| 操作系统 | Windows 10 1903+ / Windows 11 |
-| 运行时 | .NET 8 Desktop Runtime |
-| 权限 | 需要管理员权限（修改注册表、系统服务等） |
-| 磁盘 | 约 50 MB 可用空间 |
+|---|---|
+| 操作系统 | Windows 10 1809（Build 17763）及以上 / Windows 11 |
+| 架构 | x64（64 位） |
+| 内存 | 4 GB 以上，建议 8 GB 或更多 |
+| 磁盘 | 建议预留至少 1 GB，用于程序、更新、日志和备份 |
+| WebView2 | 发布包附带离线安装组件；缺失时软件会引导安装 |
+| 权限 | 检测与只读功能通常无需提升；修改系统设置、服务、注册表或电源配置时可能需要管理员权限 |
 
-> 💡 如果提示缺少 .NET 运行时，请前往 [微软官网](https://dotnet.microsoft.com/download/dotnet/8.0) 下载安装 .NET 8 Desktop Runtime。
+## 使用前必读
 
----
+1. **先阅读项目说明。** 展开优化项摘要和详情，确认作用、风险、目标位置与恢复方式。
+2. **先创建备份。** 建议同时创建宇奇引擎备份和 Windows 系统还原点。
+3. **少量应用并复测。** 不要一次启用大量不了解的项目；用自己的游戏和工作场景验证效果。
+4. **只保留真正有帮助的修改。** 没有改善、出现兼容问题或无法确认时，应恢复对应项目。
 
-## ✨ 核心功能
+> [!WARNING]
+> 宇奇引擎的备份用于保存软件相关设置、注册表项和恢复证据，**不是完整系统镜像，也不会备份个人文档、照片、视频或游戏存档**。重要个人文件仍需自行备份。系统还原点和重装 Windows 也不能替代个人数据备份。
 
-### 🧠 智能一键优化向导
-- 智能分析系统状态，推荐最佳优化方案
-- 三种模式：**极限性能** / **均衡优化** / **安全保守**
-- 风险分级提示，高危操作需二次确认
-- 优化前自动创建系统还原点
+### 状态应该怎么理解
 
-### ⚡ 20+ 专项优化模块
+| 状态 | 含义 |
+|---|---|
+| 已确认 | 已读取到当前系统状态，可以继续判断是否符合目标 |
+| 读取中 | 系统仍在返回状态，数量会随进度变化 |
+| 待确认 | 尚未得到可靠复核结果，不能当作已应用 |
+| 不可用 | 当前权限、系统版本、硬件或依赖条件不满足；详情会说明原因 |
+| 已应用 / 已恢复 | 本次操作已返回结果；仍建议按页面提示进行复测或重新读取 |
+| 部分完成 | 只有部分项目完成，其余项目应按结果列表单独处理 |
 
-| 分类 | 模块 |
-|------|------|
-| 🖥️ 处理器 | CPU 高级调优、处理器状态管理、核心加速器 |
-| 🎨 图形 | GPU 渲染优化、图形管线调校 |
-| 🌐 网络 | TCP/IP 协议栈优化、网络延迟优化、Nagle 算法控制 |
-| 🔊 音频 | 音频延迟优化、独占模式配置 |
-| 🖱️ 外设 | 鼠标加速优化、键盘响应优化、USB 电源管理 |
-| 🛡️ 系统 | 服务精简、计划任务优化、隐私保护、桌面体验优化 |
-| 🔒 安全 | 安全缓解策略优化（Spectre/Meltdown） |
+## 真实界面
 
-### 🔌 电源计划编辑器
-- 可视化编辑 Windows 电源计划的所有隐藏参数
-- 内置场景预设：游戏竞技 / 日常办公 / 内容创作 / 节能模式
-- 支持 Intel 混合架构（大小核调度）和 AMD 专项设置
-- 一键创建自定义高性能电源计划
+### 系统概览
 
-### 🧬 CPU 核心加速器
-- 游戏进程 CPU 亲和性绑定
-- P 核 / E 核智能分配（Intel 12代+）
-- 实时进程优先级提升
-- 游戏核心守护服务
+<img src="./assets/current/overview-v0.1.1.png" width="100%" alt="宇奇引擎 v0.1.1 系统概览">
 
-### 🎯 游戏配置文件
-- 为不同游戏创建独立优化配置
-- 自动检测运行中的游戏进程
-- 游戏启动时自动应用对应配置
+<details>
+<summary><strong>查看游戏优化中心</strong></summary>
 
-### 🛠️ 系统修复中心
-- 网络重置与修复（DNS、Winsock、TCP/IP）
-- 音频设备修复
-- 系统服务修复
-- 磁盘健康检查
-- 游戏优化修复
+<br>
+<img src="./assets/current/game-optimization-v0.1.1.png" width="100%" alt="宇奇引擎 v0.1.1 游戏优化中心">
+</details>
 
-### 💾 备份与还原
-- 优化前自动快照备份
-- 支持按模块选择性还原
-- 备份完整性校验（SHA256）
-- 备份文件管理与清理
+<details>
+<summary><strong>查看持续保持助手</strong></summary>
 
-### 🧹 系统清理
-- 临时文件清理
-- Windows 更新缓存清理
-- 浏览器缓存清理
-- 系统日志清理
+<br>
+<img src="./assets/current/guard-assistant-v0.1.1.png" width="600" alt="宇奇引擎 v0.1.1 持续保持助手">
+</details>
 
-### 📊 硬件 DNA 仪表盘
-- 实时 CPU / 内存 / 磁盘监控
-- 硬件信息总览
-- 系统健康评分
-- 优化状态追踪
+> 截图来自当前 v0.1.1 实际运行界面。项目状态和数量取决于截图设备，不代表所有电脑都会得到相同结果。
 
-### 🛡️ 优化守护服务
-- 防止 Windows 自动恢复已优化的设置
-- 后台静默监控，零性能开销
-- 可配置监控间隔和保护项目
+## 安全、恢复与限制
 
----
+- 软件会尽量区分检测、选择、应用、复核和恢复，不把“已提交”当成“已成功”。
+- 权限不足、系统策略、驱动、硬件差异或安全软件拦截都可能导致部分功能不可用。
+- 优化可能改善部分设备的响应、帧时间或后台干扰，也可能没有明显变化，甚至产生兼容问题。
+- 持续保持助手只处理用户已经应用、支持自动恢复且通过安全条件的项目；它不是后台强制写入全部设置的服务。
+- 恢复前会重新读取当前状态；无法确认时不会假装恢复成功。
+- 若发生问题，优先使用软件备份或 Windows 系统还原点。重装 Windows 应作为最后手段，并且必须先备份个人数据。
+- 当前体验版未使用受信任代码签名证书。请只从本仓库 Release、作者公布的网盘或作者账号获取文件，并核对 SHA-256。
 
-## 🖼️ 界面预览
+## 问题反馈
 
-> 软件采用 **Obsidian 暗黑设计风格**，深邃黑底 + 靛蓝色点缀，专为长时间使用设计。
+如果遇到“未应用”“状态读取不完整”“页面异常”“某项在特定设备不可用”等问题，请不要只发送一句“不能用”。推荐流程：
 
-![功能展示1](./assets/image/1.png)
+### 什么是问题包
 
----
+**问题包是软件在本地生成的故障排查 ZIP 文件，用来帮助作者了解“哪台电脑、哪个模块、发生了什么错误”。它不是优化备份，也不是系统镜像。**
 
-## 🔄 软件更新
+问题包会按当前实际情况收集并整理：
 
-软件内置自动更新检查功能：
-- 打开 **设置** → **关于** 区域 → 点击 **检查更新**
-- 发现新版本后会提示下载链接
-- 也可以直接访问 [Releases 页面](https://github.com/ZYY817/YuqiEngine/releases) 手动下载
+- 宇奇引擎版本、Windows 版本、系统架构和基础硬件环境；
+- 软件运行日志、页面与启动诊断信息；
+- 最近的优化、恢复和错误记录；
+- 经过脱敏处理的软件配置；
+- 软件崩溃，以及可读取到的黑屏、重启和 Windows 事件证据。
 
----
+软件会对用户名、计算机名、路径和日志中的敏感字段进行脱敏，并且**只在本地生成 ZIP，不会自动上传或发送给任何人**。它不会主动收集个人文档、照片、视频或游戏存档。为稳妥起见，发送前仍应自行打开 ZIP 检查内容，不要发送密码、Token、聊天记录或其他隐私资料。
 
-## ❓ 常见问题
+生成成功后，软件会显示问题包的保存位置。你可以把这个 ZIP 连同截图和复现步骤，通过 GitHub Issues、抖音私信或 Bilibili 私信发给作者。
 
-**Q: 需要管理员权限吗？**
-> 是的。宇奇引擎需要修改注册表、系统服务、电源计划等系统级设置，必须以管理员身份运行。
+1. 打开软件的 **备份管理**；
+2. 点击 **生成问题包**；
+3. 同时提供问题截图、出现问题的模块、操作步骤和 Windows 版本；
+4. 通过 [GitHub Issues](https://github.com/ZYY817/YuqiEngine/issues)、抖音私信或 Bilibili 私信提交。
 
-**Q: 会不会损坏系统？**
-> 不会。所有优化操作执行前会自动创建备份快照，随时可以一键还原。高风险操作会有明确警告和二次确认。
+报告问题时建议使用下面的格式：
 
-**Q: 支持哪些 Windows 版本？**
-> 支持 Windows 10（1903 及以上版本）和 Windows 11 全版本。
+```text
+宇奇引擎版本：
+Windows 版本：
+设备 CPU / GPU：
+问题模块：
+操作步骤：
+实际结果：
+期望结果：
+是否可以稳定复现：
+问题包：已附上 / 无法生成
+```
 
-**Q: 优化后游戏没有明显提升？**
-> 优化效果因硬件配置而异。建议使用"极限性能"模式，并配合电源计划编辑器和 CPU 核心加速器使用。对于已经是高配置的电脑，提升可能不太明显。
+## 常见问题
 
-**Q: 如何还原所有优化？**
-> 打开备份管理页面，选择对应的备份快照，点击还原即可。支持全量还原和按模块选择性还原。
+<details>
+<summary><strong>软件能保证提升 FPS 吗？</strong></summary>
 
-**Q: 杀毒软件报毒怎么办？**
-> 由于软件需要修改注册表和系统服务，部分杀毒软件可能会误报。请将 YuqiEngine.exe 添加到杀毒软件白名单中。
+不能。效果取决于硬件、散热、驱动、Windows 版本、游戏和原有设置。请用自己的实际游戏复测，只保留确实有帮助的修改。
+</details>
 
----
+<details>
+<summary><strong>为什么有些项目显示待确认或不可用？</strong></summary>
 
-## 📋 更新日志
+软件没有拿到可靠状态，或者当前设备、权限、系统版本和依赖条件不满足。展开详情或使用“重新读取”可以查看具体原因；未确认项目不会参与应用。
+</details>
 
-### v0.1 Alpha（2026-02）
-- 🎉 首个公开测试版本
-- 20+ 优化模块
-- 智能一键优化向导
-- 电源计划编辑器（含场景预设）
-- CPU 核心加速器
-- 系统修复中心
-- 备份与还原系统
-- 中英文双语支持
-> 这是宇奇引擎的第一个版本，还有很多不完善的地方。但我会持续迭代，努力把它打造成最强的游戏优化工具。
+<details>
+<summary><strong>为什么 Windows 显示未知发布者？</strong></summary>
 
----
+当前版本由个人独立开发者发布，暂未购买受信任的商业代码签名证书。请通过官方渠道下载并核对 Release 中的 SHA-256。
+</details>
 
-## 📬 反馈与支持
+<details>
+<summary><strong>杀毒软件提示风险怎么办？</strong></summary>
 
-如果你在使用过程中遇到问题或有建议：
+不要直接关闭安全软件或无条件加入白名单。先确认下载渠道和 SHA-256；如果仍有拦截，请提交检测名称、文件哈希、软件版本和问题包供分析。
+</details>
 
-- 📝 [提交 Issue](https://github.com/ZYY817/YuqiEngine/issues)（推荐）
-- 在 Issue 中请附上：问题描述、操作步骤、系统版本信息
+<details>
+<summary><strong>持续保持助手会保持所有优化吗？</strong></summary>
 
+不会。只有已经应用、支持安全自动恢复并被用户启用持续保持的项目才会进入助手；不适合后台恢复的项目会被排除。
+</details>
 
+## 后续计划
+
+- 扩大不同 CPU、GPU、Windows 版本和驱动环境的验证覆盖；
+- 根据真实问题包继续修复状态读取、兼容性和恢复链路；
+- 完善功能说明、中英文文案和可访问性；
+- 在条件允许时补充可信代码签名；
+- 评估更小的在线/精简发布方案，同时保留完整离线版本。
+
+具体优先级会根据可复现问题、风险和用户反馈调整，不承诺固定发布日期。
+
+## 仓库与源码说明
+
+当前公开仓库主要用于发布官方说明、版本下载、更新记录和问题反馈。**仓库公开可见不代表当前软件源码已经公开，也不代表授予复制、修改、重新打包或商业使用权限。**
+
+如后续开放部分源码、工具或接口，会在对应目录中单独提供明确的许可证和适用范围。在没有许可证的情况下，请勿默认相关内容属于开源授权。
+
+## 作者与官方渠道
+
+两个平台名称不同，但均为同一位作者：
+
+- **抖音：智宇**（抖音号 `35071658`）— [作者主页](https://www.douyin.com/user/MS4wLjABAAAAtudWpqXWwZXYdkSk0YT36zpHEPiS2YuFsQL21ihiUxI)
+- **Bilibili：智宇丶817**（UID `41173761`）— [作者主页](https://space.bilibili.com/41173761)
+- **GitHub：ZYY817** — [项目主页](https://github.com/ZYY817/YuqiEngine)
+- **夸克网盘备用下载** — [作者公布链接](https://pan.quark.cn/s/432600ae9d8d)
+
+宇奇引擎永久免费，禁止倒卖。转载、网盘再次分发、重新打包、捆绑其他内容、修改后传播或用于引流获利，必须先取得作者明确授权。请勿冒充作者或官方版本。
 
 ---
 
 <div align="center">
-
-<h3><strong>宇奇⚙️引擎  —  释放你的硬件潜能 🚀 </strong></h3>
-<strong>Made with ❤️ <a href="https://github.com/ZYY817" title="ZY">智宇ZYY817</a> ❤️ QQ：571567759</strong>
+  <strong>宇奇引擎 · Yuqi Engine</strong><br>
+  <sub>先理解，再选择；可验证，也可恢复。</sub>
 </div>
