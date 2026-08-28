@@ -1,0 +1,158 @@
+<!-- File: GameOptimizer.Shell/Views/RestoreOptionsDialog.xaml -->
+<Window x:Class="GameOptimizer.Shell.Views.RestoreOptionsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="选择恢复方式" Width="520" Height="Auto" MinHeight="400" MaxHeight="600"
+        WindowStartupLocation="CenterOwner" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        SizeToContent="Height" ShowInTaskbar="False"
+        KeyDown="Window_KeyDown"
+        FocusManager.FocusedElement="{Binding ElementName=ConfirmBtn}">
+    <Border Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="16" BorderThickness="1" BorderBrush="{DynamicResource Theme.Brush.BorderSubtle}">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="40" ShadowDepth="0" Opacity="0.5" Color="{DynamicResource Theme.Color.Shadow}"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- 标题栏 -->
+            <Border Grid.Row="0" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="16,16,0,0" Padding="24,16" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔄" FontSize="18" Margin="0,0,12,0"/>
+                        <TextBlock x:Name="TitleText" Text="选择恢复方式" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontSize="16" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <Button Content="✕" HorizontalAlignment="Right" Click="Cancel_Click"
+                            Background="Transparent" Foreground="{DynamicResource Theme.Brush.TextMuted}" BorderThickness="0"
+                            Width="32" Height="32" Cursor="Hand" FontSize="16">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent" CornerRadius="8">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+                                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+            
+            <!-- 内容区域 -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,20">
+                <StackPanel>
+                    <!-- 唯一选项: 恢复系统默认 -->
+                    <Border x:Name="Option2Border" Background="{DynamicResource Theme.Brush.CardBackground}" 
+                            BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1.5" 
+                            CornerRadius="12" Padding="20" Cursor="Hand"
+                            MouseLeftButtonUp="Option2_Click" MouseEnter="Option2_MouseEnter" MouseLeave="Option2_MouseLeave">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- 图标 -->
+                            <Border Grid.Column="0" Width="48" Height="48" CornerRadius="12" Margin="0,0,16,0"
+                                    Background="{DynamicResource Theme.Brush.IconBackground}"
+                                    BorderBrush="{DynamicResource Theme.Brush.IconBorder}" BorderThickness="1">
+                                <Viewbox Width="24" Height="24">
+                                    <Path Data="M3 12V6.75l6-1.32v6.48L3 12zm17-9v8.75l-10 .15V5.21L20 3zM3 13l6 .09v6.81l-6-1.15V13zm17 .25V22l-10-1.91V13.1l10 .15z" 
+                                          Fill="{DynamicResource Theme.Brush.TextPrimaryAlt}" Stretch="Uniform"/>
+                                </Viewbox>
+                            </Border>
+                            
+                            <!-- 文本内容 -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock x:Name="Option2Title" Text="恢复系统默认" 
+                                           Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" 
+                                           FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBlock x:Name="Option2Desc" Text="完全恢复到 Windows 原始配置" 
+                                           Foreground="{DynamicResource Theme.Brush.TextSecondary}" 
+                                           FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="Option2Detail" Text="此操作将恢复所有设置到 Windows 默认值，包括未优化的项目。" 
+                                           Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                                           FontSize="11" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            
+                            <!-- 风险标签 -->
+                            <Border Grid.Column="2" VerticalAlignment="Top" CornerRadius="6" Padding="10,5"
+                                    Background="#0DF59E0B" BorderBrush="#20F59E0B" BorderThickness="1">
+                                <TextBlock x:Name="Option2Risk" Text="中风险" Foreground="#F59E0B" FontSize="11" FontWeight="Medium"/>
+                            </Border>
+                            
+                            <!-- 选中指示器 -->
+                            <Border x:Name="Option2Indicator" Grid.Column="2" Width="24" Height="24" 
+                                    CornerRadius="12" VerticalAlignment="Center" Margin="0,0,0,0"
+                                    BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="2"
+                                    Visibility="Collapsed">
+                                <Ellipse Width="12" Height="12" Fill="#6366F1"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+            
+            <!-- 底部按钮 -->
+            <Border Grid.Row="2" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="0,0,16,16" Padding="24,16">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="CancelBtn" Click="Cancel_Click" Cursor="Hand" Margin="0,0,12,0" IsCancel="True">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" 
+                                        BorderThickness="1" CornerRadius="8" Padding="24,10">
+                                    <TextBlock x:Name="CancelBtnText" Text="取消" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="ConfirmBtn" Click="Confirm_Click" Cursor="Hand" IsDefault="True" IsEnabled="False">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" CornerRadius="8" Padding="24,10">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#6366F1" Offset="0"/>
+                                            <GradientStop Color="#8B5CF6" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <TextBlock x:Name="ConfirmBtnText" Text="确定" Foreground="#FFFFFF" FontSize="13" FontWeight="Medium"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Color="#7C7FF2" Offset="0"/>
+                                                    <GradientStop Color="#9D7DF7" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

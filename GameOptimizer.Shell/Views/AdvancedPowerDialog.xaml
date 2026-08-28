@@ -1,0 +1,257 @@
+﻿<Window x:Class="GameOptimizer.Shell.Views.AdvancedPowerDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Advanced Power Settings" Width="1000" Height="720"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="CanResizeWithGrip" WindowStartupLocation="CenterOwner" MinWidth="800" MinHeight="550">
+    <Window.Resources>
+        <Style x:Key="SubgroupItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Bd" Background="Transparent" Padding="14,10" Cursor="Hand" BorderBrush="Transparent" BorderThickness="0,0,0,1" CornerRadius="0">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.NavItemSelected}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="3,0,0,0"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="8" Padding="{TemplateBinding Padding}" Cursor="Hand"
+                                Background="{DynamicResource Theme.Brush.PrimaryButtonGradient}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{DynamicResource Theme.Brush.InputBackground}" CornerRadius="8" Padding="{TemplateBinding Padding}" Cursor="Hand" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="#A1A1AA"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+    </Window.Resources>
+    <Border CornerRadius="16" Background="{DynamicResource Theme.Brush.DialogBackground}" 
+            BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect Color="{DynamicResource Theme.Color.Shadow}" BlurRadius="40" ShadowDepth="10" Opacity="0.4" Direction="270"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="52"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- 标题栏 -->
+            <Border Grid.Row="0" CornerRadius="16,16,0,0" Padding="20,0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
+                    Background="{DynamicResource Theme.Brush.DialogHeader}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="0,0,0,1">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="32" Height="32" CornerRadius="8" Margin="0,0,12,0"
+                                Background="{DynamicResource Theme.Brush.ControlAccentSelectedBg}">
+                            <TextBlock Text="⚡" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="DialogTitleText" Text="" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="TxtSubtitle" Text="" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="10" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtLoading" Text="" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,0,12,0" Visibility="Collapsed"/>
+                        <Button Click="CloseButton_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Width="32" Height="32">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="Transparent" CornerRadius="6" Width="32" Height="32">
+                                        <TextBlock Text="✕" Foreground="#6B6B70" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- 主内容区 -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250" MinWidth="180"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- 左侧子组列表 -->
+                <Border Grid.Column="0" Background="{DynamicResource Theme.Brush.PanelBackground}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Padding="16,12" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="0,0,0,1">
+                            <TextBlock x:Name="LblSettingGroups" Text="" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                        <ListBox x:Name="SubgroupList" Grid.Row="1" Background="Transparent" BorderThickness="0" 
+                                 ItemContainerStyle="{StaticResource SubgroupItemStyle}"
+                                 SelectionChanged="SubgroupList_SelectionChanged"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding SettingCountText}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+                
+                <!-- 分隔线 -->
+                <Border Grid.Column="1" Background="{DynamicResource Theme.Brush.CardBackground}"/>
+                
+                <!-- 右侧设置列表 -->
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- 当前子组标题 -->
+                    <Border Grid.Row="0" Padding="20,12" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="0,0,0,1"
+                            Background="{DynamicResource Theme.Brush.CardBackgroundAlt}">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="TxtCurrentSubgroup" Text="" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                <Border Background="{DynamicResource Theme.Brush.ControlAccentSelectedBg}" CornerRadius="6" Padding="8,3" Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock x:Name="TxtSettingCount" Text="" Foreground="{DynamicResource Theme.Brush.ControlAccent}" FontSize="10" FontWeight="Medium"/>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <Border Background="{DynamicResource Theme.Brush.CardBackgroundMuted}" CornerRadius="8" Padding="12,8" 
+                                        ToolTip="台式机只需关注插电模式，笔记本可取消勾选查看电池模式设置">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🔌" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <CheckBox x:Name="ChkShowAcOnly" Content="" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" VerticalAlignment="Center" IsChecked="True" Checked="ChkShowAcOnly_Changed" Unchecked="ChkShowAcOnly_Changed">
+                                        <CheckBox.Tag>ShowAcOnly</CheckBox.Tag>
+                                    </CheckBox>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- 设置项列表 -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
+                        <ItemsControl x:Name="SettingsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="12" Padding="20" Margin="0,0,0,14" BorderThickness="1" 
+                                            Background="{DynamicResource Theme.Brush.CardBackgroundAlt}"
+                                            BorderBrush="{DynamicResource Theme.Brush.GlassCardBorder}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding GuidDisplay}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10" Margin="0,8,0,0" FontFamily="Consolas"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                                    <Border Background="{DynamicResource Theme.Brush.ControlAccentSelectedBg}" CornerRadius="8" Padding="12,6" Margin="0,0,12,0" ToolTip="{Binding AcTooltip}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding AcLabel}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" Margin="0,0,8,0"/>
+                                                            <TextBlock Text="{Binding AcValueDisplay}" Foreground="{DynamicResource Theme.Brush.ControlAccent}" FontSize="12" FontWeight="Bold"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Background="#25F59E0B" CornerRadius="8" Padding="12,6" Visibility="{Binding DcVisibility}" ToolTip="{Binding DcTooltip}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding DcLabel}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" Margin="0,0,8,0"/>
+                                                            <TextBlock Text="{Binding DcValueDisplay}" Foreground="#F59E0B" FontSize="12" FontWeight="Bold"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </StackPanel>
+                                            </StackPanel>
+                                            <ContentPresenter Grid.Column="1" Content="{Binding Control}" VerticalAlignment="Center" Margin="24,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+            
+            <!-- 底部固定按钮栏 -->
+            <Border Grid.Row="2" CornerRadius="0,0,16,16" Padding="20,14" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="0,1,0,0"
+                    Background="{DynamicResource Theme.Brush.DialogHeader}">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Border CornerRadius="8" Padding="12,6" Margin="0,0,12,0"
+                            Background="{DynamicResource Theme.Brush.ControlAccentSelectedBg}">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="6" Height="6" Fill="{DynamicResource Theme.Brush.ControlAccent}" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="TxtChangeCount" Text="" Foreground="{DynamicResource Theme.Brush.ControlAccent}" FontSize="11" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+                        <TextBlock x:Name="TxtTotalSettings" Text="" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="11" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="BtnResetGroup" Content="" Style="{StaticResource SecondaryButtonStyle}" Click="BtnResetGroup_Click" Padding="16,10" Margin="0,0,10,0">
+                        <Button.Tag>ResetGroup</Button.Tag>
+                    </Button>
+                        <Button x:Name="BtnCancel" Content="" Style="{StaticResource SecondaryButtonStyle}" Click="CloseButton_Click" Padding="16,10" Margin="0,0,10,0">
+                            <Button.Tag>Cancel</Button.Tag>
+                        </Button>
+                        <Button x:Name="BtnApply" Content="" Style="{StaticResource PrimaryButtonStyle}" Click="BtnApply_Click" Padding="24,10" IsEnabled="False">
+                            <Button.Tag>Apply</Button.Tag>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

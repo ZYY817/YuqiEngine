@@ -1,0 +1,130 @@
+<UserControl x:Class="GameOptimizer.Shell.Views.NetworkTestPage"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:controls="clr-namespace:GameOptimizer.Shell.Controls"
+ xmlns:constants="clr-namespace:GameOptimizer.Shell.Constants"
+ Background="{DynamicResource Theme.Brush.Background}" UseLayoutRounding="True" SnapsToDevicePixels="True">
+ <UserControl.Resources>
+  <Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/></Style>
+  <Storyboard x:Key="RadarPulseStoryboard" RepeatBehavior="Forever">
+   <DoubleAnimation Storyboard.TargetName="PulseRingOuter" Storyboard.TargetProperty="Opacity" From="0.62" To="0" Duration="0:0:1.8"/>
+   <DoubleAnimation Storyboard.TargetName="PulseRingOuter" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0.72" To="2.45" Duration="0:0:1.8"/>
+   <DoubleAnimation Storyboard.TargetName="PulseRingOuter" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0.72" To="2.45" Duration="0:0:1.8"/>
+   <DoubleAnimation Storyboard.TargetName="PulseRingInner" Storyboard.TargetProperty="Opacity" From="0.55" To="0" BeginTime="0:0:0.6" Duration="0:0:1.8"/>
+   <DoubleAnimation Storyboard.TargetName="PulseRingInner" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0.72" To="2.1" BeginTime="0:0:0.6" Duration="0:0:1.8"/>
+   <DoubleAnimation Storyboard.TargetName="PulseRingInner" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0.72" To="2.1" BeginTime="0:0:0.6" Duration="0:0:1.8"/>
+   <DoubleAnimation Storyboard.TargetName="RadarSweep" Storyboard.TargetProperty="Opacity" From="0.2" To="0.9" Duration="0:0:0.9" AutoReverse="True"/>
+   <DoubleAnimation Storyboard.TargetName="RadarSweep" Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" From="0" To="360" Duration="0:0:2.6"/>
+  </Storyboard>
+  <Style x:Key="MetricPanel" TargetType="Border" BasedOn="{StaticResource Yuqi.Tool.Surface.Interactive}">
+   <Setter Property="Padding" Value="14"/><Setter Property="Margin" Value="0,0,0,8"/>
+   <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}"/>
+   <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+   <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="{DynamicResource Token.Radius.Card}"/>
+  </Style>
+  <Style x:Key="MetricValue" TargetType="TextBlock">
+   <Setter Property="FontFamily" Value="JetBrains Mono, Consolas"/><Setter Property="FontSize" Value="28"/>
+   <Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="#7AA7F8"/>
+  </Style>
+  <Style x:Key="UtilityButton" TargetType="Button" BasedOn="{StaticResource Yuqi.ToolButton}">
+   <Setter Property="Padding" Value="12,7"/><Setter Property="FontSize" Value="11"/>
+   <Setter Property="Background" Value="Transparent"/><Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+   <Setter Property="BorderThickness" Value="1"/>
+  </Style>
+  <Style x:Key="MetadataLabel" TargetType="TextBlock"><Setter Property="FontSize" Value="10"/><Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextMuted}"/></Style>
+ </UserControl.Resources>
+ <Grid ClipToBounds="True">
+  <Ellipse Width="700" Height="520" Margin="-160,-220,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Opacity="0.09" IsHitTestVisible="False">
+   <Ellipse.Fill><RadialGradientBrush><GradientStop Color="#22D3EE"/><GradientStop Color="Transparent" Offset="1"/></RadialGradientBrush></Ellipse.Fill>
+  </Ellipse>
+  <ScrollViewer x:Name="ToolPageContentScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+   <Grid Margin="24,20,24,28" Style="{StaticResource Yuqi.ToolPageEntrance}">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <controls:ToolTopbar x:Name="PageHeader" Margin="0,0,0,14" Title="网络测试"
+     Subtitle="Sonar Pulse · 真实测量当前设备到所选节点的网络质量"
+     IconGlyph="{x:Static constants:IconGlyphs.Network}" StatusText="正在读取连接" StatusDetail="节点未测试"/>
+
+    <Border Grid.Row="1" Margin="0,0,0,14" Padding="14" Background="{DynamicResource Theme.Brush.GlassCardBackground}"
+     BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.CardLarge}">
+     <Grid>
+      <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="1.7*"/></Grid.ColumnDefinitions>
+      <StackPanel Margin="4,0,14,0"><TextBlock Text="当前连接" Style="{StaticResource MetadataLabel}"/><TextBlock x:Name="ConnectionSummaryText" Text="读取中…" Margin="0,4,0,0" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/></StackPanel>
+      <StackPanel Grid.Column="1" Margin="4,0,14,0"><TextBlock Text="本机 IPv4" Style="{StaticResource MetadataLabel}"/><TextBlock x:Name="LocalAddressText" Text="--" Margin="0,4,0,0" FontFamily="Consolas" TextTrimming="CharacterEllipsis"/></StackPanel>
+      <StackPanel Grid.Column="2" Margin="4,0,14,0"><TextBlock Text="默认网关" Style="{StaticResource MetadataLabel}"/><TextBlock x:Name="GatewayText" Text="--" Margin="0,4,0,0" FontFamily="Consolas" TextTrimming="CharacterEllipsis"/></StackPanel>
+      <StackPanel Grid.Column="3" Margin="4,0,14,0"><TextBlock Text="网卡协商速率" Style="{StaticResource MetadataLabel}"/><TextBlock x:Name="LinkSpeedText" Text="--" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/></StackPanel>
+      <StackPanel Grid.Column="4" Margin="8,0,4,0">
+       <TextBlock Text="测速节点 / 档位" Style="{StaticResource MetadataLabel}"/>
+       <ComboBox x:Name="NodeSelector" Margin="0,4,0,0" MinHeight="36" IsTextSearchEnabled="True"
+        PreviewMouseLeftButtonDown="NodeSelector_PreviewMouseLeftButtonDown"
+        SelectionChanged="NodeSelector_SelectionChanged" AutomationProperties.Name="选择测速节点与档位">
+        <ComboBox.ItemTemplate><DataTemplate><StackPanel Margin="2,3"><TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"/><TextBlock Text="{Binding Description}" Margin="0,2,0,0" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextMuted}"/></StackPanel></DataTemplate></ComboBox.ItemTemplate>
+       </ComboBox>
+       <Border x:Name="CustomNodePanel" Margin="0,7,0,0" Visibility="Collapsed">
+        <StackPanel><TextBox x:Name="CustomNodeInput" MinHeight="34" Padding="9,5" Text="https://" AutomationProperties.Name="自定义测速节点 HTTPS 基址"/>
+         <TextBlock x:Name="CustomNodeHint" Margin="0,4,0,0" FontSize="9" TextWrapping="Wrap" Foreground="{DynamicResource Theme.Brush.TextMuted}" Text="需兼容 /__down 与 /__up；仅允许 HTTPS。"/>
+        </StackPanel>
+       </Border>
+      </StackPanel>
+     </Grid>
+    </Border>
+
+    <Grid Grid.Row="2" Margin="0,0,0,14">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="3*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="2*"/></Grid.ColumnDefinitions>
+     <Border Grid.Column="0" MinHeight="390" Padding="18" ClipToBounds="True" Style="{StaticResource Yuqi.Tool.Stage}"
+      Background="{DynamicResource Theme.Brush.DialogBackground}" BorderBrush="#2460A5FA" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.CardLarge}">
+      <Grid>
+       <Ellipse Width="420" Height="420" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.16" IsHitTestVisible="False"><Ellipse.Fill><RadialGradientBrush><GradientStop Color="#2563EB"/><GradientStop Color="Transparent" Offset="1"/></RadialGradientBrush></Ellipse.Fill></Ellipse>
+       <Grid Width="390" Height="390" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+        <Ellipse Margin="4" Stroke="#4A60A5FA"/><Ellipse Margin="42" Stroke="#3860A5FA"/><Ellipse Margin="88" Stroke="#3060A5FA" StrokeDashArray="3,5"/><Ellipse Margin="134" Stroke="#4560A5FA"/>
+        <Line X1="195" Y1="4" X2="195" Y2="386" Stroke="#2260A5FA" StrokeDashArray="3,6"/><Line X1="4" Y1="195" X2="386" Y2="195" Stroke="#2260A5FA" StrokeDashArray="3,6"/>
+       </Grid>
+       <Ellipse x:Name="PulseRingOuter" Width="112" Height="112" HorizontalAlignment="Center" VerticalAlignment="Center" Stroke="#8060A5FA" StrokeThickness="2" Opacity="0" RenderTransformOrigin="0.5,0.5"><Ellipse.RenderTransform><ScaleTransform ScaleX="0.72" ScaleY="0.72"/></Ellipse.RenderTransform></Ellipse>
+       <Ellipse x:Name="PulseRingInner" Width="112" Height="112" HorizontalAlignment="Center" VerticalAlignment="Center" Stroke="#6022D3EE" StrokeThickness="2" Opacity="0" RenderTransformOrigin="0.5,0.5"><Ellipse.RenderTransform><ScaleTransform ScaleX="0.72" ScaleY="0.72"/></Ellipse.RenderTransform></Ellipse>
+       <Line x:Name="RadarSweep" X1="195" Y1="195" X2="195" Y2="18" Stroke="#CC22D3EE" StrokeThickness="2" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="390" Height="390" RenderTransformOrigin="0.5,0.5"><Line.RenderTransform><RotateTransform Angle="42"/></Line.RenderTransform></Line>
+       <Button x:Name="RunTestBtn" Click="RunTest_Click" Width="112" Height="112" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" AutomationProperties.Name="开始或取消网络测速">
+        <Button.Template><ControlTemplate TargetType="Button"><Grid><Ellipse x:Name="Halo" Fill="#202563EB" Stroke="#5060A5FA"/><Ellipse Margin="13" Fill="#2563EB"><Ellipse.Effect><DropShadowEffect Color="#2563EB" BlurRadius="28" ShadowDepth="0" Opacity="0.55"/></Ellipse.Effect></Ellipse><StackPanel VerticalAlignment="Center"><TextBlock Text="▶" Foreground="White" FontSize="18" HorizontalAlignment="Center"/><TextBlock x:Name="StartTestText" Text="开始测试" Foreground="White" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center" Margin="0,7,0,0"/></StackPanel></Grid><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Halo" Property="Fill" Value="#302563EB"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Button.Template>
+       </Button>
+       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,176,0,0" IsHitTestVisible="False"><TextBlock Text="SONAR" FontSize="10" FontWeight="Bold" Foreground="#7AA7F8" HorizontalAlignment="Center"/><TextBlock x:Name="ConnectionStatus" Text="等待开始" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}" HorizontalAlignment="Center" Margin="0,3,0,0"/></StackPanel>
+       <Border x:Name="ConnectionStatusBorder" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="10,5" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" CornerRadius="{DynamicResource Token.Radius.Badge}"><TextBlock x:Name="RadarStatusText" Text="就绪 · 未开始" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/></Border>
+       <TextBlock x:Name="CurrentNodeText" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="10" Foreground="#7AA7F8" TextTrimming="CharacterEllipsis" MaxWidth="280"/>
+       <TextBlock x:Name="LatencyExplanation" VerticalAlignment="Bottom" HorizontalAlignment="Center" MaxWidth="420" TextWrapping="Wrap" TextAlignment="Center" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Text="测速会向所选节点下载与上传合成数据；节点会看到本次连接的公网 IP。"/>
+      </Grid>
+     </Border>
+     <Grid Grid.Column="2">
+      <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+      <Border Grid.Row="0" Style="{StaticResource MetricPanel}"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="延迟 Ping" FontWeight="SemiBold"/><TextBlock Text="HTTP RTT · 完成本轮后显示" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,3,0,0"/></StackPanel><TextBlock x:Name="AvgLatencyPending" Grid.Column="1" Text="待完成" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/><StackPanel x:Name="AvgLatencyValuePanel" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed"><TextBlock x:Name="AvgLatency" Text="--" Style="{StaticResource MetricValue}"/><TextBlock x:Name="AvgLatencyUnit" Text="ms" FontSize="10" VerticalAlignment="Bottom" Margin="4,0,0,5"/></StackPanel></Grid></Border>
+      <Border Grid.Row="1" Style="{StaticResource MetricPanel}"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="下载速度" FontWeight="SemiBold"/><TextBlock Text="实际接收字节 / 阶段耗时" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,3,0,0"/></StackPanel><TextBlock x:Name="DownloadPending" Grid.Column="1" Text="待测试" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/><StackPanel x:Name="DownloadValuePanel" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed"><TextBlock x:Name="DownloadSpeed" Text="--" Style="{StaticResource MetricValue}"/><TextBlock Text="Mbps" FontSize="10" VerticalAlignment="Bottom" Margin="4,0,0,5"/></StackPanel></Grid></Border>
+      <Border Grid.Row="2" Style="{StaticResource MetricPanel}"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="上传速度" FontWeight="SemiBold"/><TextBlock Text="合成零字节 / 阶段耗时" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,3,0,0"/></StackPanel><TextBlock x:Name="UploadPending" Grid.Column="1" Text="待测试" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/><StackPanel x:Name="UploadValuePanel" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed"><TextBlock x:Name="UploadSpeed" Text="--" Style="{StaticResource MetricValue}"/><TextBlock Text="Mbps" FontSize="10" VerticalAlignment="Bottom" Margin="4,0,0,5"/></StackPanel></Grid></Border>
+      <Border Grid.Row="3" Style="{StaticResource MetricPanel}" Margin="0"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="抖动 / 丢包" FontWeight="SemiBold"/><TextBlock Text="仅在完整测试成功后显示" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,3,0,0"/></StackPanel><TextBlock x:Name="StabilityPending" Grid.Column="1" Text="待完成" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/><StackPanel x:Name="StabilityValuePanel" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed"><TextBlock x:Name="JitterLabel" Text="抖动" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center" Margin="0,0,4,0"/><TextBlock x:Name="Jitter" Text="--" FontFamily="Consolas" FontSize="18" FontWeight="SemiBold"/><TextBlock x:Name="JitterUnit" Text="ms" FontSize="9" VerticalAlignment="Bottom" Margin="2,0,10,2"/><TextBlock x:Name="PacketLossLabel" Text="丢包" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center" Margin="0,0,4,0"/><TextBlock x:Name="PacketLoss" Text="--" FontFamily="Consolas" FontSize="18" FontWeight="SemiBold"/><TextBlock x:Name="PacketLossUnit" Text="%" FontSize="9" VerticalAlignment="Bottom" Margin="2,0,0,2"/></StackPanel></Grid></Border>
+      <Border Grid.Row="4" Style="{StaticResource MetricPanel}" Margin="0"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="DNS / 节点可达性" FontWeight="SemiBold"/><TextBlock Text="本轮系统 DNS 查询与完整请求结果" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,3,0,0"/></StackPanel><TextBlock x:Name="DnsPending" Grid.Column="1" Text="待完成" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/><StackPanel x:Name="DnsValuePanel" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed"><TextBlock x:Name="DnsResolution" Text="--" FontFamily="Consolas" FontSize="18" FontWeight="SemiBold"/><TextBlock Text=" ms" FontSize="9" VerticalAlignment="Bottom" Margin="2,0,10,2"/><TextBlock x:Name="NodeReachability" Text="--" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel></Grid></Border>
+     </Grid>
+    </Grid>
+
+    <Border Grid.Row="3" Padding="16" Margin="0,0,0,14" Background="{DynamicResource Theme.Brush.GlassCardBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.CardLarge}">
+     <StackPanel>
+      <Grid><StackPanel Orientation="Horizontal"><TextBlock Text="◉" Foreground="#2563EB" Margin="0,0,8,0"/><TextBlock Text="网络体检报告" FontWeight="SemiBold"/><TextBlock x:Name="NoResultText" Text="尚未开始测试" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="12,1,0,0"/></StackPanel><TextBlock Text="只读检测 · 不自动修改网络" HorizontalAlignment="Right" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}"/></Grid>
+      <Border x:Name="ProgressPanel" Margin="0,12,0,0" Padding="12,10" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" Visibility="Collapsed"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock x:Name="ProgressText" Text="正在测试…" FontSize="11"/><ProgressBar x:Name="TestProgress" Height="3" Margin="0,7,0,0" Maximum="100" Foreground="#2563EB"/></StackPanel><Button x:Name="CancelTestBtn" Grid.Column="1" Content="取消测试" Click="CancelTest_Click" Style="{StaticResource UtilityButton}" Margin="14,0,0,0" AutomationProperties.Name="取消当前网络测速"/></Grid></Border>
+      <Border x:Name="ResultEvidencePanel" Margin="0,10,0,0" Padding="12,10" Background="#102563EB" BorderBrush="#302563EB" BorderThickness="1" Visibility="Collapsed"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel Margin="0,0,18,0"><TextBlock x:Name="MinLatencyLabel" Text="本轮最低 RTT" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextMuted}"/><StackPanel Orientation="Horizontal" Margin="0,3,0,0"><TextBlock x:Name="MinLatency" Text="--" FontFamily="Consolas" FontSize="20" FontWeight="SemiBold"/><TextBlock x:Name="MinLatencyUnit" Text=" ms" FontSize="9" VerticalAlignment="Bottom" Margin="2,0,0,3"/></StackPanel></StackPanel><StackPanel Grid.Column="1"><TextBlock x:Name="TestEvidenceText" FontSize="10" TextWrapping="Wrap"/><TextBlock Text="结果是本轮估算值，会受节点路由、Wi-Fi、代理、后台流量与样本规模影响，不代表运营商承诺带宽。" Margin="0,4,0,0" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextMuted}" TextWrapping="Wrap"/></StackPanel></Grid></Border>
+      <Border x:Name="FailureRecoveryPanel" Margin="0,10,0,0" Padding="12,10" Background="#241F2937" BorderBrush="#80F59E0B" BorderThickness="1" Visibility="Collapsed"><StackPanel><TextBlock x:Name="FailureRecoveryTitle" FontWeight="SemiBold" Foreground="#FCD34D"/><TextBlock x:Name="FailureRecoveryText" Margin="0,4,0,0" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap"/></StackPanel></Border>
+     </StackPanel>
+    </Border>
+
+    <StackPanel Grid.Row="4">
+     <Expander>
+      <Expander.Header><TextBlock Text="高级网络操作（会修改系统，测速不会自动调用）" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/></Expander.Header>
+      <Border Padding="16" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.CardLarge}">
+       <StackPanel><StackPanel Orientation="Horizontal"><Button x:Name="BackupNetworkBtn" Content="备份配置" Click="BackupNetwork_Click" Style="{StaticResource UtilityButton}"/><Button x:Name="FlushDnsBtn" Content="刷新 DNS" Click="FlushDns_Click" Style="{StaticResource UtilityButton}" Margin="7,0,0,0"/><Button x:Name="ResetNetworkBtn" Content="重置网络" Click="ResetNetwork_Click" Style="{StaticResource UtilityButton}" Margin="7,0,0,0"/></StackPanel>
+        <TextBlock Margin="0,8,0,0" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextMuted}" TextWrapping="Wrap" Text="这些操作与测速相互独立；测速失败不会触发刷新、重置或重试。"/>
+        <Border Margin="0,10,0,0" Padding="12,10" Background="{DynamicResource Theme.Brush.DialogBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
+         <StackPanel><TextBlock Text="网络备份清单" FontWeight="SemiBold"/><TextBlock x:Name="NetworkBackupSummary" Margin="0,4,0,0" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" TextWrapping="Wrap"/><ItemsControl x:Name="NetworkBackupItems" Margin="0,8,0,0"><ItemsControl.ItemTemplate><DataTemplate><Border Padding="8,6" Margin="0,0,0,4" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1"><StackPanel><TextBlock Text="{Binding CreatedAt, StringFormat={}{0:yyyy-MM-dd HH:mm}}" FontWeight="SemiBold"/><TextBlock Text="{Binding CapturedItemsText}" Margin="0,2,0,0" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap"/><TextBlock Text="{Binding Status}" Margin="0,2,0,0" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextMuted}" TextWrapping="Wrap"/></StackPanel></Border></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></StackPanel>
+        </Border>
+        <Border x:Name="DnsActionStatusPanel" Margin="0,10,0,0" Padding="12,10" Background="{DynamicResource Theme.Brush.DialogBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" Visibility="Collapsed"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock x:Name="DnsActionStatusText" FontWeight="SemiBold"/><TextBlock x:Name="DnsActionReceiptText" Margin="0,4,0,0" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap"/></StackPanel><Button x:Name="CancelDnsBtn" Grid.Column="1" Content="取消" Click="CancelDns_Click" Style="{StaticResource UtilityButton}" Margin="12,0,0,0" Visibility="Collapsed"/></Grid></Border>
+        <Border x:Name="NetworkResetRiskPanel" Margin="0,10,0,0" Padding="12,10" Background="#241F2937" BorderBrush="#80F59E0B" BorderThickness="1" Visibility="Collapsed"><StackPanel><TextBlock x:Name="NetworkResetRiskTitle" FontWeight="SemiBold" Foreground="#FCD34D"/><TextBlock x:Name="NetworkResetRiskDetail" Margin="0,4,0,0" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap"/></StackPanel></Border>
+       </StackPanel>
+      </Border>
+     </Expander>
+    </StackPanel>
+   </Grid>
+  </ScrollViewer>
+ </Grid>
+</UserControl>

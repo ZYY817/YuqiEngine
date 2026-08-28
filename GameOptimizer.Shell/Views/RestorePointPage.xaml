@@ -1,0 +1,220 @@
+<UserControl x:Class="GameOptimizer.Shell.Views.RestorePointPage" x:Name="Root" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:GameOptimizer.Shell.Controls" xmlns:conv="clr-namespace:GameOptimizer.Shell.Converters" xmlns:constants="clr-namespace:GameOptimizer.Shell.Constants" AutomationProperties.Name="系统还原点">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}" />
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+        </Style>
+        <Style x:Key="WebSurface" TargetType="Border" BasedOn="{StaticResource Yuqi.Tool.Surface.Interactive}">
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{DynamicResource Token.Radius.CardLarge}" />
+        </Style>
+        <Style x:Key="WebTitle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}" />
+        </Style>
+        <Style x:Key="WebMeta" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}" />
+        </Style>
+        <Style x:Key="WebToolButton" TargetType="Button" BasedOn="{StaticResource Yuqi.ToolButton}">
+            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style x:Key="RestoreCard" TargetType="Border" BasedOn="{StaticResource WebSurface}" />
+        <Style x:Key="RestoreCreateCard" TargetType="Border" BasedOn="{StaticResource WebSurface}">
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.AccentBlue}" />
+            <Setter Property="BorderThickness" Value="2,1,1,1" />
+        </Style>
+        <Style x:Key="RestoreProtectionCard" TargetType="Border" BasedOn="{StaticResource WebSurface}">
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <!-- 时间线筛选退为导航辅助，避免和真实恢复状态竞争视觉层级。 -->
+        <Style x:Key="RestoreRail" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}" />
+            <Setter Property="BorderThickness" Value="0,0,1,0" />
+            <Setter Property="Padding" Value="0,2,12,0" />
+        </Style>
+        <conv:PageStateToBadgeStatusConverter x:Key="PageStateToBadgeStatus" />
+        <conv:EnumEqualsConverter x:Key="RestoreTimelineFilterSelected" />
+        <conv:InverseBoolConverter x:Key="RestoreInverseBool" />
+    </UserControl.Resources>
+    <Grid Background="{DynamicResource Theme.Brush.AppBackground}">
+        <ScrollViewer x:Name="ToolPageContentScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" Padding="24,20,24,28" Focusable="True" FocusVisualStyle="{StaticResource Token.FocusVisualStyle}">
+            <StackPanel Style="{StaticResource Yuqi.ToolPageEntrance}">
+                <!-- Web 母版：窄顶栏 + 两张主操作卡 + 还原时间线。所有状态仍来自 RestorePointViewModel。 -->
+                <controls:ToolTopbar Margin="0,0,0,14" Title="系统还原点" Subtitle="在重大变更前留一份安全快照" IconGlyph="{x:Static constants:IconGlyphs.History}" StatusText="{Binding ViewModel.ProtectionStatusText, ElementName=Root}" StatusDetail="{Binding ViewModel.RestorePointCountText, ElementName=Root}">
+                    <controls:ToolTopbar.Actions><StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <controls:StatusBadge Text="{Binding ViewModel.PageStateText, ElementName=Root}" Status="{Binding ViewModel.PageState, ElementName=Root, Converter={StaticResource PageStateToBadgeStatus}}" />
+                        <Button Content="取消" Command="{Binding ViewModel.CancelCurrentOperationFromUiCommand, ElementName=Root}" IsEnabled="{Binding ViewModel.CanCancelCurrentOperation, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
+                        <Button Content="刷新" Command="{Binding ViewModel.RefreshStatusCommand, ElementName=Root}" IsEnabled="{Binding ViewModel.IsOperationBusy, ElementName=Root, Converter={StaticResource RestoreInverseBool}}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
+                    </StackPanel></controls:ToolTopbar.Actions>
+                </controls:ToolTopbar>
+                <TextBlock Text="{Binding ViewModel.RestorePointStatusDisplay, ElementName=Root}" Visibility="{Binding ViewModel.HasRestorePointStatus, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="14" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource RestoreCreateCard}" Padding="18">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Width="30" Height="30" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.AccentBlue}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}">
+                                    <TextBlock Text="{x:Static constants:IconGlyphs.Add}" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource Theme.Brush.AccentBlue}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                    <TextBlock Text="创建还原点" Style="{StaticResource WebTitle}" />
+                                    <TextBlock Text="为当前系统状态创建安全快照" Style="{StaticResource WebMeta}" Margin="0,2,0,0" />
+                                </StackPanel>
+                                <Border Grid.Column="2" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.AccentBlue}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Badge}" Padding="7,2">
+                                    <TextBlock Text="推荐" Foreground="{DynamicResource Theme.Brush.AccentBlue}" FontSize="10" />
+                                </Border>
+                            </Grid>
+                            <TextBox Text="{Binding ViewModel.NewRestorePointDescription, ElementName=Root, UpdateSourceTrigger=PropertyChanged}" MinHeight="38" Padding="10,7" Margin="0,15,0,7" Background="{DynamicResource Theme.Brush.InputBackground}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" BorderBrush="{DynamicResource Theme.Brush.InputBorder}" AutomationProperties.Name="还原点描述" />
+                            <TextBlock Text="{Binding ViewModel.CreateAvailabilityText, ElementName=Root}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Margin="0,11,0,0">
+                                <Button Content="创建还原点" Command="{Binding ViewModel.CreateRestorePointCommand, ElementName=Root}" IsEnabled="{Binding ViewModel.CanCreateRestorePoint, ElementName=Root}" Style="{StaticResource PrimaryButtonStyle}" AutomationProperties.Name="创建新的系统还原点" />
+                                <TextBlock Text="{Binding ViewModel.NextCreateTimeHint, ElementName=Root}" Style="{StaticResource WebMeta}" VerticalAlignment="Center" Margin="10,0,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource RestoreProtectionCard}" Padding="18">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Width="30" Height="30" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" CornerRadius="{DynamicResource Token.Radius.Card}">
+                                    <TextBlock Text="{x:Static constants:IconGlyphs.Shield}" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource Theme.Brush.Warning}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                    <TextBlock Text="系统保护" Style="{StaticResource WebTitle}" />
+                                    <TextBlock Text="控制哪些磁盘可创建还原点" Style="{StaticResource WebMeta}" Margin="0,2,0,0" />
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock Text="{Binding ViewModel.ProtectionStatusText, ElementName=Root}" Style="{StaticResource WebTitle}" Margin="0,15,0,5" TextWrapping="Wrap" />
+                            <TextBlock Text="系统级还原将交由 Windows 恢复界面确认；应用不会将未知状态显示为成功。" Style="{StaticResource WebMeta}" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Margin="0,13,0,0">
+                                <Button Content="系统保护" Command="{Binding ViewModel.OpenSystemRestoreSettingsCommand, ElementName=Root}" Style="{StaticResource WebToolButton}" />
+                                <Button Content="恢复向导" Command="{Binding ViewModel.OpenSystemRestoreWizardCommand, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                <Border Style="{StaticResource WebSurface}" Padding="15,12" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.35*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="还原点" Style="{StaticResource WebMeta}" />
+                            <TextBlock Text="{Binding ViewModel.RestorePointCountText, ElementName=Root}" Style="{StaticResource WebTitle}" Margin="0,4,0,0" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="最近创建" Style="{StaticResource WebMeta}" />
+                            <TextBlock Text="{Binding ViewModel.LastRestorePointTimeText, ElementName=Root}" Style="{StaticResource WebTitle}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="软件级恢复" Style="{StaticResource WebMeta}" />
+                            <TextBlock Text="{Binding ViewModel.SoftwareRecoverySummary, ElementName=Root}" Style="{StaticResource WebTitle}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <Button Grid.Column="3" Content="备份中心" Command="{Binding ViewModel.OpenBackupManagerCommand, ElementName=Root}" Style="{StaticResource WebToolButton}" VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="184" />
+                        <ColumnDefinition Width="14" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource RestoreRail}" VerticalAlignment="Top">
+                        <StackPanel>
+                            <TextBlock Text="恢复时间线" Style="{StaticResource WebTitle}" Margin="7,5,7,10" />
+                            <ToggleButton Content="全部记录" Style="{StaticResource Yuqi.RailToggle}" Command="{Binding ViewModel.SelectTimelineFilterCommand, ElementName=Root}" CommandParameter="All" IsChecked="{Binding ViewModel.TimelineFilter, ElementName=Root, Mode=OneWay, Converter={StaticResource RestoreTimelineFilterSelected}, ConverterParameter=All}" />
+                            <ToggleButton Content="系统还原点" Style="{StaticResource Yuqi.RailToggle}" Command="{Binding ViewModel.SelectTimelineFilterCommand, ElementName=Root}" CommandParameter="System" IsChecked="{Binding ViewModel.TimelineFilter, ElementName=Root, Mode=OneWay, Converter={StaticResource RestoreTimelineFilterSelected}, ConverterParameter=System}" Margin="0,5,0,0" />
+                            <ToggleButton Content="软件恢复" Style="{StaticResource Yuqi.RailToggle}" Command="{Binding ViewModel.SelectTimelineFilterCommand, ElementName=Root}" CommandParameter="Software" IsChecked="{Binding ViewModel.TimelineFilter, ElementName=Root, Mode=OneWay, Converter={StaticResource RestoreTimelineFilterSelected}, ConverterParameter=Software}" Margin="0,5,0,0" />
+                            <Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}" Margin="7,13,7,11" />
+                            <TextBlock Text="仅展示本机可读取记录；恢复前会经过计划与系统确认。" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="7,0" />
+                        </StackPanel>
+                    </Border>
+                    <StackPanel Grid.Column="2">
+                        <Grid Margin="0,0,0,9">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="还原点时间线" Style="{StaticResource WebTitle}" />
+                                <TextBlock Text="{Binding ViewModel.TimelineDescription, ElementName=Root}" Style="{StaticResource WebMeta}" Margin="0,3,0,0" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding ViewModel.ProtectionStatusText, ElementName=Root}" Style="{StaticResource WebMeta}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="220" />
+                        </Grid>
+                        <controls:EmptyState Title="{Binding ViewModel.TimelineEmptyTitle, ElementName=Root}" Description="{Binding ViewModel.TimelineEmptyDescription, ElementName=Root}" ActionText="刷新列表" ActionCommand="{Binding ViewModel.RefreshStatusCommand, ElementName=Root}" VisualState="Default" Visibility="{Binding ViewModel.HasNoTimelineEntries, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <Border Style="{StaticResource RestoreCreateCard}" Padding="14" Margin="0,0,0,9" Visibility="{Binding ViewModel.HasSoftwareTimelineEntry, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="软件级恢复摘要" Style="{StaticResource WebTitle}" />
+                                    <TextBlock Text="{Binding ViewModel.SoftwareRecoverySummary, ElementName=Root}" Style="{StaticResource WebMeta}" Margin="0,4,0,0" />
+                                    <TextBlock Text="{Binding ViewModel.SoftwareRecoveryDescription, ElementName=Root}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="备份中心" Command="{Binding ViewModel.OpenBackupManagerCommand, ElementName=Root}" Style="{StaticResource WebToolButton}" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                        <ItemsControl ItemsSource="{Binding ViewModel.RestorePoints, ElementName=Root}" Visibility="{Binding ViewModel.HasSystemTimelineEntries, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DataTemplate.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}" />
+                                        </Style>
+                                    </DataTemplate.Resources>
+                                    <Grid Margin="0,0,0,9">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="24" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                            <Border Width="9" Height="9" Background="{DynamicResource Theme.Brush.AccentBlue}" CornerRadius="5" />
+                                            <Border Width="1" MinHeight="66" Background="{DynamicResource Theme.Brush.InputBorder}" Margin="0,4,0,0" />
+                                        </StackPanel>
+                                        <Border Grid.Column="1" Style="{StaticResource WebSurface}" Padding="14">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Description}" Style="{StaticResource WebTitle}" />
+                                                <TextBlock Text="{Binding CreationTime, StringFormat=创建时间：{0:yyyy-MM-dd HH:mm}}" Style="{StaticResource WebMeta}" Margin="0,4,0,0" />
+                                                <TextBlock Text="{Binding TypeDescription}" Style="{StaticResource WebMeta}" Margin="0,3,0,0" />
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Grid.Column="2" Text="执行与删除由 Windows 系统恢复界面管理" Style="{StaticResource WebMeta}" Width="162" TextWrapping="Wrap" VerticalAlignment="Center" Margin="9,0,0,0" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

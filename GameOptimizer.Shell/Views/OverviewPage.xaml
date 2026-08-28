@@ -1,0 +1,253 @@
+<UserControl x:Class="GameOptimizer.Shell.Views.OverviewPage"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             xmlns:controls="clr-namespace:GameOptimizer.Shell.Controls"
+             xmlns:localization="clr-namespace:GameOptimizer.Shell.Localization"
+             AutomationProperties.Name="{localization:Loc Overview.Title}">
+    <UserControl.Resources>
+        <!-- 首页仅使用页面语义色；状态仍以真实状态文字为准。 -->
+        <!-- Hardware categories are not health states; keep their decoration on one quiet brand accent. -->
+        <SolidColorBrush x:Key="Overview.CategoryBrush" Color="#60A5FA" Opacity="0.72" />
+        <!-- 页面级视觉 token：让首页可作为后续控制台页面的深色层级样板，而不改变全局主题。 -->
+        <SolidColorBrush x:Key="Overview.PanelBorder" Color="#252B35" />
+        <SolidColorBrush x:Key="Overview.PanelBorderHover" Color="#4A76AE" />
+        <!-- 深色性能工作台：让数据带成为唯一的强承载面，其他区域以留白和细分隔组织。 -->
+        <SolidColorBrush x:Key="Overview.HeroSurface" Color="#0B0F16" />
+        <SolidColorBrush x:Key="Overview.MetricSurface" Color="#10151E" />
+        <SolidColorBrush x:Key="Overview.DataBandSurface" Color="#0D131D" />
+        <SolidColorBrush x:Key="Overview.Hairline" Color="#27303D" />
+        <LinearGradientBrush x:Key="Overview.PageBackground" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#080B11" Offset="0" />
+            <GradientStop Color="#0A0E15" Offset="0.42" />
+            <GradientStop Color="#080B10" Offset="1" />
+        </LinearGradientBrush>
+
+        <Style x:Key="OverviewPanel" TargetType="Border">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{StaticResource Overview.PanelBorder}" />
+            <Setter Property="BorderThickness" Value="0,1,0,0" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Padding" Value="0,20,0,0" />
+        </Style>
+        <Style x:Key="OverviewMetricCell" TargetType="Border">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{StaticResource Overview.Hairline}" />
+            <Setter Property="BorderThickness" Value="0,0,1,0" />
+            <Setter Property="Padding" Value="20,18" />
+            <Setter Property="MinHeight" Value="166" />
+        </Style>
+        <!-- 覆盖仅限首页：轨道与蓝色填充在近黑卡片上保持明确对比。 -->
+        <Style x:Key="ModernProgressBar" TargetType="ProgressBar">
+            <Setter Property="Height" Value="8" />
+            <Setter Property="Background" Value="#283342" />
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.AccentBlue}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4" SnapsToDevicePixels="True">
+                            <Border x:Name="PART_Track" CornerRadius="4">
+                                <Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{TemplateBinding Foreground}" CornerRadius="4" />
+                            </Border>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="OverviewSectionTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimaryAlt}" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="OverviewModuleTile" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.RowBackground}" />
+            <!-- 默认不画整块高亮边框，只在悬停/焦点时强调可点击性。 -->
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Tile" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource Token.Radius.Card}" RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform><TranslateTransform x:Name="TileLift" /></Border.RenderTransform>
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Tile" Property="Background" Value="{DynamicResource Theme.Brush.RowBackgroundHover}" />
+                                <Setter TargetName="Tile" Property="BorderBrush" Value="{StaticResource Overview.PanelBorderHover}" />
+                                <Trigger.EnterActions><BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetName="TileLift" Storyboard.TargetProperty="Y" To="-1" Duration="0:0:0.12" /></Storyboard></BeginStoryboard></Trigger.EnterActions>
+                                <Trigger.ExitActions><BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetName="TileLift" Storyboard.TargetProperty="Y" To="0" Duration="0:0:0.16" /></Storyboard></BeginStoryboard></Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Tile" Property="Opacity" Value="0.78" /></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Tile" Property="Opacity" Value="0.48" /></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="OverviewModuleAccent" TargetType="Border">
+            <Setter Property="Width" Value="2" />
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.Info}" />
+            <Setter Property="Opacity" Value="0.55" />
+            <Setter Property="Margin" Value="0,0,10,0" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource Overview.PageBackground}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="True">
+            <StackPanel Margin="28,24,28,32">
+                <!-- 产品身份区：只表达产品定位和现有会话状态，不制造评分或建议。 -->
+                <Border Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,0,18">
+                    <Grid MinHeight="126">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <Border Background="Transparent" BorderThickness="0" Padding="0,12,24,12">
+                            <StackPanel VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="3" Height="34" Background="{DynamicResource Theme.Brush.Info}" Margin="0,1,14,0" />
+                                    <StackPanel><TextBlock Text="{localization:Loc Overview.ProductName}" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontSize="32" FontWeight="Bold" FontFamily="{DynamicResource Token.FontFamily.Display}" /><TextBlock Text="{localization:Loc Overview.ProductTagline}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,5,0,0" /></StackPanel>
+                                </StackPanel>
+                                <TextBlock Text="{localization:Loc Overview.ProductDescription}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" Margin="17,16,0,0" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Background="Transparent" BorderBrush="{StaticResource Overview.PanelBorder}" BorderThickness="1,0,0,0" Padding="24,0,0,0">
+                            <StackPanel Width="230" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding PrivilegeHint}" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <Button Content="{localization:Loc Overview.AuthorSupport}" Style="{StaticResource SecondaryButtonStyle}" Cursor="Hand" Click="SupportAuthorButton_Click" FocusVisualStyle="{StaticResource Token.FocusVisualStyle}" Margin="0,12,0,0" AutomationProperties.Name="{localization:Loc Overview.AuthorSupport}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- 系统概览是首页唯一的强主视觉区。 -->
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal"><Border Width="4" Height="20" Background="{DynamicResource Theme.Brush.Info}" Margin="0,0,10,0" VerticalAlignment="Center" /><StackPanel><TextBlock Text="{localization:Loc Overview.Title}" Style="{StaticResource OverviewSectionTitle}" /><TextBlock Text="{localization:Loc Overview.TelemetryDescription}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,4,0,0" /></StackPanel></StackPanel>
+                    <TextBlock Grid.Column="1" Text="{localization:Loc Overview.TelemetryStatusHint}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" VerticalAlignment="Bottom" />
+                </Grid>
+
+                <!-- “数据暂不可用” remains the static empty-telemetry landmark; visible text is localized. -->
+                <Border Background="{StaticResource Overview.DataBandSurface}" BorderBrush="{StaticResource Overview.PanelBorder}" BorderThickness="1" CornerRadius="10" Margin="0,0,0,20">
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource OverviewMetricCell}"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions><StackPanel Orientation="Horizontal"><Border Width="3" Height="16" Background="{StaticResource Overview.CategoryBrush}" Margin="0,0,8,0" /><TextBlock Text="CPU" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" FontWeight="SemiBold" /></StackPanel><Grid Grid.Row="1" Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding CpuUsageDisplay}" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontFamily="{DynamicResource Token.FontFamily.Mono}" FontSize="30" FontWeight="Bold" TextTrimming="CharacterEllipsis" /><Canvas Grid.Column="1" Width="76" Height="28" VerticalAlignment="Center" Visibility="{Binding HasCpuLiveTrend, Converter={StaticResource BooleanToVisibilityConverter}}"><Polyline Points="{Binding CpuLiveTrendPoints}" Stroke="{Binding CpuUsageBrush}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Canvas></Grid><StackPanel Grid.Row="2" Margin="0,10,0,12"><ProgressBar Value="{Binding CpuUsagePercent, Mode=OneWay}" Maximum="100" Height="8" Foreground="{Binding CpuUsageBrush}" Style="{StaticResource ModernProgressBar}" Visibility="{Binding HasRealCpuSample, Converter={StaticResource BooleanToVisibilityConverter}}" /><TextBlock Text="{Binding CpuStatusLabel}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" FontWeight="SemiBold" Margin="0,8,0,0" /></StackPanel></Grid></Border>
+                        <Border Grid.Column="1" Style="{StaticResource OverviewMetricCell}"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions><StackPanel Orientation="Horizontal"><Border Width="3" Height="16" Background="{StaticResource Overview.CategoryBrush}" Margin="0,0,8,0" /><TextBlock Text="{localization:Loc Overview.GpuAggregate}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" FontWeight="SemiBold" /></StackPanel><Grid Grid.Row="1" Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding GpuUsageDisplay}" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontFamily="{DynamicResource Token.FontFamily.Mono}" FontSize="30" FontWeight="Bold" TextTrimming="CharacterEllipsis" /><Canvas Grid.Column="1" Width="76" Height="28" VerticalAlignment="Center" Visibility="{Binding HasGpuLiveTrend, Converter={StaticResource BooleanToVisibilityConverter}}"><Polyline Points="{Binding GpuLiveTrendPoints}" Stroke="{Binding GpuUsageBrush}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Canvas></Grid><StackPanel Grid.Row="2" Margin="0,10,0,12"><ProgressBar Value="{Binding GpuUsagePercent, Mode=OneWay}" Maximum="100" Height="8" Foreground="{Binding GpuUsageBrush}" Style="{StaticResource ModernProgressBar}" Visibility="{Binding HasRealGpuSample, Converter={StaticResource BooleanToVisibilityConverter}}" /><TextBlock Text="{Binding GpuStatusLabel}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" FontWeight="SemiBold" Margin="0,8,0,0" /><TextBlock Text="{Binding GpuLoadAdapterDisplay}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding GpuLoadAdapterDisplay}" /></StackPanel></Grid></Border>
+                        <Border Grid.Column="2" Style="{StaticResource OverviewMetricCell}"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions><StackPanel Orientation="Horizontal"><Border Width="3" Height="16" Background="{StaticResource Overview.CategoryBrush}" Margin="0,0,8,0" /><TextBlock Text="{localization:Loc Overview.AvailableMemory}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" FontWeight="SemiBold" /></StackPanel><TextBlock Grid.Row="1" Text="{Binding MemorySummary}" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontFamily="{DynamicResource Token.FontFamily.Mono}" FontSize="20" FontWeight="Bold" Margin="0,16,0,0" TextTrimming="CharacterEllipsis" /><StackPanel Grid.Row="2" Margin="0,10,0,12"><ProgressBar Value="{Binding MemoryUsagePercent, Mode=OneWay}" Maximum="100" Height="6" Foreground="{Binding MemoryUsageBrush}" Style="{StaticResource ModernProgressBar}" Visibility="{Binding HasRealMemorySample, Converter={StaticResource BooleanToVisibilityConverter}}" /><TextBlock Text="{Binding MemoryUsagePercentDisplay}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" FontWeight="SemiBold" Margin="0,8,0,0" /><TextBlock Text="{Binding MemoryAvailableDisplay}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" /></StackPanel></Grid></Border>
+                        <Border Grid.Column="3" Style="{StaticResource OverviewMetricCell}" BorderThickness="0"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions><StackPanel Orientation="Horizontal"><Border Width="3" Height="16" Background="{StaticResource Overview.CategoryBrush}" Margin="0,0,8,0" /><TextBlock Text="{localization:Loc Overview.SystemDisk}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" FontWeight="SemiBold" /></StackPanel><TextBlock Grid.Row="1" Text="{Binding DiskSummary}" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontFamily="{DynamicResource Token.FontFamily.Mono}" FontSize="20" FontWeight="Bold" Margin="0,16,0,0" TextTrimming="CharacterEllipsis" /><StackPanel Grid.Row="2" Margin="0,10,0,12"><ProgressBar Value="{Binding DiskUsagePercent, Mode=OneWay}" Maximum="100" Height="6" Foreground="{Binding DiskUsageBrush}" Style="{StaticResource ModernProgressBar}" Visibility="{Binding HasRealDiskSample, Converter={StaticResource BooleanToVisibilityConverter}}" /><TextBlock Text="{Binding DiskUsagePercentDisplay}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" FontWeight="SemiBold" Margin="0,8,0,0" /><TextBlock Text="{Binding DiskAvailableDisplay}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" /></StackPanel></Grid></Border>
+                    </Grid>
+                </Border>
+
+                <Grid Margin="0,0,0,16">
+                    <Border Style="{StaticResource OverviewPanel}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="{localization:Loc Overview.DeviceSystemInfo}" Style="{StaticResource OverviewSectionTitle}" />
+                                    <TextBlock Text="{localization:Loc Overview.DeviceInfoHint}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,5,0,0" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="{localization:Loc Overview.ViewHardwareDetails}" Command="{Binding NavigateToModuleCommand}" CommandParameter="hardware" Style="{StaticResource SecondaryButtonStyle}" FocusVisualStyle="{StaticResource Token.FocusVisualStyle}" />
+                            </Grid>
+                            <!-- 与下方三列入口共用等分网格，建立同一条纵向基线。 -->
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                <StackPanel><TextBlock Text="{localization:Loc Overview.DeviceName}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" /><TextBlock Text="{x:Static sys:Environment.MachineName}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontFamily="{DynamicResource Token.FontFamily.Mono}" FontSize="13" FontWeight="SemiBold" Margin="0,6,0,0" TextTrimming="CharacterEllipsis" /></StackPanel>
+                                <StackPanel Grid.Column="1" Margin="12,0"><TextBlock Text="{localization:Loc Overview.OperatingSystem}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" /><TextBlock Text="{Binding OperatingSystemDisplay}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="SemiBold" Margin="0,6,0,0" TextTrimming="CharacterEllipsis" /></StackPanel>
+                                <StackPanel Grid.Column="2" Margin="12,0,0,0"><TextBlock Text="{localization:Loc Overview.LogicalProcessors}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" /><TextBlock Text="{Binding LogicalProcessorDisplay}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontFamily="{DynamicResource Token.FontFamily.Mono}" FontSize="13" FontWeight="SemiBold" Margin="0,6,0,0" TextTrimming="CharacterEllipsis" /></StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Grid>
+                    <!-- 与上方“设备与系统信息 / 当前会话”使用同一列比例，保证右缘与分栏基线对齐。 -->
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="1.55*" /><ColumnDefinition Width="0.95*" /></Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource OverviewPanel}" Margin="0,0,8,0">
+                        <StackPanel>
+                            <!-- “功能矩阵” is localized at runtime; keep the semantic landmark explicit for static accessibility contracts. -->
+                            <TextBlock Text="{localization:Loc Overview.FeatureMatrix}" Style="{StaticResource OverviewSectionTitle}" />
+                            <TextBlock Text="{localization:Loc Overview.FeatureMatrixHint}"
+                                       Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,5,0,12" />
+                            <ItemsControl ItemsSource="{Binding OverviewEntries}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource OverviewModuleTile}"
+                                                Margin="0,0,8,8"
+                                                MinHeight="68"
+                                                Command="{Binding DataContext.NavigateToModuleCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                CommandParameter="{Binding Key}"
+                                                IsEnabled="{Binding CanOpen}"
+                                                AutomationProperties.Name="{Binding Title}">
+                                            <Grid Margin="0,0,12,0">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                                <Border Style="{StaticResource OverviewModuleAccent}" />
+                                                <Border Grid.Column="1" Width="30" Height="30" VerticalAlignment="Center"
+                                                        Background="{DynamicResource Theme.Brush.IconBackground}"
+                                                        BorderBrush="{DynamicResource Theme.Brush.IconBorder}"
+                                                        BorderThickness="1">
+                                                    <Viewbox Width="15" Height="15" HorizontalAlignment="Center" VerticalAlignment="Center"><Path Data="{Binding IconData}" Fill="{DynamicResource Theme.Brush.Info}" Stretch="Uniform" /></Viewbox>
+                                                </Border>
+                                                <Grid Grid.Column="2" Margin="10,0,0,0" VerticalAlignment="Center"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                                    <TextBlock Text="{Binding Title}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Grid.Row="1" Text="{Binding StatusText}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                                </Grid>
+                                            </Grid>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource OverviewPanel}" Margin="8,0,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Width="3" Height="18" Background="{StaticResource Overview.CategoryBrush}" Margin="0,0,8,0" />
+                                    <!-- “运行日志” remains the static semantic landmark; visible text follows the active language. -->
+                                    <TextBlock Text="{localization:Loc Overview.ActivityLog}" Style="{StaticResource OverviewSectionTitle}" />
+                                    <TextBlock Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10.5" VerticalAlignment="Center" Margin="8,1,0,0">
+                                        <Run Text="{localization:Loc Overview.ActivityCountPrefix}"/><Run Text="{Binding ActivityLogs.Count, Mode=OneWay}"/><Run Text="{localization:Loc Overview.ActivityCountSuffix}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="{localization:Loc QuickAction.ExportReport}" Command="{Binding ExportActivityHistoryCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}" FocusVisualStyle="{StaticResource Token.FocusVisualStyle}"
+                                        Visibility="{Binding ActivityLogs.Count, Converter={StaticResource NonZeroToVisibleConverter}}" />
+                            </Grid>
+                            <Border Grid.Row="1" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid MinHeight="310">
+                                    <controls:EmptyState Title="{localization:Loc Overview.NoActivity}" Description="{localization:Loc Overview.NoActivityDescription}" VisualState="Default" Visibility="{Binding ActivityLogs.Count, Converter={StaticResource ZeroToVisibleConverter}}" />
+                                    <ScrollViewer MaxHeight="420" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="True" Visibility="{Binding ActivityLogs.Count, Converter={StaticResource NonZeroToVisibleConverter}}">
+                                        <ItemsControl ItemsSource="{Binding ActivityLogs}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="0,0,0,1" Padding="0,7">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions><ColumnDefinition Width="44" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                                            <TextBlock Text="{Binding Timestamp, StringFormat={}{0:HH:mm}}" FontFamily="{DynamicResource Token.FontFamily.Mono}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10.5" Margin="0,3,0,0" />
+                                                            <Border Grid.Column="1" Background="{DynamicResource Theme.Brush.RowBackground}" BorderThickness="0" Padding="5,2" Margin="0,0,8,0" VerticalAlignment="Top">
+                                                                <TextBlock Text="{Binding Category}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="10" />
+                                                            </Border>
+                                                            <TextBlock Grid.Column="2" Text="{Binding Message}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11.5" LineHeight="17" TextWrapping="Wrap" />
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

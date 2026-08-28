@@ -1,0 +1,158 @@
+<!-- File: GameOptimizer.Shell/Views/GuardFirstTimeDialog.xaml -->
+<Window x:Class="GameOptimizer.Shell.Views.GuardFirstTimeDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="优化守护服务" 
+        Width="480" Height="420"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{DynamicResource Theme.Brush.DialogBackground}"
+        WindowStyle="None"
+        AllowsTransparency="True">
+    <Border CornerRadius="12" Background="{DynamicResource Theme.Brush.DialogBackground}" 
+            BorderBrush="{DynamicResource Theme.Brush.DialogBorder}" BorderThickness="1">
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                <Border Width="64" Height="64" CornerRadius="32" Background="#15F59E0B" 
+                        HorizontalAlignment="Center" Margin="0,0,0,16">
+                    <TextBlock Text="🛡" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock x:Name="TitleText" Text="优化守护服务已启用" FontSize="18" FontWeight="Bold" 
+                           Foreground="{DynamicResource Theme.Brush.TextPrimary}" 
+                           HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                <TextBlock x:Name="SubtitleText" Text="自动保护您的优化设置" FontSize="12" 
+                           Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+            
+            <!-- Content -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Feature 1 -->
+                    <Border CornerRadius="8" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" 
+                            Padding="16,12" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" 
+                                    Background="#156366F1" Margin="0,0,12,0">
+                                <TextBlock Text="🔒" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock x:Name="Feature1Title" Text="自动监控" FontSize="13" FontWeight="SemiBold" 
+                                           Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="0,0,0,4"/>
+                                <TextBlock x:Name="Feature1Desc" Text="定期检查优化项状态，防止被系统自动恢复" 
+                                           FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Feature 2 -->
+                    <Border CornerRadius="8" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" 
+                            Padding="16,12" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" 
+                                    Background="#154ADE80" Margin="0,0,12,0">
+                                <TextBlock Text="⚡" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock x:Name="Feature2Title" Text="智能恢复" FontSize="13" FontWeight="SemiBold" 
+                                           Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="0,0,0,4"/>
+                                <TextBlock x:Name="Feature2Desc" Text="检测到优化被恢复时，自动重新应用（最多重试3次）" 
+                                           FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Feature 3 -->
+                    <Border CornerRadius="8" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" 
+                            Padding="16,12" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" 
+                                    Background="#15F59E0B" Margin="0,0,12,0">
+                                <TextBlock Text="🔔" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock x:Name="Feature3Title" Text="实时通知" FontSize="13" FontWeight="SemiBold" 
+                                           Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="0,0,0,4"/>
+                                <TextBlock x:Name="Feature3Desc" Text="检测到异常时及时通知您，让您掌握优化状态" 
+                                           FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Settings Info -->
+                    <Border CornerRadius="8" Background="{DynamicResource Theme.Brush.DialogBackground}" 
+                            BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1"
+                            Padding="12" Margin="0,8,0,0">
+                        <StackPanel>
+                            <TextBlock x:Name="SettingsTitle" Text="当前设置" FontSize="11" FontWeight="SemiBold" 
+                                       Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" x:Name="IntervalLabel" Text="监控间隔：" FontSize="10" 
+                                           Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                                <TextBlock Grid.Column="1" x:Name="IntervalValue" Text="30 秒" FontSize="10" 
+                                           Foreground="{DynamicResource Theme.Brush.TextPrimary}" 
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+            
+            <!-- Footer -->
+            <Grid Grid.Row="2" Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Don't Show Again Checkbox -->
+                <CheckBox x:Name="DontShowAgainCheckbox" Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock x:Name="DontShowText" Text="不再显示" FontSize="11" 
+                               Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                </CheckBox>
+                
+                <!-- Buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Background="Transparent" 
+                            BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1"
+                            Padding="16,8" Cursor="Hand" Margin="0,0,8,0" Click="LearnMore_Click">
+                        <TextBlock x:Name="LearnMoreText" Text="了解更多" FontSize="12" 
+                                   Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                    </Button>
+                    <Button Background="{DynamicResource Theme.Brush.AccentPrimary}" BorderThickness="0"
+                            Padding="20,8" Cursor="Hand" Click="Confirm_Click">
+                        <TextBlock x:Name="ConfirmText" Text="我知道了" FontSize="12" 
+                                   Foreground="White" FontWeight="Medium"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

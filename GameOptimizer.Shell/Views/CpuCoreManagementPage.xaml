@@ -1,0 +1,445 @@
+<UserControl x:Class="GameOptimizer.Shell.Views.CpuCoreManagementPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:constants="clr-namespace:GameOptimizer.Shell.Constants" xmlns:controls="clr-namespace:GameOptimizer.Shell.Controls" xmlns:conv="clr-namespace:GameOptimizer.Shell.Converters" AutomationProperties.Name="CPU 核心管理">
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
+    <Style x:Key="ConsoleCard" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
+      <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="{DynamicResource Token.Radius.CardLarge}" />
+    </Style>
+    <Style x:Key="ProcessCard" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
+      <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource Token.Radius.CardLarge}" />
+    </Style>
+    <Style x:Key="TopologyCard" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
+      <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource Token.Radius.CardLarge}" />
+    </Style>
+    <Style x:Key="PanelIcon" TargetType="TextBlock">
+      <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+      <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextOnAccent}" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="CompactButton" TargetType="Button" BasedOn="{StaticResource Yuqi.ToolButton}">
+      <Setter Property="Padding" Value="10,7" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="CoreToggle" TargetType="ToggleButton">
+      <Setter Property="Width" Value="44" />
+      <Setter Property="Height" Value="34" />
+      <Setter Property="Margin" Value="3" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ToggleButton">
+            <Border x:Name="Cell" Background="{DynamicResource Theme.Brush.CardBackground}" BorderBrush="{DynamicResource Theme.Brush.GlassCardBorder}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}">
+              <TextBlock x:Name="CellText" Text="{Binding Index}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Cell" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}" />
+              </Trigger>
+              <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter TargetName="Cell" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}" />
+                <Setter TargetName="Cell" Property="BorderThickness" Value="2" />
+              </Trigger>
+              <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Cell" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccent}" />
+                <Setter TargetName="Cell" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}" />
+                <Setter TargetName="CellText" Property="Foreground" Value="{DynamicResource Theme.Brush.TextOnAccent}" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.72" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </UserControl.Resources>
+  <Grid Background="{DynamicResource Theme.Brush.AppBackground}" Margin="24,20" ClipToBounds="True">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="16" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="16" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <!-- 只展示实际可检测的 CPU 信息；不虚构温度或 P/E 负载。 -->
+    <Border Grid.Row="0" Style="{StaticResource ConsoleCard}" Padding="16">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" MinWidth="0">
+          <Border Width="44" Height="44" Background="{DynamicResource Theme.Brush.ControlAccent}" CornerRadius="{DynamicResource Token.Radius.Card}">
+            <TextBlock Text="{x:Static constants:IconGlyphs.Cpu}" Style="{StaticResource PanelIcon}" FontSize="18" />
+          </Border>
+          <StackPanel Margin="12,0,0,0" VerticalAlignment="Center" MinWidth="0">
+            <TextBlock x:Name="CpuInfoLabel" Text="已识别处理器" Style="{StaticResource PageSubtitleStyle}" />
+            <TextBlock Text="{Binding CpuDisplayName}" Style="{StaticResource CardTitleStyle}" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
+            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+              <Border Background="{DynamicResource Theme.Brush.CardBackground}" BorderBrush="{DynamicResource Theme.Brush.GlassCardBorder}" BorderThickness="1" Padding="7,3" CornerRadius="{DynamicResource Token.Radius.Card}">
+                <TextBlock Text="{Binding ArchLabel}" Style="{StaticResource PageSubtitleStyle}" />
+              </Border>
+              <Border Background="{DynamicResource Theme.Brush.CardBackground}" BorderBrush="{DynamicResource Theme.Brush.GlassCardBorder}" BorderThickness="1" Margin="7,0,0,0" Padding="7,3" CornerRadius="{DynamicResource Token.Radius.Card}">
+                <TextBlock Text="{Binding CoreCountLabel}" Style="{StaticResource PageSubtitleStyle}" />
+              </Border>
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+          <TextBlock Text="核心调度状态" Style="{StaticResource PageSubtitleStyle}" HorizontalAlignment="Right" />
+          <TextBlock Text="{Binding StatusText}" Style="{StaticResource CardTitleStyle}" Margin="0,3,0,0" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis" MaxWidth="240" />
+        </StackPanel>
+      </Grid>
+    </Border>
+    <!-- 实时绑定与配置文件是互斥工作台，绝不使用半透明覆盖层。 -->
+    <Grid Grid.Row="2" x:Name="WorkspaceHost" MinHeight="0">
+      <Grid x:Name="LiveWorkspace" Visibility="Visible" MinHeight="0">
+        <Grid x:Name="LiveWorkspaceGrid" MinHeight="0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="8*" />
+          </Grid.ColumnDefinitions>
+          <!-- 实时工作台左侧只负责选择可配置进程。 -->
+          <Border x:Name="ProcessWorkspace" Grid.Column="0" Style="{StaticResource ProcessCard}" Padding="16" MinHeight="0">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Width="28" Height="28" Background="{DynamicResource Theme.Brush.ControlAccent}" CornerRadius="{DynamicResource Token.Radius.Card}">
+                  <TextBlock Text="{x:Static constants:IconGlyphs.Process}" Style="{StaticResource PanelIcon}" FontSize="14" />
+                </Border>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="9,0,0,0" VerticalAlignment="Center">
+                  <TextBlock Text="可配置进程" Style="{StaticResource SectionTitle}" />
+                  <Border Background="{DynamicResource Theme.Brush.CardBackground}" BorderBrush="{DynamicResource Theme.Brush.GlassCardBorder}" BorderThickness="1" Padding="7,2" CornerRadius="{DynamicResource Token.Radius.Card}" Margin="8,0,0,0">
+                    <TextBlock Text="{Binding ProcessList.Count}" Style="{StaticResource PageSubtitleStyle}" />
+                  </Border>
+                </StackPanel>
+                <Button Grid.Column="2" Command="{Binding RefreshProcessesCommand}" Style="{StaticResource CompactButton}" ToolTip="重新读取可见窗口进程">
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{x:Static constants:IconGlyphs.Refresh}" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,5,0" />
+                    <TextBlock x:Name="RefreshBtnText" Text="刷新" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Button>
+              </Grid>
+              <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="10" />
+                  <ColumnDefinition Width="132" />
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="ProcessSearchBox" TextChanged="ProcessSearchBox_TextChanged" Padding="10,7,10,7" VerticalContentAlignment="Center" ToolTip="按进程名、窗口标题或 PID 搜索" />
+                <ComboBox x:Name="ProcessFilterBox" Grid.Column="2" SelectionChanged="ProcessFilterBox_SelectionChanged" SelectedIndex="0">
+                  <ComboBoxItem Content="全部进程" Tag="all" />
+                  <ComboBoxItem Content="有窗口标题" Tag="window" />
+                  <ComboBoxItem Content="当前选择" Tag="selected" />
+                </ComboBox>
+              </Grid>
+              <Grid Grid.Row="4" Margin="2,0">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="进程" Style="{StaticResource PageSubtitleStyle}" />
+                <TextBlock Grid.Column="1" Text="PID" Style="{StaticResource PageSubtitleStyle}" />
+              </Grid>
+              <Grid Grid.Row="5" Margin="0,7,0,8">
+                <ListBox x:Name="ProcessListBox" ItemsSource="{Binding ProcessList}" SelectedItem="{Binding SelectedProcess, Mode=TwoWay}" Background="{DynamicResource Theme.Brush.CardBackground}" BorderBrush="{DynamicResource Theme.Brush.GlassCardBorder}" BorderThickness="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <Grid Margin="10,8">
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*" />
+                          <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                          <TextBlock Text="{Binding DisplayName}" Style="{StaticResource CardTitleStyle}" TextTrimming="CharacterEllipsis" />
+                          <TextBlock Text="{Binding WindowTitle}" Style="{StaticResource PageSubtitleStyle}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding Id}" Style="{StaticResource PageSubtitleStyle}" Margin="12,0,0,0" VerticalAlignment="Center" />
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <controls:EmptyState Title="没有可配置进程" Description="{Binding ProcessListMessage}" ActionText="重新读取" ActionCommand="{Binding RefreshProcessesCommand}" Visibility="{Binding HasNoProcesses, Converter={StaticResource BoolToVis}}" />
+              </Grid>
+              <Border Grid.Row="6" Background="{DynamicResource Theme.Brush.CardBackground}" BorderBrush="{DynamicResource Theme.Brush.GlassCardBorder}" BorderThickness="1" Padding="10" CornerRadius="{DynamicResource Token.Radius.Card}">
+                <TextBlock Text="选择一个进程后，可在右侧编辑它允许使用的 CPU 核心。" Style="{StaticResource PageSubtitleStyle}" TextWrapping="Wrap" />
+              </Border>
+            </Grid>
+          </Border>
+          <Border x:Name="LiveCoreWorkspace" Grid.Column="2" Style="{StaticResource TopologyCard}" Padding="16" MinHeight="0">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Width="28" Height="28" Background="{DynamicResource Theme.Brush.ControlAccent}" CornerRadius="{DynamicResource Token.Radius.Card}">
+                  <TextBlock Text="{x:Static constants:IconGlyphs.Cpu}" Style="{StaticResource PanelIcon}" FontSize="14" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="9,0,0,0" VerticalAlignment="Center">
+                  <TextBlock x:Name="CoreTopologyTitle" Text="CPU 核心分配" Style="{StaticResource SectionTitle}" />
+                  <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                    <TextBlock Text="当前目标：" Style="{StaticResource PageSubtitleStyle}" />
+                    <TextBlock Text="{Binding SelectedProcess.DisplayName, TargetNullValue=未选择进程, FallbackValue=未选择进程}" Style="{StaticResource PageSubtitleStyle}" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                  <TextBlock x:Name="SelectedLabel" Text="已选" Style="{StaticResource PageSubtitleStyle}" Margin="10,0,3,0" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding SelectedCount}" Style="{StaticResource CardTitleStyle}" VerticalAlignment="Center" />
+                </StackPanel>
+              </Grid>
+              <Grid Grid.Row="2">
+                <ScrollViewer x:Name="TopologyScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="{Binding HasUsableTopology, Converter={StaticResource BoolToVis}}">
+                  <ItemsControl ItemsSource="{Binding CoreGroups}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Margin="0,0,0,12">
+                          <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <Border Width="3" Height="14" Background="{DynamicResource Theme.Brush.ControlAccent}" />
+                            <TextBlock Text="{Binding GroupName}" Style="{StaticResource PageSubtitleStyle}" Margin="8,0,0,0" />
+                            <TextBlock Text=" · " Style="{StaticResource PageSubtitleStyle}" />
+                            <TextBlock Text="{Binding Cores.Count}" Style="{StaticResource PageSubtitleStyle}" />
+                          </StackPanel>
+                          <ItemsControl ItemsSource="{Binding Cores}">
+                            <ItemsControl.ItemsPanel>
+                              <ItemsPanelTemplate>
+                                <WrapPanel />
+                              </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate>
+                                <ToggleButton IsChecked="{Binding IsSelected, Mode=TwoWay}" Style="{StaticResource CoreToggle}" />
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+                <controls:EmptyState Title="核心拓扑不可用" Description="{Binding AffinitySupportMessage}" ActionText="重新读取" ActionCommand="{Binding RefreshProcessesCommand}" Visibility="{Binding HasUsableTopology, Converter={StaticResource InverseBoolToVis}}" />
+              </Grid>
+              <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,10,0,0">
+                <Button Command="{Binding SelectAllCommand}" Style="{StaticResource CompactButton}">
+                  <TextBlock x:Name="SelectAllBtn" Text="全选" />
+                </Button>
+                <Button Command="{Binding ClearAllCommand}" Style="{StaticResource CompactButton}" Margin="8,0,0,0">
+                  <TextBlock x:Name="ClearAllBtn" Text="清空" />
+                </Button>
+                <Button Command="{Binding InvertSelectionCommand}" Style="{StaticResource CompactButton}" Margin="8,0,0,0">
+                  <TextBlock x:Name="InvertBtn" Text="反选" />
+                </Button>
+              </StackPanel>
+              <TextBlock Grid.Row="4" x:Name="GuideLabel" Text="选择进程与至少一个核心后才能应用。" Style="{StaticResource PageSubtitleStyle}" TextWrapping="Wrap" Margin="0,10,0,0" />
+            </Grid>
+          </Border>
+        </Grid>
+      </Grid>
+      <!-- 配置模式替换实时工作区，不显示进程选择或实时执行按钮。 -->
+      <Grid x:Name="ProfileWorkspace" Visibility="Collapsed" MinHeight="0">
+        <Grid x:Name="ProfileWorkspaceGrid" MinHeight="0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="8*" />
+          </Grid.ColumnDefinitions>
+          <Border x:Name="ProfileListWorkspace" Grid.Column="0" Style="{StaticResource ProcessCard}" Padding="16" MinHeight="0">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Width="28" Height="28" Background="{DynamicResource Theme.Brush.ControlAccent}" CornerRadius="{DynamicResource Token.Radius.Card}">
+                  <TextBlock Text="{x:Static constants:IconGlyphs.Save}" Style="{StaticResource PanelIcon}" FontSize="14" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="9,0,0,0" VerticalAlignment="Center">
+                  <TextBlock Text="CPU 配置文件" Style="{StaticResource SectionTitle}" />
+                  <TextBlock Text="保存的进程核心规则" Style="{StaticResource PageSubtitleStyle}" Margin="0,2,0,0" />
+                </StackPanel>
+                <Button Grid.Column="2" Command="{Binding RefreshProfileStatusCommand}" Style="{StaticResource CompactButton}" ToolTip="刷新配置状态">
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{x:Static constants:IconGlyphs.Refresh}" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,5,0" />
+                    <TextBlock Text="刷新状态" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Button>
+              </Grid>
+              <Button Grid.Row="2" Command="{Binding AddProcessCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Left" Padding="12,8">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="{x:Static constants:IconGlyphs.Add}" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0" />
+                  <TextBlock x:Name="AddProgramBtn" Text="添加程序" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+              <Grid Grid.Row="4">
+                <ListBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile, Mode=TwoWay}" Background="{DynamicResource Theme.Brush.CardBackground}" BorderBrush="{DynamicResource Theme.Brush.GlassCardBorder}" BorderThickness="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <Grid Margin="10,8">
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*" />
+                          <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                          <TextBlock Text="{Binding DisplayName}" Style="{StaticResource CardTitleStyle}" TextTrimming="CharacterEllipsis" />
+                          <TextBlock Text="{Binding AffinityDescription}" Style="{StaticResource PageSubtitleStyle}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding StatusText}" Foreground="{Binding StatusColor}" Style="{StaticResource PageSubtitleStyle}" Margin="12,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="105" />
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <controls:EmptyState x:Name="NoConfigState" Title="暂无配置" Description="添加程序后可保存核心偏好。" ActionText="添加程序" ActionCommand="{Binding AddProcessCommand}" Visibility="{Binding HasProfiles, Converter={StaticResource InverseBoolToVis}}" />
+              </Grid>
+            </Grid>
+          </Border>
+          <Border x:Name="ProfilePreviewWorkspace" Grid.Column="2" Style="{StaticResource TopologyCard}" Padding="16" MinHeight="0">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Width="28" Height="28" Background="{DynamicResource Theme.Brush.ControlAccent}" CornerRadius="{DynamicResource Token.Radius.Card}">
+                  <TextBlock Text="{x:Static constants:IconGlyphs.Cpu}" Style="{StaticResource PanelIcon}" FontSize="14" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="9,0,0,0">
+                  <TextBlock Text="配置预览" Style="{StaticResource SectionTitle}" />
+                  <TextBlock Text="选择配置文件查看其已保存的核心分配。" Style="{StaticResource PageSubtitleStyle}" Margin="0,2,0,0" />
+                </StackPanel>
+              </Grid>
+              <Border Grid.Row="2" Background="{DynamicResource Theme.Brush.CardBackground}" BorderBrush="{DynamicResource Theme.Brush.GlassCardBorder}" BorderThickness="1" Padding="10" CornerRadius="{DynamicResource Token.Radius.Card}">
+                <StackPanel>
+                  <TextBlock Text="{Binding SelectedProfile.DisplayName, TargetNullValue=未选择配置文件, FallbackValue=未选择配置文件}" Style="{StaticResource CardTitleStyle}" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Text="{Binding SelectedProfile.AffinityDescription}" Style="{StaticResource PageSubtitleStyle}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Text="{Binding SelectedProfile.StatusText}" Foreground="{Binding SelectedProfile.StatusColor}" Style="{StaticResource PageSubtitleStyle}" Margin="0,3,0,0" />
+                </StackPanel>
+              </Border>
+              <Grid Grid.Row="4">
+                <ScrollViewer x:Name="ProfileCorePreview" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
+                  <ItemsControl ItemsSource="{Binding CoreGroups}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Margin="0,0,0,12">
+                          <TextBlock Text="{Binding GroupName}" Style="{StaticResource PageSubtitleStyle}" Margin="0,0,0,6" />
+                          <ItemsControl ItemsSource="{Binding Cores}">
+                            <ItemsControl.ItemsPanel>
+                              <ItemsPanelTemplate>
+                                <WrapPanel />
+                              </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate>
+                                <ToggleButton IsChecked="{Binding IsSelected}" IsEnabled="False" Style="{StaticResource CoreToggle}" />
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+                <controls:EmptyState x:Name="ProfileTopologyUnavailable" Title="核心拓扑不可用" Description="{Binding AffinitySupportMessage}" Visibility="Collapsed" />
+                <controls:EmptyState x:Name="NoProfileSelectedState" Title="选择一个配置文件" Description="配置预览会显示该规则保存的核心分配；未选择时不显示默认核心。" Visibility="Visible" />
+              </Grid>
+              <StackPanel x:Name="ProfileActions" Grid.Row="5" Orientation="Horizontal" Margin="0,10,0,0" Visibility="Collapsed">
+                <Button Command="{Binding EditProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource CompactButton}">编辑</Button>
+                <Button Command="{Binding ApplySingleProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource CompactButton}" Margin="8,0,0,0">应用</Button>
+                <Button Command="{Binding RestoreProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource CompactButton}" Margin="8,0,0,0">恢复</Button>
+                <Button Command="{Binding DeleteProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource DangerButtonStyle}" Margin="8,0,0,0">删除</Button>
+              </StackPanel>
+            </Grid>
+          </Border>
+        </Grid>
+      </Grid>
+    </Grid>
+    <!-- 实时底栏只包含实时绑定语义。 -->
+    <Border x:Name="LiveCommandBar" Grid.Row="4" Style="{StaticResource ConsoleCard}" Padding="12,10">
+      <Grid VerticalAlignment="Center">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <TextBlock Text="{x:Static constants:IconGlyphs.Target}" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="{DynamicResource Theme.Brush.AccentBlue}" Margin="0,0,8,0" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding SelectedProcess.DisplayName, TargetNullValue=未选择进程, FallbackValue=未选择进程}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="260" />
+          <TextBlock Text=" · " Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding SelectedCount}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontWeight="SemiBold" VerticalAlignment="Center" />
+          <TextBlock Text=" 个核心已勾选" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" VerticalAlignment="Center" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal">
+          <Button Command="{Binding RestoreDefaultCommand}" Style="{StaticResource CompactButton}">
+            <TextBlock x:Name="RestoreDefaultBtn" Text="恢复默认" />
+          </Button>
+          <Button Click="ProfilesButton_Click" Style="{StaticResource CompactButton}" Margin="8,0,0,0">配置文件</Button>
+          <Button Command="{Binding StopAccelerateCommand}" IsEnabled="{Binding IsAccelerating}" Style="{StaticResource CompactButton}" Margin="8,0,0,0">
+            <TextBlock x:Name="StopBtnText" Text="停止并恢复" />
+          </Button>
+          <Button Command="{Binding StartAccelerateCommand}" IsEnabled="{Binding CanStartAccelerate}" Style="{StaticResource PrimaryButtonStyle}" Margin="8,0,0,0" Padding="16,8">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="{x:Static constants:IconGlyphs.Boost}" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,5,0" />
+              <TextBlock x:Name="StartBtnText" Text="应用到该进程" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+    <!-- 配置底栏不出现实时加速命令。 -->
+    <Border x:Name="ProfileCommandBar" Grid.Row="4" Style="{StaticResource ConsoleCard}" Padding="12,10" Visibility="Collapsed">
+      <Grid VerticalAlignment="Center">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="配置文件使用各自保存的核心规则；应用前仍由现有安全确认与进程 identity 校验决定是否执行。" Style="{StaticResource PageSubtitleStyle}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal">
+          <Button Click="BackToLiveButton_Click" Style="{StaticResource CompactButton}">返回实时绑定</Button>
+          <Button Command="{Binding ApplyAllProfilesCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="8,0,0,0" Padding="16,8">应用全部配置</Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

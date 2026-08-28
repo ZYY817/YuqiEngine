@@ -1,0 +1,167 @@
+﻿<Window x:Class="GameOptimizer.Shell.Views.CleanupFileListDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="文件列表" Width="700" Height="500"
+        WindowStartupLocation="CenterOwner" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize">
+    <Border Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="16" BorderThickness="1" BorderBrush="{DynamicResource Theme.Brush.BorderSubtle}">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="40" ShadowDepth="0" Opacity="0.6" Color="#000000"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- 标题栏 -->
+            <Border Grid.Row="0" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="16,16,0,0" Padding="20,14" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📂" FontSize="16" Margin="0,0,10,0"/>
+                        <TextBlock x:Name="DialogTitle" Text="文件列表" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontSize="15" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <Button Content="✕" HorizontalAlignment="Right" Click="Close_Click"
+                            Background="Transparent" Foreground="{DynamicResource Theme.Brush.TextMuted}" BorderThickness="0"
+                            Width="28" Height="28" Cursor="Hand" FontSize="14"/>
+                </Grid>
+            </Border>
+            
+            <!-- 清理项信息 -->
+            <Border Grid.Row="1" Background="{DynamicResource Theme.Brush.RowBackground}" Margin="16,12,16,0" CornerRadius="10" Padding="16,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="ItemNameText" Text="项目名称" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontSize="14" FontWeight="SemiBold"/>
+                            <Border x:Name="RiskBadge" Margin="10,0,0,0" CornerRadius="4" Padding="8,3" VerticalAlignment="Center">
+                                <TextBlock x:Name="RiskText" FontSize="10" FontWeight="Medium"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock x:Name="ItemDescText" Text="描述" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <TextBlock x:Name="FileSizeText" Text="0 MB" Foreground="#F59E0B" FontSize="18" FontWeight="Bold" 
+                                   FontFamily="Consolas" HorizontalAlignment="Right"/>
+                        <TextBlock x:Name="FileCountInfoText" Text="0 个文件" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" 
+                                   HorizontalAlignment="Right" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- 清理路径 -->
+            <Border Grid.Row="1" Background="{DynamicResource Theme.Brush.SurfaceMuted}" Margin="16,80,16,0" CornerRadius="8" Padding="12,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock x:Name="LblCleanPath" Grid.Column="0" Text="📍 清理路径:" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" x:Name="CleanPathText" Text="C:\..." Foreground="#FBBF24" FontSize="11" 
+                               FontFamily="Consolas" VerticalAlignment="Center" Margin="8,0" TextTrimming="CharacterEllipsis"/>
+                    <Border x:Name="OpenFolderBtn" Grid.Column="2" Background="{DynamicResource Theme.Brush.Border}" CornerRadius="4" Padding="8,4" Cursor="Hand" 
+                            MouseLeftButtonUp="OpenFolder_Click" ToolTip="在资源管理器中打开">
+                        <TextBlock x:Name="OpenFolderText" Text="📁 打开" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="10"/>
+                    </Border>
+                </Grid>
+            </Border>
+            
+            <!-- 文件列表 -->
+            <Border Grid.Row="2" Margin="16,12,16,0" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="10" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- 列表头 -->
+                    <Border Grid.Row="0" Background="{DynamicResource Theme.Brush.RowBackground}" CornerRadius="10,10,0,0" Padding="16,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="140"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="LblFileName" Grid.Column="0" Text="文件名" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" FontWeight="Medium"/>
+                            <TextBlock x:Name="LblSize" Grid.Column="1" Text="大小" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" FontWeight="Medium" TextAlignment="Right"/>
+                            <TextBlock x:Name="LblModified" Grid.Column="2" Text="修改时间" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" FontWeight="Medium" TextAlignment="Right"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- 文件列表 -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="FileListControl">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="16,8" BorderBrush="{DynamicResource Theme.Brush.BorderSubtle}" BorderThickness="0,0,0,1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="140"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11" 
+                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding FullPath}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding SizeText}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" 
+                                                       TextAlignment="Right" FontFamily="Consolas"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding ModifiedText}" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="11" 
+                                                       TextAlignment="Right"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <!-- 空状态 -->
+                    <StackPanel x:Name="EmptyState" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
+                        <TextBlock Text="📭" FontSize="32" HorizontalAlignment="Center" Opacity="0.5"/>
+                        <TextBlock x:Name="EmptyText" Text="没有找到文件" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="13" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    </StackPanel>
+                    
+                    <!-- 加载中 -->
+                    <StackPanel x:Name="LoadingState" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="⏳" FontSize="24" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="LoadingText" Text="正在加载文件列表..." Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- 底部按钮 -->
+            <Border Grid.Row="3" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="0,0,16,16" Padding="20,14">
+                <Grid>
+                    <TextBlock x:Name="TipText" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="11" VerticalAlignment="Center">
+                        <Run Text="💡 提示：双击文件可在资源管理器中定位"/>
+                    </TextBlock>
+                    <Button x:Name="CloseBtn" HorizontalAlignment="Right" Click="Close_Click" Cursor="Hand"
+                            Background="Transparent" Foreground="{DynamicResource Theme.Brush.TextSecondary}" BorderThickness="1" BorderBrush="{DynamicResource Theme.Brush.BorderLight}"
+                            Padding="20,10" FontSize="12">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="{TemplateBinding Background}" 
+                                        BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                    <TextBlock x:Name="CloseBtnText" Text="关闭" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

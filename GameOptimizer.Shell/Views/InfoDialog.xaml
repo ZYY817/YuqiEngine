@@ -1,0 +1,82 @@
+﻿<Window x:Class="GameOptimizer.Shell.Views.InfoDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="提示" Width="420" Height="Auto" MinHeight="200" MaxHeight="400"
+        WindowStartupLocation="CenterOwner" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        SizeToContent="Height" ShowInTaskbar="False">
+    <Border Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource Theme.Brush.BorderSubtle}"
+            Effect="{DynamicResource Visual.Shadow.Dialog}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- 标题栏 -->
+            <Border Grid.Row="0" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="12,12,0,0" Padding="20,14" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="IconText" Text="💡" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" Margin="0,0,10,0"/>
+                        <TextBlock x:Name="TitleText" Text="提示" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontSize="15" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <Button Content="✕" HorizontalAlignment="Right" Click="Close_Click"
+                            Background="Transparent" Foreground="{DynamicResource Theme.Brush.TextMuted}" BorderThickness="0"
+                            Width="28" Height="28" Cursor="Hand" FontSize="14">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent" CornerRadius="6">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+                                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+            
+            <!-- 内容区域 -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,20">
+                <TextBlock x:Name="MessageText" Text="" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="14" 
+                           TextWrapping="Wrap" LineHeight="22"/>
+            </ScrollViewer>
+            
+            <!-- 底部按钮 -->
+            <Border Grid.Row="2" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="0,0,12,12" Padding="20,14">
+                <Button x:Name="OkBtn" Click="Ok_Click" Cursor="Hand" HorizontalAlignment="Right">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" CornerRadius="8" Padding="24,10">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#6366F1" Offset="0"/>
+                                        <GradientStop Color="#8B5CF6" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <TextBlock x:Name="OkBtnText" Text="确定" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium" HorizontalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background">
+                                        <Setter.Value>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                <GradientStop Color="#7C7FF2" Offset="0"/>
+                                                <GradientStop Color="#9D7DF7" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

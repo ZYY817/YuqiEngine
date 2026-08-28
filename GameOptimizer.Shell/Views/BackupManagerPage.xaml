@@ -1,0 +1,358 @@
+<UserControl x:Class="GameOptimizer.Shell.Views.BackupManagerPage" x:Name="Root" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:GameOptimizer.Shell.Controls" xmlns:conv="clr-namespace:GameOptimizer.Shell.Converters" xmlns:constants="clr-namespace:GameOptimizer.Shell.Constants" AutomationProperties.Name="备份管理">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}" />
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+        </Style>
+        <Style x:Key="WebSurface" TargetType="Border" BasedOn="{StaticResource Yuqi.Tool.Surface.Interactive}">
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{DynamicResource Token.Radius.CardLarge}" />
+        </Style>
+        <Style x:Key="WebTitle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}" />
+        </Style>
+        <Style x:Key="WebMeta" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}" />
+        </Style>
+        <Style x:Key="WebToolButton" TargetType="Button" BasedOn="{StaticResource Yuqi.ToolButton}">
+            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style x:Key="BackupCard" TargetType="Border" BasedOn="{StaticResource WebSurface}" />
+        <Style x:Key="BackupCreateCard" TargetType="Border" BasedOn="{StaticResource WebSurface}">
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.AccentBlue}" />
+            <Setter Property="BorderThickness" Value="2,1,1,1" />
+        </Style>
+        <Style x:Key="BackupBaselineCard" TargetType="Border" BasedOn="{StaticResource WebSurface}">
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.Success}" />
+            <Setter Property="BorderThickness" Value="2,1,1,1" />
+        </Style>
+        <!-- 安全策略是上下文，不与创建动作争夺首屏注意力。 -->
+        <Style x:Key="BackupContextCard" TargetType="Border" BasedOn="{StaticResource WebSurface}">
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style x:Key="BackupRail" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}" />
+            <Setter Property="BorderThickness" Value="0,0,1,0" />
+            <Setter Property="Padding" Value="0,2,12,0" />
+        </Style>
+        <conv:PageStateToBadgeStatusConverter x:Key="PageStateToBadgeStatus" />
+        <conv:EnumEqualsConverter x:Key="TimelineFilterSelected" />
+    </UserControl.Resources>
+    <Grid Background="{DynamicResource Theme.Brush.AppBackground}">
+        <ScrollViewer x:Name="ToolPageContentScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" Padding="24,20,24,28" Focusable="True" FocusVisualStyle="{StaticResource Token.FocusVisualStyle}">
+            <StackPanel Style="{StaticResource Yuqi.ToolPageEntrance}">
+                <!-- Web 母版：命令顶栏、快照创建/基线卡与带筛选的时间线。 -->
+                <controls:ToolTopbar Margin="0,0,0,14" Title="备份管理" Subtitle="让每一次优化都可逆 · 保留可核验快照" IconGlyph="{x:Static constants:IconGlyphs.Save}" StatusText="{Binding ViewModel.TotalSizeText, ElementName=Root, StringFormat=已占用 {0}, TargetNullValue=占用不可用}" StatusDetail="{Binding ViewModel.StorageVolumeDetail, ElementName=Root}">
+                    <controls:ToolTopbar.Actions><StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <controls:StatusBadge Text="{Binding ViewModel.PageStateText, ElementName=Root, TargetNullValue=不可用}" Status="{Binding ViewModel.PageState, ElementName=Root, Converter={StaticResource PageStateToBadgeStatus}}" />
+                        <Button Content="刷新" Command="{Binding ViewModel.LoadSnapshotsCommand, ElementName=Root}" IsEnabled="{Binding IsCompositionReady, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
+                        <Button Content="导入" Command="{Binding ViewModel.ImportSnapshotCommand, ElementName=Root}" IsEnabled="{Binding IsCompositionReady, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
+                        <Button Content="目录" Command="{Binding ViewModel.OpenSnapshotFolderCommand, ElementName=Root}" IsEnabled="{Binding IsCompositionReady, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
+                    </StackPanel></controls:ToolTopbar.Actions>
+                </controls:ToolTopbar>
+                <Border Style="{StaticResource WebSurface}" Visibility="{Binding IsCompositionReady, ElementName=Root, Converter={StaticResource InverseBoolToVisibilityConverter}}" Padding="18" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="备份服务暂不可用" Style="{StaticResource WebTitle}" />
+                        <TextBlock Text="{Binding CompositionStatusText, ElementName=Root}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,5,0,0" />
+                    </StackPanel>
+                </Border>
+                <StackPanel Visibility="{Binding IsCompositionReady, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.35*" />
+                            <ColumnDefinition Width="14" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource BackupCreateCard}" Padding="18">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="30" Height="30" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.AccentBlue}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}">
+                                        <TextBlock Text="{x:Static constants:IconGlyphs.Add}" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource Theme.Brush.AccentBlue}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                        <TextBlock Text="创建设置快照" Style="{StaticResource WebTitle}" />
+                                        <TextBlock Text="保存可校验、可逐项恢复的优化设置" Style="{StaticResource WebMeta}" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                    <Border Grid.Column="2" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.AccentBlue}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Badge}" Padding="7,2">
+                                        <TextBlock Text="推荐" Foreground="{DynamicResource Theme.Brush.AccentBlue}" FontSize="10" />
+                                    </Border>
+                                </Grid>
+                                <TextBox Text="{Binding ViewModel.NewSnapshotName, ElementName=Root, UpdateSourceTrigger=PropertyChanged}" MinHeight="38" Padding="10,7" Margin="0,15,0,0" Background="{DynamicResource Theme.Brush.InputBackground}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" BorderBrush="{DynamicResource Theme.Brush.InputBorder}" AutomationProperties.Name="快照名称" />
+                                <TextBlock Text="仅保存已接入恢复契约的设置；不覆盖文件、服务或系统镜像。" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,7,0,0" />
+                                <TextBlock Text="{Binding ViewModel.OrdinarySnapshotCoverageText, ElementName=Root}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                <StackPanel Orientation="Horizontal" Margin="0,11,0,0">
+                                    <Button Content="创建命名快照" Command="{Binding ViewModel.CreateSnapshotCommand, ElementName=Root}" Style="{StaticResource PrimaryButtonStyle}" />
+                                    <Button Content="使用默认名称" Command="{Binding ViewModel.QuickBackupCommand, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
+                                    <Button Content="完整用户配置备份" Command="{Binding ViewModel.CreateComprehensiveBackupCommand, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
+                                </StackPanel>
+                                <TextBlock Text="{Binding ViewModel.ComprehensiveBackupStatusText, ElementName=Root}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                                <TextBlock Text="{Binding ViewModel.ComprehensiveBackupCountText, ElementName=Root}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                <TextBlock Text="{Binding ViewModel.ComprehensiveBackupCoverageText, ElementName=Root}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                <ItemsControl ItemsSource="{Binding ViewModel.ComprehensiveBackups, ElementName=Root}" Margin="0,8,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}" Padding="8" Margin="0,3,0,0">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding PackageId}" Style="{StaticResource WebMeta}" TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Text="{Binding Manifest.IncompleteReason, TargetNullValue=可核验}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                                    </StackPanel>
+                                                    <Button Grid.Column="1" Content="准备恢复类型化设置" Command="{Binding ViewModel.PrepareComprehensiveRestoreCommand, ElementName=Root}" CommandParameter="{Binding}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                        <!-- 对齐 Web 的“策略”卡信息密度；只展示已经存在的安全基线能力，不伪造自动删除或容量上限。 -->
+                        <Border Grid.Column="2" Style="{StaticResource BackupContextCard}" Padding="18">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="30" Height="30" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" CornerRadius="{DynamicResource Token.Radius.Card}">
+                                        <TextBlock Text="{x:Static constants:IconGlyphs.Settings}" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource Theme.Brush.Success}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                        <TextBlock Text="备份保护策略" Style="{StaticResource WebTitle}" />
+                                        <TextBlock Text="以可核验基线保护每一次变更" Style="{StaticResource WebMeta}" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                    <controls:StatusBadge Grid.Column="2" Text="{Binding ViewModel.BackupProtectionText, ElementName=Root}" Status="Info" VerticalAlignment="Center" />
+                                </Grid>
+                                <Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}" Margin="0,14,0,8" />
+                                <Grid Margin="0,4">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="24" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{x:Static constants:IconGlyphs.Shield}" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource Theme.Brush.Success}" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1"><TextBlock Text="首次安全基线" Style="{StaticResource WebTitle}" FontSize="12" /><TextBlock Text="首次进入前的可恢复设置快照" Style="{StaticResource WebMeta}" Margin="0,2,0,0" /></StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding ViewModel.FirstRunBaselineStatusTitle, ElementName=Root}" Style="{StaticResource WebMeta}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="120" />
+                                </Grid>
+                                <Grid Margin="0,10,0,4">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="24" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{x:Static constants:IconGlyphs.Restore}" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource Theme.Brush.AccentBlue}" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1"><TextBlock Text="恢复前复核" Style="{StaticResource WebTitle}" FontSize="12" /><TextBlock Text="恢复操作会先准备并校验恢复计划" Style="{StaticResource WebMeta}" Margin="0,2,0,0" /></StackPanel>
+                                    <Button Grid.Column="2" Content="恢复基线" Command="{Binding ViewModel.RestoreFirstRunBaselineCommand, ElementName=Root}" IsEnabled="{Binding ViewModel.CanRestoreFirstRunBaseline, ElementName=Root}" Style="{StaticResource WebToolButton}" VerticalAlignment="Center" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <Border Style="{StaticResource WebSurface}" Padding="15,12" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="快照数量" Style="{StaticResource WebMeta}" />
+                                <TextBlock Text="{Binding ViewModel.SnapshotCountDisplay, ElementName=Root}" Style="{StaticResource WebTitle}" Margin="0,4,0,0" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="占用空间" Style="{StaticResource WebMeta}" />
+                                <TextBlock Text="{Binding ViewModel.TotalSizeText, ElementName=Root}" Style="{StaticResource WebTitle}" Margin="0,4,0,0" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="最近备份" Style="{StaticResource WebMeta}" />
+                                <TextBlock Text="{Binding ViewModel.LastBackupText, ElementName=Root}" Style="{StaticResource WebTitle}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3">
+                                <TextBlock Text="状态反馈" Style="{StaticResource WebMeta}" />
+                                <TextBlock Text="{Binding ViewModel.StatusText, ElementName=Root}" Style="{StaticResource WebTitle}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource BackupContextCard}" Padding="15,13" Margin="0,0,0,12" AutomationProperties.Name="备份恢复覆盖状态">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="真实恢复覆盖" Style="{StaticResource WebTitle}" />
+                                    <TextBlock Text="只展示本机已采集且可验证的范围；不承诺完整系统恢复。" Style="{StaticResource WebMeta}" Margin="0,3,0,0" />
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding ViewModel.RestoreCoverageSummary, ElementName=Root}" Style="{StaticResource WebMeta}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="300" />
+                            </Grid>
+                            <Grid Margin="0,11,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="备份目录" Style="{StaticResource WebMeta}" />
+                                    <TextBlock Text="{Binding ViewModel.BackupStoragePathText, ElementName=Root}" Style="{StaticResource WebTitle}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                    <TextBlock Text="存储卷" Style="{StaticResource WebMeta}" />
+                                    <TextBlock Text="{Binding ViewModel.StorageVolumeText, ElementName=Root}" Style="{StaticResource WebTitle}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
+                                    <TextBlock Text="{Binding ViewModel.StorageVolumeDetail, ElementName=Root}" Style="{StaticResource WebMeta}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Margin="12,0,0,0">
+                                    <TextBlock Text="首次基线包" Style="{StaticResource WebMeta}" />
+                                    <TextBlock Text="{Binding ViewModel.BaselinePackageSizeText, ElementName=Root}" Style="{StaticResource WebTitle}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
+                                </StackPanel>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding ViewModel.RestoreCoverage, ElementName=Root}" Margin="0,12,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="180" />
+                                                <ColumnDefinition Width="68" />
+                                                <ColumnDefinition Width="92" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Name}" Style="{StaticResource WebTitle}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Grid.Column="1" Text="{Binding CaptureStatus}" Style="{StaticResource WebMeta}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Grid.Column="2" Text="{Binding RecoveryStatus}" Foreground="{DynamicResource Theme.Brush.AccentBlue}" Style="{StaticResource WebMeta}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Grid.Column="3" Text="{Binding Detail}" Style="{StaticResource WebMeta}" TextTrimming="CharacterEllipsis" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="184" />
+                            <ColumnDefinition Width="14" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource BackupRail}" VerticalAlignment="Top">
+                            <StackPanel>
+                                <TextBlock Text="快照筛选" Style="{StaticResource WebTitle}" Margin="7,5,7,10" />
+                                <ToggleButton Content="全部记录" Style="{StaticResource Yuqi.RailToggle}" Command="{Binding ViewModel.SelectTimelineFilterCommand, ElementName=Root}" CommandParameter="All" IsChecked="{Binding ViewModel.TimelineFilter, ElementName=Root, Mode=OneWay, Converter={StaticResource TimelineFilterSelected}, ConverterParameter=All}" />
+                                <ToggleButton Content="普通快照" Style="{StaticResource Yuqi.RailToggle}" Command="{Binding ViewModel.SelectTimelineFilterCommand, ElementName=Root}" CommandParameter="Ordinary" IsChecked="{Binding ViewModel.TimelineFilter, ElementName=Root, Mode=OneWay, Converter={StaticResource TimelineFilterSelected}, ConverterParameter=Ordinary}" Margin="0,5,0,0" />
+                                <ToggleButton Content="首次基线" Style="{StaticResource Yuqi.RailToggle}" Command="{Binding ViewModel.SelectTimelineFilterCommand, ElementName=Root}" CommandParameter="Baseline" IsChecked="{Binding ViewModel.TimelineFilter, ElementName=Root, Mode=OneWay, Converter={StaticResource TimelineFilterSelected}, ConverterParameter=Baseline}" Margin="0,5,0,0" />
+                                <Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}" Margin="7,13,7,11" />
+                                <TextBlock Text="筛选仅展示可读取记录。恢复前会先准备可核验的恢复计划。" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="7,0" />
+                            </StackPanel>
+                        </Border>
+                        <StackPanel Grid.Column="2">
+                            <Grid Margin="0,0,0,9">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="快照时间线" Style="{StaticResource WebTitle}" />
+                                    <TextBlock Text="{Binding ViewModel.TimelineDescription, ElementName=Root}" Style="{StaticResource WebMeta}" Margin="0,3,0,0" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="导出诊断包" Command="{Binding ViewModel.ExportDiagnosticPackageCommand, ElementName=Root}" Style="{StaticResource WebToolButton}" />
+                            </Grid>
+                            <controls:EmptyState Title="{Binding ViewModel.TimelineEmptyTitle, ElementName=Root}" Description="{Binding ViewModel.TimelineEmptyDescription, ElementName=Root}" ActionText="刷新快照" ActionCommand="{Binding ViewModel.LoadSnapshotsCommand, ElementName=Root}" VisualState="Default" Visibility="{Binding ViewModel.HasNoTimelineEntries, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <Border Style="{StaticResource BackupBaselineCard}" Padding="14" Margin="0,0,0,9" Visibility="{Binding ViewModel.IsBaselineTimelineVisible, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding ViewModel.FirstRunBaselineStatusTitle, ElementName=Root}" Style="{StaticResource WebTitle}" />
+                                        <TextBlock Text="{Binding ViewModel.FirstRunBaselineStatusSubText, ElementName=Root}" Style="{StaticResource WebMeta}" Margin="0,4,0,0" />
+                                        <TextBlock Text="{Binding ViewModel.FirstRunBaselineStatusDescription, ElementName=Root}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="恢复基线" Command="{Binding ViewModel.RestoreFirstRunBaselineCommand, ElementName=Root}" IsEnabled="{Binding ViewModel.CanRestoreFirstRunBaseline, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+                            <ListBox ItemsSource="{Binding ViewModel.Snapshots, ElementName=Root}" SelectedItem="{Binding ViewModel.SelectedSnapshot, ElementName=Root, Mode=TwoWay}" Background="{DynamicResource Theme.Brush.AppBackground}" BorderThickness="0" Padding="0" Visibility="{Binding ViewModel.IsSnapshotTimelineVisible, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}" AutomationProperties.Name="普通快照时间线">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <DataTemplate.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}" />
+                                            </Style>
+                                        </DataTemplate.Resources>
+                                        <Grid Margin="0,0,0,9">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="24" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                                <Border Width="9" Height="9" Background="{DynamicResource Theme.Brush.AccentBlue}" CornerRadius="5" />
+                                                <Border Width="1" MinHeight="66" Background="{DynamicResource Theme.Brush.InputBorder}" Margin="0,4,0,0" />
+                                            </StackPanel>
+                                            <Border Grid.Column="1" Style="{StaticResource WebSurface}" Padding="14">
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Name}" Style="{StaticResource WebTitle}" />
+                                                    <TextBlock Text="{Binding CreatedAt, StringFormat=创建时间：{0:yyyy-MM-dd HH:mm}}" Style="{StaticResource WebMeta}" Margin="0,4,0,0" />
+                                                    <TextBlock Text="{Binding SettingsCountText}" Style="{StaticResource WebMeta}" Margin="0,3,0,0" />
+                                                </StackPanel>
+                                            </Border>
+                                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="9,0,0,0">
+                                                <Button Content="准备恢复" Command="{Binding ViewModel.PrepareRestoreSnapshotCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" CommandParameter="{Binding}" IsEnabled="{Binding ViewModel.CanPrepareRestore, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" Style="{StaticResource PrimaryButtonStyle}" />
+                                                <Button Content="预览" Command="{Binding ViewModel.PreviewSnapshotCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" CommandParameter="{Binding}" Style="{StaticResource WebToolButton}" Margin="0,5,0,0" />
+                                                <Button Content="导出" Command="{Binding ViewModel.ExportSpecificSnapshotCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" CommandParameter="{Binding}" Style="{StaticResource WebToolButton}" Margin="0,5,0,0" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Expander Margin="0,9,0,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="恢复计划与中断处置" FontWeight="SemiBold" />
+                                        <TextBlock Text=" · 选择快照并准备恢复后再展开" Style="{StaticResource WebMeta}" Margin="6,2,0,0" />
+                                    </StackPanel>
+                                </Expander.Header>
+                                <Border Style="{StaticResource BackupContextCard}" Padding="14" Margin="0,9,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding ViewModel.RestorePlanStatusText, ElementName=Root}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding ViewModel.RestorePlanStepsText, ElementName=Root}" Style="{StaticResource WebMeta}" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding ViewModel.RestoreExecutionSafetyText, ElementName=Root}" Foreground="{DynamicResource Theme.Brush.Warning}" Style="{StaticResource WebMeta}" Margin="0,5,0,0" TextWrapping="Wrap" />
+                                        <WrapPanel Margin="0,10,0,0">
+                                            <Button Content="确认并执行恢复" Command="{Binding ViewModel.ExecutePreparedRestoreCommand, ElementName=Root}" IsEnabled="{Binding ViewModel.CanExecutePendingRestore, ElementName=Root}" Style="{StaticResource PrimaryButtonStyle}" />
+                                            <Button Content="取消执行" Command="{Binding ViewModel.CancelRestoreCommand, ElementName=Root}" IsEnabled="{Binding ViewModel.CanCancelRestore, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
+                                            <Button Content="对账计划" Command="{Binding ViewModel.ReconcilePendingRestoreCommand, ElementName=Root}" IsEnabled="{Binding ViewModel.CanReconcilePendingRestore, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+                            </Expander>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+                <ItemsControl ItemsSource="{Binding ViewModel.RestoreReceipts, ElementName=Root}" Margin="0,12,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource WebSurface}" Padding="12" Margin="0,0,0,6">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding CapabilityDisplayName}" Style="{StaticResource WebTitle}" />
+                                    <TextBlock Text="{Binding Message}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                    <TextBlock Text="{Binding MutationText}" Foreground="{DynamicResource Theme.Brush.Warning}" Style="{StaticResource WebMeta}" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

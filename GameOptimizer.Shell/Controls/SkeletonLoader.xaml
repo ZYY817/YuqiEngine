@@ -1,0 +1,46 @@
+<UserControl x:Class="GameOptimizer.Shell.Controls.SkeletonLoader"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d">
+    
+    <!-- 扁平骨架屏 -->
+    <Border x:Name="SkeletonBorder"
+            CornerRadius="{Binding SkeletonRadius, RelativeSource={RelativeSource AncestorType=UserControl}}"
+            Width="{Binding SkeletonWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
+            Height="{Binding SkeletonHeight, RelativeSource={RelativeSource AncestorType=UserControl}}"
+            Background="#2A2A2A"
+            ClipToBounds="True">
+        
+        <Border x:Name="ShimmerOverlay" Margin="-200,0,0,0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="Transparent" Offset="0"/>
+                    <GradientStop Color="#15FFFFFF" Offset="0.5"/>
+                    <GradientStop Color="Transparent" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.RenderTransform>
+                <TranslateTransform x:Name="ShimmerTranslate" X="0"/>
+            </Border.RenderTransform>
+        </Border>
+    </Border>
+    
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard RepeatBehavior="Forever">
+                    <DoubleAnimation Storyboard.TargetName="ShimmerTranslate"
+                                     Storyboard.TargetProperty="X"
+                                     From="0" To="400"
+                                     Duration="0:0:1.5">
+                        <DoubleAnimation.EasingFunction>
+                            <SineEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+</UserControl>

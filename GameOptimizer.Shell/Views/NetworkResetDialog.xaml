@@ -1,0 +1,194 @@
+﻿<Window x:Class="GameOptimizer.Shell.Views.NetworkResetDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="重置网络配置" Width="520" Height="Auto"
+        WindowStartupLocation="CenterOwner" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        SizeToContent="Height" MaxHeight="600" ShowInTaskbar="False">
+    <Border Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="16" BorderThickness="1" BorderBrush="{DynamicResource Theme.Brush.BorderSubtle}">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="40" ShadowDepth="0" Opacity="0.6" Color="#000000"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- 标题栏 -->
+            <Border Grid.Row="0" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="16,16,0,0" Padding="20,14" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔌" FontSize="16" Foreground="#F59E0B" Margin="0,0,10,0"/>
+                        <TextBlock x:Name="DialogTitleText" Text="重置网络配置" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontSize="15" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <Button Content="✕" HorizontalAlignment="Right" Click="Close_Click"
+                            Background="Transparent" Foreground="{DynamicResource Theme.Brush.TextMuted}" BorderThickness="0"
+                            Width="28" Height="28" Cursor="Hand" FontSize="14"/>
+                </Grid>
+            </Border>
+            
+            <!-- 内容区域 -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,16">
+                <StackPanel>
+                    <!-- 警告提示 -->
+                    <Border Background="#15F59E0B" CornerRadius="10" Padding="16,12" Margin="0,0,0,16" BorderBrush="#30F59E0B" BorderThickness="1">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="⚠" FontSize="14" Foreground="#F59E0B" Margin="0,0,8,0"/>
+                                <TextBlock x:Name="WarningTitleText" Text="此操作将重置网络配置" Foreground="#F59E0B" FontSize="13" FontWeight="SemiBold"/>
+                            </StackPanel>
+                            <TextBlock x:Name="WarningDescText" Text="重置后需要重启电脑才能生效，部分网络设置可能需要重新配置。" 
+                                       Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- 操作说明 -->
+                    <TextBlock x:Name="LblOperations" Text="将执行以下操作：" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" Margin="0,0,0,10"/>
+                    <Border Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="8" Padding="14" Margin="0,0,0,16">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <TextBlock Text="•" Foreground="#22C55E" FontSize="12" Width="16"/>
+                                <TextBlock x:Name="Op1Text" Text="重置 Winsock 目录（网络套接字）" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <TextBlock Text="•" Foreground="#22C55E" FontSize="12" Width="16"/>
+                                <TextBlock x:Name="Op2Text" Text="重置 TCP/IP 协议栈" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="•" Foreground="#22C55E" FontSize="12" Width="16"/>
+                                <TextBlock x:Name="Op3Text" Text="清除网络缓存和临时配置" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- 可能影响 -->
+                    <TextBlock x:Name="LblEffects" Text="可能的影响：" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" Margin="0,0,0,10"/>
+                    <Border Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="8" Padding="14" Margin="0,0,0,16">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <TextBlock Text="•" Foreground="#EF4444" FontSize="12" Width="16"/>
+                                <TextBlock x:Name="Eff1Text" Text="VPN 配置可能丢失，需重新设置" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <TextBlock Text="•" Foreground="#EF4444" FontSize="12" Width="16"/>
+                                <TextBlock x:Name="Eff2Text" Text="代理设置将被清空" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="•" Foreground="#EF4444" FontSize="12" Width="16"/>
+                                <TextBlock x:Name="Eff3Text" Text="静态 IP 地址将重置为自动获取" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- 备份选项 -->
+                    <Border Background="#1A22C55E" CornerRadius="10" Padding="16,12" Margin="0,0,0,8" BorderBrush="#3022C55E" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox x:Name="BackupCheckBox" IsChecked="True" VerticalAlignment="Center" Margin="0,0,12,0">
+                                <CheckBox.Template>
+                                    <ControlTemplate TargetType="CheckBox">
+                                        <Border x:Name="Bd" Width="20" Height="20" CornerRadius="4" Background="{DynamicResource Theme.Brush.RowBackground}" BorderBrush="#22C55E" BorderThickness="2" Cursor="Hand">
+                                            <Path x:Name="Check" Data="M4 10l4 4L16 6" Stroke="#22C55E" StrokeThickness="2" 
+                                                  Stretch="Uniform" Width="10" Height="10" Visibility="Collapsed"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </CheckBox.Template>
+                            </CheckBox>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock x:Name="BackupTitleText" Text="重置前自动备份当前网络配置" Foreground="#22C55E" FontSize="13" FontWeight="Medium"/>
+                                <TextBlock x:Name="BackupDescText" Text="备份将保存 IP 配置、DNS 设置、路由表等信息，方便日后参考" 
+                                           Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- 查看历史备份 -->
+                    <Button Click="ViewBackups_Click" Cursor="Hand" HorizontalAlignment="Left" Margin="0,8,0,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <TextBlock x:Name="Txt" Text="📂 查看历史备份" Foreground="#6366F1" FontSize="12"/>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Txt" Property="TextDecorations" Value="Underline"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </ScrollViewer>
+            
+            <!-- 底部按钮 -->
+            <Border Grid.Row="2" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="0,0,16,16" Padding="20,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock x:Name="TipText" Grid.Column="0" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="11" VerticalAlignment="Center">
+                        <Run Text="💡 重置后需要重启电脑"/>
+                    </TextBlock>
+                    
+                    <Button x:Name="CancelBtn" Grid.Column="1" Click="Cancel_Click" Cursor="Hand" Margin="0,0,10,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent" BorderBrush="{DynamicResource Theme.Brush.BorderLight}" BorderThickness="1" CornerRadius="8" Padding="20,10">
+                                    <TextBlock x:Name="CancelBtnText" Text="取消" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    
+                    <Button x:Name="ConfirmBtn" Grid.Column="2" Click="Confirm_Click" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" CornerRadius="8" Padding="20,10">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#F59E0B" Offset="0"/>
+                                            <GradientStop Color="#D97706" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🔌" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="ConfirmBtnText" Text="确认重置" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12" FontWeight="SemiBold" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Color="#FBBF24" Offset="0"/>
+                                                    <GradientStop Color="#F59E0B" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

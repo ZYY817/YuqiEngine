@@ -1,0 +1,98 @@
+<!-- File: GameOptimizer.Shell/Controls/ModernProgressBar.xaml -->
+<UserControl x:Class="GameOptimizer.Shell.Controls.ModernProgressBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="12">
+    
+    <UserControl.Resources>
+        <!-- 脉冲动画 - 更平滑的发光效果 -->
+        <Storyboard x:Key="PulseAnimation" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="GlowEffect"
+                           Storyboard.TargetProperty="Opacity"
+                           From="0.4" To="0.7" Duration="0:0:2"
+                           AutoReverse="True">
+                <DoubleAnimation.EasingFunction>
+                    <SineEase EasingMode="EaseInOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+        
+        <!-- 流动动画 - 更流畅的高光移动 -->
+        <Storyboard x:Key="FlowAnimation" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="FlowGradient"
+                           Storyboard.TargetProperty="Offset"
+                           From="-1" To="2" Duration="0:0:2.5">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseInOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+    </UserControl.Resources>
+    
+    <Grid>
+        <!-- 背景轨道 -->
+        <Border x:Name="TrackBorder"
+                CornerRadius="6"
+                Background="{DynamicResource Theme.Brush.TrackBackground}"
+                BorderBrush="#15FFFFFF"
+                BorderThickness="1">
+            <Border.Effect>
+                <DropShadowEffect Color="Black" Opacity="0.2" BlurRadius="4" ShadowDepth="0" Direction="270"/>
+            </Border.Effect>
+        </Border>
+        
+        <!-- 进度填充 -->
+        <!-- Why: Width 必须有有限初始值；基值为 NaN(Auto) 时 DoubleAnimation 逐帧抛
+             AnimationException（NaN origin），渲染循环被打断表现为页面卡死。 -->
+        <Border x:Name="ProgressFill"
+                Width="0"
+                CornerRadius="6"
+                HorizontalAlignment="Left"
+                ClipToBounds="True">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#6366F1" Offset="0"/>
+                    <GradientStop Color="#8B5CF6" Offset="0.5"/>
+                    <GradientStop Color="#A855F7" Offset="1"/>
+                    <!-- 流动高光 -->
+                    <GradientStop x:Name="FlowGradient" Color="#FFFFFF" Offset="-1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            
+            <!-- 发光效果 - 增强视觉冲击力 -->
+            <Border.Effect>
+                <DropShadowEffect x:Name="GlowEffect"
+                                Color="#8B5CF6" 
+                                Opacity="0.5" 
+                                BlurRadius="16" 
+                                ShadowDepth="0"/>
+            </Border.Effect>
+            
+            <!-- 内部高光 -->
+            <Border CornerRadius="6" Margin="1">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#40FFFFFF" Offset="0"/>
+                        <GradientStop Color="Transparent" Offset="0.5"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+        </Border>
+        
+        <!-- 不确定进度动画 -->
+        <Border x:Name="IndeterminateBorder"
+                CornerRadius="6"
+                Visibility="Collapsed"
+                ClipToBounds="True">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="Transparent" Offset="0"/>
+                    <GradientStop Color="#6366F1" Offset="0.3"/>
+                    <GradientStop Color="#8B5CF6" Offset="0.5"/>
+                    <GradientStop Color="#A855F7" Offset="0.7"/>
+                    <GradientStop Color="Transparent" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+    </Grid>
+</UserControl>

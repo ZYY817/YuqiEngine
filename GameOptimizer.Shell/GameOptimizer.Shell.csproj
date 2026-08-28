@@ -1,0 +1,150 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\GameOptimizer.Core\GameOptimizer.Core.csproj" />
+    <ProjectReference Include="..\GameOptimizer.Infrastructure.Windows\GameOptimizer.Infrastructure.Windows.csproj" />
+    <ProjectReference Include="..\GameOptimizer.Modules.PerformanceHealth\GameOptimizer.Modules.PerformanceHealth.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- 高DPI感知设置 -->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- 应用程序图标 -->
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <!-- 程序集信息 -->
+    <AssemblyName>YuqiEngine</AssemblyName>
+    <Product>宇奇引擎</Product>
+    <AssemblyTitle>宇奇引擎</AssemblyTitle>
+    <Description>游戏性能优化工具</Description>
+    <Copyright>© 2026 宇奇</Copyright>
+    <Version>0.1.0</Version>
+    <FileVersion>0.1.0.0</FileVersion>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <!-- 自定义 Main 入口，禁用 WPF 自动生成的 Main -->
+    <StartupObject>GameOptimizer.Shell.Program</StartupObject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <!-- Why: embedded PDB 减少杀毒误报，且不增加额外文件 -->
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>true</Optimize>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\GameOptimizer.Modules\ModuleLoader.cs" />
+    <Compile Include="..\GameOptimizer.Modules\ModuleDescriptor.cs" />
+    <Compile Include="..\GameOptimizer.Modules\ModuleManifest.cs" />
+    <Compile Include="..\GameOptimizer.Modules\ModuleManifestProvider.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\yuqi-engine-mark.png" />
+    <Resource Include="Assets\app.ico" />
+    <Resource Include="Assets\tray.ico" />
+    <Resource Include="Assets\donate_qrcode.jpg" />
+    <Resource Include="Assets\donate_wechat.jpg" />
+    <Resource Include="Assets\donate_alipay.jpg" />
+    <Resource Include="Assets\Fonts\*.otf" />
+    <None Remove="Assets\Fonts\OFL-1.1.txt" />
+    <Content Include="Assets\Fonts\OFL-1.1.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\PowerPlans\HighPerformance.pow" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Services\Baseline\**\*.cs" />
+    <Compile Include="Services\Baseline\BaselineDomainStatus.cs" />
+    <Compile Include="Services\Baseline\BaselineFlowStep.cs" />
+    <Compile Include="Services\Baseline\BaselineGateDecisionKind.cs" />
+    <Compile Include="Services\Baseline\BaselineRestoreMode.cs" />
+    <Compile Include="Services\Baseline\BaselineRestoreStep.cs" />
+    <Compile Include="Services\Baseline\FirstRunBaselineState.cs" />
+    <Compile Include="Services\Baseline\FirstProtectionPreference.cs" />
+    <Compile Include="Services\Baseline\FirstProtectionPreferenceStore.cs" />
+    <Compile Include="Services\Baseline\BaselineCatalog.cs" />
+    <Compile Include="Services\Baseline\BaselineCatalogEntry.cs" />
+    <Compile Include="Services\Baseline\BaselineCatalogService.cs" />
+    <Compile Include="Services\Baseline\BaselineDirectoryProbeResult.cs" />
+    <Compile Include="Services\Baseline\BaselineDomainArtifact.cs" />
+    <Compile Include="Services\Baseline\BaselineDomainCollector.cs" />
+    <Compile Include="Services\Baseline\BaselineDomainBundleItem.cs" />
+    <Compile Include="Services\Baseline\BaselineDomainBundleManifest.cs" />
+    <Compile Include="Services\Baseline\BaselineDomainDefinition.cs" />
+
+    <Compile Include="Services\Baseline\BaselineEnvironmentBinding.cs" />
+
+    <Compile Include="Services\Baseline\BaselineOwnedFileDomainRestoreOwner.cs" />
+    <Compile Include="Services\Baseline\BaselineDomainProgress.cs" />
+    <Compile Include="Services\Baseline\BaselineDomainRestoreStep.cs" />
+    <Compile Include="Services\Baseline\BaselineGateDecision.cs" />
+    <Compile Include="Services\Baseline\BaselineRiskAcknowledgement.cs" />
+    <Compile Include="Services\Baseline\BaselineHashHelper.cs" />
+    <Compile Include="Services\Baseline\BaselineIntegrityService.cs" />
+    <Compile Include="Services\Baseline\BaselineManualGuideCheckResult.cs" />
+    <Compile Include="Services\Baseline\BaselineManualGuideService.cs" />
+    <Compile Include="Services\Baseline\BaselineMirrorDirectoryPolicy.cs" />
+    <Compile Include="Services\Baseline\BaselineMirrorSyncResult.cs" />
+    <Compile Include="Services\Baseline\BaselinePackageManifest.cs" />
+    <Compile Include="Services\Baseline\BaselineProgressEvent.cs" />
+    <Compile Include="Services\Baseline\BaselinePreflightCapabilityChecker.cs" />
+    <Compile Include="Services\Baseline\BaselineRecoverabilityCheckReport.cs" />
+    <Compile Include="Services\Baseline\BaselineRecoverabilityCheckResult.cs" />
+    <Compile Include="Services\Baseline\BaselineRecoverabilityDomainCheckItem.cs" />
+    <Compile Include="Services\Baseline\BaselineRecoveryCoverageClassifier.cs" />
+    <Compile Include="Services\Baseline\BaselineRestoreDomainResult.cs" />
+    <Compile Include="Services\Baseline\BaselineRestoreExecutionReport.cs" />
+    <Compile Include="Services\Baseline\BaselineRestoreOrchestrator.cs" />
+    <Compile Include="Services\Baseline\BaselineRestoreProgressEvent.cs" />
+    <Compile Include="Services\Baseline\BaselineRestoreResult.cs" />
+    <Compile Include="Services\Baseline\BaselineRestoreScoringService.cs" />
+    <Compile Include="Services\Baseline\BaselineRunResult.cs" />
+    <Compile Include="Services\Baseline\BaselineRuntimeState.cs" />
+    <Compile Include="Services\Baseline\BaselineRuntimeStateStore.cs" />
+    <Compile Include="Services\Baseline\BaselineSafetyState.cs" />
+    <Compile Include="Services\Baseline\BaselineSafetyStateStore.cs" />
+    <Compile Include="Services\Baseline\BaselineGateService.cs" />
+    <Compile Include="Services\Baseline\BaselineCleanupAuthorizationGate.cs" />
+    <Compile Include="Services\Baseline\BaselineSnapshotRestoreAuthorizationGate.cs" />
+    <Compile Include="Services\Baseline\BaselineRepairExecutionGate.cs" />
+    <Compile Include="Services\Baseline\BaselineChangeExecutionGate.cs" />
+    <Compile Include="Services\Baseline\BaselineNetworkResetAuthorizationGate.cs" />
+    <Compile Include="Services\Baseline\BaselineManagedAutostartGate.cs" />
+    <Compile Include="Services\Baseline\BaselineAuthorization.cs" />
+    <Compile Include="Services\Baseline\BaselineAuthorizationInfrastructure.cs" />
+    <Compile Include="Services\Baseline\BaselineAuthorizationRepository.cs" />
+    <Compile Include="Services\Baseline\FirstRunBaselineOrchestrator.cs" />
+    <Compile Include="Services\Baseline\IBaselineCatalogService.cs" />
+    <Compile Include="Services\Baseline\IBaselineDomainCollector.cs" />
+    <Compile Include="Services\Baseline\IBaselineGateService.cs" />
+    <Compile Include="Services\Baseline\IBaselineIntegrityService.cs" />
+    <Compile Include="Services\Baseline\IBaselineManualGuideService.cs" />
+    <Compile Include="Services\Baseline\IBaselineRestoreOrchestrator.cs" />
+    <Compile Include="Services\Baseline\IBaselineRestoreScoringService.cs" />
+    <Compile Include="Services\Baseline\IFirstRunBaselineOrchestrator.cs" />
+  </ItemGroup>
+</Project>

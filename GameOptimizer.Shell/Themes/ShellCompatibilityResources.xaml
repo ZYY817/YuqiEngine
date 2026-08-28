@@ -1,0 +1,241 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:GameOptimizer.Shell.Controls">
+    <!--
+        Compatibility-only contracts for pages that have not migrated yet.
+        New Shell code must consume Theme.Brush.* and Token.* directly.
+        Every visual color below is a DynamicResource so theme replacement is
+        observed without rebuilding controls.
+    -->
+    <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource Theme.Text.Primary}"/>
+    <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource Theme.Text.Secondary}"/>
+    <SolidColorBrush x:Key="CardBackground" Color="{DynamicResource Theme.Background.Card}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource Theme.Accent.Blue}"/>
+
+    <Style TargetType="Window">
+        <Setter Property="FontFamily" Value="{DynamicResource Token.FontFamily.Display}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.Background}"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Shared button state contract: default, hover, pressed, focused,
+         disabled, loading, error, unauthorized and recovering. -->
+    <Style x:Key="AppButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextOnAccent}"/>
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccentBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.Button}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Token.Size.MinInteractive}"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Token.FontWeight.SemiBold}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="ButtonChrome"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Token.Radius.Button}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          RecognizesAccessKey="True">
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                    <Setter Property="TextAlignment" Value="Center"/>
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ButtonChrome" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccentHover}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="ButtonChrome" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+                            <Setter TargetName="ButtonChrome" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            <Setter TargetName="ButtonChrome" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="ButtonChrome" Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
+                        <Trigger Property="controls:ControlStateProperties.State" Value="Loading">
+                            <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.86"/>
+                            <Setter Property="IsHitTestVisible" Value="False"/>
+                        </Trigger>
+                        <Trigger Property="controls:ControlStateProperties.State" Value="Error">
+                            <Setter TargetName="ButtonChrome" Property="Background" Value="{DynamicResource Theme.Brush.Error}"/>
+                            <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="{DynamicResource Theme.Brush.Error}"/>
+                        </Trigger>
+                        <Trigger Property="controls:ControlStateProperties.State" Value="Unauthorized">
+                            <Setter TargetName="ButtonChrome" Property="Background" Value="{DynamicResource Theme.Brush.Warning}"/>
+                            <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="{DynamicResource Theme.Brush.Warning}"/>
+                            <Setter Property="IsEnabled" Value="False"/>
+                        </Trigger>
+                        <Trigger Property="controls:ControlStateProperties.State" Value="Recovering">
+                            <Setter TargetName="ButtonChrome" Property="Background" Value="{DynamicResource Theme.Brush.Warning}"/>
+                            <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="{DynamicResource Theme.Brush.Warning}"/>
+                            <Setter Property="IsHitTestVisible" Value="False"/>
+                        </Trigger>
+                        <Trigger Property="controls:ControlStateProperties.State" Value="Success">
+                            <Setter TargetName="ButtonChrome" Property="Background" Value="{DynamicResource Theme.Brush.Success}"/>
+                            <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="{DynamicResource Theme.Brush.Success}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" BasedOn="{StaticResource AppButton}"/>
+    <Style x:Key="GhostButton" TargetType="Button" BasedOn="{StaticResource AppButton}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.ButtonBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.InputBorder}"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.ButtonSm}"/>
+    </Style>
+    <Style x:Key="SubtleButton" TargetType="Button" BasedOn="{StaticResource AppButton}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.ButtonSm}"/>
+    </Style>
+
+    <Style x:Key="SectionCardStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="{DynamicResource Token.Radius.Card}"/>
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackground}"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.CardLarge}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <Style x:Key="InnerCardStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="{DynamicResource Token.Radius.Md}"/>
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.Card}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <Style TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource Token.FontFamily.Display}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+    <Style TargetType="FrameworkElement">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <Style TargetType="Control">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+    <Style TargetType="ContentPresenter">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+
+    <Style x:Key="PageTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Token.FontSize.3xl}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Token.FontWeight.Bold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    <Style x:Key="PageSubtitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Token.FontSize.Sm}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+        <Setter Property="Margin" Value="0,6,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    <Style x:Key="CardTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Token.FontSize.Lg}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Token.FontWeight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    <Style x:Key="SectionTitle" TargetType="TextBlock" BasedOn="{StaticResource CardTitleStyle}">
+        <Setter Property="FontSize" Value="{DynamicResource Token.FontSize.Xl}"/>
+    </Style>
+
+    <Style x:Key="PillRadioStyle" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Token.FontWeight.SemiBold}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Token.FontSize.Sm}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Token.Size.MinInteractive}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Segment" Background="{DynamicResource Theme.Brush.ButtonBackground}"
+                            BorderBrush="{DynamicResource Theme.Brush.InputBorder}" BorderThickness="1"
+                            CornerRadius="{DynamicResource Token.Radius.Button}"
+                            Padding="{DynamicResource Token.Padding.ButtonSm}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <ContentPresenter.Resources><Style TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="TextAlignment" Value="Center"/></Style></ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Segment" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccentSelectedBg}"/>
+                            <Setter TargetName="Segment" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccentBorder}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextOnAccent}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Segment" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccentHover}"/><Setter TargetName="Segment" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Segment" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Segment" Property="BorderThickness" Value="2"/></Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Segment" Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/><Setter TargetName="Segment" Property="BorderThickness" Value="2"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Segment" Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/></Trigger>
+                        <Trigger Property="controls:ControlStateProperties.State" Value="Loading"><Setter Property="IsHitTestVisible" Value="False"/><Setter TargetName="Segment" Property="Opacity" Value="0.86"/></Trigger>
+                        <Trigger Property="controls:ControlStateProperties.State" Value="Error"><Setter TargetName="Segment" Property="BorderBrush" Value="{DynamicResource Theme.Brush.Error}"/></Trigger>
+                        <Trigger Property="controls:ControlStateProperties.State" Value="Unauthorized"><Setter TargetName="Segment" Property="BorderBrush" Value="{DynamicResource Theme.Brush.Warning}"/><Setter Property="IsEnabled" Value="False"/></Trigger>
+                        <Trigger Property="controls:ControlStateProperties.State" Value="Recovering"><Setter TargetName="Segment" Property="BorderBrush" Value="{DynamicResource Theme.Brush.Warning}"/><Setter Property="IsHitTestVisible" Value="False"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource AppButton}"><Setter Property="FontSize" Value="{DynamicResource Token.FontSize.Sm}"/></Style>
+    <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource AppButton}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.ButtonBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Token.FontWeight.Medium}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Token.FontSize.Sm}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.InputBorder}"/>
+    </Style>
+
+    <Style TargetType="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.InputBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.InputBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.Input}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Token.Size.MinInteractive}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}"/>
+    </Style>
+    <Style TargetType="ComboBoxItem">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.Background}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.ButtonSm}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}"/>
+    </Style>
+</ResourceDictionary>

@@ -1,0 +1,63 @@
+<UserControl x:Class="GameOptimizer.Shell.Controls.EnhancedSlider"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             Focusable="True"
+             AutomationProperties.Name="{Binding Title, ElementName=Root}">
+    <Border x:Name="Surface" Style="{StaticResource Yuqi.Tool.Inset}" Padding="12">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="TxtTitle" Text="{Binding Title, ElementName=Root}"
+                               FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                    <Border x:Name="RecommendBadge" Visibility="Collapsed"
+                            Margin="8,0,0,0" Padding="7,3"
+                            Background="{DynamicResource Theme.Brush.ControlAccentSelectedBg}"
+                            BorderBrush="{DynamicResource Theme.Brush.ControlAccentBorder}"
+                            BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Badge}">
+                        <TextBlock x:Name="TxtRecommend" FontSize="10"
+                                   Foreground="{DynamicResource Theme.Brush.ControlAccent}"/>
+                    </Border>
+                    <Border x:Name="RiskBadge" Visibility="Collapsed"
+                            Margin="8,0,0,0" Padding="7,3"
+                            Background="{DynamicResource Theme.Brush.WarningAlt}"
+                            BorderBrush="{DynamicResource Theme.Brush.Warning}"
+                            BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Badge}">
+                        <TextBlock x:Name="TxtRisk" FontSize="10"
+                                   Foreground="{DynamicResource Theme.Brush.Warning}"/>
+                    </Border>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="TxtOriginalValue" Visibility="Collapsed"
+                               FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                    <TextBlock x:Name="TxtArrow" Text=" → " Visibility="Collapsed"
+                               FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                    <TextBlock x:Name="TxtCurrentValue" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                </StackPanel>
+            </Grid>
+            <TextBlock Grid.Row="1" x:Name="TxtDescription" Text="{Binding Description, ElementName=Root}"
+                       Margin="0,4,0,8" FontSize="10"
+                       Foreground="{DynamicResource Theme.Brush.TextSecondary}"
+                       TextWrapping="Wrap"/>
+            <Slider Grid.Row="2" x:Name="MainSlider"
+                    Minimum="{Binding Minimum, ElementName=Root}"
+                    Maximum="{Binding Maximum, ElementName=Root}"
+                    Value="{Binding Value, ElementName=Root, Mode=TwoWay}"
+                    IsSnapToTickEnabled="{Binding IsSnapToTick, ElementName=Root}"
+                    TickFrequency="{Binding TickFrequency, ElementName=Root}"
+                    ValueChanged="MainSlider_ValueChanged"
+                    ToolTip="{Binding DetailedTooltip, ElementName=Root}"/>
+        </Grid>
+    </Border>
+</UserControl>

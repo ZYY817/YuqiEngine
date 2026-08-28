@@ -1,0 +1,322 @@
+﻿<Window x:Class="GameOptimizer.Shell.Views.MemoryCleanDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="内存清理" Height="720" Width="820"
+        WindowStartupLocation="CenterOwner" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False"
+        TextOptions.TextFormattingMode="Display">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Window.Resources>
+    <Border Background="{DynamicResource Theme.Brush.RowBackground}" CornerRadius="12" BorderBrush="{DynamicResource Theme.Brush.RowBorder}" BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="32" ShadowDepth="0" Opacity="0.6" Color="#000000"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="12,12,0,0" Padding="24,18">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock x:Name="TitleText" Text="内存加速" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="20" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="SubtitleText" Text="智能识别可安全清理的进程，释放系统内存" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="13" Margin="0,6,0,0"/>
+                    </StackPanel>
+                    <Button Content="✕" HorizontalAlignment="Right" VerticalAlignment="Top" 
+                            Click="Close_Click" Cursor="Hand" Background="Transparent" BorderThickness="0"
+                            Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="16" Padding="10,6">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent" CornerRadius="6" Padding="10,6">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+                                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+            
+            <!-- Memory Status -->
+            <Border Grid.Row="1" Background="{DynamicResource Theme.Brush.DialogBackground}" Margin="20,16,20,0" CornerRadius="10" Padding="24,18" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock x:Name="LblCurrentMemory" Text="当前内存使用" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="13"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <TextBlock x:Name="CurrentUsedText" Text="0.0" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="36" FontWeight="Bold" FontFamily="Consolas" VerticalAlignment="Bottom"/>
+                            <TextBlock Text=" / " Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="18" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                            <TextBlock x:Name="CurrentTotalText" Text="32" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="18" FontWeight="Medium" VerticalAlignment="Bottom" Margin="0,0,0,4" FontFamily="Consolas"/>
+                            <TextBlock Text=" GB" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="14" VerticalAlignment="Bottom" Margin="2,0,0,6"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <Border Grid.Column="1" Width="1" Background="{DynamicResource Theme.Brush.Border}" Margin="32,8"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="LblMemoryLoad" Text="内存负载" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="13"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <TextBlock x:Name="CurrentPercentText" Text="0" Foreground="#2E88F2" FontSize="36" FontWeight="Bold" FontFamily="Consolas" VerticalAlignment="Bottom"/>
+                            <TextBlock Text="%" Foreground="#2E88F2" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Bottom" Margin="2,0,0,4"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Toolbar -->
+            <Border Grid.Row="2" Margin="20,16,20,0" Background="{DynamicResource Theme.Brush.DialogBackground}" CornerRadius="10" Padding="16,12" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1">
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="AddWhitelistBtn" Click="AddWhitelist_Click" Cursor="Hand" ToolTip="将选中进程加入白名单保护">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Bd" Background="{DynamicResource Theme.Brush.CardBackgroundHover}" CornerRadius="8" Padding="14,10">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🛡" FontSize="14" Margin="0,0,6,0"/>
+                                            <TextBlock x:Name="BtnText" Text="加入白名单" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="#28FFFFFF"/>
+                                            <Setter TargetName="BtnText" Property="Foreground" Value="#FFFFFF"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button x:Name="RemoveWhitelistBtn" Click="RemoveWhitelist_Click" Cursor="Hand" Margin="10,0,0,0" ToolTip="从白名单移除">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Bd" Background="{DynamicResource Theme.Brush.CardBackgroundHover}" CornerRadius="8" Padding="14,10">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="✕" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,0,6,0"/>
+                                            <TextBlock x:Name="BtnText" Text="移除白名单" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="13"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="#28FFFFFF"/>
+                                            <Setter TargetName="BtnText" Property="Foreground" Value="#A1A1AA"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                    
+                    <!-- 分类图例 -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Border Background="#2034C759" CornerRadius="6" Padding="10,6" Margin="0,0,8,0">
+                            <TextBlock x:Name="LblCleanable" Text="可清理" Foreground="#34C759" FontSize="12" FontWeight="Medium"/>
+                        </Border>
+                        <Border Background="#20FF9500" CornerRadius="6" Padding="10,6" Margin="0,0,8,0">
+                            <TextBlock x:Name="LblCaution" Text="谨慎" Foreground="#FF9500" FontSize="12" FontWeight="Medium"/>
+                        </Border>
+                        <Border Background="#20FF453A" CornerRadius="6" Padding="10,6" Margin="0,0,8,0">
+                            <TextBlock x:Name="LblSystem" Text="系统" Foreground="#FF453A" FontSize="12" FontWeight="Medium"/>
+                        </Border>
+                        <Border Background="#202E88F2" CornerRadius="6" Padding="10,6">
+                            <TextBlock x:Name="LblWhitelist" Text="白名单" Foreground="#2E88F2" FontSize="12" FontWeight="Medium"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Process List -->
+            <Border x:Name="ProcessListBorder" Grid.Row="3" Margin="20,12,20,0" Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="10" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- List Header -->
+                    <Border Grid.Row="0" Background="{DynamicResource Theme.Brush.DialogBackground}" Padding="16,14" CornerRadius="10,10,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="选择" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="LblProcessName" Grid.Column="1" Text="进程名称" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="LblCategory" Grid.Column="2" Text="分类" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="14" FontWeight="Medium" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="LblInstance" Grid.Column="3" Text="实例" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="14" FontWeight="Medium" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="LblMemoryUsage" Grid.Column="4" Text="内存占用" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="14" FontWeight="Medium" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Process Items -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="260">
+                        <ItemsControl x:Name="ProcessList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border x:Name="RowBorder" Background="Transparent" Padding="16,12" BorderBrush="#0AFFFFFF" BorderThickness="0,0,0,1">
+                                        <Grid VerticalAlignment="Center">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="40"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="100"/>
+                                            </Grid.ColumnDefinitions>
+                                            <RadioButton Grid.Column="0" GroupName="WorkingSetTarget" IsChecked="{Binding IsSelected}" IsEnabled="{Binding CanSelect}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="14" FontWeight="Medium"/>
+                                                <TextBlock Text="{Binding Description}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,2,0,0" Visibility="{Binding HasDescription, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                            </StackPanel>
+                                            <Border Grid.Column="2" Background="{Binding CategoryBg}" CornerRadius="6" Padding="8,4" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding CategoryText}" Foreground="{Binding CategoryFg}" FontSize="11" FontWeight="Medium"/>
+                                            </Border>
+                                            <TextBlock Grid.Column="3" Text="{Binding InstanceText}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="13" FontFamily="Consolas" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding MemoryText}" Foreground="#2E88F2" FontSize="13" FontWeight="SemiBold" FontFamily="Consolas" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <DataTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="RowBorder" Property="Background" Value="{DynamicResource Theme.Brush.CardBackground}"/>
+                                        </Trigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- Progress/Result Panel -->
+            <Border x:Name="ProgressPanel" Grid.Row="3" Margin="20,16,20,0" Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="10" Padding="32" Visibility="Collapsed">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock x:Name="ProgressStatusText" Text="正在清理内存..." Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="16" FontWeight="Medium" HorizontalAlignment="Center"/>
+                    <ProgressBar x:Name="CleanProgressBar" Height="6" Width="360" Margin="0,20,0,12" Background="{DynamicResource Theme.Brush.Border}" Foreground="#2E88F2" BorderThickness="0"/>
+                    <TextBlock x:Name="ProgressDetailText" Text="" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="13" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+            
+            <Border x:Name="ResultPanel" Grid.Row="3" Margin="20,16,20,0" Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="10" Padding="32" Visibility="Collapsed">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Border Background="#2034C759" Width="64" Height="64" CornerRadius="32">
+                        <TextBlock Text="✓" Foreground="#34C759" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock x:Name="LblCleanComplete" Text="清理完成" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,16,0,0"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
+                        <StackPanel HorizontalAlignment="Center" Margin="0,0,32,0">
+                            <TextBlock x:Name="LblBeforeClean" Text="清理前" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="13" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="BeforeMemoryText" Text="0.0 GB" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="20" FontWeight="SemiBold" FontFamily="Consolas" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                        </StackPanel>
+                        <TextBlock Text="→" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="24" VerticalAlignment="Center"/>
+                        <StackPanel HorizontalAlignment="Center" Margin="32,0,0,0">
+                            <TextBlock x:Name="LblAfterClean" Text="清理后" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="13" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="AfterMemoryText" Text="0.0 GB" Foreground="#34C759" FontSize="20" FontWeight="SemiBold" FontFamily="Consolas" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Border Background="#2034C759" CornerRadius="8" Padding="20,12" Margin="0,24,0,0">
+                        <TextBlock x:Name="FreedMemoryText" Text="已释放 0 MB 内存" Foreground="#34C759" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+            
+            <!-- Footer -->
+            <Border Grid.Row="4" Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="0,0,12,12" Padding="24,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
+                        <TextBlock x:Name="MemoryBlockedReasonText"
+                                   Text="内存写入安全边界核验中"
+                                   TextWrapping="Wrap"
+                                   Foreground="#FF9500"
+                                   FontSize="12"
+                                   Margin="0,0,0,4"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="SelectedCountText" Text="已选: 0 个进程" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="14"/>
+                            <TextBlock Text=" · " Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="14"/>
+                            <TextBlock x:Name="SelectedMemoryText" Text="约 0 MB" Foreground="#2E88F2" FontSize="14" FontWeight="Medium"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <Button x:Name="CancelBtn" Grid.Column="1" Content="取消" Click="Cancel_Click" Cursor="Hand"
+                            Background="Transparent" BorderBrush="{DynamicResource Theme.Brush.BorderLight}" BorderThickness="1"
+                            Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="14" Padding="20,10" Margin="0,0,12,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent" BorderBrush="{DynamicResource Theme.Brush.BorderLight}" BorderThickness="1" CornerRadius="8" Padding="20,10">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                                        <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Theme.Brush.TextDisabled}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    
+                    <Button x:Name="ConfirmBtn" Grid.Column="2" Click="Confirm_Click" Cursor="Hand" IsEnabled="False">
+                        <Button.Effect>
+                            <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.3" Color="#2E88F2"/>
+                        </Button.Effect>
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" CornerRadius="8" Padding="24,10">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#4A9EFF" Offset="0"/>
+                                            <GradientStop Color="#2E88F2" Offset="0.5"/>
+                                            <GradientStop Color="#2070D0" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <TextBlock x:Name="StartCleanText" Text="开始清理" Foreground="White" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                    <GradientStop Color="#5BABFF" Offset="0"/>
+                                                    <GradientStop Color="#3B9BFF" Offset="0.5"/>
+                                                    <GradientStop Color="#2E88F2" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#2068C8"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,479 @@
+﻿<UserControl x:Class="GameOptimizer.Shell.Views.CpuAffinityPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:GameOptimizer.Shell.Converters"
+             Background="Transparent">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
+    </UserControl.Resources>
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="32,24">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,24">
+                <StackPanel>
+                    <TextBlock x:Name="PageTitle" Text="CPU 亲和性" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                    <TextBlock x:Name="PageSubtitle" Text="智能分配 CPU 核心，让游戏获得最佳性能" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="14" Margin="0,6,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Border Background="#1522D3EE" CornerRadius="8" Padding="10,6" Margin="0,0,8,0">
+                        <TextBlock Text="{Binding CpuDisplayName}" Foreground="#22D3EE" FontSize="12" FontWeight="Medium" FontFamily="Consolas"/>
+                    </Border>
+                    <Border Background="#15A78BFA" CornerRadius="8" Padding="10,6">
+                        <TextBlock Text="{Binding CoreCountDisplay}" Foreground="#A78BFA" FontSize="12" FontWeight="Medium"/>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- Info Card -->
+            <Border Grid.Row="1" CornerRadius="12" Padding="20" Margin="0,0,0,16" BorderThickness="1">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#0822D3EE" Offset="0"/>
+                        <GradientStop Color="#0509090B" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#2022D3EE" Offset="0"/>
+                        <GradientStop Color="#08FFFFFF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- 功能说明 -->
+                    <StackPanel Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock Text="💡" FontSize="16" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="FeatureDescTitle" Text="功能说明" Foreground="#22D3EE" FontSize="13" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <TextBlock Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" TextWrapping="Wrap" LineHeight="20">
+                            <Run x:Name="FeatureDesc1" Text="• 将游戏绑定到P核心获得更高帧率"/><LineBreak/>
+                            <Run x:Name="FeatureDesc2" Text="• 将后台程序绑定到E核心不影响游戏"/><LineBreak/>
+                            <Run x:Name="FeatureDesc3" Text="• 需要程序正在运行才能生效"/>
+                        </TextBlock>
+                    </StackPanel>
+                    
+                    <!-- 分隔线 -->
+                    <Border Grid.Column="1" Width="1" Background="{DynamicResource Theme.Brush.TrackBackground}" Margin="20,0"/>
+                    
+                    <!-- 使用提示 -->
+                    <StackPanel Grid.Column="2">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock Text="⚠️" FontSize="16" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="UsageTipsTitle" Text="使用提示" Foreground="#F59E0B" FontSize="13" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <TextBlock Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" TextWrapping="Wrap" LineHeight="20">
+                            <Run x:Name="UsageTip1" Text="• 现代游戏已优化良好，提升可能有限"/><LineBreak/>
+                            <Run x:Name="UsageTip2" Text="• Intel Thread Director 会自动调度"/><LineBreak/>
+                            <Run x:Name="UsageTip3" Text="• 最佳用途：限制后台程序到E核心"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- CPU Core Matrix Visualization -->
+            <Border Grid.Row="2" Background="{DynamicResource Theme.Brush.CardBackground}" CornerRadius="12" Padding="20" Margin="0,0,0,20" 
+                    BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Header with CPU type info -->
+                    <Grid Grid.Row="0" Margin="0,0,0,16">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔲" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="CoreMatrixTitle" Text="CPU 核心矩阵" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <!-- Legend for hybrid CPUs -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" 
+                                    Visibility="{Binding IsHybridCpu, Converter={StaticResource BoolToVis}}">
+                            <Border Background="#150EA5E9" CornerRadius="4" Padding="8,3" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="8" Height="8" Fill="#0EA5E9" Margin="0,0,6,0"/>
+                                    <TextBlock Text="P-Core" Foreground="#0EA5E9" FontSize="11"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#15A78BFA" CornerRadius="4" Padding="8,3">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="8" Height="8" Fill="#A78BFA" Margin="0,0,6,0"/>
+                                    <TextBlock Text="E-Core" Foreground="#A78BFA" FontSize="11"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Core Matrix Grid -->
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding CpuInfo.Threads}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="52" Height="52" Margin="3" CornerRadius="8">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#1522D3EE"/>
+                                            <Setter Property="BorderBrush" Value="#3022D3EE"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CoreType}" Value="PerformanceCore">
+                                                    <Setter Property="Background" Value="#150EA5E9"/>
+                                                    <Setter Property="BorderBrush" Value="#400EA5E9"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding CoreType}" Value="EfficiencyCore">
+                                                    <Setter Property="Background" Value="#15A78BFA"/>
+                                                    <Setter Property="BorderBrush" Value="#40A78BFA"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding CoreType}" Value="CacheCore">
+                                                    <Setter Property="Background" Value="#15F59E0B"/>
+                                                    <Setter Property="BorderBrush" Value="#40F59E0B"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding CoreType}" Value="ComputeCore">
+                                                    <Setter Property="Background" Value="#1510B981"/>
+                                                    <Setter Property="BorderBrush" Value="#4010B981"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock HorizontalAlignment="Center" FontSize="13" FontWeight="SemiBold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#22D3EE"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding CoreType}" Value="PerformanceCore">
+                                                            <Setter Property="Foreground" Value="#0EA5E9"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding CoreType}" Value="EfficiencyCore">
+                                                            <Setter Property="Foreground" Value="#A78BFA"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding CoreType}" Value="CacheCore">
+                                                            <Setter Property="Foreground" Value="#F59E0B"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding CoreType}" Value="ComputeCore">
+                                                            <Setter Property="Foreground" Value="#10B981"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                            <Run Text="{Binding CoreTypeDisplay, Mode=OneWay}"/><Run Text="{Binding Index, Mode=OneWay}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding CoreTypeDisplay}" FontSize="9" HorizontalAlignment="Center" Margin="0,2,0,0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#52525B"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding CoreType}" Value="Standard">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+
+            <!-- Quick Actions -->
+            <Border Grid.Row="3" Background="{DynamicResource Theme.Brush.CardBackground}" CornerRadius="12" Padding="16" Margin="0,0,0,20" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="QuickActionsTitle" Text="⚡ 快速操作" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Command="{Binding AddProcessCommand}" Cursor="Hand" Margin="0,0,10,0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="border" CornerRadius="8" Padding="14,8">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                <GradientStop Color="#22D3EE" Offset="0"/>
+                                                <GradientStop Color="#0EA5E9" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="+" FontSize="14" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontWeight="Bold" Margin="0,0,6,0"/>
+                                            <TextBlock x:Name="AddProgramText" Text="添加程序" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12" FontWeight="Medium"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button Command="{Binding ApplyAllCommand}" Cursor="Hand" Margin="0,0,10,0"
+                                Visibility="{Binding HasProfiles, Converter={StaticResource BoolToVis}}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="border" Background="#1522C55E" CornerRadius="8" Padding="14,8" BorderBrush="#3022C55E" BorderThickness="1">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="▶" FontSize="10" Foreground="#22C55E" Margin="0,0,6,0"/>
+                                            <TextBlock x:Name="ApplyAllText" Text="应用全部" Foreground="#22C55E" FontSize="12" FontWeight="Medium"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="border" Property="Background" Value="#2522C55E"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button Command="{Binding ClearAllProfilesCommand}" Cursor="Hand" Margin="0,0,10,0"
+                                Visibility="{Binding HasProfiles, Converter={StaticResource BoolToVis}}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="border" Background="{DynamicResource Theme.Brush.CardBackgroundHover}" CornerRadius="8" Padding="14,8" BorderBrush="{DynamicResource Theme.Brush.CardBorderHover}" BorderThickness="1">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="↺" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,0,6,0"/>
+                                            <TextBlock x:Name="ClearAllText" Text="清除全部" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" FontWeight="Medium"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="border" Property="Background" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button Command="{Binding RefreshStatusAsyncCommand}" Cursor="Hand"
+                                Visibility="{Binding HasProfiles, Converter={StaticResource BoolToVis}}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="border" Background="{DynamicResource Theme.Brush.CardBackgroundHover}" CornerRadius="8" Padding="14,8" BorderBrush="{DynamicResource Theme.Brush.CardBorderHover}" BorderThickness="1">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🔄" FontSize="11" Margin="0,0,6,0"/>
+                                            <TextBlock x:Name="RefreshStatusText" Text="刷新状态" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" FontWeight="Medium"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="border" Property="Background" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Profile List -->
+            <Grid Grid.Row="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Margin="0,0,0,16">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="ConfiguredProgramsTitle" Text="已配置的程序" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                        <Border Background="#1522D3EE" CornerRadius="10" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center"
+                                Visibility="{Binding HasProfiles, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="{Binding Profiles.Count}" Foreground="#22D3EE" FontSize="12" FontWeight="Medium"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock x:Name="ConfigHintText" Text="配置已保存，程序启动后点击「应用全部」生效。程序重启后需重新应用。" 
+                               Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="11" Margin="0,6,0,0"
+                               Visibility="{Binding HasProfiles, Converter={StaticResource BoolToVis}}"/>
+                </StackPanel>
+
+                <!-- Empty State -->
+                <Border Grid.Row="1" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" CornerRadius="12" Padding="40"
+                        Visibility="{Binding HasProfiles, Converter={StaticResource InverseBoolToVis}}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="📦" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                        <TextBlock x:Name="NoConfigTitle" Text="暂无配置" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="16" FontWeight="Medium" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="NoConfigHint" Text="点击 添加程序 开始配置" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="13" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Profile Cards -->
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding Profiles}"
+                              Visibility="{Binding HasProfiles, Converter={StaticResource BoolToVis}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{DynamicResource Theme.Brush.CardBackground}" CornerRadius="12" Padding="16" Margin="0,0,0,10" 
+                                    BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Icon -->
+                                    <Border Grid.Column="0" Width="44" Height="44" CornerRadius="10" 
+                                            Background="{DynamicResource Theme.Brush.CardBackgroundHover}" Margin="0,0,14,0">
+                                        <TextBlock Text="{Binding Icon}" FontSize="22" 
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <!-- Info -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="14" FontWeight="Medium"/>
+                                            <!-- Status Badge -->
+                                            <Border CornerRadius="4" Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="#1571717A"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Applied">
+                                                                <Setter Property="Background" Value="#1522C55E"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Pending">
+                                                                <Setter Property="Background" Value="#15F59E0B"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="{Binding StatusText}" FontSize="10" Foreground="{Binding StatusColor}"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding ProcessName}" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="11" FontFamily="Consolas"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Affinity Badge -->
+                                    <Border Grid.Column="2" CornerRadius="8" Padding="12,6" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Game">
+                                                        <Setter Property="Background" Value="#150EA5E9"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Browser">
+                                                        <Setter Property="Background" Value="#15A78BFA"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Communication">
+                                                        <Setter Property="Background" Value="#15A78BFA"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding AffinityDescription}" FontSize="12" FontWeight="Medium">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#A1A1AA"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Type}" Value="Game">
+                                                            <Setter Property="Foreground" Value="#0EA5E9"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Type}" Value="Browser">
+                                                            <Setter Property="Foreground" Value="#A78BFA"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Type}" Value="Communication">
+                                                            <Setter Property="Foreground" Value="#A78BFA"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+
+                                    <!-- Actions -->
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button x:Name="BtnApplyProfile" Cursor="Hand" Margin="0,0,8,0"
+                                                Command="{Binding DataContext.ApplySingleProfileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="bd" Background="#1522C55E" CornerRadius="6" Padding="10,6">
+                                                        <TextBlock x:Name="ApplyProfileText" Text="应用" Foreground="#22C55E" FontSize="12"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="bd" Property="Background" Value="#2522C55E"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                        <Button x:Name="BtnEditProfile" Cursor="Hand" Margin="0,0,8,0"
+                                                Command="{Binding DataContext.EditProfileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="bd" Background="{DynamicResource Theme.Brush.CardBackgroundHover}" CornerRadius="6" Padding="10,6">
+                                                        <TextBlock x:Name="EditProfileText" Text="编辑" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                        <Button x:Name="BtnDeleteProfile" Cursor="Hand"
+                                                Command="{Binding DataContext.DeleteProfileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="bd" Background="#15EF4444" CornerRadius="6" Padding="10,6">
+                                                        <TextBlock x:Name="DeleteProfileText" Text="删除" Foreground="#EF4444" FontSize="12"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="bd" Property="Background" Value="#25EF4444"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+
+            <!-- Status Bar -->
+            <Border Grid.Row="4" VerticalAlignment="Bottom" Margin="0,16,0,0"
+                    Background="{DynamicResource Theme.Brush.CardBackground}" CornerRadius="8" Padding="12,8"
+                    Visibility="{Binding StatusText.Length, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12"/>
+            </Border>
+
+            <!-- Loading Overlay -->
+            <Border Grid.RowSpan="5" Background="#80000000" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="⏳" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                    <TextBlock x:Name="ProcessingText" Text="处理中..." Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="14"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

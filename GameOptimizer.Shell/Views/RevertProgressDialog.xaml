@@ -1,0 +1,77 @@
+<!-- File: GameOptimizer.Shell/Views/RevertProgressDialog.xaml -->
+<Window x:Class="GameOptimizer.Shell.Views.RevertProgressDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="正在取消优化" Width="500" Height="280"
+        WindowStartupLocation="CenterOwner" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        ShowInTaskbar="False" Topmost="True">
+    <Border Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="16" BorderThickness="1" BorderBrush="{DynamicResource Theme.Brush.BorderSubtle}">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="40" ShadowDepth="0" Opacity="0.5" Color="{DynamicResource Theme.Color.Shadow}"/>
+        </Border.Effect>
+        <Grid Margin="32,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- 标题 -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,24">
+                <TextBlock Text="⏳" FontSize="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="TitleText" Text="正在取消优化" 
+                           Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" 
+                           FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+            
+            <!-- 当前模块 -->
+            <Border Grid.Row="1" Background="{DynamicResource Theme.Brush.SurfaceMuted}" 
+                    CornerRadius="8" Padding="16,12" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock x:Name="ProcessingLabel" Text="正在处理：" 
+                               Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                               FontSize="12" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="CurrentModuleText" Text="内存优化" 
+                               Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" 
+                               FontSize="14" FontWeight="Medium" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- 进度条 -->
+            <Grid Grid.Row="2" Margin="0,0,0,16">
+                <Border Background="{DynamicResource Theme.Brush.CardBackground}" 
+                        CornerRadius="8" Height="12">
+                    <Border x:Name="ProgressBar" HorizontalAlignment="Left" 
+                            CornerRadius="8" Height="12" Width="0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#6366F1" Offset="0"/>
+                                <GradientStop Color="#8B5CF6" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                </Border>
+            </Grid>
+            
+            <!-- 统计信息 -->
+            <Grid Grid.Row="3">
+                <TextBlock x:Name="ProgressText" Text="已完成 0 / 总共 0" 
+                           Foreground="{DynamicResource Theme.Brush.TextSecondary}" 
+                           FontSize="13" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="PercentageText" Text="0%" 
+                           Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" 
+                           FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+            </Grid>
+            
+            <!-- 提示信息 -->
+            <StackPanel Grid.Row="4" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,20,0,0">
+                <TextBlock x:Name="HintText" Text="请稍候，正在恢复系统设置..." 
+                           Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                           FontSize="12" HorizontalAlignment="Center" TextAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

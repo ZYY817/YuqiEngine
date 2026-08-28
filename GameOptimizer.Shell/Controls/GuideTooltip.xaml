@@ -1,0 +1,179 @@
+﻿<!-- File: GameOptimizer.Shell/Controls/GuideTooltip.xaml -->
+<UserControl x:Class="GameOptimizer.Shell.Controls.GuideTooltip"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="360"
+             MaxWidth="420"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextHintingMode="Fixed"
+             TextOptions.TextRenderingMode="Auto">
+    <UserControl.Resources>
+        <Storyboard x:Key="FadeInStoryboard">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.28">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                             From="16" To="0" Duration="0:0:0.28">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <UserControl.RenderTransform>
+        <TranslateTransform X="0" Y="0"/>
+    </UserControl.RenderTransform>
+
+    <Grid RenderOptions.ClearTypeHint="Enabled">
+        <!-- Separate shadow layer to avoid blurring tooltip text -->
+        <Border CornerRadius="16"
+                Margin="0,6,0,0"
+                Background="#66000000"
+                Opacity="0.38"
+                IsHitTestVisible="False"/>
+
+        <Border CornerRadius="16" Padding="24,20" BorderThickness="1" SnapsToDevicePixels="True">
+            <Border.Background>
+                <SolidColorBrush Color="#1A1A2E"/>
+            </Border.Background>
+            <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#306366F1" Offset="0"/>
+                    <GradientStop Color="#2006B6D4" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.BorderBrush>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="0,0,0,14">
+                    <Border Background="#156366F1" CornerRadius="10" Padding="10,4" HorizontalAlignment="Left">
+                        <TextBlock x:Name="ProgressText"
+                                   Text="步骤 1/5"
+                                   FontSize="11"
+                                   Foreground="#A5B4FC"
+                                   FontWeight="Medium"/>
+                    </Border>
+                    <Button x:Name="CloseButton"
+                            Width="28"
+                            Height="28"
+                            HorizontalAlignment="Right"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Click="CloseButton_Click">
+                        <TextBlock Text="&#xE711;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="12"
+                                   Foreground="#6B7280"/>
+                    </Button>
+                </Grid>
+
+                <TextBlock x:Name="TitleText"
+                           Grid.Row="1"
+                           Text="标题"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           Foreground="#F1F5F9"
+                           Margin="0,0,0,10"
+                           TextWrapping="Wrap"/>
+
+                <TextBlock x:Name="ContentText"
+                           Grid.Row="2"
+                           Text="内容说明"
+                           FontSize="13"
+                           LineHeight="22"
+                           Foreground="#94A3B8"
+                           Margin="0,0,0,20"
+                           TextWrapping="Wrap"/>
+
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="SkipButton"
+                            Grid.Column="0"
+                            Content="跳过"
+                            Padding="12,6"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Foreground="#64748B"
+                            FontSize="13"
+                            Click="SkipButton_Click"/>
+
+                    <Border Grid.Column="2"
+                            Background="#15FFFFFF"
+                            BorderBrush="#20FFFFFF"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Margin="0,0,8,0">
+                        <Button x:Name="PrevButton"
+                                Padding="14,8"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Click="PrevButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE76B;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="11"
+                                           Foreground="#94A3B8"
+                                           Margin="0,0,6,0"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock x:Name="PrevButtonText"
+                                           Text="上一步"
+                                           Foreground="#94A3B8"
+                                           FontSize="13"/>
+                            </StackPanel>
+                        </Button>
+                    </Border>
+
+                    <Border Grid.Column="3" CornerRadius="8">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#6366F1" Offset="0"/>
+                                <GradientStop Color="#4F46E5" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Button x:Name="NextButton"
+                                Padding="16,8"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Click="NextButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="NextButtonText"
+                                           Text="下一步"
+                                           Foreground="White"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"/>
+                                <TextBlock x:Name="NextButtonIcon"
+                                           Text="&#xE76C;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="11"
+                                           Foreground="White"
+                                           Margin="6,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

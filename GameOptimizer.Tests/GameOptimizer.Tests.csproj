@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GameOptimizer.Core\GameOptimizer.Core.csproj" />
+    <ProjectReference Include="..\GameOptimizer.Infrastructure.Windows\GameOptimizer.Infrastructure.Windows.csproj" />
+    <ProjectReference Include="..\GameOptimizer.Shell\GameOptimizer.Shell.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The one-shot OperationLock shutdown probe is built as its own isolated test entry point. -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Shared test doubles live in Changes and are intentionally available to cross-area test fixtures. -->
+    <Using Include="GameOptimizer.Tests.Changes" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

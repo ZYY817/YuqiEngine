@@ -1,0 +1,371 @@
+﻿<UserControl x:Class="GameOptimizer.Shell.Views.CoreAcceleratorPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:GameOptimizer.Shell.ViewModels"
+             xmlns:conv="clr-namespace:GameOptimizer.Shell.Converters"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:CoreAcceleratorViewModel, IsDesignTimeCreatable=False}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
+        
+        <Style x:Key="CoreToggleBase" TargetType="ToggleButton">
+            <Setter Property="Width" Value="42"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bd" CornerRadius="6" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" 
+                                BorderThickness="1" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}">
+                            <TextBlock Text="{Binding Index, Mode=OneWay}" FontSize="12" FontWeight="Medium"
+                                       Foreground="{DynamicResource Theme.Brush.TextSecondary}" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.AccentBlue}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Theme.Brush.AccentBlueLight}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Theme.Brush.AccentPurple}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Border Height="180" VerticalAlignment="Top" IsHitTestVisible="False">
+            <Border.Background>
+                <RadialGradientBrush Center="0.5,0" GradientOrigin="0.5,0" RadiusX="0.8" RadiusY="1.2">
+                    <GradientStop Color="#206366F1" Offset="0"/>
+                    <GradientStop Color="#00000000" Offset="1"/>
+                </RadialGradientBrush>
+            </Border.Background>
+        </Border>
+        
+        <Grid Margin="20,12,20,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock x:Name="PageTitle" Text="核心加速器" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                    <TextBlock x:Name="PageSubtitle" Text="将游戏锁定到最佳 CPU 核心，提升帧率稳定性" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Border Grid.Column="1" CornerRadius="10" Padding="12,6" Background="{DynamicResource Theme.Brush.StatusBadgeBackground}" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="6" Height="6" Margin="0,0,8,0" VerticalAlignment="Center">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill" Value="{DynamicResource Theme.Brush.TextMuted}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsAccelerating}" Value="True">
+                                            <Setter Property="Fill" Value="#4ADE80"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                        <TextBlock Text="{Binding StatusText, Mode=OneWay}" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}" VerticalAlignment="Center"/>
+                        <TextBlock Text="  " Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding CpuDisplayName, Mode=OneWay}" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}" VerticalAlignment="Center"/>
+                        <Border CornerRadius="4" Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Center" Background="{DynamicResource Theme.Brush.ControlAccentSelectedBg}">
+                            <TextBlock Text="{Binding ArchLabel, Mode=OneWay}" FontSize="10" Foreground="{DynamicResource Theme.Brush.ControlAccent}"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            
+            <Border Grid.Row="1" CornerRadius="12" Padding="16,12" Margin="0,0,0,12" 
+                    Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" 
+                    BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Width="36" Height="36" CornerRadius="8" Background="#1522C55E" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE7FC;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#22C55E" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock x:Name="TargetProgramLabel" Text="目标程序" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding ProcessList}" SelectedItem="{Binding SelectedProcess}" Height="30" MinWidth="280">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DisplayName, Mode=OneWay}" FontSize="12"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                    <Button Grid.Column="2" Command="{Binding RefreshProcessesCommand}" 
+                            Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" 
+                            BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1"
+                            Padding="12,0" Height="30" Cursor="Hand" VerticalAlignment="Bottom">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,0,6,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="RefreshBtnText" Text="刷新" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+            <Border Grid.Row="2" CornerRadius="12" BorderThickness="1" 
+                    Background="{DynamicResource Theme.Brush.EsportsContainerBackground}" 
+                    BorderBrush="{DynamicResource Theme.Brush.EsportsContainerBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="260"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Grid Margin="16,14,8,14">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Border Padding="0,0,0,12" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,0,0,1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Width="28" Height="28" CornerRadius="6" Background="#1500A4EF">
+                                    <TextBlock Text="&#xE950;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#00A4EF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock x:Name="CoreTopologyTitle" Text="CPU 核心拓扑" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding CoreCountLabel, Mode=OneWay}" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,2,0,0"/>
+                                        <TextBlock Text="  " FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,2,0,0"/>
+                                        <TextBlock x:Name="ClickToSelectHint" Text="点击选择核心" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <Border Grid.Column="2" CornerRadius="6" Padding="10,4" Background="{DynamicResource Theme.Brush.ControlAccentSelectedBg}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock x:Name="SelectedLabel" Text="已选 " FontSize="11" Foreground="{DynamicResource Theme.Brush.ControlAccent}"/>
+                                        <TextBlock Text="{Binding SelectedCount, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.ControlAccent}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+                        
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                            <ItemsControl ItemsSource="{Binding CoreGroups}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="10" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" Margin="0,0,0,10" Padding="12">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                    <TextBlock Text="{Binding GroupName, Mode=OneWay}" FontSize="12" FontWeight="Medium" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                                                    <TextBlock Text="  " Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                                                    <TextBlock Text="{Binding Cores.Count, Mode=OneWay, StringFormat={}{0} 个}" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                                                </StackPanel>
+                                                <ItemsControl ItemsSource="{Binding Cores}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <ToggleButton IsChecked="{Binding IsSelected, Mode=TwoWay}" Style="{StaticResource CoreToggleBase}"/>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                        
+                        <Border Grid.Row="2" CornerRadius="8" Padding="12,8" Margin="0,10,0,0" 
+                                Background="{DynamicResource Theme.Brush.CardBackgroundAlt}"
+                                BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Command="{Binding SelectAllCommand}" Background="Transparent" BorderThickness="0" Padding="10,4" Cursor="Hand">
+                                    <TextBlock x:Name="SelectAllBtn" Text="全选" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                                </Button>
+                                <Border Width="1" Height="12" Background="{DynamicResource Theme.Brush.CardDivider}" Margin="6,0"/>
+                                <Button Command="{Binding ClearAllCommand}" Background="Transparent" BorderThickness="0" Padding="10,4" Cursor="Hand">
+                                    <TextBlock x:Name="ClearAllBtn" Text="清空" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                                </Button>
+                                <Border Width="1" Height="12" Background="{DynamicResource Theme.Brush.CardDivider}" Margin="6,0"/>
+                                <Button Command="{Binding InvertSelectionCommand}" Background="Transparent" BorderThickness="0" Padding="10,4" Cursor="Hand">
+                                    <TextBlock x:Name="InvertBtn" Text="反选" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    
+                    <Border Grid.Column="1" Width="1" Background="{DynamicResource Theme.Brush.CardDivider}" Margin="0,14"/>
+                    <Grid Grid.Column="2" Margin="8,14,14,14">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <Border Padding="0,0,0,10" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="28" Height="28" CornerRadius="6" Background="{DynamicResource Theme.Brush.ControlAccentSelectedBg}">
+                                        <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="{DynamicResource Theme.Brush.ControlAccent}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock x:Name="QuickPresetTitle" Grid.Column="1" Text="快速预设" FontSize="13" FontWeight="SemiBold" 
+                                               Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,10,0,0">
+                                <ItemsControl ItemsSource="{Binding OptimizationPresets}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="8" Margin="0,0,0,6" Cursor="Hand"
+                                                    Background="{DynamicResource Theme.Brush.CardBackgroundAlt}"
+                                                    BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
+                                                <Border.InputBindings>
+                                                    <MouseBinding MouseAction="LeftClick" 
+                                                                  Command="{Binding DataContext.ApplyOptimizationPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                  CommandParameter="{Binding Key, Mode=OneWay}"/>
+                                                </Border.InputBindings>
+                                                <Grid Margin="10,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Width="26" Height="26" CornerRadius="6" Background="{DynamicResource Theme.Brush.ControlAccentSelectedBg}">
+                                                        <TextBlock Text="{Binding Icon, Mode=OneWay}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name, Mode=OneWay}" FontSize="12" FontWeight="Medium" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                                                        <TextBlock Text="{Binding Description, Mode=OneWay}" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,1,0,0"/>
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="2" Text="{Binding CoreInfo, Mode=OneWay}" FontSize="10" 
+                                                               Foreground="{DynamicResource Theme.Brush.ControlAccent}" FontFamily="Consolas" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                            
+                            <Button Grid.Row="2" Command="{Binding SaveCurrentAsPresetCommand}" Cursor="Hand" Margin="0,8,0,0"
+                                    Background="{DynamicResource Theme.Brush.CardBackgroundAlt}"
+                                    BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1"
+                                    Padding="0,10">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,0,6,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="SaveConfigBtn" Text="保存当前配置" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                        
+                        <Border Grid.Row="1" CornerRadius="10" Padding="12" Margin="0,12,0,0"
+                                BorderThickness="1" BorderBrush="#30F59E0B">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#12F59E0B" Offset="0"/>
+                                    <GradientStop Color="#08F59E0B" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="&#xE734;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#FBBF24" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="PreferredCoreTitle" Text="首选核心" FontSize="12" FontWeight="SemiBold" Foreground="#FBBF24"/>
+                                </StackPanel>
+                                <TextBlock x:Name="PreferredCoreDesc" Text="游戏主线程将优先调度到此核心" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,0,0,8"/>
+                                <ComboBox ItemsSource="{Binding SelectedCoreOptions}" SelectedItem="{Binding PreferredCore}" Height="32">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontSize="11">
+                                                <Run Text="核心 " Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                                                <Run Text="{Binding Index, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                                                <Run Text=" - " Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                                                <Run Text="{Binding TypeName, Mode=OneWay}" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+            <Border Grid.Row="3" CornerRadius="12" Padding="16,12" Margin="0,12,0,12"
+                    Background="{DynamicResource Theme.Brush.CardBackgroundAlt}"
+                    BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding IsAccelerating, Converter={StaticResource BoolToVis}}">
+                            <Grid Width="10" Height="10" Margin="0,0,10,0">
+                                <Ellipse Width="10" Height="10" Fill="#22C55E"/>
+                                <Ellipse Width="5" Height="5" Fill="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                            <TextBlock Text="{Binding StatusText, Mode=OneWay}" FontSize="12" Foreground="#4ADE80" VerticalAlignment="Center"/>
+                            <Border CornerRadius="6" Padding="10,4" Margin="12,0,0,0" Background="#1522C55E">
+                                <TextBlock Text="{Binding ElapsedTime, Mode=OneWay}" FontSize="13" FontWeight="Bold" Foreground="#22C55E" FontFamily="Consolas"/>
+                            </Border>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding IsAccelerating, Converter={StaticResource InverseBoolToVis}}">
+                            <Ellipse Width="6" Height="6" Fill="{DynamicResource Theme.Brush.TextMuted}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ReadyStatusText" Text="{Binding StatusText, Mode=OneWay}" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Command="{Binding StopAccelerateCommand}" Cursor="Hand" Margin="0,0,10,0"
+                                Visibility="{Binding IsAccelerating, Converter={StaticResource BoolToVis}}"
+                                Background="#18F43F5E" BorderBrush="#35F43F5E" BorderThickness="1" Padding="14,8">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE71A;" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,0,6,0" Foreground="#F87171" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="StopBtnText" Text="停止" FontSize="12" Foreground="#F87171"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding StartAccelerateCommand}" Cursor="Hand" Padding="20,10"
+                                Background="{DynamicResource Theme.Brush.AccentBlue}" BorderThickness="0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="StartBtnText" Text="开始加速" FontSize="13" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

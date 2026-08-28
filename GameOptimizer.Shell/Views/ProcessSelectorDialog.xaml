@@ -1,0 +1,159 @@
+﻿<Window x:Class="GameOptimizer.Shell.Views.ProcessSelectorDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:GameOptimizer.Shell.Views"
+        Title="选择程序" Height="500" Width="450"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize">
+    <Window.Resources>
+        <local:MemorySizeConverter x:Key="MemoryConverter"/>
+    </Window.Resources>
+    <Border Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.5"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Background="{DynamicResource Theme.Brush.CardBackground}" Margin="1,1,1,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Margin="20,16">
+                    <TextBlock x:Name="TitleText" Text="选择程序" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                    <TextBlock x:Name="SubtitleText" Text="选择要配置CPU亲和性的程序" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="✕" Click="CloseButton_Click" Cursor="Hand"
+                        Width="36" Height="36" Margin="0,10,10,0" VerticalAlignment="Top">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="Transparent" CornerRadius="6">
+                                <TextBlock Text="{TemplateBinding Content}" Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- Search -->
+            <Border Grid.Row="1" Margin="20,16,20,8">
+                <TextBox x:Name="SearchBox" Background="{DynamicResource Theme.Brush.CardGradient}" BorderThickness="0" 
+                         Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" Padding="12,10"
+                         TextChanged="SearchBox_TextChanged">
+                    <TextBox.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="8"/>
+                        </Style>
+                    </TextBox.Resources>
+                </TextBox>
+            </Border>
+
+            <!-- Process List -->
+            <ListBox x:Name="ProcessList" Grid.Row="2" Margin="20,8,20,16"
+                     Background="Transparent" BorderThickness="0"
+                     SelectionChanged="ProcessList_SelectionChanged"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="border" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" CornerRadius="8" 
+                                            Margin="0,2" Padding="12,10" Cursor="Hand">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="border" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="border" Property="Background" Value="#1522D3EE"/>
+                                            <Setter TargetName="border" Property="BorderBrush" Value="#3022D3EE"/>
+                                            <Setter TargetName="border" Property="BorderThickness" Value="1"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Icon}" FontSize="20" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium"/>
+                                <TextBlock Text="{Binding Pid, StringFormat=PID: {0}}" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="11"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" VerticalAlignment="Center"
+                                       Text="{Binding MemoryUsage, Converter={StaticResource MemoryConverter}}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- Buttons -->
+            <Border Grid.Row="3" Background="{DynamicResource Theme.Brush.CardBackground}" Padding="20,16">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="CancelButton" Content="取消" Click="CancelButton_Click" Cursor="Hand" Margin="0,0,10,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{DynamicResource Theme.Brush.CardBackgroundHover}" CornerRadius="8" Padding="20,10">
+                                    <TextBlock x:Name="CancelBtnText" Text="{TemplateBinding Content}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="ConfirmButton" Content="确定" Click="ConfirmButton_Click" 
+                            Cursor="Hand" IsEnabled="False">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" CornerRadius="8" Padding="20,10">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#22D3EE" Offset="0"/>
+                                            <GradientStop Color="#0EA5E9" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <TextBlock x:Name="ConfirmBtnText" Text="{TemplateBinding Content}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.9"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.5"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

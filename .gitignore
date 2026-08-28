@@ -1,0 +1,41 @@
+# 编译产物
+[Bb]in/
+[Oo]bj/
+artifacts/
+TestResults/
+.audit*/
+.build-check-obj/
+.test-*/
+.verify-*/
+.cpu-core-artifacts/
+.font-verify/
+.playwright-cli/
+.scrollbar-verify*/
+.test-dotnet-home/
+.testobj/
+.theme-verify/
+.release-verify/
+_reference/
+_verify-build/
+*.wpftmp.csproj
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# 日志与临时文件
+*.log
+startup_diagnostic.log
+.verify_build/
+
+# 备份残留
+*.bak*
+*.checkpoint.*
+*.recovery_disabled
+*.recovery_conflict
+
+# Python 缓存
+__pycache__/
+*.pyc

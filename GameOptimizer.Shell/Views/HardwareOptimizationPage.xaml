@@ -1,0 +1,231 @@
+<UserControl x:Class="GameOptimizer.Shell.Views.HardwareOptimizationPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="900"
+             Background="Transparent">
+    <UserControl.Resources>
+        <Style x:Key="OptCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#14141E30"/>
+            <Setter Property="BorderBrush" Value="#1E2A42"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+        <Style x:Key="WarningBadgeStyle" TargetType="Border">
+            <Setter Property="Background" Value="#33FF6B00"/>
+            <Setter Property="BorderBrush" Value="#FF6B00"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,4"/>
+        </Style>
+        <Style x:Key="SafeBadgeStyle" TargetType="Border">
+            <Setter Property="Background" Value="#3300C853"/>
+            <Setter Property="BorderBrush" Value="#00C853"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,4"/>
+        </Style>
+        <Style x:Key="DangerBadgeStyle" TargetType="Border">
+            <Setter Property="Background" Value="#33FF4444"/>
+            <Setter Property="BorderBrush" Value="#FF4444"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,4"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="0,0,16,0">
+            <!-- 页面标题 -->
+            <TextBlock Text="硬件感知优化" FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,0,0,8"/>
+            <TextBlock Text="根据您的硬件配置，智能推荐适合的优化选项" Foreground="#8B94C6" Margin="0,0,0,24"/>
+
+            <!-- 硬件检测结果 -->
+            <Border Style="{StaticResource OptCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="🖥️ 当前硬件配置" FontSize="16" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <TextBlock Text="CPU：" Foreground="#8B94C6" Width="80"/>
+                                <TextBlock x:Name="TxtCpuName" Text="检测中..." Foreground="White"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <TextBlock Text="CPU 厂商：" Foreground="#8B94C6" Width="80"/>
+                                <TextBlock x:Name="TxtCpuVendor" Text="检测中..." Foreground="#4D66FF" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <TextBlock Text="GPU：" Foreground="#8B94C6" Width="80"/>
+                                <TextBlock x:Name="TxtGpuName" Text="检测中..." Foreground="White"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <TextBlock Text="GPU 厂商：" Foreground="#8B94C6" Width="80"/>
+                                <TextBlock x:Name="TxtGpuVendor" Text="检测中..." Foreground="#4D66FF" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                    <!-- XMP/EXPO 状态 -->
+                    <Border x:Name="XmpWarningPanel" Visibility="Collapsed" Background="#33FF6B00" CornerRadius="8" Padding="12" Margin="0,12,0,0">
+                        <StackPanel>
+                            <TextBlock Text="⚠️ 内存 XMP/EXPO 未启用" Foreground="#FF6B00" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="TxtXmpStatus" Text="" Foreground="#FFB74D" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- 设备管理器优化 -->
+            <TextBlock Text="📟 设备管理器优化" FontSize="18" FontWeight="SemiBold" Foreground="White" Margin="0,12,0,12"/>
+            <TextBlock Text="以下设备可以根据您的硬件配置选择性禁用，以降低系统延迟" Foreground="#8B94C6" Margin="0,0,0,12"/>
+
+            <!-- HPET 高精度事件计时器 -->
+            <Border x:Name="CardHpet" Style="{StaticResource OptCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="高精度事件计时器 (HPET)" FontWeight="SemiBold" Foreground="White"/>
+                            <Border x:Name="BadgeHpet" Style="{StaticResource WarningBadgeStyle}" Margin="8,0,0,0">
+                                <TextBlock x:Name="TxtHpetBadge" Text="需确认" Foreground="#FF6B00" FontSize="11"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="High Precision Event Timer - 系统计时器设备" Foreground="#6B7280" FontSize="12" Margin="0,4,0,0"/>
+                        <TextBlock x:Name="TxtHpetDesc" TextWrapping="Wrap" Foreground="#8B94C6" Margin="0,8,0,0"
+                                   Text="AMD CPU 建议禁用以降低延迟；Intel CPU 建议保留"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtHpetStatus" Text="状态：检测中" Foreground="#8B94C6" HorizontalAlignment="Right" Margin="0,0,0,8"/>
+                        <Button x:Name="BtnHpetToggle" Content="禁用" Click="BtnHpetToggle_Click" 
+                                Width="80" Height="32" Background="#4D66FF" Foreground="White" 
+                                BorderThickness="0" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 系统计时器 -->
+            <Border x:Name="CardSystemTimer" Style="{StaticResource OptCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="系统计时器 (System Timer)" FontWeight="SemiBold" Foreground="White"/>
+                            <Border x:Name="BadgeSystemTimer" Style="{StaticResource WarningBadgeStyle}" Margin="8,0,0,0">
+                                <TextBlock x:Name="TxtSystemTimerBadge" Text="谨慎操作" Foreground="#FF6B00" FontSize="11"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="System timer - 传统系统计时器" Foreground="#6B7280" FontSize="12" Margin="0,4,0,0"/>
+                        <TextBlock x:Name="TxtSystemTimerDesc" TextWrapping="Wrap" Foreground="#8B94C6" Margin="0,8,0,0"
+                                   Text="AMD CPU 可以禁用；Intel CPU 需谨慎"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtSystemTimerStatus" Text="状态：检测中" Foreground="#8B94C6" HorizontalAlignment="Right" Margin="0,0,0,8"/>
+                        <Button x:Name="BtnSystemTimerToggle" Content="禁用" Click="BtnSystemTimerToggle_Click"
+                                Width="80" Height="32" Background="#4D66FF" Foreground="White"
+                                BorderThickness="0" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- UMBus Root Bus Enumerator -->
+            <Border x:Name="CardUMBus" Style="{StaticResource OptCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="UMBus 根总线枚举器" FontWeight="SemiBold" Foreground="White"/>
+                            <Border x:Name="BadgeUMBus" Style="{StaticResource DangerBadgeStyle}" Margin="8,0,0,0">
+                                <TextBlock Text="高风险" Foreground="#FF4444" FontSize="11"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="UMBus Root Bus Enumerator - 用户模式总线枚举器" Foreground="#6B7280" FontSize="12" Margin="0,4,0,0"/>
+                        <TextBlock TextWrapping="Wrap" Foreground="#8B94C6" Margin="0,8,0,0"
+                                   Text="⚠️ 禁用可能导致部分 USB 设备或虚拟设备无法工作，建议保留"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtUMBusStatus" Text="状态：检测中" Foreground="#8B94C6" HorizontalAlignment="Right" Margin="0,0,0,8"/>
+                        <Button x:Name="BtnUMBusToggle" Content="禁用" Click="BtnUMBusToggle_Click"
+                                Width="80" Height="32" Background="#FF4444" Foreground="White"
+                                BorderThickness="0" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 复合总线枚举器 -->
+            <Border x:Name="CardCompositeBus" Style="{StaticResource OptCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="复合总线枚举器" FontWeight="SemiBold" Foreground="White"/>
+                            <Border x:Name="BadgeCompositeBus" Style="{StaticResource DangerBadgeStyle}" Margin="8,0,0,0">
+                                <TextBlock Text="高风险" Foreground="#FF4444" FontSize="11"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="Composite Bus Enumerator - 复合设备总线" Foreground="#6B7280" FontSize="12" Margin="0,4,0,0"/>
+                        <TextBlock TextWrapping="Wrap" Foreground="#8B94C6" Margin="0,8,0,0"
+                                   Text="⚠️ 禁用可能导致复合 USB 设备（如带麦克风的耳机）无法正常工作"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtCompositeBusStatus" Text="状态：检测中" Foreground="#8B94C6" HorizontalAlignment="Right" Margin="0,0,0,8"/>
+                        <Button x:Name="BtnCompositeBusToggle" Content="禁用" Click="BtnCompositeBusToggle_Click"
+                                Width="80" Height="32" Background="#FF4444" Foreground="White"
+                                BorderThickness="0" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- AMD X3D 专属提示 -->
+            <Border x:Name="X3DWarningPanel" Visibility="Collapsed" Background="#331E90FF" BorderBrush="#1E90FF" 
+                    BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,12,0,0">
+                <StackPanel>
+                    <TextBlock Text="🎮 AMD X3D 系列 CPU 专属提示" FontWeight="SemiBold" Foreground="#1E90FF"/>
+                    <TextBlock TextWrapping="Wrap" Foreground="#87CEEB" Margin="0,8,0,0">
+                        <Run Text="• 请确保已安装 AMD 芯片组驱动和 3D V-Cache 驱动"/>
+                        <LineBreak/>
+                        <Run Text="• Core Parking 建议保持默认，X3D 的 CCD 调度由驱动管理"/>
+                        <LineBreak/>
+                        <Run Text="• 如果 XMP/EXPO 开启后蓝屏，尝试降低 200MHz 频率"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- 操作提示 -->
+            <Border Background="#1A1E2A42" CornerRadius="12" Padding="16" Margin="0,24,0,0">
+                <StackPanel>
+                    <TextBlock Text="💡 操作提示" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,8"/>
+                    <TextBlock TextWrapping="Wrap" Foreground="#8B94C6">
+                        <Run Text="• 修改设备状态需要管理员权限"/>
+                        <LineBreak/>
+                        <Run Text="• 部分更改需要重启电脑才能生效"/>
+                        <LineBreak/>
+                        <Run Text="• 如果遇到问题，可以在设备管理器中重新启用设备"/>
+                        <LineBreak/>
+                        <Run Text="• 建议在修改前创建系统还原点"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

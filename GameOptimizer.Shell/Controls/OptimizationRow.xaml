@@ -1,0 +1,105 @@
+﻿<UserControl x:Class="GameOptimizer.Shell.Controls.OptimizationRow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="Root">
+    <UserControl.Resources>
+        <Style x:Key="CompactToggleStyle" TargetType="ToggleButton">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid>
+                            <Border x:Name="Track" CornerRadius="11" Background="{DynamicResource Theme.Brush.ToggleTrackOff}"
+                                    BorderBrush="{DynamicResource Theme.Brush.ToggleTrackBorder}" BorderThickness="1"/>
+                            <Border x:Name="Thumb" Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Left" Margin="2,0,0,0" 
+                                    Background="{DynamicResource Theme.Brush.ToggleThumbOff}">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="3" ShadowDepth="1" Opacity="0.15" Color="#000"/>
+                                </Border.Effect>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#6366F1" Offset="0"/>
+                                            <GradientStop Color="#8B5CF6" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Track" Property="BorderBrush" Value="Transparent"/>
+                                <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right"/>
+                                <Setter TargetName="Thumb" Property="Margin" Value="0,0,2,0"/>
+                                <Setter TargetName="Thumb" Property="Background" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Track" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="InfoButtonStyle" TargetType="Border">
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="CornerRadius" Value="9"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <Border x:Name="RowBorder" Height="46" Padding="10,0" Background="Transparent" MouseEnter="OnMouseEnter" MouseLeave="OnMouseLeave">
+        <Grid VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Border x:Name="IconBorder" Grid.Column="0" Width="34" Height="34" CornerRadius="8" VerticalAlignment="Center">
+                <Border.Background>
+                    <DynamicResource ResourceKey="Theme.Brush.CardGradient"/>
+                </Border.Background>
+                <Border BorderBrush="{DynamicResource Theme.Brush.GlassBorder}" BorderThickness="1" CornerRadius="8">
+                    <TextBlock x:Name="IconText" Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource Theme.Brush.IconPrimary}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="TitleText" Text="优化项" FontSize="14" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
+                    <Border x:Name="RiskBadge" CornerRadius="3" Padding="5,2" Margin="8,0,0,0" Background="#25F43F5E" VerticalAlignment="Center" Visibility="Collapsed">
+                        <TextBlock Text="狂暴" FontSize="10" Foreground="#F43F5E"/>
+                    </Border>
+                    <!-- 状态指示徽章 -->
+                    <Border x:Name="StateBadge" CornerRadius="3" Padding="5,2" Margin="6,0,0,0" VerticalAlignment="Center" Visibility="Collapsed">
+                        <TextBlock x:Name="StateBadgeText" Text="已生效" FontSize="10"/>
+                    </Border>
+                    <!-- ⓘ 按钮：悬停显示简介，点击显示注册表详情 -->
+                    <Border x:Name="InfoBtn" Style="{StaticResource InfoButtonStyle}" Margin="6,0,0,0" VerticalAlignment="Center" 
+                            ToolTipService.InitialShowDelay="200" MouseLeftButtonUp="OnDetailsClick">
+                        <Border.ToolTip>
+                            <ToolTip x:Name="InfoTooltip" MaxWidth="280" Placement="Top">
+                                <ToolTip.Template>
+                                    <ControlTemplate TargetType="ToolTip">
+                                        <Border Background="{DynamicResource Theme.Brush.BackgroundSecondary}" BorderBrush="{DynamicResource Theme.Brush.CardGradient}" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                                            <TextBlock Text="{TemplateBinding Content}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" TextWrapping="Wrap"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToolTip.Template>
+                            </ToolTip>
+                        </Border.ToolTip>
+                        <TextBlock Text="ⓘ" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextDisabled}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+            <ToggleButton x:Name="RowToggle" Grid.Column="3" Style="{StaticResource CompactToggleStyle}" VerticalAlignment="Center" Checked="OnToggleChecked" Unchecked="OnToggleUnchecked"/>
+        </Grid>
+    </Border>
+</UserControl>

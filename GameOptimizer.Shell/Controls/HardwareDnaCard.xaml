@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="GameOptimizer.Shell.Controls.HardwareDnaCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="Root">
+    <Border x:Name="CardBorder" CornerRadius="16" Padding="20,18" MinHeight="100"
+            Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderThickness="1" BorderBrush="{DynamicResource Theme.Brush.CardBorder}">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" BlurRadius="16" ShadowDepth="0" Opacity="0.4"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border x:Name="LogoBorder" Grid.Column="0" Width="52" Height="52" CornerRadius="12" VerticalAlignment="Center" Margin="0,0,16,0">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop x:Name="LogoGrad1" Color="#400068B5" Offset="0"/>
+                        <GradientStop x:Name="LogoGrad2" Color="#200068B5" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid>
+                    <Border CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource Theme.Brush.RowBorder}"/>
+                    <TextBlock x:Name="LogoText" Text="I" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
+                    <Ellipse x:Name="StatusLed" Width="6" Height="6" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,4,4" Fill="#4ADE80">
+                        <Ellipse.Effect>
+                            <DropShadowEffect Color="#4ADE80" BlurRadius="4" ShadowDepth="0"/>
+                        </Ellipse.Effect>
+                    </Ellipse>
+                </Grid>
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock x:Name="VendorText" Text="Intel" FontSize="10" FontWeight="Medium" Foreground="{DynamicResource Theme.Brush.TextDisabled}" Margin="0,0,0,2" FontFamily="Consolas"/>
+                <TextBlock x:Name="ModelText" Text="Core Processor" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="0,0,0,8" FontFamily="Segoe UI Variable Display"/>
+                <StackPanel Orientation="Horizontal">
+                    <Border x:Name="StatusBadge" CornerRadius="6" Padding="10,4" Background="#154ADE80" BorderBrush="#254ADE80" BorderThickness="1">
+                        <TextBlock x:Name="StatusText" Text="已优化 0 项" FontSize="10" FontWeight="Medium" Foreground="#4ADE80"/>
+                    </Border>
+                    <Border x:Name="FeatureBadge" CornerRadius="6" Padding="10,4" Margin="8,0,0,0" Background="#1560A5FA" BorderBrush="#2560A5FA" BorderThickness="1" Visibility="Collapsed">
+                        <TextBlock x:Name="FeatureText" Text="Feature" FontSize="10" FontWeight="Medium" Foreground="#60A5FA"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

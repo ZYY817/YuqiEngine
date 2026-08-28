@@ -1,0 +1,51 @@
+<!-- File: GameOptimizer.Shell/Controls/ToolTopbar.xaml -->
+<UserControl x:Class="GameOptimizer.Shell.Controls.ToolTopbar"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             AutomationProperties.Name="{Binding Title, ElementName=Root}">
+    <Grid MinHeight="42">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" MinWidth="0">
+            <Border Width="34" Height="34" Margin="0,0,10,0"
+                    Background="{DynamicResource Theme.Brush.IconBackground}"
+                    BorderBrush="{DynamicResource Theme.Brush.ControlAccent}"
+                    BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}">
+                <Grid>
+                    <Path x:Name="VectorIcon" Visibility="Collapsed"
+                          Data="{Binding IconData, ElementName=Root}"
+                          Fill="Transparent" Stroke="{DynamicResource Theme.Brush.ControlAccent}"
+                          StrokeThickness="1.7" StrokeLineJoin="Round"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                          Stretch="Uniform" Margin="8"/>
+                    <TextBlock x:Name="GlyphIcon" Text="{Binding IconGlyph, ElementName=Root}"
+                               FontFamily="Segoe MDL2 Assets" FontSize="17"
+                               Foreground="{DynamicResource Theme.Brush.ControlAccent}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            <StackPanel VerticalAlignment="Center" MinWidth="0">
+                <TextBlock Text="{Binding Title, ElementName=Root}" FontSize="17" FontWeight="Bold"
+                           Foreground="{DynamicResource Theme.Brush.TextPrimary}" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{Binding Subtitle, ElementName=Root}" Margin="0,2,0,0" FontSize="11"
+                           Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+            <Border x:Name="StatusPill" Visibility="Collapsed" Padding="10,6" Margin="0,0,8,0"
+                    Background="{DynamicResource Theme.Brush.CardBackgroundAlt}"
+                    BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1"
+                    CornerRadius="{DynamicResource Token.Radius.Badge}">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="7" Height="7" Fill="{DynamicResource Theme.Brush.Info}" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding StatusText, ElementName=Root}" MaxWidth="150" TextTrimming="CharacterEllipsis" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextSecondary}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding StatusDetail, ElementName=Root}" MaxWidth="130" TextTrimming="CharacterEllipsis" Margin="7,0,0,0" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+            <ContentPresenter Content="{Binding Actions, ElementName=Root}" VerticalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

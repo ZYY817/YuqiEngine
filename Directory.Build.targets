@@ -1,0 +1,16 @@
+<Project>
+  <!-- Evidence is retained on disk for audit only; it must never become a source, resource, or publish input. -->
+  <PropertyGroup>
+    <EvidenceIsolationGlobs>**\_decompile*\**;**\*.bak;**\*_Backup.*;**\*_New.*;**\.verify_build\**;**\.verify-power-audit\**;**\_verify-build\**;**\docs\RECOVERY\**;**\_evidence*\**;**\_staging*\**;**\_recovery-history*\**;**\_temporary-validation*\**;**\obj\RestoreTruthfulnessTestsC\**</EvidenceIsolationGlobs>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="$(EvidenceIsolationGlobs)" />
+    <Content Remove="$(EvidenceIsolationGlobs)" />
+    <None Remove="$(EvidenceIsolationGlobs)" />
+    <Page Remove="$(EvidenceIsolationGlobs)" />
+    <ApplicationDefinition Remove="$(EvidenceIsolationGlobs)" />
+    <EmbeddedResource Remove="$(EvidenceIsolationGlobs)" />
+    <Resource Remove="$(EvidenceIsolationGlobs)" />
+  </ItemGroup>
+</Project>

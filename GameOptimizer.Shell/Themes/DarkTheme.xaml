@@ -1,0 +1,603 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="Theme.Brush.LogoMark" Color="#F8FAFC"/>
+    <!-- Canonical semantic roles: the only theme-owned color literals. -->
+    <Color x:Key="Theme.Role.Background">#050508</Color>
+    <Color x:Key="Theme.Role.Surface">#0F1525</Color>
+    <Color x:Key="Theme.Role.SurfaceRaised">#151C2F</Color>
+    <Color x:Key="Theme.Role.TextPrimary">#F8FAFC</Color>
+    <Color x:Key="Theme.Role.TextSecondary">#A1A1AA</Color>
+    <!-- Accent blue is intentionally bright; use deep ink for a verified readable contrast. -->
+    <Color x:Key="Theme.Role.TextOnAccent">#0F172A</Color>
+    <Color x:Key="Theme.Role.Border">#27272A</Color>
+    <Color x:Key="Theme.Role.Accent">#3B82F6</Color>
+    <Color x:Key="Theme.Role.Info">#60A5FA</Color>
+    <Color x:Key="Theme.Role.Success">#34D399</Color>
+    <Color x:Key="Theme.Role.Warning">#FBBF24</Color>
+    <Color x:Key="Theme.Role.Error">#F87171</Color>
+
+    <!-- Window shell frame: restrained edge separation without transparency or effects. -->
+    <Color x:Key="Shell.Frame.Color.OuterTop">#52647D</Color>
+    <Color x:Key="Shell.Frame.Color.OuterSide">#334155</Color>
+    <Color x:Key="Shell.Frame.Color.OuterBottom">#1E293B</Color>
+    <Color x:Key="Shell.Frame.Color.InnerHighlight">#14FFFFFF</Color>
+    <Color x:Key="Shell.Frame.Color.InnerHighlightFade">#05FFFFFF</Color>
+    <Color x:Key="Shell.Frame.Color.Ambient">#0B60A5FA</Color>
+
+    <LinearGradientBrush x:Key="Shell.Frame.Brush.OuterBorder" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource Shell.Frame.Color.OuterTop}" Offset="0"/>
+        <GradientStop Color="{StaticResource Shell.Frame.Color.OuterSide}" Offset="0.42"/>
+        <GradientStop Color="{StaticResource Shell.Frame.Color.OuterBottom}" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Shell.Frame.Brush.InnerHighlight" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource Shell.Frame.Color.InnerHighlight}" Offset="0"/>
+        <GradientStop Color="{StaticResource Shell.Frame.Color.InnerHighlightFade}" Offset="0.38"/>
+        <GradientStop Color="Transparent" Offset="1"/>
+    </LinearGradientBrush>
+    <RadialGradientBrush x:Key="Shell.Frame.Brush.Ambient" Center="0.28,0" GradientOrigin="0.28,0" RadiusX="0.72" RadiusY="1">
+        <GradientStop Color="{StaticResource Shell.Frame.Color.Ambient}" Offset="0"/>
+        <GradientStop Color="Transparent" Offset="1"/>
+    </RadialGradientBrush>
+
+    <SolidColorBrush x:Key="Theme.Brush.SurfaceRaised" Color="{StaticResource Theme.Role.SurfaceRaised}"/>
+    <SolidColorBrush x:Key="Theme.Brush.Info" Color="{StaticResource Theme.Role.Info}"/>
+
+
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         ZY CORE - DARK THEME
+         深色工作区与卡片层级定义
+    ═══════════════════════════════════════════════════════════════ -->
+    
+    <!-- Background Colors -->
+    <Color x:Key="Theme.Background.Primary">#09090B</Color>
+    <Color x:Key="Theme.Background.PrimaryAlt">#050508</Color>
+    <Color x:Key="Theme.Background.Secondary">#18181B</Color>
+    <Color x:Key="Theme.Background.Card">#0F1525</Color>
+    <Color x:Key="Theme.Background.CardAlt">#151C2F</Color>
+    <Color x:Key="Theme.Background.Surface">#1B2335</Color>
+    <Color x:Key="Theme.Background.SurfaceMuted">#0A0A0F</Color>
+    <Color x:Key="Theme.Background.Overlay">#000000</Color>
+    
+    <!-- Text Colors -->
+    <Color x:Key="Theme.Text.Primary">#F8FAFC</Color>
+    <Color x:Key="Theme.Text.PrimaryAlt">#F8FAFC</Color>
+    <Color x:Key="Theme.Text.Secondary">#A1A1AA</Color>
+    <!-- 4.72:1 against the darkest function-card surface (#0F1525). -->
+    <Color x:Key="Theme.Text.Muted">#81818B</Color>
+    <Color x:Key="Theme.Text.Disabled">#52525B</Color>
+    
+    <!-- Icon Colors (深色模式用白色/浅色图标) -->
+    <Color x:Key="Theme.Icon.Primary">#FFFFFF</Color>
+    <Color x:Key="Theme.Icon.Secondary">#A1A1AA</Color>
+    <Color x:Key="Theme.Icon.Muted">#71717A</Color>
+    <Color x:Key="Theme.Icon.Disabled">#52525B</Color>
+    
+    <!-- Accent Colors -->
+    <Color x:Key="Theme.Accent.Primary">#2563EB</Color>
+    <Color x:Key="Theme.Accent.Secondary">#2563EB</Color>
+    <Color x:Key="Theme.Accent.Tertiary">#2563EB</Color>
+    <Color x:Key="Theme.Accent.Blue">#2563EB</Color>
+    <Color x:Key="Theme.Accent.BlueDark">#2563EB</Color>
+    <Color x:Key="Theme.Accent.BlueLight">#2563EB</Color>
+    <Color x:Key="Theme.Accent.Purple">#2563EB</Color>
+    
+    <!-- Status Colors -->
+    <Color x:Key="Theme.Status.Success">#34D399</Color>
+    <Color x:Key="Theme.Status.SuccessAlt">#34D399</Color>
+    <Color x:Key="Theme.Status.Warning">#FBBF24</Color>
+    <Color x:Key="Theme.Status.WarningAlt">#FBBF24</Color>
+    <Color x:Key="Theme.Status.Error">#F87171</Color>
+    <Color x:Key="Theme.Status.ErrorAlt">#F87171</Color>
+    
+    <!-- Border Colors -->
+    <Color x:Key="Theme.Border.Default">#27272A</Color>
+    <Color x:Key="Theme.Border.Subtle">#1F1F23</Color>
+    <Color x:Key="Theme.Border.Accent">#3B82F6</Color>
+    <Color x:Key="Theme.Border.Light">#3F3F46</Color>
+    
+    <!-- Glass/Transparency Colors -->
+    <Color x:Key="Theme.Glass.White05">#141C2B</Color>
+    <Color x:Key="Theme.Glass.White08">#141C2B</Color>
+    <Color x:Key="Theme.Glass.White10">#141C2B</Color>
+    <Color x:Key="Theme.Glass.White15">#141C2B</Color>
+    <Color x:Key="Theme.Glass.White20">#141C2B</Color>
+    <Color x:Key="Theme.Glass.Black40">#141C2B</Color>
+    
+    <!-- Card/Glass Effect Colors：工作区之上的承载层。 -->
+    <Color x:Key="Theme.Card.Background">#0CFFFFFF</Color>
+    <Color x:Key="Theme.Card.BackgroundAlt">#08FFFFFF</Color>
+    <Color x:Key="Theme.Card.BackgroundHover">#15FFFFFF</Color>
+    <Color x:Key="Theme.Card.BackgroundMuted">#06FFFFFF</Color>
+    <Color x:Key="Theme.Card.Border">#15FFFFFF</Color>
+    <Color x:Key="Theme.Card.BorderSubtle">#12FFFFFF</Color>
+    <Color x:Key="Theme.Card.BorderHover">#20FFFFFF</Color>
+    <Color x:Key="Theme.Track.Background">#141C2B</Color>
+    <Color x:Key="Theme.Input.Background">#141C2B</Color>
+    <Color x:Key="Theme.Input.Border">#334155</Color>
+    <Color x:Key="Theme.Dialog.Background">#1D2A3A</Color>
+    <Color x:Key="Theme.Dialog.Header">#1D2A3A</Color>
+    <Color x:Key="Theme.Panel.Background">#1D2A3A</Color>
+    <Color x:Key="Theme.Row.Background">#141C2B</Color>
+    <Color x:Key="Theme.Row.Border">#334155</Color>
+    <Color x:Key="Theme.Row.BackgroundHover">#141C2B</Color>
+    <Color x:Key="Theme.Row.BorderHover">#334155</Color>
+    <Color x:Key="Theme.Icon.Background">#141C2B</Color>
+    <Color x:Key="Theme.Icon.Border">#334155</Color>
+    <Color x:Key="Theme.Scrollbar.Track">#2A3850</Color>
+    <Color x:Key="Theme.Scrollbar.TrackInteractive">#3A4B68</Color>
+    <Color x:Key="Theme.Scrollbar.Thumb">#52647D</Color>
+    <Color x:Key="Theme.Scrollbar.ThumbHover">#7890AE</Color>
+    <Color x:Key="Theme.Scrollbar.ThumbDragging">#8DA8CC</Color>
+    <!-- StaticResource lookup is declaration-order sensitive in standalone dictionaries. -->
+    <Color x:Key="Theme.Row.BackgroundExtreme">#26F87171</Color>
+    <Color x:Key="Theme.Row.BorderExtreme">#66F87171</Color>
+    <Color x:Key="Theme.Row.BackgroundHoverExtreme">#30F87171</Color>
+    <Color x:Key="Theme.Row.BorderHoverExtreme">#88F87171</Color>
+    <Color x:Key="Theme.Icon.BackgroundExtreme">#2EF87171</Color>
+    <Color x:Key="Theme.Icon.BorderExtreme">#80F87171</Color>
+    <Color x:Key="Theme.Button.Background">#141C2B</Color>
+    <Color x:Key="Theme.Button.BackgroundHover">#141C2B</Color>
+    <Color x:Key="Theme.Button.Border">#334155</Color>
+
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         BRUSHES
+    ═══════════════════════════════════════════════════════════════ -->
+    
+    <!-- Background Brushes -->
+    <SolidColorBrush x:Key="Theme.Brush.Background" Color="{StaticResource Theme.Background.Primary}"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackgroundAlt" Color="{StaticResource Theme.Background.PrimaryAlt}"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackgroundSecondary" Color="{StaticResource Theme.Background.Secondary}"/>
+    <SolidColorBrush x:Key="Theme.Brush.Card" Color="{StaticResource Theme.Background.Card}"/>
+    <SolidColorBrush x:Key="Theme.Brush.CardAlt" Color="{StaticResource Theme.Background.CardAlt}"/>
+    <SolidColorBrush x:Key="Theme.Brush.Surface" Color="{StaticResource Theme.Background.Surface}"/>
+    <SolidColorBrush x:Key="Theme.Brush.SurfaceMuted" Color="{StaticResource Theme.Background.SurfaceMuted}"/>
+    
+    <!-- Text Brushes -->
+    <SolidColorBrush x:Key="Theme.Brush.TextPrimary" Color="{StaticResource Theme.Text.Primary}"/>
+    <SolidColorBrush x:Key="Theme.Brush.TextPrimaryAlt" Color="{StaticResource Theme.Text.PrimaryAlt}"/>
+    <SolidColorBrush x:Key="Theme.Brush.TextSecondary" Color="{StaticResource Theme.Text.Secondary}"/>
+    <SolidColorBrush x:Key="Theme.Brush.TextMuted" Color="{StaticResource Theme.Text.Muted}"/>
+    <SolidColorBrush x:Key="Theme.Brush.TextDisabled" Color="{StaticResource Theme.Text.Disabled}"/>
+    
+    <!-- Icon Brushes -->
+    <SolidColorBrush x:Key="Theme.Brush.IconPrimary" Color="{StaticResource Theme.Icon.Primary}"/>
+    <SolidColorBrush x:Key="Theme.Brush.IconSecondary" Color="{StaticResource Theme.Icon.Secondary}"/>
+    <SolidColorBrush x:Key="Theme.Brush.IconMuted" Color="{StaticResource Theme.Icon.Muted}"/>
+    <SolidColorBrush x:Key="Theme.Brush.IconDisabled" Color="{StaticResource Theme.Icon.Disabled}"/>
+    
+    <!-- Accent Brushes -->
+    <SolidColorBrush x:Key="Theme.Brush.Accent" Color="{StaticResource Theme.Accent.Primary}"/>
+    <SolidColorBrush x:Key="Theme.Brush.AccentSecondary" Color="{StaticResource Theme.Accent.Secondary}"/>
+    <SolidColorBrush x:Key="Theme.Brush.AccentBlue" Color="{StaticResource Theme.Accent.Blue}"/>
+    <SolidColorBrush x:Key="Theme.Brush.AccentBlueLight" Color="{StaticResource Theme.Accent.BlueLight}"/>
+    <SolidColorBrush x:Key="Theme.Brush.AccentPurple" Color="{StaticResource Theme.Accent.Purple}"/>
+    
+    <!-- Status Brushes -->
+    <SolidColorBrush x:Key="Theme.Brush.Success" Color="{StaticResource Theme.Status.Success}"/>
+    <SolidColorBrush x:Key="Theme.Brush.SuccessAlt" Color="{StaticResource Theme.Status.SuccessAlt}"/>
+    <SolidColorBrush x:Key="Theme.Brush.Warning" Color="{StaticResource Theme.Status.Warning}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WarningAlt" Color="{StaticResource Theme.Status.WarningAlt}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WarningBackground" Color="{StaticResource Theme.Role.Warning}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WarningBorder" Color="{StaticResource Theme.Role.Warning}"/>
+    <SolidColorBrush x:Key="Theme.Brush.Error" Color="{StaticResource Theme.Status.Error}"/>
+    <SolidColorBrush x:Key="Theme.Brush.ErrorAlt" Color="{StaticResource Theme.Status.ErrorAlt}"/>
+    
+    <!-- Border Brushes -->
+    <SolidColorBrush x:Key="Theme.Brush.Border" Color="{StaticResource Theme.Border.Default}"/>
+    <SolidColorBrush x:Key="Theme.Brush.BorderSubtle" Color="{StaticResource Theme.Border.Subtle}"/>
+    <SolidColorBrush x:Key="Theme.Brush.BorderLight" Color="{StaticResource Theme.Border.Light}"/>
+    
+    <!-- Gradient Brushes -->
+    <SolidColorBrush x:Key="Theme.Brush.ShellBackground" Color="{StaticResource Theme.Role.Background}"/>
+    <LinearGradientBrush x:Key="Theme.Brush.AppBackground" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#050508" Offset="0"/>
+        <GradientStop Color="#0C1220" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="Theme.Brush.SidebarBackground" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#050A18" Offset="0"/>
+        <GradientStop Color="#070E21" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="Theme.Brush.CardGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource Theme.Role.SurfaceRaised}" Offset="0"/>
+        <GradientStop Color="{StaticResource Theme.Role.Surface}" Offset="0.42"/>
+        <GradientStop Color="{StaticResource Theme.Role.Surface}" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <SolidColorBrush x:Key="Theme.Brush.GlassBorder" Color="{StaticResource Theme.Role.Border}"/>
+    
+    <!-- Card/Glass Effect Brushes -->
+    <SolidColorBrush x:Key="Theme.Brush.CardBackground" Color="{StaticResource Theme.Card.Background}"/>
+    <SolidColorBrush x:Key="Theme.Brush.CardBackgroundAlt" Color="{StaticResource Theme.Card.BackgroundAlt}"/>
+    <SolidColorBrush x:Key="Theme.Brush.CardBackgroundHover" Color="{StaticResource Theme.Card.BackgroundHover}"/>
+    <SolidColorBrush x:Key="Theme.Brush.CardBackgroundMuted" Color="{StaticResource Theme.Card.BackgroundMuted}"/>
+    <SolidColorBrush x:Key="Theme.Brush.CardBorder" Color="{StaticResource Theme.Card.Border}"/>
+    <SolidColorBrush x:Key="Theme.Brush.CardBorderSubtle" Color="{StaticResource Theme.Card.BorderSubtle}"/>
+    <SolidColorBrush x:Key="Theme.Brush.CardBorderHover" Color="{StaticResource Theme.Card.BorderHover}"/>
+    <SolidColorBrush x:Key="Theme.Brush.TrackBackground" Color="{StaticResource Theme.Track.Background}"/>
+    <SolidColorBrush x:Key="Theme.Brush.InputBackground" Color="{StaticResource Theme.Input.Background}"/>
+    <SolidColorBrush x:Key="Theme.Brush.InputBorder" Color="{StaticResource Theme.Input.Border}"/>
+    <SolidColorBrush x:Key="Theme.Brush.DialogBackground" Color="{StaticResource Theme.Dialog.Background}"/>
+    <SolidColorBrush x:Key="Theme.Brush.DialogHeader" Color="{StaticResource Theme.Dialog.Header}"/>
+    <SolidColorBrush x:Key="Theme.Brush.PanelBackground" Color="{StaticResource Theme.Panel.Background}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RowBackground" Color="{StaticResource Theme.Row.Background}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RowBorder" Color="{StaticResource Theme.Row.Border}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RowBackgroundHover" Color="{StaticResource Theme.Row.BackgroundHover}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RowBorderHover" Color="{StaticResource Theme.Row.BorderHover}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RowBackgroundExtreme" Color="{StaticResource Theme.Row.BackgroundExtreme}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RowBorderExtreme" Color="{StaticResource Theme.Row.BorderExtreme}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RowBackgroundHoverExtreme" Color="{StaticResource Theme.Row.BackgroundHoverExtreme}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RowBorderHoverExtreme" Color="{StaticResource Theme.Row.BorderHoverExtreme}"/>
+    <SolidColorBrush x:Key="Theme.Brush.IconBackground" Color="{StaticResource Theme.Icon.Background}"/>
+    <SolidColorBrush x:Key="Theme.Brush.IconBorder" Color="{StaticResource Theme.Icon.Border}"/>
+    <SolidColorBrush x:Key="Theme.Brush.IconBackgroundExtreme" Color="{StaticResource Theme.Icon.BackgroundExtreme}"/>
+    <SolidColorBrush x:Key="Theme.Brush.IconBorderExtreme" Color="{StaticResource Theme.Icon.BorderExtreme}"/>
+    <SolidColorBrush x:Key="Theme.Brush.ButtonBackground" Color="{StaticResource Theme.Button.Background}"/>
+    <SolidColorBrush x:Key="Theme.Brush.ButtonBackgroundHover" Color="{StaticResource Theme.Button.BackgroundHover}"/>
+    <SolidColorBrush x:Key="Theme.Brush.ScrollbarThumb" Color="{StaticResource Theme.Scrollbar.Thumb}"/>
+    <SolidColorBrush x:Key="Theme.Brush.ScrollbarThumbHover" Color="{StaticResource Theme.Scrollbar.ThumbHover}"/>
+    <SolidColorBrush x:Key="Theme.Brush.ScrollbarThumbDragging" Color="{StaticResource Theme.Scrollbar.ThumbDragging}"/>
+    <SolidColorBrush x:Key="Theme.Brush.ScrollbarTrack" Color="{StaticResource Theme.Scrollbar.Track}"/>
+    <SolidColorBrush x:Key="Theme.Brush.ScrollbarTrackInteractive" Color="{StaticResource Theme.Scrollbar.TrackInteractive}"/>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         NAVIGATION SPECIFIC (深色模式 - 保持原有效果)
+    ═══════════════════════════════════════════════════════════════ -->
+    
+    <!-- 导航选中状态：深色模式保持抬起表面与克制的蓝色层级。 -->
+    <LinearGradientBrush x:Key="Theme.Brush.NavItemSelected" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#243B82F6" Offset="0"/>
+        <GradientStop Color="#123B82F6" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="Theme.Brush.NavItemSelectedBorder" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#25FFFFFF" Offset="0"/>
+        <GradientStop Color="#10FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Theme.Brush.NavItemSelectedHighlight" Color="#40FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Brush.NavItemSelectedIconBackground" Color="#203B82F6"/>
+    <SolidColorBrush x:Key="Theme.Brush.NavItemPressed" Color="#172235"/>
+    
+    <!-- 导航悬停状态 -->
+    <SolidColorBrush x:Key="Theme.Brush.NavItemHover" Color="#0CFFFFFF"/>
+    
+    <!-- 圆环轨道背景 -->
+    <SolidColorBrush x:Key="Theme.Brush.GaugeTrack" Color="{StaticResource Theme.Role.Accent}"/>
+    <!-- 功能模块页右上角进度环：中性底轨与克制亮蓝进度保持清晰层次。 -->
+    <SolidColorBrush x:Key="Theme.Brush.ModuleProgressTrack" Color="#334155"/>
+    <SolidColorBrush x:Key="Theme.Brush.ModuleProgressArc" Color="#60A5FA"/>
+    
+    <!-- 功能矩阵卡片 - 深色模式保持玻璃效果 -->
+    <SolidColorBrush x:Key="Theme.Brush.WidgetTileGradient" Color="{StaticResource Theme.Role.SurfaceRaised}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.WidgetTileBorder" Color="{StaticResource Theme.Role.Border}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.WidgetTileHover" Color="{StaticResource Theme.Role.SurfaceRaised}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WidgetTileBorderHover" Color="{StaticResource Theme.Role.Border}"/>
+    
+    <!-- 共享强调按钮 - 深色模式用克制的蓝色渐变 -->
+    <SolidColorBrush x:Key="Theme.Brush.HeroButtonBackground" Color="{StaticResource Theme.Role.Accent}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.HeroButtonBackgroundHover" Color="{StaticResource Theme.Role.Accent}"/>
+    
+    <Color x:Key="Theme.Color.HeroButtonGlow">#2563EB</Color>
+    <Color x:Key="Theme.Color.HeroButtonOuterGlow">#2563EB</Color>
+    
+    <!-- 圆环渐变 - 深色模式保持炫彩 -->
+    <Color x:Key="Theme.Color.GaugeGradient1">#2563EB</Color>
+    <Color x:Key="Theme.Color.GaugeGradient2">#2563EB</Color>
+    <Color x:Key="Theme.Color.GaugeGradient3">#2563EB</Color>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         GLASS CARD STYLES (深色模式)
+    ═══════════════════════════════════════════════════════════════ -->
+    
+    <!-- 玻璃卡片背景渐变 -->
+    <LinearGradientBrush x:Key="Theme.Brush.GlassCardBackground" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource Theme.Role.SurfaceRaised}" Offset="0"/>
+        <GradientStop Color="{StaticResource Theme.Role.Surface}" Offset="0.18"/>
+        <GradientStop Color="{StaticResource Theme.Role.Surface}" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <SolidColorBrush x:Key="Theme.Brush.GlassCardBorder" Color="{StaticResource Theme.Role.Border}"/>
+    
+    <!-- 页面头部渐变 -->
+    <SolidColorBrush x:Key="Theme.Brush.HeroHeaderBackground" Color="{StaticResource Theme.Role.Accent}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.HeroHeaderBorder" Color="{StaticResource Theme.Role.Accent}"/>
+    
+    <!-- 状态区域背景 -->
+    <SolidColorBrush x:Key="Theme.Brush.StatusZoneBackground" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.StatusZoneBorder" Color="{StaticResource Theme.Role.Border}"/>
+    
+    <!-- 智能优化条背景 -->
+    <SolidColorBrush x:Key="Theme.Brush.SmartBarBackground" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.SmartBarBorder" Color="{StaticResource Theme.Role.Border}"/>
+    
+    <!-- 主按钮渐变 -->
+    <SolidColorBrush x:Key="Theme.Brush.PrimaryButtonGradient" Color="{StaticResource Theme.Role.SurfaceRaised}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.CyanButtonGradient" Color="{StaticResource Theme.Role.Accent}"/>
+    
+    <!-- 对话框光晕 -->
+    <SolidColorBrush x:Key="Theme.Brush.DialogGlow" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <!-- 对话框边框 -->
+    <SolidColorBrush x:Key="Theme.Brush.DialogBorder" Color="{StaticResource Theme.Role.Border}"/>
+    
+    <!-- 阴影颜色 -->
+    <Color x:Key="Theme.Color.Shadow">#334155</Color>
+    <Color x:Key="Theme.Color.ShadowLight">#334155</Color>
+    
+    <!-- 页面顶部光晕 (深色模式保持原有深蓝色) -->
+    <Color x:Key="Theme.Color.HeroGlow">#2563EB</Color>
+    
+    <!-- 加载遮罩 -->
+    <SolidColorBrush x:Key="Theme.Brush.LoadingOverlay" Color="{StaticResource Theme.Role.SurfaceRaised}"/>
+    
+    <!-- 电竞模式页面容器 (深色模式) -->
+    <SolidColorBrush x:Key="Theme.Brush.EsportsContainerBackground" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.EsportsContainerBorder" Color="{StaticResource Theme.Role.Border}"/>
+    
+    <!-- 电竞模式页面底部栏 (深色模式) -->
+    <SolidColorBrush x:Key="Theme.Brush.EsportsFooterBackground" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.EsportsFooterBorder" Color="{StaticResource Theme.Role.Border}"/>
+    
+    <!-- 电竞模式导航选中状态 (深色模式 - 保持原有效果) -->
+    <Color x:Key="Theme.Color.EsportsNavSelected">#2563EB</Color>
+    <Color x:Key="Theme.Color.EsportsSafeSelected">#34D399</Color>
+    <Color x:Key="Theme.Color.EsportsBalancedSelected">#FBBF24</Color>
+    <Color x:Key="Theme.Color.EsportsExtremeSelected">#F87171</Color>
+    
+    <!-- 状态颜色 (深色模式保持原有亮色) -->
+    <Color x:Key="Theme.Color.StatusGreenText">#34D399</Color>
+    <Color x:Key="Theme.Color.StatusBlueText">#2563EB</Color>
+    <Color x:Key="Theme.Color.StatusRedText">#F87171</Color>
+    
+    <SolidColorBrush x:Key="Theme.Brush.StatusGreenText" Color="{StaticResource Theme.Color.StatusGreenText}"/>
+    <SolidColorBrush x:Key="Theme.Brush.StatusBlueText" Color="{StaticResource Theme.Color.StatusBlueText}"/>
+    <SolidColorBrush x:Key="Theme.Brush.StatusRedText" Color="{StaticResource Theme.Color.StatusRedText}"/>
+    
+    <!-- 状态徽章背景 (深色模式保持原有淡色) -->
+    <SolidColorBrush x:Key="Theme.Brush.StatusBadgeBackground" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         内存优化页面专用 (深色模式 - 保持原有硬编码值)
+    ═══════════════════════════════════════════════════════════════ -->
+    
+    <!-- Hero 区域背景 (Why: 旧值=实心 Accent 导致内存卡整块亮蓝与暗色主题冲突；改为半透明蓝晕叠深底) -->
+    <SolidColorBrush x:Key="Theme.Brush.MemoryHeroBackground" Color="#242563EB"/>
+    
+    <!-- 底部悬浮栏背景 (深色模式保持原有) -->
+    <SolidColorBrush x:Key="Theme.Brush.MemoryFooterBackground" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.MemoryFooterBorder" Color="{StaticResource Theme.Role.Border}"/>
+    
+    <!-- 两种主题共用文字语义角色，避免把背景色误作前景色。 -->
+    <SolidColorBrush x:Key="Theme.Brush.TextTertiary" Color="{StaticResource Theme.Role.TextSecondary}"/>
+    <SolidColorBrush x:Key="Theme.Brush.TextQuaternary" Color="{StaticResource Theme.Role.TextSecondary}"/>
+    
+    <!-- 内存百分比绿色 (深色模式用亮绿) -->
+    <SolidColorBrush x:Key="Theme.Brush.MemoryPercentGreen" Color="{StaticResource Theme.Role.Success}"/>
+    
+    <!-- 按钮悬停背景 (深色模式) -->
+    <SolidColorBrush x:Key="Theme.Brush.ButtonHoverLight" Color="{StaticResource Theme.Role.SurfaceRaised}"/>
+    
+    <!-- 筛选按钮选中文字 (深色模式用深色) -->
+    <SolidColorBrush x:Key="Theme.Brush.FilterSelectedText" Color="{StaticResource Theme.Role.Accent}"/>
+    
+    <!-- 风险等级标签背景 (深色模式保持原有) -->
+    <SolidColorBrush x:Key="Theme.Brush.RiskSafeBackground" Color="{StaticResource Theme.Role.Success}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RiskBalancedBackground" Color="{StaticResource Theme.Role.Warning}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RiskExtremeBackground" Color="{StaticResource Theme.Role.Error}"/>
+    
+    <!-- 风险等级标签文字 (深色模式保持原有亮色) -->
+    <SolidColorBrush x:Key="Theme.Brush.RiskSafeText" Color="{StaticResource Theme.Role.Success}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RiskBalancedText" Color="{StaticResource Theme.Role.Warning}"/>
+    <SolidColorBrush x:Key="Theme.Brush.RiskExtremeText" Color="{StaticResource Theme.Role.Error}"/>
+    
+    <!-- 已生效标签背景 (深色模式) -->
+    <SolidColorBrush x:Key="Theme.Brush.AppliedBadgeBackground" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <!-- Toggle 开关相关 (深色模式 - 保持原有) -->
+    <SolidColorBrush x:Key="Theme.Brush.ToggleTrackOff" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.ToggleTrackBorder" Color="{StaticResource Theme.Role.Border}"/>
+    
+    <SolidColorBrush x:Key="Theme.Brush.ToggleThumbOff" Color="{StaticResource Theme.Role.SurfaceRaised}"/>
+    
+    <!-- 动画目标颜色 (深色模式) -->
+    <Color x:Key="Theme.Color.ToggleTrackOff">#141C2B</Color>
+    <Color x:Key="Theme.Color.ToggleBorderOff">#334155</Color>
+    <Color x:Key="Theme.Color.ToggleThumbOff">#1D2A3A</Color>
+    <Color x:Key="Theme.Color.ToggleBorderHover">#334155</Color>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         优化项行样式 (深色模式 - 保持原有硬编码值)
+         注意: Theme.Row.* 已在上方定义，此处仅定义扩展样式
+    ═══════════════════════════════════════════════════════════════ -->
+    
+    <!-- 蓝色按钮上的文字 (始终白色) -->
+    <SolidColorBrush x:Key="Theme.Brush.TextOnAccent" Color="{StaticResource Theme.Role.TextOnAccent}"/>
+    
+    <!-- 分类标题文字 -->
+    <Color x:Key="Theme.Category.Text">#1D2A3A</Color>
+    
+    <!-- 卡片分隔线 (深色模式用半透明白色) -->
+    <SolidColorBrush x:Key="Theme.Brush.CardDivider" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         全局控件样式专用颜色 (深色模式)
+    ═══════════════════════════════════════════════════════════════ -->
+    
+    <!-- 控件强调色 -->
+    <Color x:Key="Theme.Control.AccentColor">#2563EB</Color>
+    <Color x:Key="Theme.Control.AccentHoverColor">#2563EB</Color>
+    <Color x:Key="Theme.Control.AccentSelectedBg">#2563EB</Color>
+    <Color x:Key="Theme.Control.AccentBorderColor">#2563EB</Color>
+    
+    <SolidColorBrush x:Key="Theme.Brush.ControlAccent" Color="{StaticResource Theme.Control.AccentColor}"/>
+    <SolidColorBrush x:Key="Theme.Brush.ControlAccentHover" Color="{StaticResource Theme.Control.AccentHoverColor}"/>
+    <SolidColorBrush x:Key="Theme.Brush.ControlAccentSelectedBg" Color="{StaticResource Theme.Control.AccentSelectedBg}"/>
+    <SolidColorBrush x:Key="Theme.Brush.ControlAccentBorder" Color="{StaticResource Theme.Control.AccentBorderColor}"/>
+    
+    <!-- 复选框勾选标记颜色 (深色模式用白色) -->
+    <SolidColorBrush x:Key="Theme.Brush.CheckMarkColor" Color="{StaticResource Theme.Role.SurfaceRaised}"/>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         全局 ComboBox 样式 (深色模式)
+    ═══════════════════════════════════════════════════════════════ -->
+    
+    <Style x:Key="ThemedComboBoxStyle" TargetType="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.InputBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.InputBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="8"/>
+                        <ToggleButton x:Name="ToggleBtn" 
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Background="Transparent" BorderThickness="0" Cursor="Hand">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border Background="Transparent">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="32"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ContentPresenter Grid.Column="0"/>
+                                            <TextBlock Grid.Column="1" Text="&#x25BC;" FontSize="10"
+                                                       Foreground="{DynamicResource Theme.Brush.TextSecondary}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <!-- Begin invalid legacy glyph block.
+                                            <TextBlock Grid.Column="1" Text="▼" FontSize="10"
+                                                       Foreground="{DynamicResource Theme.Brush.TextSecondary}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            -->
+                                            <!-- Legacy malformed glyph line retained only in the migration record.
+                                            <TextBlock Grid.Column="1" Text="▼" FontSize="10" 
+                                                       Foreground="{DynamicResource Theme.Brush.TextSecondary}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            -->
+                                        </Grid>
+                                    </Border>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" 
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}"
+                               AllowsTransparency="True" PopupAnimation="Slide">
+                            <Border x:Name="DropDownBorder" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="300"
+                                    Background="{DynamicResource Theme.Brush.DialogBackground}"
+                                    BorderBrush="{DynamicResource Theme.Brush.ControlAccent}" BorderThickness="1" CornerRadius="8" Margin="0,4,0,0">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="{DynamicResource Theme.Role.Accent}" BlurRadius="20" ShadowDepth="4" Opacity="0.5"/>
+                                </Border.Effect>
+                                <ScrollViewer MaxHeight="280" VerticalScrollBarVisibility="Auto">
+                                    <StackPanel IsItemsHost="True" Margin="4"/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+                        </Trigger>
+                        <Trigger Property="IsDropDownOpen" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style x:Key="ThemedComboBoxItemStyle" TargetType="ComboBoxItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" 
+                            Padding="{TemplateBinding Padding}" CornerRadius="6" Margin="2">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccentBorder}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccentBorder}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         WIZARD DIALOG TOKENS (深色模式 - Obsidian Look)
+    ═══════════════════════════════════════════════════════════════ -->
+    
+    <!-- Wizard Modal -->
+    <Color x:Key="Theme.Wizard.ModalBackground">#141C2B</Color>
+    <Color x:Key="Theme.Wizard.ModalBorderGlow">#334155</Color>
+    <SolidColorBrush x:Key="Theme.Brush.WizardModalBackground" Color="{StaticResource Theme.Wizard.ModalBackground}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WizardModalBorder" Color="{StaticResource Theme.Wizard.ModalBorderGlow}"/>
+    <Color x:Key="Theme.Wizard.ShadowColor">#334155</Color>
+    <sys:Double x:Key="Theme.Wizard.ShadowOpacity" xmlns:sys="clr-namespace:System;assembly=mscorlib">0.6</sys:Double>
+    
+    <!-- Wizard Stepper -->
+    <SolidColorBrush x:Key="Theme.Brush.WizardStepActive" Color="{StaticResource Theme.Role.Surface}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WizardStepInactive" Color="{StaticResource Theme.Role.Surface}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WizardStepLine" Color="{StaticResource Theme.Role.Surface}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WizardStepLineComplete" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <!-- Wizard Selection Cards (Bento Grid) -->
+    <Color x:Key="Theme.Wizard.CardBackground">#141C2B</Color>
+    <Color x:Key="Theme.Wizard.CardBackgroundHover">#141C2B</Color>
+    <Color x:Key="Theme.Wizard.CardBorder">#334155</Color>
+    <Color x:Key="Theme.Wizard.CardSelectedBorder">#2563EB</Color>
+    <Color x:Key="Theme.Wizard.CardSelectedGlow">#2563EB</Color>
+    <SolidColorBrush x:Key="Theme.Brush.WizardCardBackground" Color="{StaticResource Theme.Wizard.CardBackground}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WizardCardBackgroundHover" Color="{StaticResource Theme.Wizard.CardBackgroundHover}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WizardCardBorder" Color="{StaticResource Theme.Wizard.CardBorder}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WizardCardSelectedBorder" Color="{StaticResource Theme.Wizard.CardSelectedBorder}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WizardCardSelectedBackground" Color="{StaticResource Theme.Wizard.CardSelectedGlow}"/>
+    
+    <!-- Wizard Terminal/Log -->
+    <Color x:Key="Theme.Wizard.TerminalBackground">#141C2B</Color>
+    <Color x:Key="Theme.Wizard.TerminalBorder">#334155</Color>
+    <SolidColorBrush x:Key="Theme.Brush.WizardTerminalBackground" Color="{StaticResource Theme.Wizard.TerminalBackground}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WizardTerminalBorder" Color="{StaticResource Theme.Wizard.TerminalBorder}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WizardTerminalText" Color="{StaticResource Theme.Role.Surface}"/>
+    
+    <!-- Wizard Section Headers -->
+    <SolidColorBrush x:Key="Theme.Brush.WizardSectionBackground" Color="{StaticResource Theme.Role.Surface}"/>
+    <SolidColorBrush x:Key="Theme.Brush.WizardSectionBorder" Color="{StaticResource Theme.Role.Border}"/>
+    
+</ResourceDictionary>

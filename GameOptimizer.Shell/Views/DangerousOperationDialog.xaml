@@ -1,0 +1,188 @@
+<!-- File: GameOptimizer.Shell/Views/DangerousOperationDialog.xaml -->
+<Window x:Class="GameOptimizer.Shell.Views.DangerousOperationDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:constants="clr-namespace:GameOptimizer.Shell.Constants"
+        Title="危险操作确认" Width="520" Height="Auto" MinHeight="300" MaxHeight="600"
+        WindowStartupLocation="CenterOwner" WindowStyle="None"
+        AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        SizeToContent="Height" ShowInTaskbar="False"
+        KeyDown="Window_KeyDown"
+        FocusManager.FocusedElement="{Binding ElementName=ConfirmBtn}">
+    <Border Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="12" BorderThickness="1" BorderBrush="#40EF4444">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="32" ShadowDepth="0" Opacity="0.6" Color="#EF4444"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- 标题栏 - 红色警告样式 -->
+            <Border Grid.Row="0" CornerRadius="12,12,0,0" Padding="20,14" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#30EF4444" Offset="0"/>
+                        <GradientStop Color="#20DC2626" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{x:Static constants:IconGlyphs.Warning}" 
+                                   FontFamily="Segoe MDL2 Assets" FontSize="18" 
+                                   Foreground="#EF4444" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TitleText" Text="危险操作警告" 
+                                   Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" 
+                                   FontSize="16" FontWeight="Bold"/>
+                    </StackPanel>
+                    <Button Content="✕" HorizontalAlignment="Right" Click="Cancel_Click"
+                            Background="Transparent" Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                            BorderThickness="0" Width="32" Height="32" Cursor="Hand" FontSize="16">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent" CornerRadius="6">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#30EF4444"/>
+                                        <Setter Property="Foreground" Value="#EF4444"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+            
+            <!-- 内容区域 -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,20">
+                <StackPanel>
+                    <!-- 操作描述 -->
+                    <Border Background="#15EF4444" BorderBrush="#30EF4444" BorderThickness="1" 
+                            CornerRadius="8" Padding="16,12" Margin="0,0,0,16">
+                        <TextBlock x:Name="MessageText" Text="" 
+                                   Foreground="{DynamicResource Theme.Brush.TextPrimary}" 
+                                   FontSize="14" TextWrapping="Wrap" LineHeight="22"/>
+                    </Border>
+                    
+                    <!-- 后果列表 -->
+                    <StackPanel x:Name="ConsequencesPanel" Visibility="Collapsed" Margin="0,0,0,16">
+                        <TextBlock x:Name="ConsequencesTitle" Text="此操作将导致:" 
+                                   Foreground="{DynamicResource Theme.Brush.TextSecondary}" 
+                                   FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <ItemsControl x:Name="ConsequencesList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource Theme.Brush.CardBackground}" 
+                                            CornerRadius="6" Padding="12,8" Margin="0,0,0,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{x:Static constants:IconGlyphs.Error}" 
+                                                       FontFamily="Segoe MDL2 Assets" FontSize="12" 
+                                                       Foreground="#F59E0B" Margin="0,0,10,0" 
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding}" 
+                                                       Foreground="{DynamicResource Theme.Brush.TextSecondary}" 
+                                                       FontSize="13" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                    
+                    <!-- 确认关键词输入（可选） -->
+                    <StackPanel x:Name="KeywordPanel" Visibility="Collapsed" Margin="0,0,0,16">
+                        <TextBlock x:Name="KeywordPrompt" 
+                                   Foreground="{DynamicResource Theme.Brush.TextSecondary}" 
+                                   FontSize="13" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                        <Border Background="{DynamicResource Theme.Brush.CardBackground}" 
+                                BorderBrush="{DynamicResource Theme.Brush.CardBorder}" 
+                                BorderThickness="1" CornerRadius="8" Padding="12,10">
+                            <TextBox x:Name="KeywordInput" 
+                                     Background="Transparent" BorderThickness="0" 
+                                     Foreground="{DynamicResource Theme.Brush.TextPrimary}" 
+                                     FontSize="14" FontWeight="Medium"
+                                     TextChanged="KeywordInput_TextChanged"/>
+                        </Border>
+                    </StackPanel>
+                    
+                    <!-- 倒计时提示 -->
+                    <Border x:Name="CountdownPanel" Visibility="Collapsed" 
+                            Background="#15F59E0B" BorderBrush="#30F59E0B" BorderThickness="1" 
+                            CornerRadius="8" Padding="12,10">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="{x:Static constants:IconGlyphs.Clock}" 
+                                       FontFamily="Segoe MDL2 Assets" FontSize="14" 
+                                       Foreground="#F59E0B" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="CountdownText" 
+                                       Foreground="#F59E0B" FontSize="13" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+            
+            <!-- 底部按钮 -->
+            <Border Grid.Row="2" Background="{DynamicResource Theme.Brush.SurfaceMuted}" 
+                    CornerRadius="0,0,12,12" Padding="20,14">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="CancelBtn" Click="Cancel_Click" Cursor="Hand" 
+                            Margin="0,0,12,0" IsCancel="True" Focusable="True">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent" 
+                                        BorderBrush="{DynamicResource Theme.Brush.CardBorder}" 
+                                        BorderThickness="1" CornerRadius="8" Padding="20,10">
+                                    <TextBlock x:Name="CancelBtnText" Text="取消" 
+                                               Foreground="{DynamicResource Theme.Brush.TextSecondary}" 
+                                               FontSize="13"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" 
+                                                Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="ConfirmBtn" Click="Confirm_Click" Cursor="Hand" 
+                            IsDefault="True" Focusable="True" IsEnabled="False">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" CornerRadius="8" Padding="20,10">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#EF4444" Offset="0"/>
+                                            <GradientStop Color="#DC2626" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <TextBlock x:Name="ConfirmBtnText" Text="确认执行" 
+                                               Foreground="#FFFFFF" FontSize="13" FontWeight="Medium"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Color="#F87171" Offset="0"/>
+                                                    <GradientStop Color="#EF4444" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                                        <Setter Property="Cursor" Value="No"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

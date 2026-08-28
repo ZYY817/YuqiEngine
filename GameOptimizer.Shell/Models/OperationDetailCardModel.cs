@@ -1,0 +1,5 @@
+using System.Collections.Generic;
+
+namespace GameOptimizer.Shell.Models;
+
+public sealed record OperationDetailCardModel(string Title, string Description, string TypeLabel, string RiskLabel, string CompletenessLevel, string CompletenessSummary, string CompletenessMissingItems, bool RequiresReboot, bool IsHardwareIncompatible, string? HardwareIncompatibleHint, string WhatChanged, string WhereChanged, string BeforeAfter, string ImpactAndConsequence, string RollbackAndVerify, string? ManualPath, string? RegistryFullPath = null, string? ApplyCommand = null, string? BeforeProbeCommand = null, string? VerifyCommand = null, string? RollbackCommand = null, string? DefaultRestoreCommand = null, string? EmergencyRecoveryGuide = null, string? CommandGuide = null, string FullDisclosure = "", bool RequiresAdmin = true, bool RequiresExplicitConfirmation = false, bool RequiresRestorePoint = false, bool AffectsUserFeeling = false, IReadOnlyList<OperationDetailDisclosureField>? DisclosureFields = null);

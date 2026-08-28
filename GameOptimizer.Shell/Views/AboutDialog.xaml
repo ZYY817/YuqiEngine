@@ -1,0 +1,77 @@
+<Window x:Class="GameOptimizer.Shell.Views.AboutDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="作者介绍" Width="1040" Height="840" WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" KeyDown="Window_KeyDown">
+    <Window.Resources>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackground}"/><Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="0"/>
+            <Setter Property="Padding" Value="20"/><Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+        <Style x:Key="FooterButton" TargetType="Button">
+            <Setter Property="Height" Value="42"/><Setter Property="Margin" Value="5,0"/><Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/><Setter Property="Background" Value="{DynamicResource Theme.Brush.ButtonBackground}"/><Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.ButtonBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/><Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Theme.Brush.ButtonBackgroundHover}"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+        </Style>
+        <Style x:Key="Heading" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="19"/><Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.Accent}"/><Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+        <Style x:Key="WarningHeading" TargetType="TextBlock" BasedOn="{StaticResource Heading}">
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.Warning}"/>
+        </Style>
+        <Style x:Key="Body" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/><Setter Property="FontSize" Value="15"/>
+            <Setter Property="LineHeight" Value="26"/><Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+        </Style>
+        <Style TargetType="ScrollBar" BasedOn="{StaticResource Yuqi.ScrollBar.Base}"/>
+    </Window.Resources>
+    <Border Background="{DynamicResource Theme.Brush.DialogBackground}" BorderBrush="{DynamicResource Theme.Brush.DialogBorder}" BorderThickness="1" CornerRadius="0" Effect="{DynamicResource Visual.Shadow.Dialog}">
+        <Grid>
+            <Grid.RowDefinitions><RowDefinition Height="62"/><RowDefinition Height="*"/><RowDefinition Height="70"/></Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="34,0">
+                <TextBlock x:Name="DialogTitleText" Text="作者介绍" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="29" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                <Button HorizontalAlignment="Right" VerticalAlignment="Center" Width="44" Height="44" Background="Transparent" BorderThickness="0" Cursor="Hand" Click="CloseButton_Click" ToolTip="关闭">
+                    <TextBlock Text="×" FontSize="30" FontWeight="Light" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Button>
+            </Grid>
+            <ScrollViewer x:Name="ContentScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="40,14,40,8">
+                <StackPanel>
+                    <Grid Margin="14,0,14,22">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="126"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Width="104" Height="104" CornerRadius="0" Background="{DynamicResource Theme.Brush.CardBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1" VerticalAlignment="Top">
+                            <Rectangle Width="66" Height="66" Fill="{DynamicResource Theme.Brush.LogoMark}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Rectangle.OpacityMask><ImageBrush ImageSource="/Assets/yuqi-engine-mark.png" Stretch="Uniform"/></Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <Border Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="0" Padding="10,4" HorizontalAlignment="Left"><TextBlock Text="Yuqi Engine" Foreground="{DynamicResource Theme.Brush.ControlAccent}" FontWeight="SemiBold" FontSize="12"/></Border>
+                            <TextBlock Text="智宇 / 宇奇" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="0,4,0,2"/>
+                            <TextBlock Text="v0.1.0" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,0,0,8"/>
+                            <TextBlock Text="宇奇引擎的设计与开发者，持续打磨 Windows 游戏体验与高性能使用场景下的优化工具。" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                    <Border Style="{StaticResource Card}"><StackPanel><TextBlock Text="♡  写给使用者" Style="{StaticResource Heading}"/><TextBlock Text="你好，我是智宇，也是宇奇。&#x0a;&#x0a;小时候我就一直想做一款属于自己的优化软件。那时候只是觉得，如果有一个工具能把电脑调得更顺、更轻、更适合游戏和日常使用，会是一件很酷的事情。&#x0a;&#x0a;现在宇奇引擎就是这个想法的第一版落地。它还不完美，也还有很多地方需要继续打磨，但我会尽量把每一项功能做得清楚、透明、可理解，让大家知道它做了什么、为什么做、可能会影响哪里。&#x0a;&#x0a;如果这个工具真的帮到了你，或者你愿意提出建议，我都会非常感谢。每一次反馈，都会让我更清楚下一步该怎么优化。" Style="{StaticResource Body}"/><Border Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" Padding="14" Margin="0,18,0,0"><TextBlock Text="如果你觉得这个软件还不错，也欢迎请我喝杯咖啡。你的支持不是购买功能，而是继续完善它的一点鼓励。" Style="{StaticResource Body}"/></Border></StackPanel></Border>
+                    <Border Style="{StaticResource Card}"><StackPanel><TextBlock Text="▣  软件介绍" Style="{StaticResource Heading}"/><TextBlock Text="宇奇引擎是一款面向 Windows 游戏体验和高性能使用场景的系统优化工具。&#x0a;&#x0a;它会围绕内存、CPU、显卡、网络、系统服务、隐私保护、启动项、清理、还原点等方向，提供可查看、可选择、可回退的优化能力。&#x0a;&#x0a;它会把系统优化讲清楚、把风险说明白、把结果展示出来。你可以根据自己的需求逐项选择是否开启，而不是被工具替你做决定。" Style="{StaticResource Body}"/></StackPanel></Border>
+                    <Border x:Name="SourceReleaseStatusCard" Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="⌘  源码公开与项目现状" Style="{StaticResource Heading}"/>
+                            <TextBlock Text="YuqiEngine 此前没有公开完整源码，并不是不愿意分享。我原本希望先把软件做得更稳定一些，再把源码交给更多人使用和修改。Windows 优化工具会受到系统版本、硬件、驱动、权限、服务、注册表和恢复路径影响；先测试、修复并补齐风险与恢复说明，是为了尽量减少不完整实现给用户电脑带来的问题。&#x0a;&#x0a;2026 年 8 月 13 日凌晨，在一次大规模重构和界面迁移过程中发生了严重的误删除事故。删除范围越过了目标工程目录，开发所在磁盘中的 YuqiEngine 完整工程、重构中的新界面，以及其他项目资料都受到影响。之后虽然尝试过备份恢复和数据恢复工具，仍未能找回完整源码。&#x0a;&#x0a;目前公开的内容，是从最早测试版本遗留工程中重新整理、修补出来的早期源码和界面资料。它不是当前发布版本的完整源码，也不是已完成的大型重构成果；部分功能可能不完整，部分内容仅用于界面展示或开发参考，不应直接视为可用于生产环境的系统优化方案。&#x0a;&#x0a;如果你基于公开内容继续开发，请优先在虚拟机、测试设备或可恢复环境中验证，不要将未经验证的系统优化项直接用于主力电脑。精简系统、魔改系统、第三方安全软件、特殊驱动和硬件环境都可能导致行为差异；即使在原版 Windows 中，单次测试也不等于对所有设备的保证。&#x0a;&#x0a;我并不是放弃这个项目，只是随着本职工作的负担增加，已经难以像过去一样持续投入大量时间、精力和成本维护它。我希望仍然保留下来的内容能成为后来者继续完善功能、测试、兼容性与安全性的起点。" Style="{StaticResource Body}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.Warning}"><StackPanel><TextBlock Text="⚠  免费、源码与传播提醒" Style="{StaticResource WarningHeading}"/><TextBlock Text="宇奇引擎是免费软件。&#x0a;&#x0a;源码公开时，复制、修改和再分发的范围应以 GitHub 仓库对应目录中的 LICENSE 和说明为准；在许可证未明确前，不应默认任何公开可见内容都可自由使用。官方安装包、名称、素材和分发渠道也应以官方公告为准。&#x0a;&#x0a;目前软件仍在持续完善中，可能存在不稳定、不完善或不适合部分电脑环境的地方。无论是传播官方版本，还是基于源码制作衍生版本，都应如实说明来源、版本、已知风险和使用边界，避免用户把非官方或未经验证的版本误认为官方版本。&#x0a;&#x0a;如果你是花钱买到这个软件的，请直接去找卖家退款或举报卖家。这个软件本身不收费，也不存在所谓付费专业版。" Style="{StaticResource Body}"/></StackPanel></Border>
+                    <Border x:Name="SupportSectionCard" Style="{StaticResource Card}"><StackPanel><TextBlock Text="☕  支持作者" Style="{StaticResource Heading}"/><TextBlock Text="如果你觉得宇奇引擎做得还不错，或者它确实帮到了你，可以自愿给作者一点小小的支持。&#x0a;&#x0a;这个软件花了我大量时间和精力，很多周末和休息时间都投入在设计、开发、测试和修问题上。你的支持不是购买功能，也不会影响软件使用，只是对作者继续做下去的一点鼓励。&#x0a;&#x0a;谢谢每一位愿意使用、反馈、提出建议和支持我的朋友。非常感谢。" Style="{StaticResource Body}" Margin="0,0,0,16"/>
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.Success}" BorderThickness="1" CornerRadius="0" Padding="16" Margin="0,0,8,0"><StackPanel><TextBlock Text="微信赞赏二维码" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.Success}" HorizontalAlignment="Center"/><Image Source="/Assets/donate_wechat.jpg" Height="260" Stretch="Uniform" Margin="0,10" Cursor="Hand" ToolTip="点击放大微信赞赏码" MouseLeftButtonDown="WechatDonationImage_MouseLeftButtonDown"/><TextBlock Text="微信赞赏" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" HorizontalAlignment="Center"/><TextBlock Text="点击放大扫码" Foreground="{DynamicResource Theme.Brush.TextSecondary}" HorizontalAlignment="Center" Margin="0,5,0,0"/></StackPanel></Border>
+                            <Border Grid.Column="1" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.Info}" BorderThickness="1" CornerRadius="0" Padding="16" Margin="8,0,0,0"><StackPanel><TextBlock Text="支付宝赞赏二维码" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.Info}" HorizontalAlignment="Center"/><Image Source="/Assets/donate_alipay.jpg" Height="260" Stretch="Uniform" Margin="0,10" Cursor="Hand" ToolTip="点击放大支付宝赞赏码" MouseLeftButtonDown="AlipayDonationImage_MouseLeftButtonDown"/><TextBlock Text="支付宝赞赏" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" HorizontalAlignment="Center"/><TextBlock Text="点击放大扫码" Foreground="{DynamicResource Theme.Brush.TextSecondary}" HorizontalAlignment="Center" Margin="0,5,0,0"/></StackPanel></Border>
+                        </Grid></StackPanel></Border>
+                    <Border Style="{StaticResource Card}"><StackPanel><TextBlock Text="◎  平台与技术说明" Style="{StaticResource Heading}"/><TextBlock Text="宇奇引擎当前面向 Windows 10 / Windows 11 桌面环境；Ubuntu / Linux 版本目前不提供下载，也不会用 Windows 版功能冒充跨平台支持。&#x0a;&#x0a;界面基于 WPF 与 WebView2，系统操作通过本地 Windows 能力执行。涉及隐私、报毒、联网、分发和开源状态的说明会集中放在官方渠道与公告入口中，避免不同页面口径不一致。" Style="{StaticResource Body}"/></StackPanel></Border>
+                    <Border Style="{StaticResource Card}"><StackPanel><TextBlock Text="⌘  项目方向" Style="{StaticResource Heading}"/><TextBlock Text="接下来我会继续完善软件稳定性、优化透明度、风险提示、操作日志、还原能力和更多硬件/系统环境适配。&#x0a;&#x0a;我的目标不是把它做成看起来很厉害的按钮集合，而是尽量做成一个真正可靠、清楚、好用的 Windows 优化工具。" Style="{StaticResource Body}"/></StackPanel></Border>
+                </StackPanel>
+            </ScrollViewer>
+            <Border Grid.Row="2" Background="{DynamicResource Theme.Brush.DialogHeader}" BorderBrush="{DynamicResource Theme.Brush.DialogBorder}" BorderThickness="0,1,0,0" Padding="28,13"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Button Grid.Column="0" Style="{StaticResource FooterButton}" Content="♬  作者抖音主页" Click="AuthorDouyinButton_Click"/><Button Grid.Column="1" Style="{StaticResource FooterButton}" Content="▣  作者 Bilibili" Click="AuthorBilibiliButton_Click"/><Button Grid.Column="2" Style="{StaticResource FooterButton}" Content="⌘  作者 GitHub" Click="AuthorGitHubButton_Click"/><Button Grid.Column="3" Style="{StaticResource PrimaryButtonStyle}" Content="知道了" Click="CloseButton_Click"/></Grid></Border>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,261 @@
+﻿<Window x:Class="GameOptimizer.Shell.Views.AffinityEditDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="编辑亲和性" Height="620" Width="480"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize">
+    <Border Background="{DynamicResource Theme.Brush.BackgroundSecondary}" CornerRadius="12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.5"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Background="{DynamicResource Theme.Brush.CardBackground}" Margin="1,1,1,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Margin="20,16">
+                    <TextBlock x:Name="TitleText" Text="编辑亲和性" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                    <TextBlock x:Name="SubtitleText" Text="选择要使用的CPU核心" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="✕" Click="CloseButton_Click" Cursor="Hand"
+                        Width="36" Height="36" Margin="0,10,10,0" VerticalAlignment="Top">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="Transparent" CornerRadius="6">
+                                <TextBlock Text="{TemplateBinding Content}" Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- Preset Modes -->
+            <StackPanel Grid.Row="1" Margin="20,16,20,8">
+                <TextBlock x:Name="LblPresetModes" Text="🎯 推荐配置方案" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                
+                <!-- Game Mode - P Cores -->
+                <Border x:Name="GameModeCard" Background="#0C0EA5E9" CornerRadius="8" Padding="14,12" Margin="0,0,0,8" 
+                        Cursor="Hand" MouseLeftButtonDown="GameMode_Click" BorderBrush="#200EA5E9" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="🎮" FontSize="20" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock x:Name="GameModeTitle" Text="游戏模式 (最大性能)" Foreground="#0EA5E9" FontSize="13" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="GameModeDesc" Text="使用全部P核心，获得最高帧率" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <TextBlock x:Name="GameModeCheck" Grid.Column="2" Text="✓" Foreground="#0EA5E9" FontSize="16" 
+                                   VerticalAlignment="Center" Visibility="Collapsed"/>
+                    </Grid>
+                </Border>
+                
+                <!-- Balanced Mode - All Cores -->
+                <Border x:Name="BalancedModeCard" Background="#0C22C55E" CornerRadius="8" Padding="14,12" Margin="0,0,0,8" 
+                        Cursor="Hand" MouseLeftButtonDown="BalancedMode_Click" BorderBrush="#2022C55E" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="⚖️" FontSize="20" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock x:Name="BalancedModeTitle" Text="平衡模式 (推荐)" Foreground="#22C55E" FontSize="13" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="BalancedModeDesc" Text="使用全部核心，系统自动调度" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <TextBlock x:Name="BalancedModeCheck" Grid.Column="2" Text="✓" Foreground="#22C55E" FontSize="16" 
+                                   VerticalAlignment="Center" Visibility="Collapsed"/>
+                    </Grid>
+                </Border>
+                
+                <!-- Background Mode - E Cores -->
+                <Border x:Name="BackgroundModeCard" Background="#0CA78BFA" CornerRadius="8" Padding="14,12" Margin="0,0,0,8" 
+                        Cursor="Hand" MouseLeftButtonDown="BackgroundMode_Click" BorderBrush="#20A78BFA" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="🍃" FontSize="20" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock x:Name="BackgroundModeTitle" Text="后台模式 (省电)" Foreground="#A78BFA" FontSize="13" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="BackgroundModeDesc" Text="使用E核心，不影响游戏性能" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <TextBlock x:Name="BackgroundModeCheck" Grid.Column="2" Text="✓" Foreground="#A78BFA" FontSize="16" 
+                                   VerticalAlignment="Center" Visibility="Collapsed"/>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- Custom Selection Header -->
+            <Grid Grid.Row="2" Margin="20,8,20,8">
+                <TextBlock x:Name="LblCustomSelect" Text="🔧 自定义选择" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="PCoreButton" Content="选P核" Click="SelectPCores_Click" Margin="0,0,6,0" Cursor="Hand" Visibility="Collapsed">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="#150EA5E9" CornerRadius="4" Padding="8,4">
+                                    <TextBlock x:Name="PCoreButtonText" Text="{TemplateBinding Content}" Foreground="#0EA5E9" FontSize="11"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="#250EA5E9"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="ECoreButton" Content="选E核" Click="SelectECores_Click" Margin="0,0,6,0" Cursor="Hand" Visibility="Collapsed">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="#15A78BFA" CornerRadius="4" Padding="8,4">
+                                    <TextBlock x:Name="ECoreButtonText" Text="{TemplateBinding Content}" Foreground="#A78BFA" FontSize="11"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="#25A78BFA"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="SelectAllButton" Content="全选" Click="SelectAll_Click" Margin="0,0,6,0" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{DynamicResource Theme.Brush.CardBackgroundHover}" CornerRadius="4" Padding="8,4">
+                                    <TextBlock x:Name="SelectAllText" Text="{TemplateBinding Content}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="ClearAllButton" Content="清空" Click="ClearAll_Click" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{DynamicResource Theme.Brush.CardBackgroundHover}" CornerRadius="4" Padding="8,4">
+                                    <TextBlock x:Name="ClearAllText" Text="{TemplateBinding Content}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- Selection Info -->
+            <Border Grid.Row="3" Background="{DynamicResource Theme.Brush.CardBackground}" CornerRadius="8" Margin="20,0,20,8" Padding="12,8">
+                <Grid>
+                    <TextBlock x:Name="SelectionInfo" Text="已选择 0 个核心" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" x:Name="CoreTypeInfo" Visibility="Collapsed">
+                        <TextBlock x:Name="PCoreInfo" Text="0P" Foreground="#0EA5E9" FontSize="11" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="ECoreInfo" Text="0E" Foreground="#A78BFA" FontSize="11"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Thread Grid -->
+            <ScrollViewer Grid.Row="4" Margin="20,0,20,16" VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="ThreadList">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border x:Name="ThreadBorder" Width="48" Height="48" Margin="3" CornerRadius="8" 
+                                    Cursor="Hand" MouseLeftButtonDown="Thread_Click"
+                                    Background="{DynamicResource Theme.Brush.CardBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderHover}" BorderThickness="1">
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding Index}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" 
+                                               FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding CoreTypeDisplay}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="8" 
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                    <Setter TargetName="ThreadBorder" Property="Background" Value="#2022D3EE"/>
+                                    <Setter TargetName="ThreadBorder" Property="BorderBrush" Value="#5022D3EE"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Buttons -->
+            <Border Grid.Row="5" Background="{DynamicResource Theme.Brush.CardBackground}" Padding="20,16">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="CancelButton" Content="取消" Click="CancelButton_Click" Cursor="Hand" Margin="0,0,10,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{DynamicResource Theme.Brush.CardBackgroundHover}" CornerRadius="8" Padding="20,10">
+                                    <TextBlock x:Name="CancelBtnText" Text="{TemplateBinding Content}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="ConfirmButton" Content="保存" Click="ConfirmButton_Click" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" CornerRadius="8" Padding="20,10">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#22D3EE" Offset="0"/>
+                                            <GradientStop Color="#0EA5E9" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <TextBlock x:Name="ConfirmBtnText" Text="{TemplateBinding Content}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.9"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.5"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

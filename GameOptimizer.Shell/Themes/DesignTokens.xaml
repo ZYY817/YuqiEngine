@@ -1,0 +1,303 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         DESIGN TOKENS - Yuqi Engine Shell Foundation
+         Matte surfaces, restrained contrast, and information-first hierarchy.
+         
+         设计原则:
+         - 深空灰背景 + 低对比层级
+         - 精密边框与清晰焦点
+         - 状态色只承担语义，不替代文字
+         - 等宽字体数据展示
+    ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- ─────────────────────────────────────────────────────────────────────
+         COLOR SYSTEM - Glassmorphism + Precision Engineering
+    ───────────────────────────────────────────────────────────────────── -->
+    
+    <!-- Canonical neutral design values. Theme-specific semantic colors live in
+         DarkTheme.xaml; controls must not depend on these
+         values directly when the meaning changes with the theme. -->
+    <Color x:Key="Token.Color.Primary">#3B82F6</Color>
+    <Color x:Key="Token.Color.PrimaryLight">#60A5FA</Color>
+    <Color x:Key="Token.Color.PrimaryDark">#2563EB</Color>
+    <Color x:Key="Token.Color.PrimaryMuted">#1E3A5F</Color>
+    <Color x:Key="Token.Color.PrimaryGlow">#3B82F6</Color>
+    
+    <!-- Secondary - 极少使用 -->
+    <Color x:Key="Token.Color.Secondary">#6B7280</Color>
+    <Color x:Key="Token.Color.SecondaryLight">#9CA3AF</Color>
+    
+    <!-- Accent - 同 Primary -->
+    <Color x:Key="Token.Color.Accent">#3B82F6</Color>
+    <Color x:Key="Token.Color.AccentAlt">#3B82F6</Color>
+    
+    <!-- Semantic Colors - 仅用于状态信号 -->
+    <Color x:Key="Token.Color.Success">#34C759</Color>
+    <Color x:Key="Token.Color.SuccessLight">#5DD879</Color>
+    <Color x:Key="Token.Color.Warning">#FF9500</Color>
+    <Color x:Key="Token.Color.WarningLight">#FFAA33</Color>
+    <Color x:Key="Token.Color.Error">#FF3B30</Color>
+    <Color x:Key="Token.Color.ErrorLight">#FF6961</Color>
+    <Color x:Key="Token.Color.Info">#3B82F6</Color>
+    <Color x:Key="Token.Color.InfoLight">#60A5FA</Color>
+    
+    <!-- Background Colors - Matte Deep Space Grey -->
+    <Color x:Key="Token.Color.BgDeep">#0F0F10</Color>
+    <Color x:Key="Token.Color.BgBase">#0F0F10</Color>
+    <Color x:Key="Token.Color.BgElevated">#18181A</Color>
+    <Color x:Key="Token.Color.BgCard">#1A1A1C</Color>
+    <Color x:Key="Token.Color.BgCardTop">#1E1E22</Color>
+    <Color x:Key="Token.Color.BgCardBottom">#16161A</Color>
+    <Color x:Key="Token.Color.BgCardHover">#242428</Color>
+    <Color x:Key="Token.Color.BgSurface">#18181A</Color>
+    <Color x:Key="Token.Color.BgMuted">#242428</Color>
+    <Color x:Key="Token.Color.BgSidebar">#141416</Color>
+    <Color x:Key="Token.Color.BgSidebarAcrylic">#1A1A1E</Color>
+    <Color x:Key="Token.Color.BgNavPill">#242428</Color>
+    <Color x:Key="Token.Color.BgNavPillActive">#2A2A2E</Color>
+    
+    <!-- Border Colors - Cut Metal Look (10% white glossy) -->
+    <Color x:Key="Token.Color.Border">#1AFFFFFF</Color>
+    <Color x:Key="Token.Color.BorderLight">#26FFFFFF</Color>
+    <Color x:Key="Token.Color.BorderHover">#40FFFFFF</Color>
+    <Color x:Key="Token.Color.BorderFocus">#3B82F6</Color>
+    <Color x:Key="Token.Color.BorderGlossy">#1AFFFFFF</Color>
+    <Color x:Key="Token.Color.BorderDivider">#1AFFFFFF</Color>
+    
+    <!-- Monochrome Data Colors - NO RAINBOW -->
+    <Color x:Key="Token.Color.DataPrimary">#FFFFFF</Color>
+    <Color x:Key="Token.Color.DataSecondary">#A0A0A5</Color>
+    <Color x:Key="Token.Color.DataMuted">#6B6B70</Color>
+    <Color x:Key="Token.Color.DataTrack">#1A1A1C</Color>
+    <Color x:Key="Token.Color.DataTrackInner">#0D0D0E</Color>
+    
+    <!-- Text Colors -->
+    <Color x:Key="Token.Color.TextPrimary">#FFFFFF</Color>
+    <Color x:Key="Token.Color.TextSecondary">#A1A1A6</Color>
+    <Color x:Key="Token.Color.TextMuted">#6B6B70</Color>
+    <Color x:Key="Token.Color.TextDisabled">#48484A</Color>
+    <Color x:Key="Token.Color.TextInverse">#0F0F10</Color>
+    <Color x:Key="Token.Color.TextGroupHeader">#505055</Color>
+
+    <!-- ─────────────────────────────────────────────────────────────────────
+         SOLID BRUSHES - 纯色画刷
+    ───────────────────────────────────────────────────────────────────── -->
+    
+    <!-- Primary -->
+    <SolidColorBrush x:Key="Token.Brush.Primary" Color="{StaticResource Token.Color.Primary}"/>
+    <SolidColorBrush x:Key="Token.Brush.PrimaryLight" Color="{StaticResource Token.Color.PrimaryLight}"/>
+    <SolidColorBrush x:Key="Token.Brush.PrimaryDark" Color="{StaticResource Token.Color.PrimaryDark}"/>
+    <SolidColorBrush x:Key="Token.Brush.PrimaryMuted" Color="{StaticResource Token.Color.PrimaryMuted}"/>
+    
+    <!-- Secondary -->
+    <SolidColorBrush x:Key="Token.Brush.Secondary" Color="{StaticResource Token.Color.Secondary}"/>
+    <SolidColorBrush x:Key="Token.Brush.SecondaryLight" Color="{StaticResource Token.Color.SecondaryLight}"/>
+    
+    <!-- Semantic -->
+    <SolidColorBrush x:Key="Token.Brush.Success" Color="{StaticResource Token.Color.Success}"/>
+    <SolidColorBrush x:Key="Token.Brush.SuccessLight" Color="{StaticResource Token.Color.SuccessLight}"/>
+    <SolidColorBrush x:Key="Token.Brush.Warning" Color="{StaticResource Token.Color.Warning}"/>
+    <SolidColorBrush x:Key="Token.Brush.WarningLight" Color="{StaticResource Token.Color.WarningLight}"/>
+    <SolidColorBrush x:Key="Token.Brush.Error" Color="{StaticResource Token.Color.Error}"/>
+    <SolidColorBrush x:Key="Token.Brush.ErrorLight" Color="{StaticResource Token.Color.ErrorLight}"/>
+    <SolidColorBrush x:Key="Token.Brush.Info" Color="{StaticResource Token.Color.Info}"/>
+    
+    <!-- Background -->
+    <SolidColorBrush x:Key="Token.Brush.BgDeep" Color="{StaticResource Token.Color.BgDeep}"/>
+    <SolidColorBrush x:Key="Token.Brush.BgBase" Color="{StaticResource Token.Color.BgBase}"/>
+    <SolidColorBrush x:Key="Token.Brush.BgElevated" Color="{StaticResource Token.Color.BgElevated}"/>
+    <SolidColorBrush x:Key="Token.Brush.BgCard" Color="{StaticResource Token.Color.BgCard}"/>
+    <SolidColorBrush x:Key="Token.Brush.BgCardHover" Color="{StaticResource Token.Color.BgCardHover}"/>
+    <SolidColorBrush x:Key="Token.Brush.BgSurface" Color="{StaticResource Token.Color.BgSurface}"/>
+    <SolidColorBrush x:Key="Token.Brush.BgMuted" Color="{StaticResource Token.Color.BgMuted}"/>
+    <SolidColorBrush x:Key="Token.Brush.BgSidebar" Color="{StaticResource Token.Color.BgSidebar}"/>
+    
+    <!-- Border -->
+    <SolidColorBrush x:Key="Token.Brush.Border" Color="{StaticResource Token.Color.Border}"/>
+    <SolidColorBrush x:Key="Token.Brush.BorderLight" Color="{StaticResource Token.Color.BorderLight}"/>
+    <SolidColorBrush x:Key="Token.Brush.BorderHover" Color="{StaticResource Token.Color.BorderHover}"/>
+    <SolidColorBrush x:Key="Token.Brush.BorderFocus" Color="{StaticResource Token.Color.BorderFocus}"/>
+    
+    <!-- Text -->
+    <SolidColorBrush x:Key="Token.Brush.TextPrimary" Color="{StaticResource Token.Color.TextPrimary}"/>
+    <SolidColorBrush x:Key="Token.Brush.TextSecondary" Color="{StaticResource Token.Color.TextSecondary}"/>
+    <SolidColorBrush x:Key="Token.Brush.TextMuted" Color="{StaticResource Token.Color.TextMuted}"/>
+    <SolidColorBrush x:Key="Token.Brush.TextDisabled" Color="{StaticResource Token.Color.TextDisabled}"/>
+
+    <!-- ─────────────────────────────────────────────────────────────────────
+         GRADIENT BRUSHES - 保留兼容性但改为纯色
+    ───────────────────────────────────────────────────────────────────── -->
+    
+    <!-- Primary Gradients - 纯色 -->
+    <SolidColorBrush x:Key="Token.Gradient.Primary" Color="{StaticResource Token.Color.Primary}"/>
+    <SolidColorBrush x:Key="Token.Gradient.PrimaryHorizontal" Color="{StaticResource Token.Color.Primary}"/>
+    
+    <!-- Semantic Gradients - 纯色 -->
+    <SolidColorBrush x:Key="Token.Gradient.Success" Color="{StaticResource Token.Color.Success}"/>
+    <SolidColorBrush x:Key="Token.Gradient.Warning" Color="{StaticResource Token.Color.Warning}"/>
+    <SolidColorBrush x:Key="Token.Gradient.Error" Color="{StaticResource Token.Color.Error}"/>
+    
+    <!-- Background Gradients - Deep Titanium -->
+    <SolidColorBrush x:Key="Token.Gradient.AppBackground" Color="{StaticResource Token.Color.BgBase}"/>
+    <SolidColorBrush x:Key="Token.Gradient.Card" Color="{StaticResource Token.Color.BgCard}"/>
+    <SolidColorBrush x:Key="Token.Gradient.CardHover" Color="{StaticResource Token.Color.BgCardHover}"/>
+    <SolidColorBrush x:Key="Token.Gradient.Sidebar" Color="{StaticResource Token.Color.BgSidebar}"/>
+    <SolidColorBrush x:Key="Token.Gradient.NavItemActive" Color="{StaticResource Token.Color.BgNavPillActive}"/>
+    
+    <!-- Accent Bar -->
+    <SolidColorBrush x:Key="Token.Gradient.GlowBorder" Color="{StaticResource Token.Color.Primary}"/>
+    <SolidColorBrush x:Key="Token.Gradient.AccentBar" Color="{StaticResource Token.Color.Primary}"/>
+
+    <!-- ─────────────────────────────────────────────────────────────────────
+         SPACING SYSTEM - 间距系统
+    ───────────────────────────────────────────────────────────────────── -->
+    
+    <sys:Double x:Key="Token.Space.Xs">4</sys:Double>
+    <sys:Double x:Key="Token.Space.Sm">8</sys:Double>
+    <sys:Double x:Key="Token.Space.Md">16</sys:Double>
+    <sys:Double x:Key="Token.Space.Lg">24</sys:Double>
+    <sys:Double x:Key="Token.Space.Xl">32</sys:Double>
+    <sys:Double x:Key="Token.Space.2xl">48</sys:Double>
+    
+    <Thickness x:Key="Token.Padding.Xs">4</Thickness>
+    <Thickness x:Key="Token.Padding.Sm">8</Thickness>
+    <Thickness x:Key="Token.Padding.Md">16</Thickness>
+    <Thickness x:Key="Token.Padding.Lg">24</Thickness>
+    <Thickness x:Key="Token.Padding.Xl">32</Thickness>
+    
+    <Thickness x:Key="Token.Padding.Card">16</Thickness>
+    <Thickness x:Key="Token.Padding.CardLarge">24</Thickness>
+    <Thickness x:Key="Token.Padding.Section">20</Thickness>
+    <Thickness x:Key="Token.Padding.Button">16,10</Thickness>
+    <Thickness x:Key="Token.Padding.ButtonSm">12,6</Thickness>
+    <Thickness x:Key="Token.Padding.Input">12,10</Thickness>
+
+    <!-- ─────────────────────────────────────────────────────────────────────
+         CORNER RADIUS - 统一 12px 精密圆角
+    ───────────────────────────────────────────────────────────────────── -->
+    
+    <!-- Radius is structural, not decorative: shell/stages stay rectilinear while
+         touchable controls and contained cards receive only enough softening to
+         distinguish their role. -->
+    <CornerRadius x:Key="Token.Radius.Xs">2</CornerRadius>
+    <CornerRadius x:Key="Token.Radius.Sm">4</CornerRadius>
+    <CornerRadius x:Key="Token.Radius.Md">6</CornerRadius>
+    <CornerRadius x:Key="Token.Radius.Lg">8</CornerRadius>
+    <CornerRadius x:Key="Token.Radius.Xl">10</CornerRadius>
+    <CornerRadius x:Key="Token.Radius.2xl">12</CornerRadius>
+    <CornerRadius x:Key="Token.Radius.Full">999</CornerRadius>
+
+    <CornerRadius x:Key="Token.Radius.Card">6</CornerRadius>
+    <CornerRadius x:Key="Token.Radius.CardLarge">8</CornerRadius>
+    <CornerRadius x:Key="Token.Radius.Button">4</CornerRadius>
+    <CornerRadius x:Key="Token.Radius.Badge">4</CornerRadius>
+    <CornerRadius x:Key="Token.Radius.Icon">4</CornerRadius>
+
+    <!-- ─────────────────────────────────────────────────────────────────────
+         TYPOGRAPHY - 字体系统
+    ───────────────────────────────────────────────────────────────────── -->
+    
+    <sys:Double x:Key="Token.FontSize.Xs">11</sys:Double>
+    <sys:Double x:Key="Token.FontSize.Sm">12</sys:Double>
+    <sys:Double x:Key="Token.FontSize.Base">14</sys:Double>
+    <sys:Double x:Key="Token.FontSize.Lg">16</sys:Double>
+    <sys:Double x:Key="Token.FontSize.Xl">18</sys:Double>
+    <sys:Double x:Key="Token.FontSize.2xl">22</sys:Double>
+    <sys:Double x:Key="Token.FontSize.3xl">28</sys:Double>
+    <sys:Double x:Key="Token.FontSize.4xl">36</sys:Double>
+    <sys:Double x:Key="Token.FontSize.Hero">48</sys:Double>
+    
+    <FontWeight x:Key="Token.FontWeight.Normal">Normal</FontWeight>
+    <FontWeight x:Key="Token.FontWeight.Medium">Medium</FontWeight>
+    <FontWeight x:Key="Token.FontWeight.SemiBold">SemiBold</FontWeight>
+    <FontWeight x:Key="Token.FontWeight.Bold">Bold</FontWeight>
+    
+    <!-- Embedded OFL-1.1 font is the deterministic primary face. The system
+         families keep the shell readable if a resource cannot be loaded. -->
+    <FontFamily x:Key="Token.FontFamily.Body">./Assets/Fonts/#Noto Sans CJK SC, Microsoft YaHei UI, Segoe UI</FontFamily>
+    <FontFamily x:Key="Token.FontFamily.Display">./Assets/Fonts/#Noto Sans CJK SC, Microsoft YaHei UI, Segoe UI</FontFamily>
+    <FontFamily x:Key="Token.FontFamily.Mono">Cascadia Mono, Consolas, Courier New</FontFamily>
+
+    <!-- Function-module hierarchy. Keep these semantic so generated controls
+         and XAML use one source of truth. -->
+    <sys:Double x:Key="Token.FontSize.ModuleCategory">12</sys:Double>
+    <sys:Double x:Key="Token.FontSize.ModuleStatus">12</sys:Double>
+    <sys:Double x:Key="Token.FontSize.ModuleDescription">13</sys:Double>
+    <sys:Double x:Key="Token.FontSize.ModuleItemTitle">14</sys:Double>
+    <sys:Double x:Key="Token.FontSize.ModuleSubtitle">14</sys:Double>
+
+    <!-- ─────────────────────────────────────────────────────────────────────
+         SHADOWS - 阴影系统 (极简 - 几乎无阴影)
+    ───────────────────────────────────────────────────────────────────── -->
+    
+    <!-- Shadows are reserved for genuinely elevated surfaces. Zero depth avoids
+         the dated floating-sticker look and keeps the blur inexpensive. -->
+    <DropShadowEffect x:Key="Token.Shadow.Sm" BlurRadius="5" ShadowDepth="0" Opacity="0.14" Color="{DynamicResource Theme.Color.Shadow}"/>
+    <DropShadowEffect x:Key="Token.Shadow.Md" BlurRadius="10" ShadowDepth="1" Opacity="0.16" Color="{DynamicResource Theme.Color.Shadow}"/>
+    <DropShadowEffect x:Key="Token.Shadow.Lg" BlurRadius="16" ShadowDepth="2" Opacity="0.18" Color="{DynamicResource Theme.Color.Shadow}"/>
+    <DropShadowEffect x:Key="Token.Shadow.Xl" BlurRadius="24" ShadowDepth="3" Opacity="0.20" Color="{DynamicResource Theme.Color.Shadow}"/>
+    
+    <!-- Glow Shadows - 移除发光效果 -->
+    <DropShadowEffect x:Key="Token.Shadow.GlowPrimary" BlurRadius="0" ShadowDepth="0" Opacity="0" Color="Transparent"/>
+    <DropShadowEffect x:Key="Token.Shadow.GlowPrimaryStrong" BlurRadius="0" ShadowDepth="0" Opacity="0" Color="Transparent"/>
+    <DropShadowEffect x:Key="Token.Shadow.GlowSuccess" BlurRadius="0" ShadowDepth="0" Opacity="0" Color="Transparent"/>
+    <DropShadowEffect x:Key="Token.Shadow.GlowWarning" BlurRadius="0" ShadowDepth="0" Opacity="0" Color="Transparent"/>
+    <DropShadowEffect x:Key="Token.Shadow.GlowError" BlurRadius="0" ShadowDepth="0" Opacity="0" Color="Transparent"/>
+
+    <!-- ─────────────────────────────────────────────────────────────────────
+         SIZES - 尺寸系统
+    ───────────────────────────────────────────────────────────────────── -->
+    
+    <sys:Double x:Key="Token.Size.IconSm">16</sys:Double>
+    <sys:Double x:Key="Token.Size.IconMd">20</sys:Double>
+    <sys:Double x:Key="Token.Size.IconLg">24</sys:Double>
+    <sys:Double x:Key="Token.Size.IconXl">32</sys:Double>
+    
+    <sys:Double x:Key="Token.Size.IconBoxSm">32</sys:Double>
+    <sys:Double x:Key="Token.Size.IconBoxMd">36</sys:Double>
+    <sys:Double x:Key="Token.Size.IconBoxLg">44</sys:Double>
+    
+    <sys:Double x:Key="Token.Size.ButtonHeight">36</sys:Double>
+    <sys:Double x:Key="Token.Size.ButtonHeightSm">28</sys:Double>
+    <sys:Double x:Key="Token.Size.InputHeight">40</sys:Double>
+    
+    <sys:Double x:Key="Token.Size.ProgressHeight">4</sys:Double>
+    <sys:Double x:Key="Token.Size.ProgressHeightLg">6</sys:Double>
+
+    <!-- ─────────────────────────────────────────────────────────────────────
+         ANIMATION DURATIONS - 动画时长
+    ───────────────────────────────────────────────────────────────────── -->
+    
+    <Duration x:Key="Token.Duration.Fast">0:0:0.1</Duration>
+    <Duration x:Key="Token.Duration.Normal">0:0:0.15</Duration>
+    <Duration x:Key="Token.Duration.Slow">0:0:0.25</Duration>
+    <Duration x:Key="Token.Duration.Slower">0:0:0.4</Duration>
+
+    <!-- ACCESSIBILITY AND INTERACTION - 交互与可访问性基础契约 -->
+    <sys:Double x:Key="Token.Size.MinInteractive">36</sys:Double>
+    <sys:Double x:Key="Token.Opacity.Disabled">0.52</sys:Double>
+    <sys:Double x:Key="Token.Opacity.DisabledText">0.68</sys:Double>
+
+    <!--
+        Focus is deliberately rendered with the system highlight brush so that
+        Windows high-contrast themes can replace it without a second palette.
+    -->
+    <Style x:Key="Token.FocusVisualStyle" TargetType="{x:Type Control}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Control}">
+                    <Border Margin="-3"
+                            Background="Transparent"
+                            BorderBrush="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"
+                            BorderThickness="2"
+                            CornerRadius="{DynamicResource Token.Radius.Sm}"
+                            SnapsToDevicePixels="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

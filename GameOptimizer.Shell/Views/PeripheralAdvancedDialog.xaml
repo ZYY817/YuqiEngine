@@ -1,0 +1,302 @@
+<Window x:Class="GameOptimizer.Shell.Views.PeripheralAdvancedDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:localization="clr-namespace:GameOptimizer.Shell.Localization"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="外设高级设置" 
+        Height="700" 
+        Width="840"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Theme.Brush.Background}"
+        ResizeMode="NoResize">
+    
+    <Window.Resources>
+        <Style TargetType="TextBlock" x:Key="SectionHeaderStyle">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.Accent}"/>
+            <Setter Property="Margin" Value="0,20,0,10"/>
+        </Style>
+        
+        <Style TargetType="TextBlock" x:Key="LabelStyle">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+        </Style>
+
+        <Style TargetType="TextBlock" x:Key="SubLabelStyle">
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextMuted}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+        
+        <Style TargetType="TextBlock" x:Key="HintStyle">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+            <Setter Property="Margin" Value="0,10,0,0"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        
+        <Style TargetType="TextBox" x:Key="InputStyle">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontFamily" Value="Consolas, Microsoft YaHei UI"/>
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.InputBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.InputBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- 标题区域 -->
+        <StackPanel Grid.Row="0">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="22" 
+                           Foreground="{DynamicResource Theme.Brush.Accent}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBlock Text="{localization:Loc Peripheral.UI.WindowTitle}" FontSize="20" FontWeight="Bold" 
+                           Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"
+                           FontFamily="Microsoft YaHei UI"/>
+            </StackPanel>
+            <TextBlock Text="{localization:Loc Peripheral.UI.Subtitle}" 
+                       FontSize="12" 
+                       Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                       Margin="0,0,0,0"/>
+
+            <!-- 警告提示 -->
+            <Border CornerRadius="6" Padding="14" Margin="0,14,0,0">
+                <Border.Background>
+                    <SolidColorBrush Color="#15F59E0B"/>
+                </Border.Background>
+                <Border.BorderBrush>
+                    <SolidColorBrush Color="#30F59E0B"/>
+                </Border.BorderBrush>
+                <Border.BorderThickness>1</Border.BorderThickness>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <TextBlock Text="⚠" FontSize="14" Foreground="{DynamicResource Theme.Brush.Warning}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{localization:Loc Peripheral.UI.Warning}" 
+                                   FontSize="12" 
+                                   Foreground="{DynamicResource Theme.Brush.Warning}" 
+                                   TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock FontSize="11" 
+                               Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                               TextWrapping="Wrap"
+                               Margin="22,2,0,0">
+                        <Run Text="{localization:Loc Peripheral.UI.ApplyTiming}"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+        
+        <!-- 设置内容 -->
+        <ScrollViewer Grid.Row="1" Margin="0,8,0,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <!-- ═══════ 鼠标加速度 ═══════ -->
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE962;" FontFamily="Segoe MDL2 Assets" FontSize="14" 
+                               Foreground="{DynamicResource Theme.Brush.Accent}" VerticalAlignment="Center" Margin="0,20,8,10"/>
+                    <TextBlock Text="{localization:Loc Peripheral.UI.MouseAccelSection}" Style="{StaticResource SectionHeaderStyle}"/>
+                </StackPanel>
+                <Border Background="{DynamicResource Theme.Brush.CardBackground}" 
+                        BorderBrush="{DynamicResource Theme.Brush.CardBorder}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Padding="16,14">
+                    <StackPanel>
+                        <!-- 鼠标加速开关 -->
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.MouseSpeedLabel}" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.MouseSpeedSub}" Style="{StaticResource SubLabelStyle}"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="1" x:Name="MouseSpeedTextBox" Style="{StaticResource InputStyle}"/>
+                        </Grid>
+                        
+                        <!-- 加速阈值1 -->
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.Threshold1Label}" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.Threshold1Sub}" Style="{StaticResource SubLabelStyle}"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="1" x:Name="MouseThreshold1TextBox" Style="{StaticResource InputStyle}"/>
+                        </Grid>
+                        
+                        <!-- 加速阈值2 -->
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.Threshold2Label}" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.Threshold2Sub}" Style="{StaticResource SubLabelStyle}"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="1" x:Name="MouseThreshold2TextBox" Style="{StaticResource InputStyle}"/>
+                        </Grid>
+                        
+                        <TextBlock Style="{StaticResource HintStyle}">
+                            <Run Text="{localization:Loc Peripheral.UI.MouseRecommendation}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══════ 键盘响应 ═══════ -->
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE765;" FontFamily="Segoe MDL2 Assets" FontSize="14" 
+                               Foreground="{DynamicResource Theme.Brush.Accent}" VerticalAlignment="Center" Margin="0,20,8,10"/>
+                    <TextBlock Text="{localization:Loc Peripheral.UI.KeyboardSection}" Style="{StaticResource SectionHeaderStyle}"/>
+                </StackPanel>
+                <Border Background="{DynamicResource Theme.Brush.CardBackground}" 
+                        BorderBrush="{DynamicResource Theme.Brush.CardBorder}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Padding="16,14">
+                    <StackPanel>
+                        <!-- 重复延迟 -->
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.KbDelayLabel}" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.KbDelaySub}" Style="{StaticResource SubLabelStyle}"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="1" x:Name="KeyboardDelayTextBox" Style="{StaticResource InputStyle}"/>
+                        </Grid>
+                        
+                        <!-- 重复速度 -->
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.KbSpeedLabel}" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.KbSpeedSub}" Style="{StaticResource SubLabelStyle}"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="1" x:Name="KeyboardSpeedTextBox" Style="{StaticResource InputStyle}"/>
+                        </Grid>
+                        
+                        <TextBlock Style="{StaticResource HintStyle}">
+                            <Run Text="{localization:Loc Peripheral.UI.KeyboardRecommendation}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+                
+                <!-- ═══════ USB 轮询缓冲区 ═══════ -->
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE839;" FontFamily="Segoe MDL2 Assets" FontSize="14" 
+                               Foreground="{DynamicResource Theme.Brush.Accent}" VerticalAlignment="Center" Margin="0,20,8,10"/>
+                    <TextBlock Text="{localization:Loc Peripheral.UI.UsbSection}" Style="{StaticResource SectionHeaderStyle}"/>
+                </StackPanel>
+                <Border Background="{DynamicResource Theme.Brush.CardBackground}" 
+                        BorderBrush="{DynamicResource Theme.Brush.CardBorder}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Padding="16,14"
+                        Margin="0,0,0,8">
+                    <StackPanel>
+                        <!-- 鼠标队列 -->
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.MouseQueueLabel}" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.MouseQueueSub}" Style="{StaticResource SubLabelStyle}"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="1" x:Name="MouseQueueTextBox" Style="{StaticResource InputStyle}"/>
+                        </Grid>
+                        
+                        <!-- 键盘队列 -->
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.KbQueueLabel}" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Text="{localization:Loc Peripheral.UI.KbQueueSub}" Style="{StaticResource SubLabelStyle}"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="1" x:Name="KeyboardQueueTextBox" Style="{StaticResource InputStyle}"/>
+                        </Grid>
+                        
+                        <TextBlock Style="{StaticResource HintStyle}">
+                            <Run Text="{localization:Loc Peripheral.UI.QueueRecommendation}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+        
+        <!-- 底部按钮 -->
+        <Border Grid.Row="2" Margin="0,12,0,0" Padding="0,12,0,0"
+                BorderThickness="0,1,0,0" BorderBrush="{DynamicResource Theme.Brush.BorderSubtle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Button Grid.Column="0" 
+                        Content="{localization:Loc Peripheral.UI.RestoreDefault}" 
+                        Width="120" 
+                        Height="36" 
+                        Click="RestoreDefault_Click"
+                        Style="{DynamicResource SecondaryButtonStyle}"/>
+                
+                <Button Grid.Column="1" 
+                        Content="{localization:Loc Peripheral.UI.Undo}" 
+                        Width="120" 
+                        Height="36" 
+                        Margin="12,0,0,0"
+                        Click="Undo_Click"
+                        Style="{DynamicResource SecondaryButtonStyle}"/>
+                
+                <Button Grid.Column="3" 
+                        Content="{localization:Loc Peripheral.UI.Confirm}" 
+                        Width="100" 
+                        Height="36" 
+                        Margin="0,0,12,0"
+                        Click="Confirm_Click"
+                        Style="{DynamicResource PrimaryButtonStyle}"/>
+                
+                <Button Grid.Column="4" 
+                        Content="{localization:Loc Peripheral.UI.Cancel}" 
+                        Width="100" 
+                        Height="36"
+                        Click="Cancel_Click"
+                        Style="{DynamicResource SecondaryButtonStyle}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

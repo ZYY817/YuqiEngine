@@ -1,0 +1,108 @@
+<UserControl x:Class="GameOptimizer.Shell.Controls.ModernToggle"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d">
+    
+    <ToggleButton x:Name="InternalToggle"
+                  IsChecked="{Binding IsOn, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"
+                  Checked="InternalToggle_Changed"
+                  Unchecked="InternalToggle_Changed"
+                  Cursor="Hand">
+        <ToggleButton.Template>
+            <ControlTemplate TargetType="ToggleButton">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- iOS 风格扁平开关 -->
+                    <Border x:Name="Track"
+                            Width="48" Height="26"
+                            CornerRadius="13"
+                            Background="#2A2A2A"
+                            BorderBrush="#3A3A3A"
+                            BorderThickness="1">
+                        <Border x:Name="Thumb"
+                                Width="20" Height="20"
+                                CornerRadius="10"
+                                Background="#888888"
+                                Margin="3,0"
+                                HorizontalAlignment="Left"
+                                RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <TranslateTransform x:Name="ThumbTranslate" X="0"/>
+                            </Border.RenderTransform>
+                        </Border>
+                    </Border>
+                    
+                    <ContentPresenter Grid.Column="1" 
+                                      Margin="12,0,0,0"
+                                      VerticalAlignment="Center"
+                                      Visibility="{Binding ShowLabel, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+                
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsChecked" Value="True">
+                        <Trigger.EnterActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ThumbTranslate"
+                                                     Storyboard.TargetProperty="X"
+                                                     To="22" Duration="0:0:0.15">
+                                        <DoubleAnimation.EasingFunction>
+                                            <CubicEase EasingMode="EaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <ColorAnimation Storyboard.TargetName="Track"
+                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                    To="#22C55E" Duration="0:0:0.15"/>
+                                    <ColorAnimation Storyboard.TargetName="Track"
+                                                    Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                    To="#22C55E" Duration="0:0:0.15"/>
+                                    <ColorAnimation Storyboard.TargetName="Thumb"
+                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                    To="White" Duration="0:0:0.15"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </Trigger.EnterActions>
+                        <Trigger.ExitActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ThumbTranslate"
+                                                     Storyboard.TargetProperty="X"
+                                                     To="0" Duration="0:0:0.15">
+                                        <DoubleAnimation.EasingFunction>
+                                            <CubicEase EasingMode="EaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <ColorAnimation Storyboard.TargetName="Track"
+                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                    To="#2A2A2A" Duration="0:0:0.15"/>
+                                    <ColorAnimation Storyboard.TargetName="Track"
+                                                    Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                    To="#3A3A3A" Duration="0:0:0.15"/>
+                                    <ColorAnimation Storyboard.TargetName="Thumb"
+                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                    To="#888888" Duration="0:0:0.15"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </Trigger.ExitActions>
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter TargetName="Track" Property="BorderBrush" Value="#555555"/>
+                    </Trigger>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="Opacity" Value="0.4"/>
+                    </Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+        </ToggleButton.Template>
+        <TextBlock Text="{Binding Label, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                   Foreground="{StaticResource Token.Brush.TextPrimary}"
+                   FontSize="{StaticResource Token.FontSize.Base}"
+                   FontWeight="{StaticResource Token.FontWeight.Medium}"/>
+    </ToggleButton>
+</UserControl>

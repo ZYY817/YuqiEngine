@@ -1,0 +1,50 @@
+<UserControl x:Class="GameOptimizer.Shell.Controls.ProgressRing"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignWidth="40" d:DesignHeight="40">
+    
+    <Grid x:Name="RootGrid"
+          Width="{Binding Size, RelativeSource={RelativeSource AncestorType=UserControl}}"
+          Height="{Binding Size, RelativeSource={RelativeSource AncestorType=UserControl}}">
+        
+        <!-- 扁平背景轨道 -->
+        <Ellipse Stroke="#2A2A2A"
+                 StrokeThickness="{Binding StrokeWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+        
+        <!-- 进度弧 -->
+        <Canvas>
+            <Path x:Name="ProgressArc"
+                  Stroke="{Binding RingBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  StrokeThickness="{Binding StrokeWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  StrokeStartLineCap="Round"
+                  StrokeEndLineCap="Round"
+                  RenderTransformOrigin="0.5,0.5">
+                <Path.RenderTransform>
+                    <RotateTransform x:Name="SpinTransform" Angle="0"/>
+                </Path.RenderTransform>
+            </Path>
+        </Canvas>
+        
+        <!-- 中心内容 -->
+        <ContentPresenter Content="{Binding CenterContent, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"/>
+    </Grid>
+    
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard x:Name="SpinStoryboard">
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="SpinTransform"
+                                     Storyboard.TargetProperty="Angle"
+                                     From="0" To="360"
+                                     Duration="0:0:1"
+                                     RepeatBehavior="Forever"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+</UserControl>

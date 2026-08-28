@@ -1,0 +1,163 @@
+<!-- File: GameOptimizer.Shell/Views/GuardServiceSettingsDialog.xaml -->
+<Window x:Class="GameOptimizer.Shell.Views.GuardServiceSettingsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="守护服务设置" 
+        Width="520" Height="480"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{DynamicResource Theme.Brush.DialogBackground}"
+        WindowStyle="None"
+        AllowsTransparency="True">
+    <Border CornerRadius="12" Background="{DynamicResource Theme.Brush.DialogBackground}" 
+            BorderBrush="{DynamicResource Theme.Brush.DialogBorder}" BorderThickness="1">
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <TextBlock x:Name="TitleText" Text="守护服务设置" FontSize="18" FontWeight="Bold" 
+                           Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                <Button Width="32" Height="32" Background="Transparent" BorderThickness="0"
+                        Cursor="Hand" HorizontalAlignment="Right" Click="Close_Click"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="12" 
+                               Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                </Button>
+            </Grid>
+            
+            <!-- Content -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Monitor Interval -->
+                    <Border CornerRadius="8" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" 
+                            Padding="16" Margin="0,0,0,12">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,12">
+                                <TextBlock x:Name="IntervalLabel" Text="监控间隔" FontSize="13" FontWeight="SemiBold" 
+                                           Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                                <TextBlock x:Name="IntervalValueText" Text="30 秒" FontSize="12" 
+                                           Foreground="{DynamicResource Theme.Brush.AccentPrimary}" 
+                                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            </Grid>
+                            <Slider x:Name="IntervalSlider" Minimum="10" Maximum="600" Value="30" 
+                                    TickFrequency="10" IsSnapToTickEnabled="True"
+                                    ValueChanged="IntervalSlider_ValueChanged"/>
+                            <Grid Margin="0,8,0,0">
+                                <TextBlock Text="10s" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextDisabled}" 
+                                           HorizontalAlignment="Left"/>
+                                <TextBlock Text="600s" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextDisabled}" 
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                            <TextBlock x:Name="IntervalHint" Text="建议：30-60秒可平衡性能与保护效果" 
+                                       FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                                       Margin="0,8,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Show Notifications -->
+                    <Border CornerRadius="8" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" 
+                            Padding="16" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock x:Name="NotificationLabel" Text="显示通知" FontSize="13" FontWeight="SemiBold" 
+                                           Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="0,0,0,4"/>
+                                <TextBlock x:Name="NotificationDesc" Text="检测到优化被恢复时显示桌面通知" 
+                                           FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <CheckBox x:Name="ShowNotificationsCheckbox" Grid.Column="1" VerticalAlignment="Center" 
+                                      IsChecked="True"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Protected Operations List -->
+                    <Border CornerRadius="8" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" 
+                            Padding="16" Margin="0,0,0,12">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,12">
+                                <TextBlock x:Name="ProtectedListLabel" Text="保护列表" FontSize="13" FontWeight="SemiBold" 
+                                           Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                                <TextBlock x:Name="ProtectedCountLabel" Text="0 项" FontSize="11" 
+                                           Foreground="{DynamicResource Theme.Brush.TextMuted}" 
+                                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            </Grid>
+                            
+                            <Border CornerRadius="6" Background="{DynamicResource Theme.Brush.DialogBackground}" 
+                                    BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1"
+                                    MaxHeight="180">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl x:Name="ProtectedItemsList" Padding="8">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border CornerRadius="4" Background="Transparent" 
+                                                        Padding="8,6" Margin="0,0,0,4">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="✓" FontSize="10" 
+                                                                   Foreground="#4ADE80" Margin="0,0,8,0" 
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding}" FontSize="10" 
+                                                                   Foreground="{DynamicResource Theme.Brush.TextPrimary}" 
+                                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                        <Border Grid.Column="2" Width="20" Height="20" CornerRadius="4" 
+                                                                Background="Transparent" Cursor="Hand" 
+                                                                MouseLeftButtonUp="RemoveProtectedItem_Click"
+                                                                Tag="{Binding}">
+                                                            <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" 
+                                                                       FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Border>
+                            
+                            <TextBlock x:Name="EmptyListHint" Text="当前没有保护项" FontSize="10" 
+                                       Foreground="{DynamicResource Theme.Brush.TextDisabled}" 
+                                       Margin="0,8,0,0" HorizontalAlignment="Center"
+                                       Visibility="Collapsed"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+            
+            <!-- Footer -->
+            <Grid Grid.Row="2" Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Background="Transparent" 
+                            BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1"
+                            Padding="16,8" Cursor="Hand" Margin="0,0,8,0" Click="Cancel_Click">
+                        <TextBlock x:Name="CancelText" Text="取消" FontSize="12" 
+                                   Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                    </Button>
+                    <Button Background="{DynamicResource Theme.Brush.AccentPrimary}" BorderThickness="0"
+                            Padding="20,8" Cursor="Hand" Click="Save_Click">
+                        <TextBlock x:Name="SaveText" Text="保存" FontSize="12" 
+                                   Foreground="White" FontWeight="Medium"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

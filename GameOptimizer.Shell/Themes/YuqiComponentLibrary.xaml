@@ -1,0 +1,284 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+      Yuqi component library. This dictionary is intentionally merged last:
+      it makes native WPF controls coherent without changing their commands,
+      bindings, or business behavior. Radius follows semantic role rather than
+      being applied indiscriminately.
+    -->
+
+    <Style x:Key="Yuqi.Card" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackground}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Token.Radius.Card}"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.Card}"/>
+    </Style>
+
+    <Style x:Key="Yuqi.Card.Elevated" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.BorderLight}"/>
+    </Style>
+
+    <!-- Semantic surface variants: the pages use these for hierarchy, not decoration. -->
+    <Style x:Key="Yuqi.Card.Interactive" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderHover}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="Yuqi.Card.Info" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.ControlAccentSelectedBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+    </Style>
+    <Style x:Key="Yuqi.Card.Success" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
+        <Setter Property="Background" Value="#1410B981"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.Success}"/>
+    </Style>
+    <Style x:Key="Yuqi.Card.Warning" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
+        <Setter Property="Background" Value="#18F59E0B"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.Warning}"/>
+    </Style>
+
+    <!-- Toolbox-only surface primitives: hierarchy comes from fill and spacing, not boxes. -->
+    <Style x:Key="Yuqi.Tool.Surface" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackground}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Token.Radius.Card}"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.CardLarge}"/>
+    </Style>
+    <Style x:Key="Yuqi.Tool.Surface.Interactive" TargetType="Border" BasedOn="{StaticResource Yuqi.Tool.Surface}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderHover}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="Yuqi.Tool.Stage" TargetType="Border" BasedOn="{StaticResource Yuqi.Tool.Surface}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardGradient}"/>
+        <Setter Property="Padding" Value="24"/>
+    </Style>
+    <Style x:Key="Yuqi.Tool.Inset" TargetType="Border" BasedOn="{StaticResource Yuqi.Tool.Surface}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.SurfaceMuted}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="16"/>
+    </Style>
+    <Style x:Key="Yuqi.Tool.AccentStage" TargetType="Border" BasedOn="{StaticResource Yuqi.Tool.Stage}">
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+        <Setter Property="BorderThickness" Value="3,0,0,0"/>
+    </Style>
+
+    <!-- Compatibility cards are static containers. They must not advertise a
+         click target merely because the pointer crosses their content. -->
+    <Style x:Key="SectionCardStyle" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.CardLarge}"/>
+    </Style>
+    <Style x:Key="InnerCardStyle" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.Card}"/>
+    </Style>
+
+    <Style x:Key="Yuqi.ToolButton" TargetType="Button">
+        <Setter Property="MinHeight" Value="{DynamicResource Token.Size.MinInteractive}"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.ButtonSm}"/>
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.ButtonBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.InputBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Token.Radius.Button}" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="{DynamicResource Theme.Brush.ButtonBackgroundHover}"/><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Surface" Property="Opacity" Value="0.78"/></Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Surface" Property="BorderThickness" Value="2"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- The implicit Button is the neutral control. Pages opt into PrimaryButtonStyle for semantic emphasis. -->
+    <Style TargetType="Button" BasedOn="{StaticResource Yuqi.ToolButton}"/>
+
+    <!-- Semantic variants consumed by existing pages; no command or click path is changed. -->
+    <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Yuqi.ToolButton}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextOnAccent}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Token.FontWeight.SemiBold}"/>
+    </Style>
+    <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Yuqi.ToolButton}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.ButtonBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.InputBorder}"/>
+    </Style>
+    <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource Yuqi.ToolButton}">
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.Error}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.Error}"/>
+    </Style>
+    <Style x:Key="Yuqi.IconButton" TargetType="Button" BasedOn="{StaticResource Yuqi.ToolButton}">
+        <Setter Property="Width" Value="36"/><Setter Property="Height" Value="36"/><Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style TargetType="TextBox">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.InputBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.InputBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.Input}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Token.Size.InputHeight}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="SelectionBrush" Value="{DynamicResource Theme.Brush.ControlAccentSelectedBg}"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TextBox"><Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource Token.Radius.Button}"><ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/></Trigger><Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Surface" Property="BorderThickness" Value="2"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <!-- Full ComboBox template: closed field, popup, item highlight and selected state share theme brushes. -->
+    <Style TargetType="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.InputBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.InputBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Token.Size.InputHeight}"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox"><Grid SnapsToDevicePixels="True"><Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource Token.Radius.Button}"/><ToggleButton x:Name="DropDownToggle" Background="Transparent" BorderThickness="0" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Focusable="False"><ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="34"/></Grid.ColumnDefinitions><Border Grid.Column="1" BorderBrush="{DynamicResource Theme.Brush.InputBorder}" BorderThickness="1,0,0,0"><Path Data="M 0 0 L 8 0 L 4 5 Z" Fill="{DynamicResource Theme.Brush.TextSecondary}" Width="8" Height="5" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></Grid></ControlTemplate></ToggleButton.Template></ToggleButton><ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"/><Popup x:Name="PART_Popup" Placement="Bottom" PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}" AllowsTransparency="True" PopupAnimation="Fade" IsOpen="{TemplateBinding IsDropDownOpen}"><Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="280" Margin="0,4,0,0" Background="{DynamicResource Theme.Brush.DialogBackground}" BorderBrush="{DynamicResource Theme.Brush.ControlAccent}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}"><ScrollViewer Margin="2" SnapsToDevicePixels="True" CanContentScroll="True"><ItemsPresenter/></ScrollViewer></Border></Popup></Grid><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/></Trigger><Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Surface" Property="BorderThickness" Value="2"/></Trigger><Trigger Property="IsDropDownOpen" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Surface" Property="BorderThickness" Value="2"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <Style TargetType="ComboBoxItem">
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="12,9"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem"><Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="1" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Token.Radius.Sm}"><ContentPresenter/></Border><ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Surface" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter TargetName="Surface" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccentSelectedBg}"/><Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextOnAccent}"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <Style TargetType="ToggleButton">
+        <Setter Property="MinHeight" Value="{DynamicResource Token.Size.MinInteractive}"/>
+        <Setter Property="Padding" Value="{DynamicResource Token.Padding.ButtonSm}"/>
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.ButtonBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.InputBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton"><Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Token.Radius.Button}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/></Trigger><Trigger Property="IsChecked" Value="True"><Setter TargetName="Surface" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccentSelectedBg}"/><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextOnAccent}"/></Trigger><Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Surface" Property="BorderThickness" Value="2"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <Style TargetType="ListBoxItem">
+        <Setter Property="Padding" Value="12,10"/><Setter Property="Margin" Value="0,0,0,4"/><Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><Border x:Name="Surface" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Token.Radius.Sm}"><ContentPresenter/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter TargetName="Surface" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccentSelectedBg}"/><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <!-- Reusable selection primitives for page rails, filters and safe batch actions. -->
+    <Style x:Key="Yuqi.RailToggle" TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style x:Key="Yuqi.SelectionCheckBox" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="CheckBox"><StackPanel Orientation="Horizontal"><Border x:Name="Box" Width="18" Height="18" Background="{DynamicResource Theme.Brush.InputBackground}" BorderBrush="{DynamicResource Theme.Brush.InputBorder}" BorderThickness="1" CornerRadius="0"><Path x:Name="Mark" Data="M 3 9 L 7 13 L 15 4" Stroke="{DynamicResource Theme.Brush.TextOnAccent}" StrokeThickness="2" Visibility="Collapsed"/></Border><ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"/></StackPanel><ControlTemplate.Triggers><Trigger Property="IsChecked" Value="True"><Setter TargetName="Box" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Mark" Property="Visibility" Value="Visible"/></Trigger><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="Yuqi.Progress" TargetType="ProgressBar">
+        <Setter Property="Height" Value="6"/><Setter Property="Background" Value="{DynamicResource Theme.Brush.TrackBackground}"/><Setter Property="Foreground" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ProgressBar"><Border Background="{TemplateBinding Background}" CornerRadius="3"><Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{TemplateBinding Foreground}" CornerRadius="3"/></Border></ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <!-- The control keeps a 12px hit target while the rendered rail and thumb stay 4px wide. -->
+    <Style x:Key="Yuqi.ScrollThumb" TargetType="Thumb">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.ScrollbarThumb}"/>
+        <Setter Property="MinHeight" Value="28"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <!-- MinHeight belongs to the rendered surface as well as the Thumb.  WPF Track
+                         can arrange a proportional Thumb below its desired size when the extent is
+                         very large; keeping the surface minimum prevents the visible handle from
+                         collapsing into a dot while preserving the proportional hit target. -->
+                    <Border x:Name="ThumbSurface" Background="{TemplateBinding Background}" CornerRadius="2" Margin="4,0" MinHeight="28"/>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ThumbSurface" Property="Background" Value="{DynamicResource Theme.Brush.ScrollbarThumbHover}"/></Trigger>
+                        <Trigger Property="IsDragging" Value="True"><Setter TargetName="ThumbSurface" Property="Background" Value="{DynamicResource Theme.Brush.ScrollbarThumbDragging}"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ThumbSurface" Property="Opacity" Value="0.45"/></Trigger>
+                        <DataTrigger Binding="{Binding Orientation, RelativeSource={RelativeSource AncestorType={x:Type ScrollBar}}}" Value="Horizontal">
+                            <Setter TargetName="ThumbSurface" Property="MinHeight" Value="0"/>
+                            <Setter TargetName="ThumbSurface" Property="MinWidth" Value="28"/>
+                            <Setter TargetName="ThumbSurface" Property="Margin" Value="0,4"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Yuqi.ScrollPage" TargetType="RepeatButton"><Setter Property="Focusable" Value="False"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></Setter.Value></Setter></Style>
+    <Style x:Key="Yuqi.ScrollBar.Base" TargetType="ScrollBar">
+        <Setter Property="Width" Value="12"/>
+        <Setter Property="Height" Value="Auto"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <!-- Vertical scrollbars keep their 12px hit target but stay visually quiet until
+             the pointer reaches the edge, keyboard focus enters the viewer, or a drag is active. -->
+        <Setter Property="Opacity" Value="0"/>
+        <Setter Property="Focusable" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid x:Name="Root" Background="{TemplateBinding Background}">
+                        <!-- The rail is intentionally invisible: only the draggable thumb should read as a scrollbar. -->
+                        <Border x:Name="TrackSurface" Width="4" HorizontalAlignment="Center" Background="Transparent" CornerRadius="2" Opacity="0"/>
+                        <Track x:Name="PART_Track" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}" Orientation="{TemplateBinding Orientation}" IsDirectionReversed="True">
+                            <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource Yuqi.ScrollPage}"/></Track.DecreaseRepeatButton>
+                            <Track.Thumb><Thumb x:Name="PART_Thumb" MinHeight="28" Style="{StaticResource Yuqi.ScrollThumb}"/></Track.Thumb>
+                            <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource Yuqi.ScrollPage}"/></Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Orientation" Value="Horizontal">
+                            <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
+                            <Setter Property="Width" Value="Auto"/>
+                            <Setter Property="Height" Value="12"/>
+                            <Setter TargetName="TrackSurface" Property="Width" Value="Auto"/>
+                            <Setter TargetName="TrackSurface" Property="Height" Value="4"/>
+                            <Setter TargetName="TrackSurface" Property="VerticalAlignment" Value="Center"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Opacity" Value="1"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="1"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="Opacity" Value="1"/>
+            </Trigger>
+            <Trigger Property="IsMouseCaptureWithin" Value="True">
+                <Setter Property="Opacity" Value="1"/>
+            </Trigger>
+            <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType={x:Type ScrollViewer}}}" Value="True">
+                <Setter Property="Opacity" Value="1"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="ScrollBar" BasedOn="{StaticResource Yuqi.ScrollBar.Base}"/>
+</ResourceDictionary>

@@ -1,0 +1,159 @@
+<UserControl x:Class="GameOptimizer.Shell.Views.HardwareInfoPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:constants="clr-namespace:GameOptimizer.Shell.Constants"
+             Background="{DynamicResource Theme.Brush.Background}"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Loaded="UserControl_Loaded"
+             AutomationProperties.Name="硬件信息">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+        </Style>
+        <Style x:Key="WebCard" TargetType="Border" BasedOn="{StaticResource Yuqi.Tool.Surface.Interactive}">
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource Token.Radius.CardLarge}"/>
+            <Setter Property="Effect" Value="{DynamicResource Visual.Shadow.Card}"/>
+        </Style>
+        <Style x:Key="WebCardTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        </Style>
+        <Style x:Key="WebMeta" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+        </Style>
+        <!-- 状态徽标统一使用固定高度与双轴居中，避免不同文本长度或字体度量造成偏移。 -->
+        <Style x:Key="HardwareStatusBadge" TargetType="Border">
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.IconBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="13"/>
+            <Setter Property="Padding" Value="7,0"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="ClipToBounds" Value="True"/>
+        </Style>
+        <Style x:Key="HardwareStatusBadgeText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.AccentBlue}"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+        <!-- 磁盘表不能依赖宿主默认前景色：深色页面中所有真实枚举字段显式使用主题色。 -->
+        <Style x:Key="DiskPrimaryText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="DiskSecondaryText" TargetType="TextBlock" BasedOn="{StaticResource WebMeta}">
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="TopAction" TargetType="Button" BasedOn="{StaticResource Yuqi.ToolButton}">
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+            <Setter Property="Padding" Value="11,7"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer x:Name="ToolPageContentScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" Padding="24,20,24,28">
+        <StackPanel Style="{StaticResource Yuqi.ToolPageEntrance}">
+            <!-- Web 母版的细顶栏：操作仍使用原有真实入口。 -->
+            <Grid Margin="0,0,0,12" MinHeight="42">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="34" Height="34" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.ControlAccent}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}" Margin="0,0,10,0"><Viewbox Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center"><Path Data="M7,5 H17 C18.1,5 19,5.9 19,7 V17 C19,18.1 18.1,19 17,19 H7 C5.9,19 5,18.1 5,17 V7 C5,5.9 5.9,5 7,5 Z M9,9 H15 V15 H9 Z M9,2 V5 M15,2 V5 M9,19 V22 M15,19 V22 M2,9 H5 M2,15 H5 M19,9 H22 M19,15 H22" Fill="Transparent" Stroke="{DynamicResource Theme.Brush.ControlAccent}" StrokeThickness="1.7" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox></Border>
+                    <StackPanel><TextBlock Text="硬件信息" FontSize="17" FontWeight="Bold"/><TextBlock Text="这台电脑的硬件全貌 · 一屏看清" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}" Margin="0,2,0,0"/></StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="本机实时检测" FontFamily="JetBrains Mono, Consolas" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                    <Button x:Name="RefreshButton" Click="RefreshButton_Click" Style="{StaticResource TopAction}" AutomationProperties.Name="刷新硬件信息"><StackPanel Orientation="Horizontal"><TextBlock Text="{x:Static constants:IconGlyphs.Refresh}" FontFamily="Segoe MDL2 Assets" Margin="0,0,5,0"/><TextBlock x:Name="RefreshButtonText" Text="刷新"/></StackPanel></Button>
+                    <Button x:Name="ExportReportButton" Click="ExportReportButton_Click" Style="{StaticResource TopAction}" Margin="8,0,0,0" IsEnabled="False" AutomationProperties.Name="导出硬件报告"><StackPanel Orientation="Horizontal"><TextBlock Text="{x:Static constants:IconGlyphs.Download}" FontFamily="Segoe MDL2 Assets" Margin="0,0,5,0"/><TextBlock x:Name="ExportReportButtonText" Text="导出"/></StackPanel></Button>
+                </StackPanel>
+            </Grid>
+
+            <Border x:Name="StatusBanner" Style="{StaticResource WebCard}" Padding="14,10" Margin="0,0,0,12" Visibility="Collapsed" AutomationProperties.LiveSetting="Polite">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <ProgressBar x:Name="StatusProgress" Width="28" Height="4" IsIndeterminate="True" VerticalAlignment="Center" BorderThickness="0" Foreground="{DynamicResource Theme.Brush.AccentBlue}"/>
+                    <TextBlock x:Name="StatusText" Grid.Column="1" Margin="12,0" VerticalAlignment="Center" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" Text="检测中…" TextWrapping="Wrap"/>
+                    <Button x:Name="StatusRetryButton" Grid.Column="2" Click="RefreshButton_Click" Style="{StaticResource TopAction}" Content="刷新" Visibility="Collapsed" AutomationProperties.Name="重试硬件检测"/>
+                </Grid>
+            </Border>
+
+            <!-- 整机摘要。 -->
+            <Border Style="{StaticResource WebCard}" Padding="15,12" Margin="0,0,0,12">
+                <Grid MinHeight="46" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="54"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <Border Width="42" Height="42" VerticalAlignment="Center" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}">
+                        <Viewbox Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center"><Path Data="M3,4 H21 V16 H3 Z M8,21 H16 M12,16 V21 M6,7 H18" Fill="Transparent" Stroke="{DynamicResource Theme.Brush.AccentBlue}" StrokeThickness="1.7" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox>
+                    </Border>
+                    <Grid Grid.Column="1" Margin="0,0,16,0" VerticalAlignment="Center">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><TextBlock x:Name="ComputerName" Text="--" Style="{StaticResource WebCardTitle}" FontSize="16" VerticalAlignment="Center"/><Border Style="{StaticResource HardwareStatusBadge}" Margin="9,0,0,0"><TextBlock x:Name="SystemArch" Text="--" Style="{StaticResource HardwareStatusBadgeText}"/></Border></StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,5,0,0" VerticalAlignment="Center"><TextBlock x:Name="OsVersion" Text="--" Style="{StaticResource WebMeta}"/><TextBlock Text="  ·  " Style="{StaticResource WebMeta}"/><TextBlock Text="账户 " Style="{StaticResource WebMeta}"/><TextBlock x:Name="UserName" Text="--" Style="{StaticResource WebMeta}" FontWeight="SemiBold"/><TextBlock Text="  ·  已运行 " Style="{StaticResource WebMeta}"/><TextBlock x:Name="Uptime" Text="--" Style="{StaticResource WebMeta}" FontWeight="SemiBold"/><TextBlock Text="  ·  " Style="{StaticResource WebMeta}"/><TextBlock x:Name="Motherboard" Text="--" Style="{StaticResource WebMeta}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="240"/></StackPanel>
+                    </Grid>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="CopyConfigButton" Height="34" Click="CopyInfoButton_Click" Style="{StaticResource TopAction}" IsEnabled="False" AutomationProperties.Name="复制硬件配置"><StackPanel Orientation="Horizontal" VerticalAlignment="Center"><Viewbox Width="14" Height="14" Margin="0,0,6,0" VerticalAlignment="Center"><Path Data="M6,3 H18 V21 H6 Z M9,7 H15 M9,11 H15 M9,15 H13" Fill="Transparent" Stroke="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox><TextBlock x:Name="CopyConfigButtonText" Text="复制摘要" VerticalAlignment="Center"/></StackPanel></Button>
+                        <Button x:Name="OpenSystemInfoButton" Height="34" Click="OpenSystemInfoButton_Click" Style="{StaticResource TopAction}" Margin="8,0,0,0" AutomationProperties.Name="打开 Windows 系统信息"><StackPanel Orientation="Horizontal" VerticalAlignment="Center"><Viewbox Width="14" Height="14" Margin="0,0,6,0" VerticalAlignment="Center"><Path Data="M12,8 A4,4 0 1 1 12,16 A4,4 0 1 1 12,8 M12,3 V5 M12,19 V21 M3,12 H5 M19,12 H21 M5.6,5.6 L7,7 M17,17 L18.4,18.4 M18.4,5.6 L17,7 M7,17 L5.6,18.4" Fill="Transparent" Stroke="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox><TextBlock Text="系统信息" VerticalAlignment="Center"/></StackPanel></Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Grid x:Name="HardwareContent" Margin="0,0,0,12"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <!-- CPU -->
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource WebCard}" Padding="15" Margin="0,0,8,8"><StackPanel>
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Width="32" Height="32" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}"><TextBlock Text="{x:Static constants:IconGlyphs.Cpu}" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource Theme.Brush.AccentBlue}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="8,0,4,0"><TextBlock x:Name="ProcessorLabel" Text="处理器" Style="{StaticResource WebMeta}"/><TextBlock x:Name="CpuName" Text="--" Style="{StaticResource WebCardTitle}"/></StackPanel><Border Grid.Column="2" Style="{StaticResource HardwareStatusBadge}"><TextBlock x:Name="CpuVendorSubtitle" Text="CPU" Style="{StaticResource HardwareStatusBadgeText}"/></Border></Grid>
+                    <Grid Margin="0,14,0,9"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel><TextBlock x:Name="CpuCores" Text="--" FontFamily="JetBrains Mono, Consolas" FontWeight="Bold"/><TextBlock x:Name="CoresLabel" Text="核心" Style="{StaticResource WebMeta}"/></StackPanel><StackPanel Grid.Column="1"><TextBlock x:Name="CpuThreads" Text="--" FontFamily="JetBrains Mono, Consolas" FontWeight="Bold"/><TextBlock x:Name="ThreadsLabel" Text="线程" Style="{StaticResource WebMeta}"/></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="实时" FontFamily="JetBrains Mono, Consolas" FontWeight="Bold"/><TextBlock Text="检测状态" Style="{StaticResource WebMeta}"/></StackPanel></Grid>
+                    <Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}"/><TextBlock x:Name="CpuVendorText" Text="CPU" Style="{StaticResource WebMeta}" Margin="0,8,0,0"/>
+                </StackPanel></Border>
+                <!-- Memory -->
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource WebCard}" Padding="15" Margin="4,0,4,8"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Width="32" Height="32" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}"><TextBlock Text="{x:Static constants:IconGlyphs.Memory}" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource Theme.Brush.AccentBlue}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="8,0,4,0"><TextBlock x:Name="MemoryLabel" Text="内存" Style="{StaticResource WebMeta}"/><TextBlock x:Name="MemoryTotal" Text="--" Style="{StaticResource WebCardTitle}"/></StackPanel><Border Grid.Column="2" Style="{StaticResource HardwareStatusBadge}"><TextBlock Text="实时" Style="{StaticResource HardwareStatusBadgeText}"/></Border></Grid><Grid Margin="0,14,0,9"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel><TextBlock x:Name="MemoryFrequency" Text="--" FontFamily="JetBrains Mono, Consolas" FontWeight="Bold" TextTrimming="CharacterEllipsis"/><TextBlock Text="实际频率" Style="{StaticResource WebMeta}"/></StackPanel><StackPanel Grid.Column="1"><TextBlock x:Name="MemoryType" Text="--" FontFamily="JetBrains Mono, Consolas" FontWeight="Bold"/><TextBlock Text="内存类型" Style="{StaticResource WebMeta}"/></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="已检测" FontFamily="JetBrains Mono, Consolas" FontWeight="Bold"/><TextBlock x:Name="MemoryVendorSubtitle" Text="内存模块" Style="{StaticResource WebMeta}"/></StackPanel></Grid><Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}"/><TextBlock Text="系统内存容量与频率" Style="{StaticResource WebMeta}" Margin="0,8,0,0"/></StackPanel></Border>
+                <!-- GPU -->
+                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource WebCard}" Padding="15" Margin="8,0,0,8"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Width="32" Height="32" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}"><TextBlock Text="{x:Static constants:IconGlyphs.Gpu}" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource Theme.Brush.AccentBlue}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="8,0,4,0"><TextBlock x:Name="GraphicsLabel" Text="显卡" Style="{StaticResource WebMeta}"/><TextBlock x:Name="GpuName" Text="--" Style="{StaticResource WebCardTitle}" TextWrapping="Wrap"/></StackPanel><Border Grid.Column="2" Style="{StaticResource HardwareStatusBadge}"><TextBlock x:Name="GpuBadgeText" Text="--" Style="{StaticResource HardwareStatusBadgeText}"/></Border></Grid><Grid Margin="0,14,0,9"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel><TextBlock x:Name="GpuIconText" Text="GPU" FontFamily="JetBrains Mono, Consolas" FontWeight="Bold"/><TextBlock Text="图形设备" Style="{StaticResource WebMeta}"/></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="已检测" FontFamily="JetBrains Mono, Consolas" FontWeight="Bold"/><TextBlock Text="驱动状态" Style="{StaticResource WebMeta}"/></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="系统" FontFamily="JetBrains Mono, Consolas" FontWeight="Bold"/><TextBlock x:Name="GpuVendorSubtitle" Text="图形平台" Style="{StaticResource WebMeta}"/></StackPanel></Grid><Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}"/><TextBlock Text="真实枚举的图形适配器" Style="{StaticResource WebMeta}" Margin="0,8,0,0"/></StackPanel></Border>
+                <!-- Storage -->
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource WebCard}" Padding="15" Margin="0,0,8,0"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Width="32" Height="32" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}"><Viewbox Width="17" Height="17" HorizontalAlignment="Center" VerticalAlignment="Center"><Path Data="M4,6 H20 V18 H4 Z M4,10 H20 M7,14 H10 M14,14 H17" Fill="Transparent" Stroke="{DynamicResource Theme.Brush.AccentBlue}" StrokeThickness="1.7" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox></Border><StackPanel Grid.Column="1" Margin="8,0,4,0"><TextBlock x:Name="StorageLabel" Text="存储" Style="{StaticResource WebMeta}"/><TextBlock x:Name="DiskSummary" Text="--" Style="{StaticResource WebCardTitle}"/></StackPanel><Border Grid.Column="2" Style="{StaticResource HardwareStatusBadge}"><TextBlock Text="本机" Style="{StaticResource HardwareStatusBadgeText}"/></Border></Grid><TextBlock Text="磁盘分区、容量和占用率" Style="{StaticResource WebMeta}" Margin="0,14,0,9"/><Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}"/><TextBlock Text="详细分区在下方列表显示" Style="{StaticResource WebMeta}" Margin="0,8,0,0"/></StackPanel></Border>
+                <!-- Operating system -->
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource WebCard}" Padding="15" Margin="4,0,4,0"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="32" Height="32" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}"><Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center"><Path Data="M3,4 L11,3 V11 H3 Z M13,3 L21,2 V11 H13 Z M3,13 H11 V21 L3,20 Z M13,13 H21 V22 L13,21 Z" Fill="{DynamicResource Theme.Brush.AccentBlue}"/></Viewbox></Border><StackPanel Grid.Column="1" Margin="8,0,0,0"><TextBlock x:Name="OsLabel" Text="操作系统" Style="{StaticResource WebMeta}"/><TextBlock Text="Windows" Style="{StaticResource WebCardTitle}"/></StackPanel></Grid><Grid Margin="0,14,0,9"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="系统版本" Style="{StaticResource WebMeta}"/><TextBlock Text="Windows 平台" FontWeight="SemiBold"/></StackPanel><StackPanel Grid.Column="1"><TextBlock x:Name="WindowsBuild" Text="--" FontFamily="JetBrains Mono, Consolas" FontWeight="Bold"/><TextBlock Text="Build" Style="{StaticResource WebMeta}"/></StackPanel></Grid><Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}"/><TextBlock Text="架构与系统版本来自本机" Style="{StaticResource WebMeta}" Margin="0,8,0,0"/></StackPanel></Border>
+                <!-- System board -->
+                <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource WebCard}" Padding="15" Margin="8,0,0,0"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="32" Height="32" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Card}"><TextBlock Text="{x:Static constants:IconGlyphs.Device}" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource Theme.Brush.AccentBlue}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="8,0,0,0"><TextBlock x:Name="MotherboardLabel" Text="主板与系统" Style="{StaticResource WebMeta}"/><TextBlock Text="设备信息" Style="{StaticResource WebCardTitle}"/></StackPanel></Grid><TextBlock Text="本机标识、主板与运行环境" Style="{StaticResource WebMeta}" Margin="0,14,0,9"/><Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}"/><TextBlock x:Name="DotNetVersion" Text="--" Style="{StaticResource WebMeta}" Margin="0,8,0,0"/></StackPanel></Border>
+            </Grid>
+
+            <Border Style="{StaticResource WebCard}" Padding="0" Margin="0,0,0,12">
+                <StackPanel>
+                    <Grid Margin="15,12"><StackPanel Orientation="Horizontal"><Viewbox Width="16" Height="16" Margin="0,0,8,0"><Path Data="M4,6 H20 V17 H4 Z M8,10 H12 V14 H8 Z M15,11 H18" Fill="Transparent" Stroke="{DynamicResource Theme.Brush.TextSecondary}" StrokeThickness="1.7" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox><TextBlock Text="GPU 适配器明细" FontWeight="Bold"/><TextBlock Text="  ·  名称、厂商、类型与驱动来自同一清单" Style="{StaticResource WebMeta}" VerticalAlignment="Center"/></StackPanel></Grid>
+                    <Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+                    <Grid Margin="15,10,15,5"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="100"/><ColumnDefinition Width="100"/><ColumnDefinition Width="150"/></Grid.ColumnDefinitions><TextBlock Text="名称" Style="{StaticResource WebMeta}"/><TextBlock Grid.Column="1" Text="厂商" Style="{StaticResource WebMeta}"/><TextBlock Grid.Column="2" Text="类型" Style="{StaticResource WebMeta}"/><TextBlock Grid.Column="3" Text="驱动版本" Style="{StaticResource WebMeta}"/></Grid>
+                    <ItemsControl x:Name="GpuAdapterListPanel"><ItemsControl.ItemTemplate><DataTemplate><Grid Margin="15,8" MinHeight="42"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="100"/><ColumnDefinition Width="100"/><ColumnDefinition Width="150"/></Grid.ColumnDefinitions><StackPanel Margin="0,0,12,0"><TextBlock Text="{Binding Name}" Style="{StaticResource DiskPrimaryText}" FontWeight="SemiBold"/><TextBlock Text="{Binding ClassificationSource}" Style="{StaticResource DiskSecondaryText}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding ClassificationSource}"/></StackPanel><TextBlock Grid.Column="1" Text="{Binding Vendor}" Style="{StaticResource DiskSecondaryText}"/><TextBlock Grid.Column="2" Text="{Binding Kind}" Style="{StaticResource DiskSecondaryText}"/><TextBlock Grid.Column="3" Text="{Binding DriverVersion}" Style="{StaticResource DiskSecondaryText}"/></Grid></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                    <TextBlock x:Name="GpuAdapterEmptyText" Text="未检测到可展示的 GPU 适配器" Visibility="Collapsed" HorizontalAlignment="Center" Margin="0,16" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Web 母版的详细参数区；只绑定真实磁盘枚举结果。 -->
+            <Border Style="{StaticResource WebCard}" Padding="0" ClipToBounds="True">
+                <StackPanel><Grid Margin="15,12"><StackPanel Orientation="Horizontal"><Viewbox Width="16" Height="16" Margin="0,0,8,0"><Path Data="M3,6 H10 L12,8 H21 V19 H3 Z M7,12 H17 M7,15 H14" Fill="Transparent" Stroke="{DynamicResource Theme.Brush.TextSecondary}" StrokeThickness="1.7" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox><TextBlock Text="磁盘明细" FontWeight="Bold"/><TextBlock Text="  ·  实时枚举" Style="{StaticResource WebMeta}" VerticalAlignment="Center"/></StackPanel></Grid><Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+                    <Grid Margin="15,10,15,5"><Grid.ColumnDefinitions><ColumnDefinition Width="94"/><ColumnDefinition Width="*"/><ColumnDefinition Width="132"/><ColumnDefinition Width="220"/></Grid.ColumnDefinitions><TextBlock Text="盘符" Style="{StaticResource WebMeta}"/><TextBlock Grid.Column="1" Text="卷标 / 文件系统" Style="{StaticResource WebMeta}"/><TextBlock Grid.Column="2" Text="总容量" Style="{StaticResource WebMeta}"/><TextBlock Grid.Column="3" Text="占用与可用空间" Style="{StaticResource WebMeta}"/></Grid>
+                    <ItemsControl x:Name="DiskListPanel"><ItemsControl.ItemTemplate><DataTemplate><Grid Margin="15,8" MinHeight="42" UseLayoutRounding="True"><Grid.ColumnDefinitions><ColumnDefinition Width="94"/><ColumnDefinition Width="*"/><ColumnDefinition Width="132"/><ColumnDefinition Width="220"/></Grid.ColumnDefinitions><TextBlock Text="{Binding DriveLetter}" FontFamily="JetBrains Mono, Consolas" FontWeight="Bold" Style="{StaticResource DiskPrimaryText}"/><StackPanel Grid.Column="1" Margin="0,0,12,0" VerticalAlignment="Center"><TextBlock Text="{Binding Label}" FontWeight="SemiBold" Style="{StaticResource DiskPrimaryText}"/><TextBlock Text="{Binding DriveType}" Style="{StaticResource DiskSecondaryText}" Margin="0,3,0,0"/></StackPanel><TextBlock Grid.Column="2" Text="{Binding TotalSpace}" Style="{StaticResource DiskSecondaryText}" Margin="0,0,12,0"/><Grid Grid.Column="3" VerticalAlignment="Center"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><ProgressBar Grid.Row="0" Value="{Binding UsagePercent}" Maximum="100" Height="5" Foreground="{DynamicResource Theme.Brush.AccentBlue}" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderThickness="0" VerticalAlignment="Center"/><Grid Grid.Row="1" Margin="0,6,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="{Binding UsagePercentText}" Style="{StaticResource DiskSecondaryText}"/><TextBlock Grid.Column="1" Text="{Binding FreeSpaceText}" Style="{StaticResource DiskSecondaryText}" Foreground="{DynamicResource Theme.Brush.Success}" HorizontalAlignment="Right"/></Grid></Grid></Grid></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                    <TextBlock x:Name="DiskEmptyText" Text="未检测到固定磁盘" Visibility="Collapsed" HorizontalAlignment="Center" Margin="0,16" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

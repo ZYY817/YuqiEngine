@@ -1,0 +1,66 @@
+<UserControl x:Class="GameOptimizer.Shell.Controls.PageHeader"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:GameOptimizer.Shell.Controls"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             AutomationProperties.Name="{Binding Title, ElementName=Root}">
+    <Grid Margin="{DynamicResource Token.Padding.Lg}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Horizontal">
+            <Border Width="{DynamicResource Token.Size.IconBoxLg}"
+                    Height="{DynamicResource Token.Size.IconBoxLg}"
+                    CornerRadius="{DynamicResource Token.Radius.Icon}"
+                    Background="{DynamicResource Theme.Brush.IconBackground}"
+                    Margin="{DynamicResource Token.Padding.Sm}"
+                    Visibility="{Binding ShowIcon, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Viewbox Width="{DynamicResource Token.Size.IconMd}" Height="{DynamicResource Token.Size.IconMd}">
+                    <Path Data="{Binding IconData, ElementName=Root}"
+                          Fill="{DynamicResource Theme.Brush.ControlAccent}"
+                          Stretch="Uniform"/>
+                </Viewbox>
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="{Binding Title, ElementName=Root}"
+                           FontSize="{DynamicResource Token.FontSize.2xl}"
+                           FontWeight="{DynamicResource Token.FontWeight.SemiBold}"
+                           Foreground="{DynamicResource Theme.Brush.TextPrimary}"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding Subtitle, ElementName=Root}"
+                           FontSize="{DynamicResource Token.FontSize.Base}"
+                           Foreground="{DynamicResource Theme.Brush.TextSecondary}"
+                           Margin="{DynamicResource Token.Padding.Xs}"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding Subtitle, ElementName=Root, Converter={StaticResource NullToVisibilityConverter}}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+            <Border x:Name="StateMark" Width="8" Height="8" CornerRadius="4">
+                <Border.Margin>
+                    <Thickness Left="{StaticResource Token.Space.Sm}" Top="0" Right="0" Bottom="0"/>
+                </Border.Margin>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Setter Property="Background" Value="{DynamicResource Theme.Brush.Info}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding VisualState, ElementName=Root}" Value="Loading"><Setter Property="Visibility" Value="Visible"/><Setter Property="Background" Value="{DynamicResource Theme.Brush.Info}"/></DataTrigger>
+                            <DataTrigger Binding="{Binding VisualState, ElementName=Root}" Value="Error"><Setter Property="Visibility" Value="Visible"/><Setter Property="Background" Value="{DynamicResource Theme.Brush.Error}"/></DataTrigger>
+                            <DataTrigger Binding="{Binding VisualState, ElementName=Root}" Value="Unauthorized"><Setter Property="Visibility" Value="Visible"/><Setter Property="Background" Value="{DynamicResource Theme.Brush.Warning}"/></DataTrigger>
+                            <DataTrigger Binding="{Binding VisualState, ElementName=Root}" Value="Recovering"><Setter Property="Visibility" Value="Visible"/><Setter Property="Background" Value="{DynamicResource Theme.Brush.Warning}"/></DataTrigger>
+                            <DataTrigger Binding="{Binding VisualState, ElementName=Root}" Value="Success"><Setter Property="Visibility" Value="Visible"/><Setter Property="Background" Value="{DynamicResource Theme.Brush.Success}"/></DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
+            <ContentPresenter Content="{Binding Actions, ElementName=Root}" VerticalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

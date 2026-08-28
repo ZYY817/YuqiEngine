@@ -1,0 +1,9 @@
+{
+  "modules": [
+    {
+      "assemblyPath": "GameOptimizer.Modules.PerformanceHealth.dll",
+      "typeName": "GameOptimizer.Modules.PerformanceHealth.PerformanceHealthModule",
+      "enabled": true
+    }
+  ]
+}

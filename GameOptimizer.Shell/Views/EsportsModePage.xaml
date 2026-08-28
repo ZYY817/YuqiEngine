@@ -1,0 +1,536 @@
+<UserControl x:Class="GameOptimizer.Shell.Views.EsportsModePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:GameOptimizer.Shell.Controls"
+    Background="{DynamicResource Theme.Brush.Background}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Ambient Light -->
+        <Border x:Name="AmbientGlow" Grid.Row="0" Grid.RowSpan="2" Height="200" VerticalAlignment="Top" IsHitTestVisible="False">
+            <Border.Background>
+                <RadialGradientBrush Center="0.5,0" GradientOrigin="0.5,0" RadiusX="0.8" RadiusY="1.2">
+                    <GradientStop Color="#206366F1" Offset="0"/>
+                    <GradientStop Color="#00000000" Offset="1"/>
+                </RadialGradientBrush>
+            </Border.Background>
+        </Border>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="Transparent" Padding="20,12,20,8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Title Row -->
+                <Grid Grid.Row="0" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <TextBlock x:Name="PageTitle" Text="电竞性能聚合中心" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
+                        <Border CornerRadius="10" Padding="10,4" Margin="12,0,0,0" VerticalAlignment="Center" Background="{DynamicResource Theme.Brush.StatusBadgeBackground}">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="6" Height="6" Fill="{DynamicResource Theme.Brush.StatusGreenText}" Margin="0,0,6,0"/>
+                                <TextBlock x:Name="StatusText" Text="正在读取状态" FontSize="11" Foreground="{DynamicResource Theme.Brush.StatusGreenText}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+                
+                <!-- Strategy Selector -->
+                <Border Grid.Row="1" CornerRadius="10" Margin="0,0,0,8" Background="{DynamicResource Theme.Brush.DialogBackground}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="SafeBtn" Grid.Column="0" CornerRadius="7" Padding="0,10" Cursor="Arrow" Opacity="0.55" IsEnabled="False" Background="Transparent" MouseLeftButtonUp="SafeBtn_Click" ToolTip="仅推荐经当前机器检测可用的 Windows 游戏模式">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="🛡" FontSize="14" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="SafeBtnText" Text="稳妥推荐" FontSize="13" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="BalancedBtn" Grid.Column="1" CornerRadius="7" Padding="0,10" Cursor="Arrow" Opacity="0.55" IsEnabled="False" MouseLeftButtonUp="BalancedBtn_Click" ToolTip="仅增加经预检可用且可恢复的 Windows 游戏设置">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#306366F1" Offset="0"/>
+                                    <GradientStop Color="#208B5CF6" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="⚡" FontSize="14" Foreground="#6366F1" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="BalancedBtnText" Text="性能推荐" FontSize="13" FontWeight="Medium" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="ExtremeBtn" Grid.Column="2" CornerRadius="7" Padding="0,10" Cursor="Arrow" Opacity="0.55" IsEnabled="False" Background="Transparent" MouseLeftButtonUp="ExtremeBtn_Click" ToolTip="保留当前选择，由用户逐项配置">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="✦" FontSize="14" Foreground="#8B5CF6" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="ExtremeBtnText" Text="自定义" FontSize="13" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <!-- P2-ES-003: 策略说明按钮 -->
+                        <Border Grid.Column="3" CornerRadius="6" Padding="8,0" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="StrategyInfo_Click" ToolTip="查看策略说明" Margin="4,0,0,0">
+                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </Border>
+                
+                <!-- Nav Bar -->
+                <Border Grid.Row="2" CornerRadius="8" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="1">
+                    <Grid Margin="4,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="NavCoreBtn" Grid.Column="0" CornerRadius="6" Padding="0,8" Cursor="Hand" MouseLeftButtonUp="NavCore_Click">
+                            <Border.Background>
+                                <SolidColorBrush x:Name="NavCoreBg" Color="{DynamicResource Theme.Color.EsportsNavSelected}"/>
+                            </Border.Background>
+                            <TextBlock x:Name="NavCore" Text="核心通用" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextPrimary}" HorizontalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="NavCpuBtn" Grid.Column="1" CornerRadius="6" Padding="0,8" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="NavCpu_Click">
+                            <TextBlock x:Name="NavCpu" Text="CPU 专项" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="NavGpuBtn" Grid.Column="2" CornerRadius="6" Padding="0,8" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="NavGpu_Click">
+                            <TextBlock x:Name="NavGpu" Text="GPU 专项" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="NavInputBtn" Grid.Column="3" CornerRadius="6" Padding="0,8" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="NavInput_Click">
+                            <TextBlock x:Name="NavInput" Text="输入延迟" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="NavNetworkBtn" Grid.Column="4" CornerRadius="6" Padding="0,8" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="NavNetwork_Click">
+                            <TextBlock x:Name="NavNetwork" Text="网络优化" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Main Content Container -->
+        <Border Grid.Row="1" Margin="20,8,20,0" CornerRadius="12" BorderThickness="1" Background="{DynamicResource Theme.Brush.EsportsContainerBackground}" BorderBrush="{DynamicResource Theme.Brush.EsportsContainerBorder}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="280"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Scrollable List -->
+                <ScrollViewer x:Name="MainScroll" Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="12,12,8,12">
+                    <StackPanel>
+                        <TextBlock x:Name="CoreSection" Text="" Height="0" Visibility="Collapsed"/>
+                        
+                        <!-- Card: FPS -->
+                        <Border CornerRadius="10" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" Margin="0,0,0,8">
+                            <StackPanel>
+                                <Border Padding="12,10" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="28" Height="28" CornerRadius="6" Background="#156366F1">
+                                            <TextBlock Text="🎯" FontSize="14" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock x:Name="FpsCategoryLabel" Grid.Column="1" Text="帧率优化" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" x:Name="FpsCountText" Text="0/10" FontSize="11" Foreground="#6366F1" VerticalAlignment="Center" FontFamily="Consolas"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl x:Name="FpsItemsControl" Padding="4,4,4,6"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Card: Storage -->
+                        <Border CornerRadius="10" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" Margin="0,0,0,8">
+                            <StackPanel>
+                                <Border Padding="12,10" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="28" Height="28" CornerRadius="6" Background="#158B5CF6">
+                                            <TextBlock Text="💾" FontSize="14" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock x:Name="StorageCategoryLabel" Grid.Column="1" Text="存储优化" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" x:Name="StorageCountText" Text="0/0" FontSize="11" Foreground="#6366F1" VerticalAlignment="Center" FontFamily="Consolas"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl x:Name="StorageItemsControl" Padding="4,4,4,6"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Card: Windows -->
+                        <Border CornerRadius="10" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" Margin="0,0,0,8">
+                            <StackPanel>
+                                <Border Padding="12,10" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="28" Height="28" CornerRadius="6" Background="#1500A4EF">
+                                            <TextBlock Text="🪟" FontSize="16" Foreground="#00A4EF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock x:Name="WindowsCategoryLabel" Grid.Column="1" Text="Windows 优化" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" x:Name="WindowsCountText" Text="0/0" FontSize="11" Foreground="#6366F1" VerticalAlignment="Center" FontFamily="Consolas"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl x:Name="WindowsItemsControl" Padding="4,4,4,6"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Section: Input -->
+                        <TextBlock x:Name="InputSection" Text="输入延迟优化" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextDisabled}" Margin="4,8,0,8" Tag="Esports.InputLatency"/>
+                        <Border CornerRadius="10" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" Margin="0,0,0,8">
+                            <StackPanel>
+                                <Border Padding="12,10" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="28" Height="28" CornerRadius="6" Background="#15F59E0B">
+                                            <TextBlock Text="🖱" FontSize="14" Foreground="#F59E0B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock x:Name="InputCategoryLabel" Grid.Column="1" Text="输入设备" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" x:Name="InputCountText" Text="0/0" FontSize="11" Foreground="#6366F1" VerticalAlignment="Center" FontFamily="Consolas"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl x:Name="InputItemsControl" Padding="4,4,4,6"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Section: Network -->
+                        <TextBlock x:Name="NetworkSection" Text="网络优化" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextDisabled}" Margin="4,8,0,8" Tag="Esports.NetworkSection"/>
+                        <Border CornerRadius="10" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" Margin="0,0,0,8">
+                            <StackPanel>
+                                <Border Padding="12,10" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="28" Height="28" CornerRadius="6" Background="#154ADE80">
+                                            <TextBlock Text="🌐" FontSize="14" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock x:Name="NetworkCategoryLabel" Grid.Column="1" Text="TCP/IP 优化" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" x:Name="NetworkCountText" Text="0/0" FontSize="11" Foreground="#6366F1" VerticalAlignment="Center" FontFamily="Consolas"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl x:Name="NetworkItemsControl" Padding="4,4,4,6"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Section: Security -->
+                        <TextBlock x:Name="SectionSecurity" Text="安全调整" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextDisabled}" Margin="4,8,0,8" Tag="Esports.SecuritySection"/>
+                        <Border CornerRadius="10" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" Margin="0,0,0,8">
+                            <StackPanel>
+                                <Border Padding="12,10" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="28" Height="28" CornerRadius="6" Background="#15F43F5E">
+                                            <TextBlock Text="🛡" FontSize="14" Foreground="#F43F5E" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock x:Name="SecurityCategoryLabel" Grid.Column="1" Text="安全功能调整" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" x:Name="SecurityCountText" Text="0/0" FontSize="11" Foreground="#6366F1" VerticalAlignment="Center" FontFamily="Consolas"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl x:Name="SecurityItemsControl" Padding="4,4,4,6"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Section: Hardware -->
+                        <TextBlock x:Name="SectionHardware" Text="硬件专项优化" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextDisabled}" Margin="4,8,0,8" Tag="Esports.HardwareOptimization"/>
+                        
+                        <!-- CPU Section Anchor -->
+                        <TextBlock x:Name="CpuSection" Text="" Height="0" Visibility="Collapsed"/>
+                        
+                        <!-- GPU Section Anchor -->
+                        <TextBlock x:Name="GpuSection" Text="" Height="0" Visibility="Collapsed"/>
+                        
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- CPU Card -->
+                            <Border Grid.Column="0" CornerRadius="10" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="#1500A4EF" BorderThickness="1">
+                                <StackPanel>
+                                    <Border Padding="10,8" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,0,0,1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Width="26" Height="26" CornerRadius="6" Background="#1500A4EF">
+                                                <TextBlock Text="🔲" FontSize="13" Foreground="#00A4EF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock x:Name="CpuVendorText" Text="Intel Core" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                                                <TextBlock x:Name="CpuFeatureText" Text="Speed Shift" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextDisabled}"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" x:Name="CpuCountLabel" Text="0/0" FontSize="10" Foreground="#00A4EF" VerticalAlignment="Center" FontFamily="Consolas"/>
+                                        </Grid>
+                                    </Border>
+                                    <ItemsControl x:Name="CpuItemsControl" Padding="4,4,4,6"/>
+                                </StackPanel>
+                            </Border>
+                            <!-- GPU Card -->
+                            <Border Grid.Column="2" CornerRadius="10" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="#1576B900" BorderThickness="1">
+                                <StackPanel>
+                                    <Border Padding="10,8" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,0,0,1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Width="26" Height="26" CornerRadius="6" Background="#1576B900">
+                                                <TextBlock Text="🎮" FontSize="13" Foreground="#76B900" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock x:Name="GpuVendorText" Text="NVIDIA GeForce" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                                                <TextBlock x:Name="GpuFeatureText" Text="Reflex" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextDisabled}"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" x:Name="GpuCountLabel" Text="0/0" FontSize="10" Foreground="#76B900" VerticalAlignment="Center" FontFamily="Consolas"/>
+                                        </Grid>
+                                    </Border>
+                                    <ItemsControl x:Name="GpuItemsControl" Padding="4,4,4,6"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Divider -->
+                <Border Grid.Column="1" Width="1" Background="{DynamicResource Theme.Brush.CardBackground}" Margin="0,12"/>
+
+                <!-- Right: Context Panel -->
+                <Grid Grid.Column="2">
+                    <!-- Edge Glow Effect -->
+                    <Border CornerRadius="0,12,12,0" IsHitTestVisible="False">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#086366F1" Offset="0"/>
+                                <GradientStop Color="Transparent" Offset="0.3"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    <Border CornerRadius="0,12,12,0" BorderThickness="0">
+                        <Border.BorderBrush>
+                            <SolidColorBrush x:Name="RightPanelBorderColor" Color="#156366F1"/>
+                        </Border.BorderBrush>
+                    </Border>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                    
+                        <!-- Hardware Status Widget -->
+                        <Border Grid.Row="0" Padding="12,12,12,10" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,0,0,1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" CornerRadius="6" Padding="8,6" Background="#0800A4EF">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock Text="🔲" FontSize="11" Foreground="#00A4EF" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="HwCpuLabel" Text="Intel" FontSize="10" Foreground="#00A4EF" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" Width="1" Background="{DynamicResource Theme.Brush.CardBackground}" Margin="8,2"/>
+                                <Border Grid.Column="2" CornerRadius="6" Padding="8,6" Background="#0876B900">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock Text="🎮" FontSize="11" Foreground="#76B900" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="HwGpuLabel" Text="NVIDIA" FontSize="10" Foreground="#76B900" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    
+                        <!-- Content Area -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="14,12">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <TextBlock x:Name="ContextTitle" Text="选择一项优化" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
+                                    <Border x:Name="ContextRiskBadge" CornerRadius="4" Padding="8,3" Margin="10,0,0,0" VerticalAlignment="Center">
+                                        <Border.Background>
+                                            <SolidColorBrush x:Name="ContextRiskBg" Color="#204ADE80"/>
+                                        </Border.Background>
+                                        <TextBlock x:Name="ContextRiskText" Text="安全" FontSize="11" Foreground="#4ADE80"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock x:Name="ContextDesc" Text="点击左侧列表中的优化项查看详细信息" FontSize="13" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,14"/>
+                            
+                                <!-- Benefit Section -->
+                                <Border x:Name="ContextBenefitSection" CornerRadius="8" Padding="12,10" Margin="0,0,0,10" Visibility="Collapsed" Background="#104ADE80" BorderBrush="#204ADE80" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock x:Name="BenefitLabel" Text="预期效果" FontSize="11" Foreground="#4ADE80" FontWeight="Medium" Margin="0,0,0,4"/>
+                                        <TextBlock x:Name="ContextBenefitText" Text="" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            
+                                <!-- Compatibility Warning -->
+                                <Border x:Name="CompatWarningSection" CornerRadius="8" Padding="12,10" Margin="0,0,0,10" Visibility="Collapsed" Background="#10F59E0B" BorderBrush="#20F59E0B" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock x:Name="CompatLabel" Text="兼容性提示" FontSize="11" Foreground="#F59E0B" FontWeight="Medium" Margin="0,0,0,4"/>
+                                        <TextBlock x:Name="CompatWarningText" Text="" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    
+                        <!-- Stats Footer -->
+                        <Border Grid.Row="2" Padding="12,10" BorderBrush="{DynamicResource Theme.Brush.CardDivider}" BorderThickness="0,1,0,0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="CtxSelectedLabel" Text="已选择" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock x:Name="ContextSelectedCount" Text="0" FontSize="18" FontWeight="Bold" Foreground="#6366F1"/>
+                                            <TextBlock x:Name="CtxSelectedUnit" Text=" 项" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Bottom" Margin="0,0,0,2"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock x:Name="CtxActiveLabel" Text="已生效" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock x:Name="ContextActiveCount" Text="0" FontSize="18" FontWeight="Bold" Foreground="#4ADE80"/>
+                                            <TextBlock x:Name="CtxActiveUnit" Text=" 项" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Bottom" Margin="0,0,0,2"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                        <TextBlock x:Name="TotalOptCount" Text="0" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" HorizontalAlignment="Center"/>
+                                        <TextBlock x:Name="TotalOptLabel" Text="总优化项" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                        <TextBlock x:Name="CompatibleCount" Text="0" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" HorizontalAlignment="Center"/>
+                                        <TextBlock x:Name="CompatibleLabel" Text="兼容项" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                        <TextBlock x:Name="CurrentStrategyText" Text="自定义" FontSize="14" FontWeight="SemiBold" Foreground="#6366F1" HorizontalAlignment="Center"/>
+                                        <TextBlock x:Name="CurrentStrategyLabel" Text="当前策略" FontSize="9" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+        
+        <!-- Guard Service Panel -->
+        <Border Grid.Row="2" Margin="20,8,20,8">
+            <controls:GuardServicePanel x:Name="GuardPanel"
+                                       ToggleServiceRequested="OnGuardToggleService"
+                                       SettingsRequested="OnGuardSettings"
+                                       ViewListRequested="OnGuardViewList"
+                                       CheckNowRequested="OnGuardCheckNow"/>
+        </Border>
+
+        <!-- Footer Bar -->
+        <Border Grid.Row="3" Margin="20,0,20,12" CornerRadius="12" BorderThickness="1" Background="{DynamicResource Theme.Brush.EsportsFooterBackground}" BorderBrush="{DynamicResource Theme.Brush.EsportsFooterBorder}">
+            <Grid Margin="16,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Left: Stats -->
+                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border CornerRadius="6" Padding="10,6" Background="#106366F1" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="FooterSelectedLabel" Text="已选择" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="SelectedCountText" Text="0" FontSize="13" FontWeight="Bold" Foreground="#6366F1" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border CornerRadius="6" Padding="10,6" Background="#104ADE80">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="FooterActiveLabel" Text="已生效" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ActiveCountText" Text="0" FontSize="13" FontWeight="Bold" Foreground="#4ADE80" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                     </Border>
+                 </StackPanel>
+
+                 <!-- Center: background state detection feedback -->
+                 <StackPanel Grid.Column="1"
+                             Margin="20,0"
+                             VerticalAlignment="Center"
+                             AutomationProperties.LiveSetting="Polite">
+                     <TextBlock x:Name="DetectionStatusText"
+                                Text="正在后台读取系统状态…"
+                                FontSize="11"
+                                Foreground="{DynamicResource Theme.Brush.TextMuted}"
+                                TextTrimming="CharacterEllipsis"
+                                HorizontalAlignment="Center"/>
+                     <ProgressBar x:Name="DetectionProgressBar"
+                                  Height="2"
+                                  Margin="0,5,0,0"
+                                  IsIndeterminate="True"
+                                  IsHitTestVisible="False"
+                                  AutomationProperties.Name="电竞模式状态读取进度"/>
+                 </StackPanel>
+
+                 <!-- Right: Action Buttons -->
+                 <StackPanel Grid.Column="2" Orientation="Horizontal">
+                     <Border x:Name="RestoreUserBtn" CornerRadius="8" Padding="14,8" Cursor="Arrow" IsEnabled="False" Opacity="0.55" Background="Transparent" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1" Margin="0,0,8,0" MouseLeftButtonUp="RestoreBtn_Click" MouseEnter="RestoreBtn_MouseEnter" MouseLeave="RestoreBtn_MouseLeave">
+                         <TextBlock x:Name="RestoreUserBtnText" Text="恢复用户设置" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                     </Border>
+                     <Border x:Name="RestoreWinBtn" CornerRadius="8" Padding="14,8" Cursor="Arrow" IsEnabled="False" Opacity="0.55" Background="Transparent" BorderBrush="#30F43F5E" BorderThickness="1" Margin="0,0,8,0" MouseLeftButtonUp="RestoreWinBtn_Click" MouseEnter="RestoreWinBtn_MouseEnter" MouseLeave="RestoreWinBtn_MouseLeave">
+                         <TextBlock x:Name="RestoreWinBtnText" Text="恢复 Windows 默认" FontSize="12" Foreground="#F43F5E"/>
+                     </Border>
+                     <Border x:Name="ApplyBtn" CornerRadius="8" Padding="20,8" Cursor="Arrow" IsEnabled="False" Opacity="0.55" MouseLeftButtonUp="ApplyBtn_Click" MouseEnter="ApplyBtn_MouseEnter" MouseLeave="ApplyBtn_MouseLeave">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#6366F1" Offset="0"/>
+                                <GradientStop Color="#8B5CF6" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <TextBlock x:Name="ApplyBtnText" Text="应用选中项" FontSize="12" FontWeight="Medium" Foreground="White"/>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
