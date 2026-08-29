@@ -19,6 +19,8 @@ public enum CleanMode { SmartBoost, StandbyList, WorkingSet }
 public class ProcessGroupItem : INotifyPropertyChanged
 {
     private bool _isSelected;
+    private bool _isDetailsExpanded;
+    private int? _selectedProcessId;
     
     public string Name { get; set; } = "";
     public string DisplayName { get; set; } = "";
@@ -28,15 +30,42 @@ public class ProcessGroupItem : INotifyPropertyChanged
     public long TotalMemoryBytes { get; set; }
     public System.Collections.Generic.List<int> Pids { get; set; } = new();
     public bool IsResponding { get; set; } = true;
+    public ObservableCollection<ProcessInstanceItem> Instances { get; } = new();
     
     public bool IsSelected
     {
         get => _isSelected;
         set { _isSelected = value; OnPropertyChanged(); }
     }
+
+    public bool IsDetailsExpanded
+    {
+        get => _isDetailsExpanded;
+        set
+        {
+            if (_isDetailsExpanded == value) return;
+            _isDetailsExpanded = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(DetailsToggleText));
+        }
+    }
+
+    public int? SelectedProcessId
+    {
+        get => _selectedProcessId;
+        set
+        {
+            if (_selectedProcessId == value) return;
+            _selectedProcessId = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(SelectionText));
+        }
+    }
     
     public bool CanSelect => Category != ProcessCategory.SystemCritical && Category != ProcessCategory.Whitelisted;
     public string InstanceText => InstanceCount > 1 ? $"×{InstanceCount}" : "1";
+    public string DetailsToggleText => IsDetailsExpanded ? "收起实例" : $"查看 {InstanceCount} 个实例";
+    public string SelectionText => SelectedProcessId.HasValue ? "将只处理这个实例" : $"将处理全部 {InstanceCount} 个实例";
     public string MemoryText => TotalMemoryBytes >= 1024 * 1024 * 1024 
         ? $"{TotalMemoryBytes / (1024.0 * 1024 * 1024):F1} GB"
         : $"{TotalMemoryBytes / (1024.0 * 1024):F0} MB";
@@ -84,6 +113,14 @@ public class ProcessGroupItem : INotifyPropertyChanged
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     
     public void NotifyCategoryChanged() => OnPropertyChanged(nameof(CategoryText));
+}
+
+public sealed class ProcessInstanceItem
+{
+    public required ProcessGroupItem Parent { get; init; }
+    public required int ProcessId { get; init; }
+    public required int Index { get; init; }
+    public string DetailText => $"实例 {Index} · 进程编号 {ProcessId}";
 }
 
 public partial class MemoryCleanDialog : Window
@@ -232,31 +269,36 @@ public partial class MemoryCleanDialog : Window
             var groups = _processService.GetProcessGroups();
             foreach (var group in groups)
             {
-                // The dialog is intentionally process-scoped: a grouped application
-                // may contain several child processes, but the user must choose one
-                // concrete PID before a non-reversible working-set release can run.
-                foreach (var processId in group.Pids.Where(id => id > 4).Distinct())
+                var processIds = group.Pids.Where(id => id > 4).Distinct().ToList();
+                if (processIds.Count == 0)
+                    continue;
+
+                var item = new ProcessGroupItem
                 {
-                    var item = new ProcessGroupItem
+                    Name = group.Name,
+                    DisplayName = group.DisplayName,
+                    Description = string.IsNullOrWhiteSpace(group.Description)
+                        ? $"{processIds.Count} 个实例已合并显示"
+                        : $"{group.Description} · {processIds.Count} 个实例已合并显示",
+                    Category = group.Category,
+                    InstanceCount = processIds.Count,
+                    TotalMemoryBytes = group.TotalMemoryBytes,
+                    Pids = processIds,
+                    IsResponding = group.IsResponding,
+                    IsSelected = false
+                };
+                for (var index = 0; index < processIds.Count; index++)
+                {
+                    item.Instances.Add(new ProcessInstanceItem
                     {
-                        Name = group.Name,
-                        DisplayName = group.Pids.Count > 1 ? $"{group.Name} (PID {processId})" : group.DisplayName,
-                        Description = string.IsNullOrWhiteSpace(group.Description)
-                            ? $"PID {processId}"
-                            : $"{group.Description} · PID {processId}",
-                        Category = group.Category,
-                        InstanceCount = 1,
-                        // The mutation decision is identity-bound to the PID. The
-                        // displayed value is only a group-derived preview; final
-                        // before/after values come from the platform readback.
-                        TotalMemoryBytes = Math.Max(0, group.TotalMemoryBytes / Math.Max(1, group.Pids.Count)),
-                        Pids = [processId],
-                        IsResponding = group.IsResponding,
-                        IsSelected = false
-                    };
-                    item.PropertyChanged += OnProcessItemPropertyChanged;
-                    _processGroups.Add(item);
+                        Parent = item,
+                        ProcessId = processIds[index],
+                        Index = index + 1
+                    });
                 }
+
+                item.PropertyChanged += OnProcessItemPropertyChanged;
+                _processGroups.Add(item);
             }
         }
         catch (Exception ex)
@@ -270,29 +312,33 @@ public partial class MemoryCleanDialog : Window
     private void UpdateSelectedCount()
     {
         var loc = LocalizationService.Instance;
-        var selected = _processGroups.Where(p => p.IsSelected && p.CanSelect).ToList();
-        var count = selected.Sum(p => p.InstanceCount);
-        var totalMB = selected.Sum(p => p.TotalMemoryBytes) / (1024.0 * 1024);
+        var selected = _processGroups.SingleOrDefault(p => p.IsSelected && p.CanSelect);
+        var targetProcessIds = selected is null ? new List<int>() : GetSelectedProcessIds(selected);
+        var count = targetProcessIds.Count;
+        var totalMB = selected is null
+            ? 0
+            : selected.TotalMemoryBytes / (1024.0 * 1024) * count / Math.Max(1, selected.InstanceCount);
         
-        SelectedCountText.Text = loc.Get("MemClean.SelectedCount", count);
+        SelectedCountText.Text = selected is null
+            ? loc.Get("MemClean.SelectedCount", 0)
+            : selected.SelectedProcessId.HasValue
+                ? $"已选：{selected.DisplayName} 的一个实例"
+                : $"已选：{selected.DisplayName} 的 {count} 个实例";
         SelectedMemoryText.Text = totalMB >= 1024 
             ? loc.Get("MemClean.AboutGB", totalMB / 1024)
             : loc.Get("MemClean.AboutMB", (int)totalMB);
         
-        var selectedCount = _processGroups.Count(p => p.IsSelected && p.CanSelect);
         if (_mode == CleanMode.WorkingSet)
         {
-            var targetProcessCount = selected.SelectMany(item => item.Pids).Distinct().Count();
             ConfirmBtn.IsEnabled = _memoryCleaningOwner is not null
-                && selectedCount == 1
-                && targetProcessCount == 1
+                && selected is not null
+                && targetProcessIds.Count > 0
                 && !_isCleaning;
-            var selectionGuidance = selectedCount switch
+            var selectionGuidance = selected switch
             {
-                0 => "请选择一个进程；不会默认操作任何程序。",
-                > 1 => "一次只能选择一个进程。",
-                _ when targetProcessCount != 1 => "无法确认这个应用，不能继续。",
-                _ => $"将确认“{selected[0].DisplayName}”仍在运行后，尝试释放它当前占用的一部分内存。不会关闭应用，但此操作不能撤销。"
+                null => "请选择一个应用；默认不会操作任何程序。",
+                { SelectedProcessId: not null } => $"将只处理“{selected.DisplayName}”的一个实例。不会关闭应用，但此操作不能撤销。",
+                _ => $"将依次处理“{selected.DisplayName}”的 {targetProcessIds.Count} 个实例。不会关闭应用，但此操作不能撤销。"
             };
             MemoryBlockedReasonText.Text = selectionGuidance;
             SubtitleText.Text = selectionGuidance;
@@ -348,15 +394,15 @@ public partial class MemoryCleanDialog : Window
             return;
         }
 
-        var selected = _processGroups.Where(item => item.IsSelected && item.CanSelect).ToList();
-        if (selected.Count != 1)
+        var selected = _processGroups.SingleOrDefault(item => item.IsSelected && item.CanSelect);
+        if (selected is null)
         {
             UpdateSelectedCount();
             return;
         }
 
-        var processId = selected[0].Pids.SingleOrDefault(processId => processId > 4);
-        if (processId <= 4 || selected[0].Pids.Count != 1)
+        var processIds = GetSelectedProcessIds(selected);
+        if (processIds.Count == 0)
         {
             UpdateSelectedCount();
             return;
@@ -365,12 +411,14 @@ public partial class MemoryCleanDialog : Window
         var confirmed = DangerousOperationDialog.Show(
             this,
             "确认释放应用占用的内存",
-            $"准备处理“{selected[0].DisplayName}”。\n\n不会关闭该应用。",
+            processIds.Count == 1
+                ? $"准备处理“{selected.DisplayName}”的一个实例。\n\n不会关闭该应用。"
+                : $"准备依次处理“{selected.DisplayName}”的 {processIds.Count} 个实例。\n\n不会关闭该应用。",
             new[]
             {
-                "开始前会确认选择的仍是这个应用；如果应用已经退出或变成其他程序，本次不会继续。",
+                "每个实例开始前都会确认它仍在运行；已退出或发生变化的实例会被跳过。",
                 "不会关闭应用、关闭窗口或删除任何文件。",
-                "完成后会读取一次结果；这个操作不能撤销。"
+                "每个实例完成后都会读取一次结果；这个操作不能撤销。"
             },
             confirmationKeyword: null,
             countdownSeconds: 3);
@@ -388,24 +436,36 @@ public partial class MemoryCleanDialog : Window
         CancelBtn.IsEnabled = true;
         try
         {
-            ProgressStatusText.Text = "正在确认所选应用…";
-            ProgressDetailText.Text = "正在检查它是否仍在运行，并确认可以继续。";
-            var target = await _memoryCleaningOwner.CaptureWorkingSetTargetAsync(processId, cancellationToken);
-            if (!target.Succeeded || target.Request is null)
+            var succeeded = 0;
+            var skipped = 0;
+            using var confirmationScope = BatchChangeConfirmationScope.Begin();
+            for (var index = 0; index < processIds.Count; index++)
             {
-                ShowWorkingSetResult(null, target.Message);
-                return;
+                cancellationToken.ThrowIfCancellationRequested();
+                CleanProgressBar.Value = (index + 0.15) / processIds.Count * 100;
+                ProgressStatusText.Text = $"正在处理第 {index + 1} / {processIds.Count} 个实例…";
+                ProgressDetailText.Text = "正在检查它是否仍在运行，并确认可以继续。";
+                var target = await _memoryCleaningOwner.CaptureWorkingSetTargetAsync(processIds[index], cancellationToken);
+                if (!target.Succeeded || target.Request is null)
+                {
+                    skipped++;
+                    continue;
+                }
+
+                ProgressDetailText.Text = "正在释放该实例当前占用的一部分内存。";
+                var result = await _memoryCleaningOwner.RunInteractiveAsync(target.Request, cancellationToken);
+                if (result.IsTerminalSuccess)
+                    succeeded++;
+                else
+                    skipped++;
+                CleanProgressBar.Value = (index + 1d) / processIds.Count * 100;
             }
 
-            // This second confirmation is issued by the central plan authority and
-            // binds the token to the freshly captured identity and exact PID.
-            ProgressStatusText.Text = "正在等待确认…";
-            var result = await _memoryCleaningOwner.RunInteractiveAsync(target.Request, cancellationToken);
-            ShowWorkingSetResult(result, result.Message);
+            ShowWorkingSetResult(succeeded, processIds.Count, skipped);
         }
         catch (OperationCanceledException)
         {
-            ShowWorkingSetResult(null, "用户已取消；未确认或未开始的操作没有执行。");
+            ShowWorkingSetResult(0, processIds.Count, processIds.Count, "用户已取消；未确认或未开始的操作没有执行。");
         }
         finally
         {
@@ -415,6 +475,44 @@ public partial class MemoryCleanDialog : Window
             CancelBtn.IsEnabled = true;
             UpdateSelectedCount();
         }
+    }
+
+    private static List<int> GetSelectedProcessIds(ProcessGroupItem group) => group.SelectedProcessId is { } processId
+        ? [processId]
+        : group.Pids.Where(id => id > 4).Distinct().ToList();
+
+    private void SelectGroup_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is System.Windows.Controls.RadioButton { DataContext: ProcessGroupItem group })
+            SelectTarget(group, null);
+    }
+
+    private void SelectOneInstance_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is System.Windows.Controls.Button { Tag: ProcessInstanceItem instance })
+            SelectTarget(instance.Parent, instance.ProcessId);
+    }
+
+    private void ToggleInstanceDetails_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is System.Windows.Controls.Button { Tag: ProcessGroupItem group })
+            group.IsDetailsExpanded = !group.IsDetailsExpanded;
+    }
+
+    private void SelectTarget(ProcessGroupItem target, int? processId)
+    {
+        foreach (var item in _processGroups)
+        {
+            if (!ReferenceEquals(item, target))
+            {
+                item.IsSelected = false;
+                item.SelectedProcessId = null;
+            }
+        }
+
+        target.SelectedProcessId = processId;
+        target.IsSelected = true;
+        UpdateSelectedCount();
     }
 
     private async Task RefreshMutationBoundaryAsync()
@@ -452,18 +550,24 @@ public partial class MemoryCleanDialog : Window
         ProcessListBorder.Visibility = Visibility.Visible;
     }
 
-    private void ShowWorkingSetResult(MemoryCleaningResult? result, string detail)
+    private void ShowWorkingSetResult(int succeeded, int total, int skipped, string? detail = null)
     {
         ProgressPanel.Visibility = Visibility.Collapsed;
         ProcessListBorder.Visibility = Visibility.Collapsed;
         ResultPanel.Visibility = Visibility.Visible;
-        var succeeded = result is { IsTerminalSuccess: true };
-        BeforeMemoryText.Text = succeeded ? "已完成" : "未执行";
-        AfterMemoryText.Text = succeeded ? "已回读" : "已阻断";
-        FreedMemoryText.Text = succeeded
-            ? "操作已完成。应用没有被关闭。"
-            : "操作没有完成，应用没有被修改。";
-        MemoryBlockedReasonText.Text = GetUserFacingResultDetail(result, detail);
+        var allSucceeded = succeeded == total && total > 0;
+        BeforeMemoryText.Text = $"{succeeded} / {total}";
+        AfterMemoryText.Text = allSucceeded ? "已完成" : "部分完成";
+        FreedMemoryText.Text = allSucceeded
+            ? $"已处理 {succeeded} 个实例，应用没有被关闭。"
+            : succeeded > 0
+                ? $"已处理 {succeeded} 个实例，另有 {skipped} 个未处理。"
+                : "没有实例被处理，应用没有被修改。";
+        MemoryBlockedReasonText.Text = string.IsNullOrWhiteSpace(detail)
+            ? allSucceeded
+                ? "每个实例都已完成处理，应用没有被关闭。"
+                : "部分实例已退出、发生变化或不允许处理，因此被跳过。"
+            : detail;
     }
 
     private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -479,20 +583,6 @@ public partial class MemoryCleanDialog : Window
 
         DialogResult = false;
         Close();
-    }
-
-    private static string GetUserFacingResultDetail(MemoryCleaningResult? result, string? detail)
-    {
-        if (result is { IsTerminalSuccess: true })
-            return "操作已完成。应用没有被关闭，也没有删除任何文件。";
-
-        return result?.Kind switch
-        {
-            MemoryCleaningResultKind.Denied => "Windows 不允许修改这个应用。请换一个应用，或以管理员身份启动软件后重试。",
-            MemoryCleaningResultKind.ReadOnly or MemoryCleaningResultKind.FailClosed => "当前无法安全完成此操作，因此没有修改任何应用。",
-            _ when string.Equals(detail, "用户已取消；未确认或未开始的操作没有执行。", StringComparison.Ordinal) => detail!,
-            _ => "操作没有完成，应用没有被修改。"
-        };
     }
 
     private void Close_Click(object sender, RoutedEventArgs e)

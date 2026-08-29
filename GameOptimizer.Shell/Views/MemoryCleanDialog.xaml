@@ -171,27 +171,47 @@
                         <ItemsControl x:Name="ProcessList">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border x:Name="RowBorder" Background="Transparent" Padding="16,12" BorderBrush="#0AFFFFFF" BorderThickness="0,0,0,1">
-                                        <Grid VerticalAlignment="Center">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="40"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="90"/>
-                                                <ColumnDefinition Width="80"/>
-                                                <ColumnDefinition Width="100"/>
-                                            </Grid.ColumnDefinitions>
-                                            <RadioButton Grid.Column="0" GroupName="WorkingSetTarget" IsChecked="{Binding IsSelected}" IsEnabled="{Binding CanSelect}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="14" FontWeight="Medium"/>
-                                                <TextBlock Text="{Binding Description}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,2,0,0" Visibility="{Binding HasDescription, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                            </StackPanel>
-                                            <Border Grid.Column="2" Background="{Binding CategoryBg}" CornerRadius="6" Padding="8,4" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding CategoryText}" Foreground="{Binding CategoryFg}" FontSize="11" FontWeight="Medium"/>
-                                            </Border>
-                                            <TextBlock Grid.Column="3" Text="{Binding InstanceText}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="13" FontFamily="Consolas" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            <TextBlock Grid.Column="4" Text="{Binding MemoryText}" Foreground="#2E88F2" FontSize="13" FontWeight="SemiBold" FontFamily="Consolas" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,12,0"/>
-                                        </Grid>
-                                    </Border>
+                                    <StackPanel>
+                                        <Border x:Name="RowBorder" Background="Transparent" Padding="16,12" BorderBrush="#0AFFFFFF" BorderThickness="0,0,0,1">
+                                            <Grid VerticalAlignment="Center">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="40"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="90"/>
+                                                    <ColumnDefinition Width="80"/>
+                                                    <ColumnDefinition Width="100"/>
+                                                </Grid.ColumnDefinitions>
+                                                <RadioButton Grid.Column="0" GroupName="WorkingSetTarget" IsChecked="{Binding IsSelected}" IsEnabled="{Binding CanSelect}" Click="SelectGroup_Click" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="14" FontWeight="Medium"/>
+                                                    <TextBlock Text="{Binding Description}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,2,0,0" Visibility="{Binding HasDescription, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                                        <Button Content="{Binding DetailsToggleText}" Tag="{Binding}" Click="ToggleInstanceDetails_Click" Cursor="Hand" Padding="0" Background="Transparent" BorderThickness="0" Foreground="#60A5FA" FontSize="11"/>
+                                                        <TextBlock Text=" · " Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
+                                                        <TextBlock Text="{Binding SelectionText}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                <Border Grid.Column="2" Background="{Binding CategoryBg}" CornerRadius="6" Padding="8,4" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding CategoryText}" Foreground="{Binding CategoryFg}" FontSize="11" FontWeight="Medium"/>
+                                                </Border>
+                                                <TextBlock Grid.Column="3" Text="{Binding InstanceText}" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="13" FontFamily="Consolas" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding MemoryText}" Foreground="#2E88F2" FontSize="13" FontWeight="SemiBold" FontFamily="Consolas" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <ItemsControl ItemsSource="{Binding Instances}" Visibility="{Binding IsDetailsExpanded, Converter={StaticResource BoolToVisibilityConverter}}" Margin="56,0,12,8">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Background="{DynamicResource Theme.Brush.CardBackground}" CornerRadius="6" Padding="10,7" Margin="0,4,0,0">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                            <TextBlock Text="{Binding DetailText}" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" VerticalAlignment="Center"/>
+                                                            <Button Grid.Column="1" Content="只处理这个实例" Tag="{Binding}" Click="SelectOneInstance_Click" Cursor="Hand" Padding="8,4" FontSize="11"/>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
                                     <DataTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="RowBorder" Property="Background" Value="{DynamicResource Theme.Brush.CardBackground}"/>
