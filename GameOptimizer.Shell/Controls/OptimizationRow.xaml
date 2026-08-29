@@ -55,7 +55,7 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <Border x:Name="RowBorder" Height="46" Padding="10,0" Background="Transparent" MouseEnter="OnMouseEnter" MouseLeave="OnMouseLeave">
+    <Border x:Name="RowBorder" MinHeight="50" Padding="10,4" Background="Transparent" MouseEnter="OnMouseEnter" MouseLeave="OnMouseLeave">
         <Grid VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -73,7 +73,7 @@
             </Border>
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="TitleText" Text="优化项" FontSize="14" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TitleText" Text="优化项" FontSize="14" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                     <Border x:Name="RiskBadge" CornerRadius="3" Padding="5,2" Margin="8,0,0,0" Background="#25F43F5E" VerticalAlignment="Center" Visibility="Collapsed">
                         <TextBlock Text="狂暴" FontSize="10" Foreground="#F43F5E"/>
                     </Border>
@@ -98,6 +98,12 @@
                         <TextBlock Text="ⓘ" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextDisabled}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                 </StackPanel>
+                <TextBlock x:Name="UnavailableReasonText"
+                           Visibility="Collapsed"
+                           FontSize="11"
+                           Foreground="{DynamicResource Theme.Brush.TextMuted}"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="0,2,8,0"/>
             </StackPanel>
             <ToggleButton x:Name="RowToggle" Grid.Column="3" Style="{StaticResource CompactToggleStyle}" VerticalAlignment="Center" Checked="OnToggleChecked" Unchecked="OnToggleUnchecked"/>
         </Grid>

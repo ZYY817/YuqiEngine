@@ -18,6 +18,7 @@ public partial class OptimizationRow : UserControl
     public static readonly DependencyProperty IsExtremeProperty = DependencyProperty.Register(nameof(IsExtreme), typeof(bool), typeof(OptimizationRow), new PropertyMetadata(false, (d, e) => (d as OptimizationRow)!.RiskBadge.Visibility = (bool)e.NewValue ? Visibility.Visible : Visibility.Collapsed));
     public static readonly DependencyProperty IsCheckedProperty = DependencyProperty.Register(nameof(IsChecked), typeof(bool), typeof(OptimizationRow), new PropertyMetadata(false, OnIsCheckedChanged));
     public static readonly DependencyProperty IsCompatibleProperty = DependencyProperty.Register(nameof(IsCompatible), typeof(bool), typeof(OptimizationRow), new PropertyMetadata(true, OnIsCompatibleChanged));
+    public static readonly DependencyProperty UnavailableReasonProperty = DependencyProperty.Register(nameof(UnavailableReason), typeof(string), typeof(OptimizationRow), new PropertyMetadata("", OnUnavailableReasonChanged));
     public static readonly DependencyProperty StateIndicatorProperty = DependencyProperty.Register(nameof(StateIndicator), typeof(RowStateIndicator), typeof(OptimizationRow), new PropertyMetadata(RowStateIndicator.None, OnStateIndicatorChanged));
     public static readonly RoutedEvent CheckedChangedEvent = EventManager.RegisterRoutedEvent(nameof(CheckedChanged), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(OptimizationRow));
     public static readonly RoutedEvent DetailsClickedEvent = EventManager.RegisterRoutedEvent(nameof(DetailsClicked), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(OptimizationRow));
@@ -29,6 +30,7 @@ public partial class OptimizationRow : UserControl
     public bool IsExtreme { get => (bool)GetValue(IsExtremeProperty); set => SetValue(IsExtremeProperty, value); }
     public bool IsChecked { get => (bool)GetValue(IsCheckedProperty); set => SetValue(IsCheckedProperty, value); }
     public bool IsCompatible { get => (bool)GetValue(IsCompatibleProperty); set => SetValue(IsCompatibleProperty, value); }
+    public string UnavailableReason { get => (string)GetValue(UnavailableReasonProperty); set => SetValue(UnavailableReasonProperty, value); }
     public RowStateIndicator StateIndicator { get => (RowStateIndicator)GetValue(StateIndicatorProperty); set => SetValue(StateIndicatorProperty, value); }
     public event RoutedEventHandler CheckedChanged { add => AddHandler(CheckedChangedEvent, value); remove => RemoveHandler(CheckedChangedEvent, value); }
     public event RoutedEventHandler DetailsClicked { add => AddHandler(DetailsClickedEvent, value); remove => RemoveHandler(DetailsClickedEvent, value); }
@@ -49,10 +51,27 @@ public partial class OptimizationRow : UserControl
     { 
         if (d is OptimizationRow row) 
         { 
-            // 始终保持Toggle可点击，只改变视觉效果
-            row.RowToggle.IsEnabled = true;  // ✓ 修复：始终启用Toggle
-            row.Opacity = (bool)e.NewValue ? 1.0 : 0.6;  // 不兼容时略微降低透明度
+            var isCompatible = (bool)e.NewValue;
+            row.RowToggle.IsEnabled = isCompatible;
+            row.Opacity = isCompatible ? 1.0 : 0.72;
+            row.UpdateAvailabilityPresentation();
         } 
+    }
+
+    private static void OnUnavailableReasonChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is OptimizationRow row)
+        {
+            row.UpdateAvailabilityPresentation();
+        }
+    }
+
+    private void UpdateAvailabilityPresentation()
+    {
+        var showReason = !IsCompatible && !string.IsNullOrWhiteSpace(UnavailableReason);
+        UnavailableReasonText.Text = showReason ? UnavailableReason : string.Empty;
+        UnavailableReasonText.Visibility = showReason ? Visibility.Visible : Visibility.Collapsed;
+        RowToggle.ToolTip = showReason ? UnavailableReason : null;
     }
     
     private static void OnStateIndicatorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

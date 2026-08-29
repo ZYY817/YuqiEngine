@@ -354,6 +354,7 @@ public partial class EsportsModePage : UserControl
                     {
                         row.IsCompatible = false;
                         row.IsChecked = false;
+                        row.UnavailableReason = "当前版本没有这项功能的可验证实现，因此软件不会尝试修改系统。";
                     }
 
                     _selectedItems.Remove(unavailable.OperationId);
@@ -445,7 +446,6 @@ public partial class EsportsModePage : UserControl
                          _lastDetectionReport?.IsReadyForPlanning == true;
 
         SetActionButtonState(ApplyBtn, canExecute);
-        SetActionButtonState(RestoreUserBtn, canExecute);
         SetActionButtonState(RestoreWinBtn, canExecute);
         SetActionButtonState(SafeBtn, canExecute);
         SetActionButtonState(BalancedBtn, canExecute);
@@ -475,15 +475,11 @@ public partial class EsportsModePage : UserControl
         InitializeCategory(SecurityItemsControl, _gameModeViewModel.SecurityItems);
         
         var cpuItems = _gameModeViewModel.CpuVendorItems
-            .Where(i => i.OperationId.StartsWith("intel.") || 
-                       (i.OperationId.StartsWith("amd.") && !i.OperationId.Contains("radeon")) || 
-                       i.OperationId.StartsWith("cpu."))
+            .Where(IsRelevantCpuItem)
             .ToList();
         
         var gpuItems = _gameModeViewModel.CpuVendorItems
-            .Where(i => i.OperationId.StartsWith("gpu.") || 
-                       i.OperationId.Contains("radeon") || 
-                       i.OperationId.StartsWith("nvidia."))
+            .Where(IsRelevantGpuItem)
             .ToList();
         
         InitializeCategory(CpuItemsControl, cpuItems);
@@ -504,8 +500,9 @@ public partial class EsportsModePage : UserControl
                 Icon = GetItemIcon(item),
                 IsExtreme = item.RiskLevel == OperationRiskLevel.Extreme,
                 IsCompatible = item.IsCompatible,
+                UnavailableReason = item.IncompatibleReason ?? string.Empty,
                 IsChecked = false,
-                IsEnabled = true  // 始终启用，在点击时检查兼容性
+                IsEnabled = true
             };
             
             row.CheckedChanged += OnRowCheckedChanged;
@@ -516,6 +513,27 @@ public partial class EsportsModePage : UserControl
             container.Items.Add(row);
             _allRows[item.OperationId] = row;
         }
+    }
+
+    private bool IsRelevantCpuItem(GameModeOptimizationItem item)
+    {
+        if (item.OperationId.StartsWith("cpu.", StringComparison.OrdinalIgnoreCase)) return true;
+        if (_hardwareInfo == null) return false;
+        if (item.OperationId.StartsWith("intel.", StringComparison.OrdinalIgnoreCase))
+            return _hardwareInfo.CpuVendor == CpuVendor.Intel;
+        if (item.OperationId.StartsWith("amd.", StringComparison.OrdinalIgnoreCase) &&
+            !item.OperationId.Contains("radeon", StringComparison.OrdinalIgnoreCase))
+            return _hardwareInfo.CpuVendor == CpuVendor.AMD;
+        return false;
+    }
+
+    private bool IsRelevantGpuItem(GameModeOptimizationItem item)
+    {
+        if (_hardwareInfo == null) return item.OperationId.StartsWith("gpu.", StringComparison.OrdinalIgnoreCase);
+        if (item.OperationId == "gpu.nvidia_low_latency") return _hardwareInfo.HasNvidiaGpu;
+        if (item.OperationId.Contains("radeon", StringComparison.OrdinalIgnoreCase) || item.OperationId == "gpu.amd_anti_lag")
+            return _hardwareInfo.HasAmdGpu;
+        return item.OperationId.StartsWith("gpu.", StringComparison.OrdinalIgnoreCase);
     }
 
     private string GetItemIcon(GameModeOptimizationItem item)
@@ -799,24 +817,14 @@ public partial class EsportsModePage : UserControl
         }
     }
 
-    private async void RestoreUserBtn_Click(object sender, RoutedEventArgs e)
-    {
-        await RestoreSelectedAsync("恢复用户默认");
-    }
-
-    private async void RestoreBtn_Click(object sender, MouseButtonEventArgs e)
-    {
-        await RestoreSelectedAsync("恢复用户默认");
-    }
-
     private async void RestoreWinBtn_Click(object sender, RoutedEventArgs e)
     {
-        await RestoreSelectedAsync("恢复Windows默认");
+        await RestoreSelectedAsync("撤销本软件已应用的改动");
     }
 
     private async void RestoreWinBtn_Click(object sender, MouseButtonEventArgs e)
     {
-        await RestoreSelectedAsync("恢复Windows默认");
+        await RestoreSelectedAsync("撤销本软件已应用的改动");
     }
 
     private async Task RestoreSelectedAsync(string title)
@@ -922,9 +930,10 @@ public partial class EsportsModePage : UserControl
         if (!row.IsCompatible && row.IsChecked)
         {
             row.IsChecked = false;
+            var item = GetItemByOperationId(row.OperationId);
             ShowWarning(
-                loc.Get("Common.Warning") ?? "警告", 
-                loc.Get("Esports.IncompatibleHardware") ?? "此优化项与您的硬件不兼容，无法应用");
+                loc.Get("Common.Warning") ?? "暂时不可用",
+                item?.IncompatibleReason ?? "这项功能不适合当前电脑，因此没有修改任何设置。");
             return;
         }
 
@@ -1089,6 +1098,22 @@ public partial class EsportsModePage : UserControl
         CurrentStrategyText.Text = _selectedStrategy.HasValue
             ? GetPresetDisplayName(_selectedStrategy.Value)
             : loc.Get("Esports.NoStrategy");
+
+        UpdateCategoryCount(FpsItemsControl, FpsCountText);
+        UpdateCategoryCount(StorageItemsControl, StorageCountText);
+        UpdateCategoryCount(WindowsItemsControl, WindowsCountText);
+        UpdateCategoryCount(InputItemsControl, InputCountText);
+        UpdateCategoryCount(NetworkItemsControl, NetworkCountText);
+        UpdateCategoryCount(SecurityItemsControl, SecurityCountText);
+        UpdateCategoryCount(CpuItemsControl, CpuCountLabel);
+        UpdateCategoryCount(GpuItemsControl, GpuCountLabel);
+    }
+
+    private static void UpdateCategoryCount(ItemsControl container, TextBlock target)
+    {
+        var rows = container.Items.OfType<OptimizationRow>().ToArray();
+        var selected = rows.Count(static row => row.IsChecked);
+        target.Text = $"{selected}/{rows.Length}";
     }
 
     private void UpdateStatusText()
@@ -1119,6 +1144,10 @@ public partial class EsportsModePage : UserControl
         ContextDesc.Text = string.IsNullOrEmpty(item.Description) 
             ? loc.Get("Esports.NoDescription") 
             : item.Description;
+        ContextActionText.Text = GetActionSummary(item);
+        ContextAvailabilityText.Text = item.IsCompatible
+            ? "已通过当前硬件检查。点击应用前，软件还会再次检查权限和系统状态。"
+            : item.IncompatibleReason ?? "这项功能不适用于当前电脑，因此不能选择或应用。";
         
         // 风险等级
         if (item.RiskLevel == OperationRiskLevel.Extreme)
@@ -1194,6 +1223,17 @@ public partial class EsportsModePage : UserControl
         return item.ExpectedEffect ?? "";
     }
 
+    private static string GetActionSummary(GameModeOptimizationItem item)
+    {
+        return item.OperationId switch
+        {
+            "gaming.windowed_optimization" => "尝试启用 Windows 对窗口化和无边框游戏的显示优化。",
+            "intel.speed_shift" => "允许支持的 Intel 处理器更快响应游戏负载变化。",
+            "intel.turbo_boost_max" => "允许支持的 Intel 处理器在条件允许时自动提高频率。",
+            _ => item.Description
+        };
+    }
+
     private string GetCompatibilityWarning(GameModeOptimizationItem item)
     {
         if (_hardwareInfo == null) return "";
@@ -1203,6 +1243,8 @@ public partial class EsportsModePage : UserControl
         
         if (!item.IsCompatible)
         {
+            if (!string.IsNullOrWhiteSpace(item.IncompatibleReason))
+                return item.IncompatibleReason;
             if (id.Contains("intel") && _hardwareInfo.CpuVendor != CpuVendor.Intel)
                 return loc.Get("Esports.Compat.IntelOnAmd");
             if (id.Contains("amd") && _hardwareInfo.CpuVendor != CpuVendor.AMD)
@@ -1255,7 +1297,6 @@ public partial class EsportsModePage : UserControl
         SecurityCategoryLabel.Text = loc.Get("Esports.SecurityAdjustment");
         
         // 底部按钮
-        RestoreUserBtnText.Text = loc.Get("Module.RestoreUser");
         RestoreWinBtnText.Text = loc.Get("Module.RestoreWindows");
         ApplyBtnText.Text = loc.Get("Esports.ApplySelected");
         

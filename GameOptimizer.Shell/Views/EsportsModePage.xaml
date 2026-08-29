@@ -386,7 +386,15 @@
                                         <TextBlock x:Name="ContextRiskText" Text="安全" FontSize="11" Foreground="#4ADE80"/>
                                     </Border>
                                 </StackPanel>
-                                <TextBlock x:Name="ContextDesc" Text="点击左侧列表中的优化项查看详细信息" FontSize="13" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,14"/>
+                                 <TextBlock x:Name="ContextDesc" Text="点击左侧列表中的优化项查看详细信息" FontSize="13" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,14"/>
+
+                                <!-- What this item changes -->
+                                <Border x:Name="ContextActionSection" CornerRadius="8" Padding="12,10" Margin="0,0,0,10" Background="#106366F1" BorderBrush="#206366F1" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock x:Name="ContextActionLabel" Text="它会做什么" FontSize="11" Foreground="#8EA2FF" FontWeight="Medium" Margin="0,0,0,4"/>
+                                        <TextBlock x:Name="ContextActionText" Text="选择左侧项目后，这里会说明实际作用。" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
                             
                                 <!-- Benefit Section -->
                                 <Border x:Name="ContextBenefitSection" CornerRadius="8" Padding="12,10" Margin="0,0,0,10" Visibility="Collapsed" Background="#104ADE80" BorderBrush="#204ADE80" BorderThickness="1">
@@ -401,6 +409,14 @@
                                     <StackPanel>
                                         <TextBlock x:Name="CompatLabel" Text="兼容性提示" FontSize="11" Foreground="#F59E0B" FontWeight="Medium" Margin="0,0,0,4"/>
                                         <TextBlock x:Name="CompatWarningText" Text="" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Current availability is always explained, including policy blocks. -->
+                                <Border x:Name="ContextAvailabilitySection" CornerRadius="8" Padding="12,10" Margin="0,0,0,10" Background="#101E2A42" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock x:Name="ContextAvailabilityLabel" Text="当前可用性" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontWeight="Medium" Margin="0,0,0,4"/>
+                                        <TextBlock x:Name="ContextAvailabilityText" Text="选择项目后会显示能否应用以及原因。" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
@@ -512,13 +528,10 @@
                                   AutomationProperties.Name="电竞模式状态读取进度"/>
                  </StackPanel>
 
-                 <!-- Right: Action Buttons -->
-                 <StackPanel Grid.Column="2" Orientation="Horizontal">
-                     <Border x:Name="RestoreUserBtn" CornerRadius="8" Padding="14,8" Cursor="Arrow" IsEnabled="False" Opacity="0.55" Background="Transparent" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1" Margin="0,0,8,0" MouseLeftButtonUp="RestoreBtn_Click" MouseEnter="RestoreBtn_MouseEnter" MouseLeave="RestoreBtn_MouseLeave">
-                         <TextBlock x:Name="RestoreUserBtnText" Text="恢复用户设置" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
-                     </Border>
+                  <!-- Right: Action Buttons -->
+                  <StackPanel Grid.Column="2" Orientation="Horizontal">
                      <Border x:Name="RestoreWinBtn" CornerRadius="8" Padding="14,8" Cursor="Arrow" IsEnabled="False" Opacity="0.55" Background="Transparent" BorderBrush="#30F43F5E" BorderThickness="1" Margin="0,0,8,0" MouseLeftButtonUp="RestoreWinBtn_Click" MouseEnter="RestoreWinBtn_MouseEnter" MouseLeave="RestoreWinBtn_MouseLeave">
-                         <TextBlock x:Name="RestoreWinBtnText" Text="恢复 Windows 默认" FontSize="12" Foreground="#F43F5E"/>
+                         <TextBlock x:Name="RestoreWinBtnText" Text="撤销本软件已应用的改动" FontSize="12" Foreground="#F43F5E"/>
                      </Border>
                      <Border x:Name="ApplyBtn" CornerRadius="8" Padding="20,8" Cursor="Arrow" IsEnabled="False" Opacity="0.55" MouseLeftButtonUp="ApplyBtn_Click" MouseEnter="ApplyBtn_MouseEnter" MouseLeave="ApplyBtn_MouseLeave">
                         <Border.Background>

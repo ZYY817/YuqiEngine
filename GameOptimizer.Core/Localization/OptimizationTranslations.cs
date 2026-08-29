@@ -209,9 +209,20 @@ public class OptimizationTranslations
             "关闭 Windows 搜索索引，减少磁盘 I/O", "Disable Windows Search indexing to reduce disk I/O"),
             
         // ========== Intel 专属优化 ==========
+        ["intel.speed_shift"] = (
+            "启用 Intel Speed Shift", "Enable Intel Speed Shift",
+            "让支持的 Intel 处理器更快在省电与性能频率之间切换。仅适用于支持此功能的 Intel 处理器。", "Lets supported Intel CPUs switch between power-saving and performance frequencies more quickly. Only applies to compatible Intel processors."),
+        ["intel.turbo_boost_max"] = (
+            "启用 Intel 睿频加速", "Enable Intel Turbo Boost",
+            "允许支持的 Intel 处理器在温度和供电允许时自动提高频率。", "Allows supported Intel CPUs to raise frequency automatically when thermal and power limits allow."),
         ["intel.disable_cstates"] = (
             "禁用 CPU C-States", "Disable CPU C-States",
             "禁用 CPU 空闲状态，保持 CPU 始终活跃", "Disable CPU idle states to keep CPU always active"),
+
+        // ========== 游戏体验 ==========
+        ["gaming.windowed_optimization"] = (
+            "优化窗口化游戏", "Optimize Windowed Games",
+            "为支持的窗口化和无边框游戏启用 Windows 的显示优化，以降低画面延迟。仅在 Windows 提供该功能时可用。", "Enables Windows display optimizations for supported windowed and borderless games to reduce presentation latency. Available only when Windows provides the feature."),
             
         // ========== AMD 专属优化 ==========
         ["amd.disable_cool_quiet"] = (
