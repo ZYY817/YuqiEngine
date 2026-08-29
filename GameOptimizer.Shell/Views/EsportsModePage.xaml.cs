@@ -89,7 +89,7 @@ public partial class EsportsModePage : UserControl
         _lifetimeCancellation = lifetimeCancellation;
         var lifetimeToken = lifetimeCancellation.Token;
         _isStateReadInProgress = true;
-        SetDetectionStatus("正在后台读取电竞模式所需状态…", isLoading: true);
+        SetDetectionStatus("正在检查这台电脑可用的游戏优化…", isLoading: true);
         UpdateActionAvailability();
         
         EsportsModeStartupLogger.Log("INIT", "=== 电竞模式页面启动 ===");
@@ -210,7 +210,7 @@ public partial class EsportsModePage : UserControl
             _isInitialized = false;
             _isStateReadInProgress = false;
             EsportsModeStartupLogger.LogError("FATAL", "启动失败", ex);
-            SetDetectionStatus("初始化失败，应用与恢复操作已禁用。请重新进入页面重试。", isLoading: false, isError: true);
+            SetDetectionStatus("检查没有完成，暂时不能应用或恢复。请重新进入此页面后再试。", isLoading: false, isError: true);
             UpdateActionAvailability();
         }
     }
@@ -396,12 +396,12 @@ public partial class EsportsModePage : UserControl
             UpdateStatusText();
 
             var detectionMessage = !_lastDetectionReport.IsReadyForPlanning
-                ? $"状态读取不完整：{failedCount} 项状态未知，应用与恢复已禁用。"
+                ? $"有 {failedCount} 项暂时无法确认状态，因此不能应用或恢复。"
                 : !_hardwareDetectionSucceeded
-                    ? "系统状态读取完成，但硬件信息未确认，应用与恢复已禁用。"
+                    ? "硬件信息还未确认，因此暂时不能应用或恢复。"
                     : unavailableCount > 0
-                        ? $"状态读取完成：{unavailableCount} 项当前不可用并已禁选，其余项目可进入计划。"
-                        : $"状态读取完成：已确认 {_lastDetectionReport.Items.Count} 项，可执行应用或恢复。";
+                        ? $"检查完成：{unavailableCount} 项不适合这台电脑，已自动排除。"
+                        : $"检查完成：已确认 {_lastDetectionReport.Items.Count} 项可用。";
             SetDetectionStatus(
                 detectionMessage,
                 isLoading: false,
@@ -410,13 +410,13 @@ public partial class EsportsModePage : UserControl
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             _lastDetectionReport = null;
-            SetDetectionStatus("状态读取已取消，应用与恢复操作保持禁用。", isLoading: false, isError: true);
+            SetDetectionStatus("检查已取消，暂时不能应用或恢复。", isLoading: false, isError: true);
         }
         catch (Exception ex)
         {
             _lastDetectionReport = null;
             EsportsModeStartupLogger.LogError("DETECT", "状态检测失败", ex);
-            SetDetectionStatus("状态读取失败，应用与恢复操作已禁用。请重新进入页面重试。", isLoading: false, isError: true);
+            SetDetectionStatus("检查失败，暂时不能应用或恢复。请重新进入此页面后再试。", isLoading: false, isError: true);
         }
         finally
         {
@@ -1237,11 +1237,11 @@ public partial class EsportsModePage : UserControl
         BalancedBtnText.Text = GetPresetDisplayName(StrategyType.Balanced);
         ExtremeBtnText.Text = GetPresetDisplayName(StrategyType.Extreme);
         SafeBtn.ToolTip = IsEnglishUi()
-            ? "Recommend only Windows Game Mode after checks on this PC."
-            : "仅推荐经当前机器检测可用的 Windows 游戏模式";
+            ? "Choose only a small set of options confirmed for this computer."
+            : "只选择已确认适合这台电脑的少量项目。";
         BalancedBtn.ToolTip = IsEnglishUi()
-            ? "Add only reversible Windows gaming settings that pass preflight checks."
-            : "仅增加经预检可用且可恢复的 Windows 游戏设置";
+            ? "Choose more options that are confirmed available and can be restored."
+            : "选择更多已确认可用、并且可以恢复的项目。";
         ExtremeBtn.ToolTip = IsEnglishUi()
             ? "Keep the current selection and configure items manually."
             : "保留当前选择，由用户逐项配置";
@@ -1366,7 +1366,7 @@ public partial class EsportsModePage : UserControl
             IsEnglishUi() ? "Dynamic recommendations" : "动态推荐说明",
             IsEnglishUi()
                 ? "Conservative recommendation selects only Windows Game Mode. Performance recommendation may also disable background recording. Both require compatibility, registration and permission checks. Network, power, driver, timer, security and storage changes are never added automatically. Custom keeps your current selection."
-                : "“稳妥推荐”只选择 Windows 游戏模式；“性能推荐”最多再加入关闭后台录制。两者都必须通过兼容性、操作注册和权限预检。网络、电源、驱动、计时器、安全防护和存储改动绝不会被快捷方案自动加入。“自定义”会保留当前选择。",
+                : "“稳妥推荐”只选择少量已确认可用的项目；“性能推荐”会增加一些可恢复项目。系统、网络和安全等可能影响较大的设置不会被自动加入。“自定义”由你自己逐项选择。",
             IconGlyphs.Info);
     }
 

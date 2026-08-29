@@ -39,7 +39,7 @@
                 <controls:ToolTopbar x:Name="PageHeader"
                                      Margin="0,0,0,14"
                                      Title="电源优化"
-                                     Subtitle="真实计划、已验证设置与可恢复变更"
+                                     Subtitle="查看、创建和恢复电源计划"
                                      IconData="{x:Static constants:NavigationIconData.Power}">
                     <controls:ToolTopbar.Actions>
                         <Button Style="{StaticResource SecondaryButtonStyle}"
@@ -66,11 +66,11 @@
                                        VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                         <Border Style="{StaticResource PowerBadge}" Margin="0,0,10,0">
-                            <TextBlock x:Name="TxtPowerStatus" Text="正在读取供电能力" FontSize="10"
+                            <TextBlock x:Name="TxtPowerStatus" Text="正在检查可用设置" FontSize="12"
                                        Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
                         </Border>
                         <Border Style="{StaticResource PowerBadge}">
-                            <TextBlock x:Name="TxtDeviceTypeStatus" Text="正在读取设备能力" FontSize="10"
+                            <TextBlock x:Name="TxtDeviceTypeStatus" Text="正在检查电脑类型" FontSize="12"
                                        Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
                         </Border>
                     </WrapPanel>
@@ -95,8 +95,8 @@
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="内置受管策略" FontSize="15" FontWeight="SemiBold"
                                            Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
-                                <TextBlock Text="按 CPU 与设备能力创建独立副本；先完整备份源计划，再写入、激活和回读。"
-                                           Margin="0,2,0,0" FontSize="10" TextWrapping="Wrap"
+                                <TextBlock Text="先复制当前计划，再在副本上调整。原来的 Windows 和厂商计划不会被直接修改。"
+                                           Margin="0,3,0,0" FontSize="13" TextWrapping="Wrap"
                                            Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
                             </StackPanel>
                             <Button x:Name="BtnOpenIntelligentCreate" Grid.Column="2" Style="{StaticResource PrimaryButtonStyle}"
@@ -120,28 +120,28 @@
                                                     <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
                                                     <Border Style="{StaticResource PowerBadge}" Margin="8,0,0,0">
-                                                        <TextBlock Text="{Binding Status}" FontSize="9"
+                                                        <TextBlock Text="{Binding Status}" FontSize="11"
                                                                    Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
                                                     </Border>
                                                 </StackPanel>
-                                                <TextBlock Text="{Binding Description}" Margin="0,3,0,0" FontSize="10"
+                                                <TextBlock Text="{Binding Description}" Margin="0,4,0,0" FontSize="13"
                                                            TextWrapping="Wrap" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
-                                                <TextBlock Text="{Binding Preconditions}" Margin="0,5,0,0" FontSize="9"
+                                                <TextBlock Text="{Binding Preconditions}" Margin="0,5,0,0" FontSize="12"
                                                            TextWrapping="Wrap" Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
-                                                <TextBlock Text="{Binding ParameterSummary}" Margin="0,3,0,0" FontSize="9"
+                                                <TextBlock Text="{Binding ParameterSummary}" Margin="0,3,0,0" FontSize="12"
                                                            TextWrapping="Wrap" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
-                                                <TextBlock Text="{Binding Details}" Margin="0,3,0,0" FontSize="9"
+                                                <TextBlock Text="{Binding Details}" Margin="0,3,0,0" FontSize="12"
                                                            TextWrapping="Wrap" Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
                                             </StackPanel>
                                             <TextBlock Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center"
-                                                       Text="通过上方统一入口预览后创建" FontSize="10"
+                                                       Text="先预览，再创建" FontSize="12"
                                                        Foreground="{DynamicResource Theme.Brush.TextMuted}" TextAlignment="Right" TextWrapping="Wrap" MaxWidth="120"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <TextBlock x:Name="TxtProfileStatus" Margin="0,5,0,0" FontSize="10" TextWrapping="Wrap"
+                        <TextBlock x:Name="TxtProfileStatus" Margin="0,6,0,0" FontSize="12" TextWrapping="Wrap"
                                    Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
                     </StackPanel>
                 </Border>
@@ -165,8 +165,8 @@
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="电源计划" FontSize="15" FontWeight="SemiBold"
                                            Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
-                                <TextBlock Text="Windows / OEM 计划保持只读；只有标记为“宇奇受管”的副本允许修改和激活。"
-                                           Margin="0,2,0,0" FontSize="10"
+                                <TextBlock Text="为了保护电脑原本的设置，Windows 和厂商自带计划不能直接编辑。请先创建一份副本，再修改副本。"
+                                           Margin="0,3,0,0" FontSize="13"
                                            Foreground="{DynamicResource Theme.Brush.TextMuted}" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Grid>

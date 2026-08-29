@@ -49,14 +49,14 @@ public class OptimizationTranslations
             "调整 CSRSS 优先级", "Adjust CSRSS Priority",
             "降低系统进程优先级，为游戏让出更多 CPU 时间", "Lower system process priority to give games more CPU time"),
         ["cpu.disable_core_parking"] = (
-            "禁用核心停靠", "Disable Core Parking",
-            "保持所有 CPU 核心活跃，减少唤醒延迟", "Keep all CPU cores active to reduce wake-up latency"),
+            "让所有 CPU 核心保持可用", "Keep CPU cores available",
+            "游戏需要更多核心时，不必等待核心从省电状态唤醒。", "Keeps cores ready so games do not wait for them to wake up."),
         ["cpu.timer_resolution"] = (
             "优化系统计时器", "Optimize System Timer",
             "提高系统计时器精度，减少输入延迟", "Increase system timer resolution for lower input latency"),
         ["cpu.enable_tsx"] = (
-            "启用 TSX", "Enable TSX",
-            "启用 Intel TSX 指令集（需硬件支持）", "Enable Intel TSX instruction set (requires hardware support)"),
+            "启用 Intel 性能功能", "Enable Intel performance feature",
+            "仅在支持的 Intel 处理器上尝试改善多线程程序表现。", "Only affects supported Intel processors and may help some multi-threaded programs."),
             
         // ========== GPU 优化 ==========
         ["gpu.disable_dwm_animations"] = (
@@ -528,20 +528,20 @@ public class OptimizationTranslations
             "禁用 Core Parking（最大核心）", "Disable Core Parking (Max)",
             "最大活动核心保持 100%", "Keep maximum active cores at 100%"),
         ["cpu.processor_boost_mode"] = (
-            "开启 Processor Boost Mode", "Enable Processor Boost Mode",
-            "维持最高加速状态", "Maintain maximum boost state"),
+            "让 CPU 更积极地加速", "Let the CPU boost more aggressively",
+            "负载升高时更快提高频率，但会增加温度和风扇噪声。", "Raises CPU speed faster under load, with more heat and fan noise."),
         ["cpu.disable_boost_mode"] = (
-            "禁用 Processor Boost", "Disable Processor Boost",
-            "彻底关闭 Boost", "Completely disable Boost"),
+            "限制 CPU 自动加速", "Limit CPU automatic boost",
+            "降低发热和噪声，但游戏的最高性能也会下降。", "Reduces heat and noise, but also lowers peak game performance."),
         ["cpu.disable_dynamic_tick"] = (
-            "禁用 Dynamic Tick", "Disable Dynamic Tick",
-            "避免时钟休眠导致的帧时间波动", "Avoid frame time fluctuation from clock sleep"),
+            "减少游戏偶发卡顿", "Reduce occasional game stutter",
+            "让系统计时更稳定；不一定适合所有电脑。", "Keeps system timing steadier; it may not suit every computer."),
         ["cpu.configure_hpet"] = (
-            "重新配置 HPET", "Reconfigure HPET",
-            "移除 useplatformclock 绑定", "Remove useplatformclock binding"),
+            "调整系统计时方式", "Adjust system timing",
+            "让 Windows 使用更适合当前电脑的默认计时方式。", "Lets Windows use the default timing method that suits this computer."),
         ["cpu.use_platform_tick"] = (
-            "启用平台计时器", "Enable Platform Tick",
-            "使用 TSC 替代 HPET，AMD CPU 推荐", "Use TSC instead of HPET, recommended for AMD"),
+            "调整系统计时方式", "Adjust system timing",
+            "在支持的电脑上尝试降低计时开销。", "Tries to reduce timing overhead on supported computers."),
         ["cpu.force_high_timer_resolution"] = (
             "锁定 0.5ms 计时器", "Lock 0.5ms Timer",
             "降低输入与音频延迟", "Reduce input and audio latency"),

@@ -1833,9 +1833,9 @@ public sealed class BuiltInOptimizationOperationProvider : IOptimizationOperatio
             new IOptimizationOperation[]
             {
                 // 中等风险：修改CPU调度策略
-                PowerSetting(changeOrchestrator, confirmationAuthority, "cpu.disable_core_parking", "禁用 Core Parking", "请求将最小和最大活动核心比例设为 100%。", "CPU 调优", OperationRiskLevel.Balanced, "可能减少核心唤醒延迟", "增加功耗和发热，笔记本续航下降；已标红，需显式确认后才会写入。"),
-                PowerSetting(changeOrchestrator, confirmationAuthority, "cpu.processor_boost_mode", "开启 Processor Boost Mode", "请求将处理器加速模式设为激进。", "CPU 调优", OperationRiskLevel.Balanced, "可能提高突发性能", "增加功耗、温度与风扇噪声；已标红，需显式确认后才会写入。"),
-                PowerSetting(changeOrchestrator, confirmationAuthority, "cpu.disable_boost_mode", "禁用 Processor Boost", "请求关闭处理器加速模式。", "CPU 调优", OperationRiskLevel.Balanced, "可能降低温度与功耗", "会降低峰值性能；已标红，需显式确认后才会写入。"),
+                PowerSetting(changeOrchestrator, confirmationAuthority, "cpu.disable_core_parking", "让所有 CPU 核心保持可用", "游戏需要更多核心时，不必等待核心从省电状态唤醒。", "CPU 调优", OperationRiskLevel.Balanced, "可能减少核心唤醒等待", "会增加功耗和发热，笔记本续航可能下降；确认后才会修改。"),
+                PowerSetting(changeOrchestrator, confirmationAuthority, "cpu.processor_boost_mode", "让 CPU 更积极地加速", "负载升高时更快提高频率。", "CPU 调优", OperationRiskLevel.Balanced, "可能提高突发性能", "会增加温度和风扇噪声；确认后才会修改。"),
+                PowerSetting(changeOrchestrator, confirmationAuthority, "cpu.disable_boost_mode", "限制 CPU 自动加速", "降低发热和噪声，但也会降低最高性能。", "CPU 调优", OperationRiskLevel.Balanced, "可能降低温度与功耗", "会降低游戏的最高性能；确认后才会修改。"),
                 // 低风险：优化响应参数
                 MachineDword(
                     changeOrchestrator,

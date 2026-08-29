@@ -33,11 +33,11 @@
                 <!-- Title Row -->
                 <Grid Grid.Row="0" Margin="0,0,0,10">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                        <TextBlock x:Name="PageTitle" Text="电竞性能聚合中心" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="PageTitle" Text="游戏优化方案" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
                         <Border CornerRadius="10" Padding="10,4" Margin="12,0,0,0" VerticalAlignment="Center" Background="{DynamicResource Theme.Brush.StatusBadgeBackground}">
                             <StackPanel Orientation="Horizontal">
                                 <Ellipse Width="6" Height="6" Fill="{DynamicResource Theme.Brush.StatusGreenText}" Margin="0,0,6,0"/>
-                                <TextBlock x:Name="StatusText" Text="正在读取状态" FontSize="11" Foreground="{DynamicResource Theme.Brush.StatusGreenText}"/>
+                                <TextBlock x:Name="StatusText" Text="正在检查可用项目" FontSize="13" Foreground="{DynamicResource Theme.Brush.StatusGreenText}"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -97,19 +97,19 @@
                             <Border.Background>
                                 <SolidColorBrush x:Name="NavCoreBg" Color="{DynamicResource Theme.Color.EsportsNavSelected}"/>
                             </Border.Background>
-                            <TextBlock x:Name="NavCore" Text="核心通用" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextPrimary}" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="NavCore" Text="常用优化" FontSize="14" Foreground="{DynamicResource Theme.Brush.TextPrimary}" HorizontalAlignment="Center"/>
                         </Border>
                         <Border x:Name="NavCpuBtn" Grid.Column="1" CornerRadius="6" Padding="0,8" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="NavCpu_Click">
-                            <TextBlock x:Name="NavCpu" Text="CPU 专项" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="NavCpu" Text="处理器" FontSize="14" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
                         </Border>
                         <Border x:Name="NavGpuBtn" Grid.Column="2" CornerRadius="6" Padding="0,8" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="NavGpu_Click">
-                            <TextBlock x:Name="NavGpu" Text="GPU 专项" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="NavGpu" Text="显卡" FontSize="14" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
                         </Border>
                         <Border x:Name="NavInputBtn" Grid.Column="3" CornerRadius="6" Padding="0,8" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="NavInput_Click">
-                            <TextBlock x:Name="NavInput" Text="输入延迟" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="NavInput" Text="键盘和鼠标" FontSize="14" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
                         </Border>
                         <Border x:Name="NavNetworkBtn" Grid.Column="4" CornerRadius="6" Padding="0,8" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="NavNetwork_Click">
-                            <TextBlock x:Name="NavNetwork" Text="网络优化" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="NavNetwork" Text="网络" FontSize="14" Foreground="{DynamicResource Theme.Brush.TextMuted}" HorizontalAlignment="Center"/>
                         </Border>
                     </Grid>
                 </Border>

@@ -156,9 +156,9 @@
         <Grid Grid.Row="0" Margin="24,18,24,0">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock x:Name="VisiblePageTitle" Text="系统清理" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontSize="16" FontWeight="Bold"/>
+                    <TextBlock x:Name="VisiblePageTitle" Text="系统清理" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontSize="20" FontWeight="Bold"/>
                     <Border Width="1" Height="14" Background="{DynamicResource Theme.Brush.Border}" Margin="12,3,12,0"/>
-                    <TextBlock x:Name="PageSubtitle" Text="释放磁盘空间 · 提升系统响应" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="PageSubtitle" Text="清理缓存和临时文件，释放磁盘空间" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="14" VerticalAlignment="Center"/>
                 </StackPanel>
                 <TextBlock x:Name="PageTitle" Text="系统清理" Visibility="Collapsed"/>
             </StackPanel>

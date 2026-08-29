@@ -983,28 +983,7 @@ public partial class MasterModuleTemplate : UserControl
         descText.SetResourceReference(TextBlock.ForegroundProperty, "Theme.Brush.TextSecondary");
         textPanel.Children.Add(descText);
 
-        var feedbackText = new TextBlock
-        {
-            TextWrapping = TextWrapping.Wrap,
-            Margin = new Thickness(0, 4, 0, 0)
-        };
-        ApplyTypographyTokens(feedbackText, "Token.FontSize.ModuleStatus");
-        feedbackText.SetResourceReference(TextBlock.ForegroundProperty, "Theme.Brush.Warning");
-        feedbackText.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding(nameof(OptimizationToggleModel.OperationFeedback))
-        {
-            Source = toggle,
-            Mode = System.Windows.Data.BindingMode.OneWay
-        });
-        feedbackText.SetBinding(VisibilityProperty, new System.Windows.Data.Binding(nameof(OptimizationToggleModel.HasOperationFeedback))
-        {
-            Source = toggle,
-            Mode = System.Windows.Data.BindingMode.OneWay,
-            Converter = new BooleanToVisibilityConverter()
-        });
-        textPanel.Children.Add(feedbackText);
-
-        // Capability blocks and terminal execution receipts answer different questions.
-        // Keep both visible so an unavailable readback cannot hide the Engine's actual result.
+        // 能力状态和执行回执回答不同的问题。能力状态使用简明说明；原始诊断只在详情页保留。
         var receiptText = new TextBlock
         {
             TextWrapping = TextWrapping.Wrap,
@@ -1156,7 +1135,7 @@ public partial class MasterModuleTemplate : UserControl
             Source = toggle,
             Mode = System.Windows.Data.BindingMode.OneWay
         });
-        toggleBtn.SetBinding(ToolTipProperty, new System.Windows.Data.Binding(nameof(OptimizationToggleModel.OperationFeedback))
+        toggleBtn.SetBinding(ToolTipProperty, new System.Windows.Data.Binding(nameof(OptimizationToggleModel.CapabilityStatusReason))
         {
             Source = toggle,
             Mode = System.Windows.Data.BindingMode.OneWay
@@ -1310,39 +1289,39 @@ public partial class MasterModuleTemplate : UserControl
         {
             return ModuleKey switch
             {
-                "memory" => "Memory recovery and system allocation policies",
-                "audio" => "Reduce processing latency and keep output stable",
-                "performance" when category.Contains("安全", StringComparison.Ordinal) => "Security trade-offs require explicit confirmation",
-                "performance" => "Release more system resources for foreground games",
-                "cpu" => "Scheduling and affinity policies for foreground workloads",
-                "graphics" => "Rendering responsiveness and graphics driver policies",
-                "network" => "Connection stability and latency-aware network policies",
-                "privacy" => "Privacy controls with clear system-impact boundaries",
-                "system" => "Core Windows responsiveness and resource policies",
-                "explorer" => "Desktop shell responsiveness and interaction policies",
-                "tasks" => "Scheduled-task policies with explicit recovery boundaries",
-                "services" => "Service policies that preserve required dependencies",
-                "peripheral" => "Input and peripheral responsiveness policies",
-                _ => "Review the available policies before applying changes"
+                "memory" => "Free memory and adjust memory behavior",
+                "audio" => "Reduce sound delay and interruptions",
+                "performance" when category.Contains("安全", StringComparison.Ordinal) => "Read the warning before changing security options",
+                "performance" => "Reduce background load for games",
+                "cpu" => "Adjust how the processor responds under load",
+                "graphics" => "Adjust graphics and display behavior",
+                "network" => "Reduce network delay and fluctuation",
+                "privacy" => "Reduce unnecessary data collection",
+                "system" => "Adjust common Windows performance options",
+                "explorer" => "Make files and the desktop easier to use",
+                "tasks" => "Manage background tasks you do not need",
+                "services" => "Manage background services you do not need",
+                "peripheral" => "Improve mouse, keyboard and USB response",
+                _ => "Read what an option does before applying it"
             };
         }
 
         return ModuleKey switch
         {
-            "memory" => "主动回收与系统内存策略",
-            "audio" => "降低处理延迟，保持输出稳定",
-            "performance" when category.Contains("安全", StringComparison.Ordinal) => "安全能力与性能取舍，修改前需确认",
-            "performance" => "为前台游戏争取更多系统资源",
-            "cpu" => "面向前台负载的调度与亲和性策略",
-            "graphics" => "渲染响应与图形驱动相关策略",
-            "network" => "网络稳定性与延迟感知策略",
-            "privacy" => "隐私控制与系统影响边界",
-            "system" => "Windows 核心响应与资源策略",
-            "explorer" => "桌面外壳响应与交互策略",
-            "tasks" => "具备明确恢复边界的计划任务策略",
-            "services" => "保留必要依赖的服务策略",
-            "peripheral" => "输入与外设响应策略",
-            _ => "应用前请先核对可用策略"
+            "memory" => "释放内存，并调整内存使用方式",
+            "audio" => "减少声音延迟和中断",
+            "performance" when category.Contains("安全", StringComparison.Ordinal) => "修改安全选项前请先阅读提示",
+            "performance" => "减少后台占用，让游戏获得更多资源",
+            "cpu" => "调整处理器在高负载时的响应方式",
+            "graphics" => "调整显卡和显示相关选项",
+            "network" => "减少网络延迟和波动",
+            "privacy" => "减少不必要的数据收集",
+            "system" => "调整常用的 Windows 性能选项",
+            "explorer" => "改善文件和桌面的使用体验",
+            "tasks" => "管理不需要的后台任务",
+            "services" => "管理不需要的后台服务",
+            "peripheral" => "改善键盘、鼠标和 USB 响应",
+            _ => "应用前先看清这一项会做什么"
         };
     }
 

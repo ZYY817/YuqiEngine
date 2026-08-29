@@ -134,12 +134,12 @@
         <!-- 头部 -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
             <StackPanel>
-                <TextBlock Text="AppX 卸载"
+                <TextBlock Text="预装应用"
                            Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}"
                            FontSize="24" FontWeight="Bold"/>
-                <TextBlock Text="预装应用自选移除（仅当前用户）· 绿色徽章可自动恢复，红色徽章需 Store 重装"
-                           Foreground="{DynamicResource Theme.Brush.TextMuted}"
-                           FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                <TextBlock Text="选择不需要的预装应用后再移除。显示“可恢复”的项目可由本软件恢复；其他项目需要从应用商店重新安装。"
+                           Foreground="{DynamicResource Theme.Brush.TextSecondary}"
+                           FontSize="15" Margin="0,5,0,0" TextWrapping="Wrap"/>
             </StackPanel>
             <Button Command="{Binding LoadCommand}" Style="{StaticResource GhostButton}"
                     Content="刷新列表" Margin="16,6,0,0" VerticalAlignment="Top"

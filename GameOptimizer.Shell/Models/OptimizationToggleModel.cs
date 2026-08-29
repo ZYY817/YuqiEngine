@@ -307,9 +307,7 @@ public partial class OptimizationToggleModel : ObservableObject
         {
             var loc = LocalizationService.Instance;
             var guidance = loc.Get($"Module.Capability.{CapabilityState}.Reason");
-            return string.IsNullOrWhiteSpace(BlockedReason)
-                ? guidance
-                : $"{guidance} {NormalizeReason(BlockedReason)}";
+            return GetPlainCapabilityReason(BlockedReason, guidance);
         }
     }
 
@@ -322,9 +320,9 @@ public partial class OptimizationToggleModel : ObservableObject
 
     public bool HasCapabilityConstraint => CapabilityState != ModuleCapabilityState.Ready;
 
-    public string? OperationFeedback => !string.IsNullOrWhiteSpace(BlockedReason)
-        ? NormalizeReason(BlockedReason)
-        : LastOperationReceipt;
+    // 行内只显示用户能采取行动的执行结果。能力探测的原始诊断保留在详情页，
+    // 避免把同一段技术原因重复显示两次。
+    public string? OperationFeedback => LastOperationReceipt;
 
     public bool HasOperationFeedback => !string.IsNullOrWhiteSpace(OperationFeedback);
     
@@ -761,6 +759,53 @@ public partial class OptimizationToggleModel : ObservableObject
         }
 
         return normalized;
+    }
+
+    private static string GetPlainCapabilityReason(string? blockedReason, string fallback)
+    {
+        if (string.IsNullOrWhiteSpace(blockedReason))
+        {
+            return fallback;
+        }
+
+        // 运行时诊断会包含能力 ID、OEM 名称或内部命令。列表只告诉用户“能否修改”和“下一步”，
+        // 技术原文仍可在详情页查看，便于排查而不增加日常阅读负担。
+        if (ContainsAny(blockedReason, "当前电源计划未公开", "power plan does not expose"))
+        {
+            return LocalizationService.Instance.CurrentLanguage == "en-US"
+                ? "This power plan does not offer this option, so it cannot be changed safely."
+                : "当前电源计划没有提供这一项，软件不会强行修改。";
+        }
+
+        if (ContainsAny(blockedReason, "OEM", "组织策略", "policy"))
+        {
+            return LocalizationService.Instance.CurrentLanguage == "en-US"
+                ? "This option is managed by your computer maker or a system policy, so it is left unchanged."
+                : "这项设置由电脑厂商或系统策略管理，软件不会覆盖它。";
+        }
+
+        if (ContainsAny(blockedReason, "Modern Standby", "供电", "电源语义"))
+        {
+            return LocalizationService.Instance.CurrentLanguage == "en-US"
+                ? "This computer uses a restricted power mode. The app cannot change this option safely."
+                : "这台电脑使用受限电源模式，软件无法安全修改这一项。";
+        }
+
+        if (ContainsAny(blockedReason, "当前 CPU", "当前处理器", "CPU 架构", "Intel", "AMD", "processor"))
+        {
+            return LocalizationService.Instance.CurrentLanguage == "en-US"
+                ? "This option does not apply to the current processor."
+                : "这项功能不适用于当前处理器。";
+        }
+
+        if (ContainsAny(blockedReason, "没有可验证的执行与恢复链", "not execute"))
+        {
+            return LocalizationService.Instance.CurrentLanguage == "en-US"
+                ? "This option is not available until a safe change-and-restore process is ready."
+                : "此功能尚未完成安全的修改与恢复验证，暂不开放编辑。";
+        }
+
+        return fallback;
     }
 
     private static bool ContainsCjk(string value) =>
