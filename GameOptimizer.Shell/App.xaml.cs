@@ -334,10 +334,6 @@ public partial class App : Application
                             services.AddSingleton<SystemCleanupPage>();
                             services.AddSingleton<PeripheralOptimizationPage>();
                             services.AddSingleton<EsportsModePage>();
-                            services.AddSingleton<GameModeHubPage>(provider =>
-                                new GameModeHubPage(provider.GetRequiredService<IHardwareDetectionService>()));
-                            services.AddSingleton<HardwareOptimizationPage>(provider =>
-                                new HardwareOptimizationPage(provider.GetRequiredService<IHardwareDetectionService>()));
                             services.AddSingleton<HardwareInfoPage>(provider =>
                                 new HardwareInfoPage(provider.GetRequiredService<IHardwareDetectionService>()));
                             services.AddSingleton<NetworkTestPage>(provider =>
