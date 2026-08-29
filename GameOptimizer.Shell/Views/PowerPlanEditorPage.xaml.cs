@@ -97,7 +97,7 @@ public partial class PowerPlanEditorPage : UserControl
             IsActive = plan.IsActive,
             IsManaged = Guid.TryParse(plan.Guid, out var id) && managedIds.Contains(id),
             Description = Guid.TryParse(plan.Guid, out var planId) && managedIds.Contains(planId)
-                ? "宇奇受管副本 · 可备份、编辑、激活与恢复"
+                ? "宇奇创建的方案 · 可备份、编辑、启用与恢复"
                 : GetPlanDescription(plan.Name)
         }).ToList();
 
@@ -119,8 +119,8 @@ public partial class PowerPlanEditorPage : UserControl
         TxtDeviceTypeStatus.Text = state.Environment.HasBattery ? "笔记本 · AC/DC 同步" : "台式机 · AC 设置";
 
         TxtDisplayTimeoutState.Text = _managedOverview?.Plans.Count > 0
-            ? "请选择一个宇奇受管计划读取高级参数；原 Windows / OEM 计划始终只读。"
-            : "请先从内置策略或 Windows 计划创建受管副本。";
+            ? "请选择一个本软件创建的电源方案，再调整高级选项。系统和厂商原有方案仅供查看。"
+            : "请先创建一个本软件的电源方案。";
     }
 
     private async Task LoadProfilePreflightAsync()
@@ -134,13 +134,13 @@ public partial class PowerPlanEditorPage : UserControl
             ManagedPlanSelector.SelectedItem = _managedOverview.Plans.FirstOrDefault(item => item.PlanId == _selectedManagedPlanId.Value);
         HeteroPolicyPanel.Visibility = _managedOverview.CpuArchitecture == GameOptimizer.Core.Models.CpuArchitecture.IntelHybrid
             ? Visibility.Visible : Visibility.Collapsed;
-        TxtProfileStatus.Text = $"{_managedOverview.Status}。CPU：{_managedOverview.CpuVendor} / {_managedOverview.CpuArchitecture}。";
+        TxtProfileStatus.Text = $"{_managedOverview.Status}。已根据当前电脑的处理器和供电情况筛选可用方案。";
         var hasAutomaticProfile = _managedOverview.Profiles.Any(item =>
             item.IsAvailable && item.Profile.Id is ManagedPowerProfileId.IntelGaming or ManagedPowerProfileId.AmdGaming);
         BtnOpenIntelligentCreate.IsEnabled = hasAutomaticProfile;
         BtnOpenIntelligentCreate.ToolTip = hasAutomaticProfile
-            ? "先预览 CPU 匹配、计划名称与将写入的真实参数；确认后才创建独立副本。"
-            : "当前 CPU 或供电条件没有可用的游戏性能策略。请刷新并检查管理员权限。";
+            ? "先查看适合当前电脑的方案；确认后会新建副本，不会修改现有电源计划。"
+            : "当前电脑没有可用的性能方案。请刷新后重试，并确认软件具有管理员权限。";
     }
 
     private void ApplyCapabilityState()
@@ -156,14 +156,14 @@ public partial class PowerPlanEditorPage : UserControl
 
         if (!canEditManagedPlan)
         {
-            var reason = _managedOverview?.Plans.Count > 0 ? "请先选择一个宇奇受管计划。" : _managedOverview?.Status ?? "受管电源安全链未就绪。";
+            var reason = _managedOverview?.Plans.Count > 0 ? "请先选择一个本软件创建的电源方案。" : _managedOverview?.Status ?? "当前没有可编辑的电源方案。";
             SliderCpuMinimum.ToolTip = reason;
             BtnApplyAll.ToolTip = reason;
             TxtDisplayTimeoutState.Text = reason;
         }
 
         TxtPowerCapabilityState.Text =
-            "Windows / OEM 原计划禁止写入。预设不会关闭 C-State、P-State、核心停放或强制 P/E 核调度；手动异构调度仅在 Intel 混合架构且设置可读时开放。";
+            "系统和厂商原有的电源计划不会被改动。这里的方案不会关闭 CPU 的保护功能；当前电脑不支持的选项会自动隐藏。";
     }
 
     private async void BtnRefreshPlans_Click(object sender, RoutedEventArgs e) => await RefreshPageAsync();
@@ -193,7 +193,7 @@ public partial class PowerPlanEditorPage : UserControl
             var sourceId = sourcePlanId ?? GetCurrentActivePlanId();
             var draft = await _managedPower.PrepareCreateAsync(
                 sourceId, dialog.Selection.ProfileId, dialog.Selection.CustomName, CancellationToken.None);
-            await ExecuteConfirmedDraftAsync(draft, "确认创建受管电源计划");
+            await ExecuteConfirmedDraftAsync(draft, "确认创建电源方案");
         }
         catch (InvalidDataException ex)
         {
@@ -226,7 +226,7 @@ public partial class PowerPlanEditorPage : UserControl
         try
         {
             if (_managedPower is null || !_selectedManagedPlanId.HasValue)
-                throw new InvalidOperationException("请先选择一个宇奇受管计划。");
+                throw new InvalidOperationException("请先选择一个本软件创建的电源方案。");
             var values = new List<ManagedPowerSettingValue>();
             if (_supportedManagedSettings.Contains("cpu.minimum")) values.Add(new("cpu.minimum", (int)Math.Round(SliderCpuMinimum.Value), null));
             if (_supportedManagedSettings.Contains("cpu.maximum")) values.Add(new("cpu.maximum", (int)Math.Round(SliderCpuMaximum.Value), null));
@@ -236,7 +236,7 @@ public partial class PowerPlanEditorPage : UserControl
             if (_supportedManagedSettings.Contains("cpu.hetero-policy") && int.TryParse(HeteroPolicySelector.SelectedValue?.ToString(), out var hetero))
                 values.Add(new("cpu.hetero-policy", hetero, null));
             var draft = await _managedPower.PrepareUpdateAsync(_selectedManagedPlanId.Value, values, CancellationToken.None);
-            await ExecuteConfirmedDraftAsync(draft, "确认保存受管高级参数");
+            await ExecuteConfirmedDraftAsync(draft, "确认保存高级设置");
         }
         catch (Exception ex)
         {
@@ -254,7 +254,7 @@ public partial class PowerPlanEditorPage : UserControl
         }
         catch (Exception ex)
         {
-            InfoDialog.Show(Window.GetWindow(this), "创建受管副本失败", DescribePowerException(ex), IconGlyphs.Warning);
+            InfoDialog.Show(Window.GetWindow(this), "创建电源方案失败", DescribePowerException(ex), IconGlyphs.Warning);
         }
     }
 
@@ -284,7 +284,7 @@ public partial class PowerPlanEditorPage : UserControl
         try
         {
             var draft = await _managedPower.PrepareActivateAsync(planId, CancellationToken.None);
-            await ExecuteConfirmedDraftAsync(draft, "确认激活受管电源计划");
+            await ExecuteConfirmedDraftAsync(draft, "确认启用电源方案");
         }
         catch (Exception ex)
         {
@@ -299,11 +299,11 @@ public partial class PowerPlanEditorPage : UserControl
         try
         {
             var draft = await _managedPower.PrepareDeleteAsync(planId, CancellationToken.None);
-            await ExecuteConfirmedDraftAsync(draft, "确认删除受管电源计划");
+            await ExecuteConfirmedDraftAsync(draft, "确认删除电源方案");
         }
         catch (Exception ex)
         {
-            InfoDialog.Show(Window.GetWindow(this), "删除受管计划失败", DescribePowerException(ex), IconGlyphs.Warning);
+            InfoDialog.Show(Window.GetWindow(this), "删除电源方案失败", DescribePowerException(ex), IconGlyphs.Warning);
         }
     }
 
@@ -325,7 +325,7 @@ public partial class PowerPlanEditorPage : UserControl
             SliderCpuEpp.IsEnabled = _supportedManagedSettings.Contains("cpu.epp");
             BoostModeSelector.IsEnabled = _supportedManagedSettings.Contains("cpu.boost");
             HeteroPolicyPanel.Visibility = _supportedManagedSettings.Contains("cpu.hetero-policy") ? Visibility.Visible : Visibility.Collapsed;
-            TxtDisplayTimeoutState.Text = $"已从受管计划读取 {_supportedManagedSettings.Count} 项支持参数；保存只更新 AC，DC 保持当前值。";
+            TxtDisplayTimeoutState.Text = $"已读取 {_supportedManagedSettings.Count} 项可调整设置；保存时只改插电状态，电池状态保持不变。";
             ApplyCapabilityState();
         }
         catch (Exception ex)
@@ -338,7 +338,7 @@ public partial class PowerPlanEditorPage : UserControl
     {
         if (_managedPower is null || _managedOverview?.Backups.Count is not > 0)
         {
-            InfoDialog.Show(Window.GetWindow(this), "恢复不可用", "没有可校验的受管电源计划备份。", IconGlyphs.Warning);
+            InfoDialog.Show(Window.GetWindow(this), "暂时不能恢复", "没有可用于恢复的电源方案备份。", IconGlyphs.Warning);
             return;
         }
 
@@ -357,13 +357,13 @@ public partial class PowerPlanEditorPage : UserControl
     private async Task ExecuteConfirmedDraftAsync(ManagedPowerPlanDraft draft, string title)
     {
         if (_managedPower is null)
-            throw new InvalidOperationException("受管电源安全链未连接。");
+            throw new InvalidOperationException("当前没有可用的电源设置操作通道。");
         var boundary = draft.Kind == ManagedPowerOperationKind.Delete
-            ? "操作只会切回源计划并删除宇奇受管副本；Windows/OEM 原计划不会被修改，删除前会创建并校验完整备份。是否继续？"
-            : "操作只允许写入宇奇受管副本，执行前会创建并校验完整备份。是否继续？";
+            ? "操作会先切回原电源计划，再删除本软件创建的方案。系统和厂商原有方案不会被修改。是否继续？"
+            : "操作只会修改本软件创建的电源方案。开始前会先创建备份。是否继续？";
         var parameterPreview = draft.Settings.Count == 0
             ? string.Empty
-            : $"\n\n已通过当前源计划能力检测、将实际写入的参数：\n{string.Join("\n", draft.Settings.Select(DescribeManagedSetting))}";
+            : $"\n\n本次将调整的设置：\n{string.Join("\n", draft.Settings.Select(DescribeManagedSetting))}";
         var message = $"{draft.Summary}{parameterPreview}\n\n风险：{draft.Risk}\n\n{boundary}";
         if (!ConfirmDialog.Show(Window.GetWindow(this), title, message, IconGlyphs.Warning))
             return;

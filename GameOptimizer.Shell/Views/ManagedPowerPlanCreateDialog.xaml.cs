@@ -33,7 +33,7 @@ public partial class ManagedPowerPlanCreateDialog : Window
         AvailabilityText.Text = _overview.Status;
         ExtremeModeCheckBox.IsEnabled = _extremeProfile?.IsAvailable == true;
         ExtremeModeHintText.Text = _extremeProfile?.IsAvailable == true
-            ? "将改为使用极限性能受管副本；会提高待机功耗、温度和风扇噪声，不保证提升帧率。"
+            ? "将改为使用极限性能方案；会提高待机功耗、温度和风扇噪声，不保证提升帧率。"
             : _extremeProfile?.Status ?? "当前设备未提供极限模式。";
         RefreshPreview();
     }
@@ -48,12 +48,12 @@ public partial class ManagedPowerPlanCreateDialog : Window
         var profile = ActiveProfile;
         if (profile is null)
         {
-            MatchedProfileNameText.Text = "当前设备没有可创建的受管策略";
+            MatchedProfileNameText.Text = "当前设备没有可创建的电源方案";
             MatchedProfileDescriptionText.Text = "未读取到与当前 CPU 和供电条件兼容的策略；不会创建任何计划。";
             ProfileStatusText.Text = "不可用";
             NameHintText.Text = "请刷新电源状态或检查管理员权限后重试。";
             ParameterList.ItemsSource = Array.Empty<PowerSettingPreview>();
-            SafetyBoundaryText.Text = "Windows / OEM 原计划保持只读；只有通过能力检测的受管副本可被创建。";
+            SafetyBoundaryText.Text = "Windows 和电脑厂商原有的电源计划不会被改动；只有本软件新建的方案才可以编辑。";
             CreateButton.IsEnabled = false;
             return;
         }
@@ -61,9 +61,9 @@ public partial class ManagedPowerPlanCreateDialog : Window
         MatchedProfileNameText.Text = profile.Profile.Name;
         MatchedProfileDescriptionText.Text = profile.Profile.Description;
         ProfileStatusText.Text = profile.IsAvailable ? "可创建" : "不可用";
-        NameHintText.Text = $"留空将自动命名为“宇奇 · {profile.Profile.Name} · 时间”；只创建副本，不改写当前 Windows / OEM 计划。";
+        NameHintText.Text = $"留空将自动命名为“宇奇 · {profile.Profile.Name} · 时间”。只会新建一个副本，不会修改现有电源计划。";
         ParameterList.ItemsSource = profile.Profile.Settings.Select(PowerSettingPreview.From).ToArray();
-        SafetyBoundaryText.Text = $"风险提示：{profile.Profile.Tradeoff}\n实际创建前会再次检测源计划支持的字段；不受支持的字段不会写入，且不会创建不完整策略。";
+        SafetyBoundaryText.Text = $"使用提示：{profile.Profile.Tradeoff}\n只会调整这台电脑支持的项目；不支持的项目不会被修改。";
         CreateButton.IsEnabled = profile.IsAvailable;
     }
 

@@ -65,7 +65,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock x:Name="PageTitle" Text="核心加速器" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
-                    <TextBlock x:Name="PageSubtitle" Text="将游戏锁定到最佳 CPU 核心，提升帧率稳定性" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,4,0,0"/>
+                    <TextBlock x:Name="PageSubtitle" Text="为正在运行的游戏选择可使用的 CPU 核心" FontSize="14" Foreground="{DynamicResource Theme.Brush.TextSecondary}" Margin="0,4,0,0"/>
                 </StackPanel>
                 <Border Grid.Column="1" CornerRadius="10" Padding="12,6" Background="{DynamicResource Theme.Brush.StatusBadgeBackground}" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
@@ -104,7 +104,7 @@
                         <TextBlock Text="&#xE7FC;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#22C55E" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock x:Name="TargetProgramLabel" Text="目标程序" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,0,0,4"/>
+                        <TextBlock x:Name="TargetProgramLabel" Text="要调整的程序" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}" Margin="0,0,0,4"/>
                         <ComboBox ItemsSource="{Binding ProcessList}" SelectedItem="{Binding SelectedProcess}" Height="30" MinWidth="280">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
@@ -156,7 +156,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding CoreCountLabel, Mode=OneWay}" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,2,0,0"/>
                                         <TextBlock Text="  " FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,2,0,0"/>
-                                        <TextBlock x:Name="ClickToSelectHint" Text="点击选择核心" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,2,0,0"/>
+                                        <TextBlock x:Name="ClickToSelectHint" Text="点击选择程序可以使用的核心" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
                                 <Border Grid.Column="2" CornerRadius="6" Padding="10,4" Background="{DynamicResource Theme.Brush.ControlAccentSelectedBg}">
@@ -303,7 +303,7 @@
                                     <TextBlock Text="&#xE734;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#FBBF24" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                     <TextBlock x:Name="PreferredCoreTitle" Text="首选核心" FontSize="12" FontWeight="SemiBold" Foreground="#FBBF24"/>
                                 </StackPanel>
-                                <TextBlock x:Name="PreferredCoreDesc" Text="游戏主线程将优先调度到此核心" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="PreferredCoreDesc" Text="软件会优先让游戏使用这里选择的核心；不确定时请保持默认。" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}" Margin="0,0,0,8"/>
                                 <ComboBox ItemsSource="{Binding SelectedCoreOptions}" SelectedItem="{Binding PreferredCore}" Height="32">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>

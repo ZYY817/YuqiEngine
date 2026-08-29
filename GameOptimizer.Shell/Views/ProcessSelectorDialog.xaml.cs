@@ -42,7 +42,9 @@ namespace GameOptimizer.Shell.Views
             var loc = LocalizationService.Instance;
             Title = loc.Get("ProcessSelector.Title");
             TitleText.Text = loc.Get("ProcessSelector.Title");
-            SubtitleText.Text = loc.Get("ProcessSelector.Subtitle");
+            SubtitleText.Text = LocalizationService.Instance.CurrentLanguage == "en-US"
+                ? "Choose an app whose CPU cores you want to set"
+                : "选择要设置可用 CPU 核心的应用";
             CancelButton.Content = loc.Get("Common.Cancel");
             ConfirmButton.Content = loc.Get("Common.Confirm");
         }

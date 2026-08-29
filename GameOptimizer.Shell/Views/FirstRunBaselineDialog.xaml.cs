@@ -38,7 +38,7 @@ public partial class FirstRunBaselineDialog : Window
     {
         ["D01"] = "系统还原点",
         ["D02"] = "软件核心快照",
-        ["D03"] = "注册表白名单",
+        ["D03"] = "受保护的注册表设置",
         ["D04"] = "应用配置",
         ["D05"] = "业务档案",
         ["D06"] = "核心加速配置",
@@ -124,6 +124,13 @@ public partial class FirstRunBaselineDialog : Window
 
         ReplaceStaticText("当前为测试版本", "使用前请先备份");
         ReplaceStaticText("功能、兼容性和恢复链仍在持续验证，可能存在未发现的问题。请在使用任何优化前完成安全备份，并优先在可恢复环境中测试。", "不同电脑的硬件、系统和驱动可能不同。遇到不可用的功能时，软件会提示原因，不会强行修改。");
+        ReplaceStaticText("现在创建首次全量安全备份", "先为软件能改动的设置创建备份");
+        ReplaceStaticText("创建完成后可在备份管理中查看、验证，并通过受控流程恢复。它不能替代 Windows 系统还原点：请在开始前自行创建一个还原点。", "备份可在“备份管理”中查看，并在需要时恢复本软件改动过的设置。它不能替代 Windows 系统还原点，请同时自行创建一个还原点。");
+        ReplaceStaticText("首次安全备份会保护这些范围", "备份会记录这些内容");
+        ReplaceStaticText("只有通过真实预检和收集器验证的范围，才会被标记为可恢复。", "软件只会记录已经确认可以恢复的项目。不能安全恢复的项目不会被加入备份。");
+        ReplaceStaticText("按现有执行链回读验证的应用配置与恢复记录。", "保存软件中的设置和已做的更改，以便需要时恢复。");
+        ReplaceStaticText("没有安全恢复链的项目不会被伪造成一键恢复；电源异常时请切回优化前的原电源计划。若没有可用备份或还原依据且系统仍无法恢复，可能只能重装系统。", "不能安全恢复的项目不会被假装成可以一键恢复。电源异常时请切回原来的电源计划；没有备份或系统还原点时，部分问题可能无法自动修复。");
+        ReplaceStaticText("首次备份暂时停在安全门禁。完成提示的人工处理后可以重新检测。", "备份暂时无法继续。请按提示完成必要操作后，再回来重新检测。");
     }
 
     private void ReplaceStaticText(string source, string replacement)
@@ -168,14 +175,14 @@ public partial class FirstRunBaselineDialog : Window
 
             if (safetyState.FirstRunState != FirstRunBaselineState.CompletedVerified)
             {
-                GateStatusBadge.Text = "未建立；执行前需风险确认";
+                GateStatusBadge.Text = "尚未备份";
                 GateStatusBadge.Status = BadgeStatus.Warning;
                 return;
             }
 
             MainProgressBar.IsIndeterminate = false;
             MainProgressBar.Value = 100;
-            GateStatusBadge.Text = "已验证，具备完整恢复依据";
+            GateStatusBadge.Text = "备份已完成";
             GateStatusBadge.Status = BadgeStatus.Success;
             StepTextBlock.Text = "已完成";
             StatusTextBlock.Text = "检测到本机已有有效安全基线，无需重复备份。";
@@ -199,7 +206,7 @@ public partial class FirstRunBaselineDialog : Window
             ? "未发现已登记的基线包"
             : manifest.PackageId;
         ManifestHashText.Text = string.IsNullOrWhiteSpace(safetyState.AuthorizedManifestSha256)
-            ? "未记录授权 hash（尚未完成门禁授权）"
+            ? "尚未完成首次备份检查"
             : safetyState.AuthorizedManifestSha256;
         ManifestIntegrityText.Text = manifest is null
             ? "未验证"
@@ -209,11 +216,11 @@ public partial class FirstRunBaselineDialog : Window
             : $"{manifest.RecoverabilityCheckState}；最近检查：{(manifest.LastRecoverabilityCheckUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "暂无")}";
         GateStatusBadge.Text = safetyState.FirstRunState switch
         {
-            FirstRunBaselineState.CompletedVerified => "已建立，恢复保障有效",
+            FirstRunBaselineState.CompletedVerified => "备份已完成",
             FirstRunBaselineState.ManualInterventionRequired => "需要人工处理",
             FirstRunBaselineState.PartialFailed => "部分失败",
-            FirstRunBaselineState.Corrupted => "完整性异常",
-            _ => "未建立；执行前需确认"
+            FirstRunBaselineState.Corrupted => "备份文件异常",
+            _ => "尚未备份"
         };
         GateStatusBadge.Status = safetyState.FirstRunState switch
         {
@@ -814,8 +821,9 @@ public partial class FirstRunBaselineDialog : Window
             return;
         }
 
-        // 首次引导结束后直接进入软件；作者与支持信息保留在标题栏与“关于”中，不再打断主流程。
         _authorInfoShown = true;
+        var dialog = new AboutDialog { Owner = this };
+        dialog.ShowDialog();
     }
 
     private void CloseAfterAuthorInfo()

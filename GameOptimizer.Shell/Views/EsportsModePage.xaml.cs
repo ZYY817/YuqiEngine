@@ -702,7 +702,7 @@ public partial class EsportsModePage : UserControl
 
         if (!_hardwareDetectionSucceeded)
         {
-            ShowWarning("硬件状态未知", "硬件检测未完成，电竞模式已在计划阶段阻断写入。请重新进入页面后重试。");
+            ShowWarning("硬件状态未知", "硬件检测还没有完成，因此软件不会修改任何设置。请重新进入此页面后再试。");
             return;
         }
 
@@ -825,7 +825,7 @@ public partial class EsportsModePage : UserControl
 
         if (_lastDetectionReport?.IsReadyForPlanning != true)
         {
-            ShowWarning("状态未确认", "部分优化项状态未知，恢复操作已阻断。请先重新检测。");
+            ShowWarning("状态未确认", "部分项目的当前状态还不清楚，因此暂时不能恢复。请先重新检测。");
             return;
         }
 
@@ -1926,7 +1926,7 @@ public partial class EsportsModePage : UserControl
         var details = plan.RejectedItems.Count == 0
             ? "计划为空或没有可执行项。"
             : string.Join("\n", plan.RejectedItems.Take(5).Select(result => $"• {result.Title}: {result.Message}"));
-        ShowWarning("计划已阻断", details);
+        ShowWarning("暂时无法继续", details);
     }
 
     private List<GameModeOptimizationItem> GetAllOptimizationItems()
@@ -1975,7 +1975,7 @@ public partial class EsportsModePage : UserControl
     {
         return IsEnglishUi()
             ? $"Dynamic recommendation: {recommendation.SelectedOperationIds.Count} selected, {recommendation.BlockedCount} blocked by compatibility, registration or permission checks. Network, power and driver changes are excluded."
-            : $"动态推荐：已选择 {recommendation.SelectedOperationIds.Count} 项，{recommendation.BlockedCount} 项未通过兼容、注册或权限预检；不包含网络、电源和驱动改动。";
+            : $"已选择 {recommendation.SelectedOperationIds.Count} 项；另有 {recommendation.BlockedCount} 项当前不能安全使用。此推荐不包含网络、电源和驱动改动。";
     }
 
     private static string GetCustomPresetStatus()

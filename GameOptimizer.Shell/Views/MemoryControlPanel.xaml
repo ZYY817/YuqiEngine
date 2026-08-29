@@ -30,10 +30,10 @@
                 </Grid>
                 <StackPanel x:Name="MemoryHeroContent" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,24,0">
                     <Border HorizontalAlignment="Left" CornerRadius="10" Padding="9,4" Background="#2822C55E">
-                        <TextBlock x:Name="MemoryHeroEyebrow" Text="进程结束工具" FontSize="11" FontWeight="SemiBold" Foreground="#86EFAC"/>
+                        <TextBlock x:Name="MemoryHeroEyebrow" Text="内存占用" FontSize="11" FontWeight="SemiBold" Foreground="#86EFAC"/>
                     </Border>
-                    <TextBlock x:Name="MemoryHeroTitle" Text="手动结束占用内存的应用" Margin="0,9,0,0" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
-                    <TextBlock x:Name="MemoryHeroSubtitle" Text="实时读取 Windows 物理内存状态" Margin="0,5,0,0" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                    <TextBlock x:Name="MemoryHeroTitle" Text="查看占用内存较多的应用" Margin="0,9,0,0" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                    <TextBlock x:Name="MemoryHeroSubtitle" Text="选择一个正在运行的应用后，再决定是否释放它占用的一部分内存" Margin="0,5,0,0" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                         <StackPanel Margin="0,0,24,0"><TextBlock x:Name="AvailableLabel" Text="可用" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}"/><TextBlock x:Name="AvailableValueText" Text="--" Margin="0,3,0,0" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/></StackPanel>
                         <StackPanel Margin="0,0,24,0"><TextBlock x:Name="UsedLabel" Text="已用" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}"/><TextBlock x:Name="UsedValueText" Text="--" Margin="0,3,0,0" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/></StackPanel>
@@ -59,7 +59,7 @@
                                                 <Path Stroke="White" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M12,3 A9,9 0 1 1 4.2,7.5"/>
                                             </Canvas>
                                         </Viewbox>
-                                        <TextBlock x:Name="MemBoostBtnText" Text="选择并结束" Foreground="White" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="MemBoostBtnText" Text="选择应用" Foreground="White" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>
@@ -83,8 +83,8 @@
                                 <TextBlock x:Name="MemoryActionStateIcon" Text="i" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" FontWeight="Bold" Foreground="#86EFAC"/>
                             </Border>
                             <StackPanel Grid.Column="1" Margin="7,0,0,0">
-                                <TextBlock x:Name="MemoryActionStateTitle" Text="正在核验权限" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
-                                <TextBlock x:Name="MemoryMutationStatusText" Text="内存写入安全边界核验中" Margin="0,2,0,0" TextWrapping="Wrap" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="9" MaxHeight="34"/>
+                                <TextBlock x:Name="MemoryActionStateTitle" Text="正在准备" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                                <TextBlock x:Name="MemoryMutationStatusText" Text="正在读取可操作的应用" Margin="0,2,0,0" TextWrapping="Wrap" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="9" MaxHeight="34"/>
                             </StackPanel>
                         </Grid>
                     </Border>

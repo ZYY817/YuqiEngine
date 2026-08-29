@@ -247,7 +247,7 @@
                     
                     <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
                         <TextBlock x:Name="MemoryBlockedReasonText"
-                                   Text="内存写入安全边界核验中"
+                                   Text="请选择一个正在运行的应用"
                                    TextWrapping="Wrap"
                                    Foreground="#FF9500"
                                    FontSize="12"

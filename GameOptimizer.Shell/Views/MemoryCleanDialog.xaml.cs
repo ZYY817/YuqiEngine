@@ -94,7 +94,7 @@ public partial class MemoryCleanDialog : Window
     private readonly IMemoryCleaningOwner _memoryCleaningOwner;
     private readonly ObservableCollection<ProcessGroupItem> _processGroups = new();
     private MemoryStatus _beforeStatus = null!;
-    private string _mutationBlockedReason = MemoryCleanerService.MutationBlockedReason;
+    private string _mutationBlockedReason = "请选择一个正在运行的应用。";
     private CancellationTokenSource? _cleanCts;
     private bool _isCleaning;
 
@@ -175,13 +175,13 @@ public partial class MemoryCleanDialog : Window
         LblCategory.Text = loc.Get("MemClean.Category");
         LblInstance.Text = loc.Get("MemClean.Instance");
         LblMemoryUsage.Text = loc.Get("MemClean.MemoryUsage");
-        LblCleanComplete.Text = _mode == CleanMode.WorkingSet ? "工作集释放结果" : loc.Get("MemClean.CleanComplete");
-        LblBeforeClean.Text = _mode == CleanMode.WorkingSet ? "释放前工作集" : loc.Get("MemClean.Before");
-        LblAfterClean.Text = _mode == CleanMode.WorkingSet ? "释放后工作集" : loc.Get("MemClean.After");
+        LblCleanComplete.Text = _mode == CleanMode.WorkingSet ? "操作结果" : loc.Get("MemClean.CleanComplete");
+        LblBeforeClean.Text = _mode == CleanMode.WorkingSet ? "操作前" : loc.Get("MemClean.Before");
+        LblAfterClean.Text = _mode == CleanMode.WorkingSet ? "操作后" : loc.Get("MemClean.After");
         CancelBtn.Content = loc.Get("Common.Cancel");
         ConfirmBtn.ApplyTemplate();
         if (ConfirmBtn.Template.FindName("StartCleanText", ConfirmBtn) is System.Windows.Controls.TextBlock actionText)
-            actionText.Text = _mode == CleanMode.WorkingSet ? "释放所选进程工作集" : "开始清理";
+            actionText.Text = _mode == CleanMode.WorkingSet ? "继续" : "开始清理";
         
         UpdateSelectedCount();
     }
@@ -217,8 +217,8 @@ public partial class MemoryCleanDialog : Window
                 SubtitleText.Text = loc.Get("MemClean.SubtitleStandby");
                 break;
             case CleanMode.WorkingSet:
-                TitleText.Text = loc.Get("MemClean.TitleWorkingSet");
-                SubtitleText.Text = "仅能选择一个当前进程；释放前后都会核验其身份和工作集。";
+                TitleText.Text = "管理单个应用的内存";
+                SubtitleText.Text = "选择一个正在运行的应用；不会默认操作任何程序。";
                 break;
         }
     }
@@ -291,8 +291,8 @@ public partial class MemoryCleanDialog : Window
             {
                 0 => "请选择一个进程；不会默认操作任何程序。",
                 > 1 => "一次只能选择一个进程。",
-                _ when targetProcessCount != 1 => "目标进程信息不完整，未启用工作集释放。",
-                _ => $"将核验“{selected[0].DisplayName}”的当前身份后释放其工作集。此操作不可回滚，不会结束进程。"
+                _ when targetProcessCount != 1 => "无法确认这个应用，不能继续。",
+                _ => $"将确认“{selected[0].DisplayName}”仍在运行后，尝试释放它当前占用的一部分内存。不会关闭应用，但此操作不能撤销。"
             };
             MemoryBlockedReasonText.Text = selectionGuidance;
             SubtitleText.Text = selectionGuidance;
@@ -364,13 +364,13 @@ public partial class MemoryCleanDialog : Window
 
         var confirmed = DangerousOperationDialog.Show(
             this,
-            "确认释放所选进程工作集",
-            $"将释放“{selected[0].DisplayName}”当前实例的工作集。\n\n目标 PID：{processId}",
+            "确认释放应用占用的内存",
+            $"准备处理“{selected[0].DisplayName}”。\n\n不会关闭该应用。",
             new[]
             {
-                "执行前会重新核验 PID、创建时间、可执行文件身份、用户和架构；身份变化或权限不足会拒绝执行。",
-                "操作只调用 Windows 工作集释放，不会结束进程、关闭窗口或删除任何文件。",
-                "工作集释放不可回滚；执行后会读取目标进程工作集变化，不会伪造释放数值。"
+                "开始前会确认选择的仍是这个应用；如果应用已经退出或变成其他程序，本次不会继续。",
+                "不会关闭应用、关闭窗口或删除任何文件。",
+                "完成后会读取一次结果；这个操作不能撤销。"
             },
             confirmationKeyword: null,
             countdownSeconds: 3);
@@ -388,8 +388,8 @@ public partial class MemoryCleanDialog : Window
         CancelBtn.IsEnabled = true;
         try
         {
-            ProgressStatusText.Text = "正在核验目标进程…";
-            ProgressDetailText.Text = $"PID {processId}：正在核验身份与工作集访问权限。";
+            ProgressStatusText.Text = "正在确认所选应用…";
+            ProgressDetailText.Text = "正在检查它是否仍在运行，并确认可以继续。";
             var target = await _memoryCleaningOwner.CaptureWorkingSetTargetAsync(processId, cancellationToken);
             if (!target.Succeeded || target.Request is null)
             {
@@ -399,7 +399,7 @@ public partial class MemoryCleanDialog : Window
 
             // This second confirmation is issued by the central plan authority and
             // binds the token to the freshly captured identity and exact PID.
-            ProgressStatusText.Text = "正在请求计划确认…";
+            ProgressStatusText.Text = "正在等待确认…";
             var result = await _memoryCleaningOwner.RunInteractiveAsync(target.Request, cancellationToken);
             ShowWorkingSetResult(result, result.Message);
         }
@@ -422,13 +422,13 @@ public partial class MemoryCleanDialog : Window
         if (_memoryCleaningOwner is null)
         {
             ApplyBlockedState(
-                "Memory typed Owner 未接入，清理入口保持 FailClosed；未执行系统或进程写入。");
+                "当前版本没有接入安全操作通道，因此不会修改任何应用。");
             return;
         }
 
         if (_mode == CleanMode.WorkingSet)
         {
-            _mutationBlockedReason = "请选择一个当前进程。释放前会再次核验身份；该操作不会结束进程，且不可回滚。";
+            _mutationBlockedReason = "请选择一个正在运行的应用。开始前会再次确认它仍在运行；不会关闭应用，但此操作不能撤销。";
             UpdateSelectedCount();
             return;
         }
@@ -441,7 +441,7 @@ public partial class MemoryCleanDialog : Window
     private void ApplyBlockedState(string reason)
     {
         _mutationBlockedReason = string.IsNullOrWhiteSpace(reason)
-            ? MemoryCleanerService.MutationBlockedReason
+            ? "当前无法安全完成此操作，因此没有修改任何应用。"
             : reason;
         ConfirmBtn.IsEnabled = false;
         ConfirmBtn.ToolTip = _mutationBlockedReason;
@@ -458,14 +458,12 @@ public partial class MemoryCleanDialog : Window
         ProcessListBorder.Visibility = Visibility.Collapsed;
         ResultPanel.Visibility = Visibility.Visible;
         var succeeded = result is { IsTerminalSuccess: true };
-        BeforeMemoryText.Text = succeeded ? "已核验" : "未执行";
+        BeforeMemoryText.Text = succeeded ? "已完成" : "未执行";
         AfterMemoryText.Text = succeeded ? "已回读" : "已阻断";
         FreedMemoryText.Text = succeeded
-            ? "工作集释放请求已执行，并已完成结果回读。"
-            : "未报告工作集释放成功。";
-        MemoryBlockedReasonText.Text = string.IsNullOrWhiteSpace(detail)
-            ? "执行器未返回结果详情。"
-            : detail;
+            ? "操作已完成。应用没有被关闭。"
+            : "操作没有完成，应用没有被修改。";
+        MemoryBlockedReasonText.Text = GetUserFacingResultDetail(result, detail);
     }
 
     private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -474,13 +472,27 @@ public partial class MemoryCleanDialog : Window
         {
             _cleanCts.Cancel();
             CancelBtn.IsEnabled = false;
-            ProgressStatusText.Text = "正在取消工作集释放…";
+            ProgressStatusText.Text = "正在取消操作…";
             ProgressDetailText.Text = "不会开始未确认的操作。";
             return;
         }
 
         DialogResult = false;
         Close();
+    }
+
+    private static string GetUserFacingResultDetail(MemoryCleaningResult? result, string? detail)
+    {
+        if (result is { IsTerminalSuccess: true })
+            return "操作已完成。应用没有被关闭，也没有删除任何文件。";
+
+        return result?.Kind switch
+        {
+            MemoryCleaningResultKind.Denied => "Windows 不允许修改这个应用。请换一个应用，或以管理员身份启动软件后重试。",
+            MemoryCleaningResultKind.ReadOnly or MemoryCleaningResultKind.FailClosed => "当前无法安全完成此操作，因此没有修改任何应用。",
+            _ when string.Equals(detail, "用户已取消；未确认或未开始的操作没有执行。", StringComparison.Ordinal) => detail,
+            _ => "操作没有完成，应用没有被修改。"
+        };
     }
 
     private void Close_Click(object sender, RoutedEventArgs e)

@@ -25,7 +25,7 @@ public partial class MemoryControlPanel : UserControl
     private readonly IProcessCleanerService _processCleanerService;
     private bool _refreshInProgress;
     private bool _isIntegratedIntoPageScroll;
-    private string _mutationBlockedReason = MemoryCleanerService.MutationBlockedReason;
+    private string _mutationBlockedReason = "正在读取可操作的应用。";
     private MemoryHeroActionState _actionState = MemoryHeroActionState.Checking;
 
     private enum MemoryHeroActionState
@@ -140,13 +140,13 @@ public partial class MemoryControlPanel : UserControl
 
     private void UpdateLocalizedTexts()
     {
-        MemoryHeroEyebrow.Text = IsEnglish ? "PROCESS WORKING SET" : "进程工作集释放";
-        MemoryHeroTitle.Text = IsEnglish ? "Release one selected app's working set" : "释放所选单个进程的工作集";
-        MemoryHeroSubtitle.Text = IsEnglish ? "Live Windows physical memory status" : "实时读取 Windows 物理内存状态";
+        MemoryHeroEyebrow.Text = IsEnglish ? "MEMORY USAGE" : "内存占用";
+        MemoryHeroTitle.Text = IsEnglish ? "Choose an app using more memory" : "选择一个占用内存较多的应用";
+        MemoryHeroSubtitle.Text = IsEnglish ? "Choose a running app before deciding whether to release some of its memory" : "选择后可请求释放该应用当前占用的一部分内存";
         AvailableLabel.Text = IsEnglish ? "Available" : "可用";
         UsedLabel.Text = IsEnglish ? "Used" : "已用";
         TotalLabel.Text = IsEnglish ? "Total" : "总计";
-        TopProcessTitle.Text = IsEnglish ? "Memory usage" : "占用排行";
+        TopProcessTitle.Text = IsEnglish ? "Apps using the most memory" : "占用较高的应用";
         CleanJunkBtn.Content = IsEnglish ? "Open system cleanup" : "转到系统清理";
         MemoryUnavailableTitle.Text = IsEnglish ? "Memory status unavailable" : "无法读取内存状态";
         MemoryUnavailableHint.Text = IsEnglish ? "Windows memory data is temporarily unavailable. Try again later." : "系统内存接口暂不可用，请稍后重试";
@@ -156,7 +156,7 @@ public partial class MemoryControlPanel : UserControl
         if (SmartBoostBtn.Template.FindName("MemBoostBtnText", SmartBoostBtn) is TextBlock boostText)
             boostText.Text = _actionState == MemoryHeroActionState.Executing
                 ? (IsEnglish ? "Releasing..." : "释放中…")
-                : (IsEnglish ? "Choose a process" : "选择进程");
+                : (IsEnglish ? "Choose an app" : "选择应用");
     }
 
     private void StartMemoryMonitor()
@@ -254,7 +254,7 @@ public partial class MemoryControlPanel : UserControl
 
         TopProcessEmptyPanel.Visibility = Visibility.Collapsed;
         TopProcessItemsPanel.Visibility = Visibility.Visible;
-        TopProcessStateText.Text = IsEnglish ? "Live working set" : "实时工作集";
+        TopProcessStateText.Text = IsEnglish ? "Live usage" : "实时占用";
         var maximum = Math.Max(1, groups.Max(group => group.TotalMemoryBytes));
         for (var index = 0; index < groups.Count; index++)
             TopProcessItemsPanel.Children.Add(CreateTopProcessItem(index + 1, groups[index], maximum));
@@ -338,9 +338,9 @@ public partial class MemoryControlPanel : UserControl
         }
 
         _mutationBlockedReason = IsEnglish
-            ? "Choose one current process. Its identity will be verified again before its working set is released. This action cannot be reversed."
-            : "请选择一个当前进程。释放前会再次核验其身份；工作集释放不可回滚。";
-        ApplyActionState(MemoryHeroActionState.Ready, IsEnglish ? "Choose a process" : "选择进程", _mutationBlockedReason);
+            ? "Choose one running app. We will confirm it is still the same app before starting; this action cannot be undone."
+            : "请选择一个正在运行的应用。开始前会确认它仍是同一个应用；此操作不能撤销。";
+        ApplyActionState(MemoryHeroActionState.Ready, IsEnglish ? "Choose an app" : "选择应用", _mutationBlockedReason);
     }
 
     private void ApplyMutationBoundary()
@@ -357,26 +357,26 @@ public partial class MemoryControlPanel : UserControl
             case MemoryCleaningResultKind.Ready:
                 ApplyActionState(
                     MemoryHeroActionState.Ready,
-                    IsEnglish ? "Ready for confirmation" : "可请求清理",
-                    result.Message);
+                    IsEnglish ? "Ready to continue" : "可以继续",
+                    GetUserFacingResultDetail(result));
                 break;
             case MemoryCleaningResultKind.Denied:
                 ApplyActionState(
                     MemoryHeroActionState.Denied,
-                    IsEnglish ? "Permission required" : "权限不足",
-                    result.Message);
+                    IsEnglish ? "Windows did not allow this" : "Windows 不允许此操作",
+                    GetUserFacingResultDetail(result));
                 break;
             case MemoryCleaningResultKind.Failed:
                 ApplyActionState(
                     MemoryHeroActionState.Failed,
-                    IsEnglish ? "Verification failed" : "门禁核验失败",
-                    result.Message);
+                    IsEnglish ? "Cannot continue safely" : "暂时无法安全继续",
+                    GetUserFacingResultDetail(result));
                 break;
             default:
                 ApplyActionState(
                     MemoryHeroActionState.Unavailable,
-                    IsEnglish ? "Cleanup unavailable" : "清理不可用",
-                    result.Message);
+                    IsEnglish ? "Unavailable" : "暂不可用",
+                    GetUserFacingResultDetail(result));
                 break;
         }
     }
@@ -395,8 +395,8 @@ public partial class MemoryControlPanel : UserControl
                     MemoryHeroActionState.Success,
                     result.Kind == MemoryCleaningResultKind.NoChange
                         ? (IsEnglish ? "No cleanup needed" : "无需清理")
-                        : (IsEnglish ? "Cleanup verified" : "清理结果已核验"),
-                    detail);
+                        : (IsEnglish ? "Finished" : "操作已完成"),
+                    GetUserFacingResultDetail(result, detail));
                 break;
             case MemoryCleaningResultKind.Denied:
             case MemoryCleaningResultKind.Cancelled:
@@ -405,20 +405,20 @@ public partial class MemoryControlPanel : UserControl
                     result.Kind == MemoryCleaningResultKind.Cancelled
                         ? (IsEnglish ? "Cleanup cancelled" : "清理已取消")
                         : (IsEnglish ? "Permission denied" : "权限不足"),
-                    detail);
+                    GetUserFacingResultDetail(result, detail));
                 break;
             case MemoryCleaningResultKind.ReadOnly:
             case MemoryCleaningResultKind.FailClosed:
                 ApplyActionState(
                     MemoryHeroActionState.Unavailable,
-                    IsEnglish ? "Cleanup unavailable" : "清理不可用",
-                    detail);
+                    IsEnglish ? "Unavailable" : "暂不可用",
+                    GetUserFacingResultDetail(result, detail));
                 break;
             default:
                 ApplyActionState(
                     MemoryHeroActionState.Failed,
-                    IsEnglish ? "Cleanup failed" : "清理失败",
-                    detail);
+                    IsEnglish ? "Not completed" : "操作未完成",
+                    GetUserFacingResultDetail(result, detail));
                 break;
         }
     }
@@ -453,7 +453,7 @@ public partial class MemoryControlPanel : UserControl
         if (buttonText is not null)
             buttonText.Text = state == MemoryHeroActionState.Executing
                 ? (IsEnglish ? "Releasing..." : "释放中…")
-                : (IsEnglish ? "Choose a process" : "选择进程");
+                : (IsEnglish ? "Choose an app" : "选择应用");
         if (icon is not null)
             icon.Visibility = state == MemoryHeroActionState.Executing ? Visibility.Collapsed : Visibility.Visible;
         if (spinner is not null)
@@ -473,6 +473,25 @@ public partial class MemoryControlPanel : UserControl
             }
         }
     }
+
+    private string GetUserFacingResultDetail(MemoryCleaningResult result, string? fallback = null) => result.Kind switch
+    {
+        MemoryCleaningResultKind.SucceededVerified => IsEnglish
+            ? "Finished. The app was not closed and no files were removed."
+            : "操作已完成。应用没有被关闭，也没有删除任何文件。",
+        MemoryCleaningResultKind.NoChange => IsEnglish
+            ? "There was no memory to release. The app remains running."
+            : "没有需要释放的内存，应用仍保持运行。",
+        MemoryCleaningResultKind.Denied => IsEnglish
+            ? "Windows did not allow this app to be changed. Choose another app or run the software as administrator and try again."
+            : "Windows 不允许修改这个应用。请换一个应用，或以管理员身份启动软件后重试。",
+        MemoryCleaningResultKind.ReadOnly or MemoryCleaningResultKind.FailClosed => IsEnglish
+            ? "This action is not available safely right now, so no app was changed."
+            : "当前无法安全完成此操作，因此没有修改任何应用。",
+        _ => IsEnglish
+            ? "The action was not completed. No app was changed."
+            : "操作没有完成，应用没有被修改。"
+    };
 
     private static bool IsAcceptanceActionPreview(out string state)
     {

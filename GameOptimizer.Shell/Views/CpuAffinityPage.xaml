@@ -22,7 +22,7 @@
             <Grid Grid.Row="0" Margin="0,0,0,24">
                 <StackPanel>
                     <TextBlock x:Name="PageTitle" Text="CPU 亲和性" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
-                    <TextBlock x:Name="PageSubtitle" Text="智能分配 CPU 核心，让游戏获得最佳性能" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="14" Margin="0,6,0,0"/>
+                    <TextBlock x:Name="PageSubtitle" Text="为正在运行的程序选择可使用的 CPU 核心" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="14" Margin="0,6,0,0"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <Border Background="#1522D3EE" CornerRadius="8" Padding="10,6" Margin="0,0,8,0">
@@ -62,9 +62,9 @@
                             <TextBlock x:Name="FeatureDescTitle" Text="功能说明" Foreground="#22D3EE" FontSize="13" FontWeight="SemiBold"/>
                         </StackPanel>
                         <TextBlock Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" TextWrapping="Wrap" LineHeight="20">
-                            <Run x:Name="FeatureDesc1" Text="• 将游戏绑定到P核心获得更高帧率"/><LineBreak/>
-                            <Run x:Name="FeatureDesc2" Text="• 将后台程序绑定到E核心不影响游戏"/><LineBreak/>
-                            <Run x:Name="FeatureDesc3" Text="• 需要程序正在运行才能生效"/>
+                            <Run x:Name="FeatureDesc1" Text="• 选择游戏允许使用的 CPU 核心"/><LineBreak/>
+                            <Run x:Name="FeatureDesc2" Text="• 可为后台程序选择另一组核心"/><LineBreak/>
+                            <Run x:Name="FeatureDesc3" Text="• 程序正在运行时才能应用"/>
                         </TextBlock>
                     </StackPanel>
                     
@@ -78,9 +78,9 @@
                             <TextBlock x:Name="UsageTipsTitle" Text="使用提示" Foreground="#F59E0B" FontSize="13" FontWeight="SemiBold"/>
                         </StackPanel>
                         <TextBlock Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" TextWrapping="Wrap" LineHeight="20">
-                            <Run x:Name="UsageTip1" Text="• 现代游戏已优化良好，提升可能有限"/><LineBreak/>
-                            <Run x:Name="UsageTip2" Text="• Intel Thread Director 会自动调度"/><LineBreak/>
-                            <Run x:Name="UsageTip3" Text="• 最佳用途：限制后台程序到E核心"/>
+                            <Run x:Name="UsageTip1" Text="• 大多数游戏会自行分配核心，改动不一定更快"/><LineBreak/>
+                            <Run x:Name="UsageTip2" Text="• 不确定怎么选时，建议保持默认"/><LineBreak/>
+                            <Run x:Name="UsageTip3" Text="• 更适合用来限制占资源的后台程序"/>
                         </TextBlock>
                     </StackPanel>
                 </Grid>

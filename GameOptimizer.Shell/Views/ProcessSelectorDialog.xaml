@@ -29,7 +29,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Margin="20,16">
                     <TextBlock x:Name="TitleText" Text="选择程序" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
-                    <TextBlock x:Name="SubtitleText" Text="选择要配置CPU亲和性的程序" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,4,0,0"/>
+                    <TextBlock x:Name="SubtitleText" Text="选择要设置可用 CPU 核心的应用" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,4,0,0"/>
                 </StackPanel>
                 <Button Grid.Column="1" Content="✕" Click="CloseButton_Click" Cursor="Hand"
                         Width="36" Height="36" Margin="0,10,10,0" VerticalAlignment="Top">
@@ -102,7 +102,7 @@
                             <TextBlock Text="{Binding Icon}" FontSize="20" VerticalAlignment="Center" Margin="0,0,12,0"/>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium"/>
-                                <TextBlock Text="{Binding Pid, StringFormat=PID: {0}}" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="11"/>
+                                <TextBlock Text="{Binding Pid, StringFormat=进程编号：{0}}" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="11"/>
                             </StackPanel>
                             <TextBlock Grid.Column="2" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" VerticalAlignment="Center"
                                        Text="{Binding MemoryUsage, Converter={StaticResource MemoryConverter}}"/>

@@ -30,7 +30,7 @@
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="智能创建电源计划" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
-                            <TextBlock Text="先预览匹配结果与真实写入参数，再创建独立受管副本" Margin="0,2,0,0" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                            <TextBlock Text="先查看适合当前电脑的方案，再新建一个可编辑的电源计划" Margin="0,2,0,0" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}" Click="Cancel_Click" Padding="10,6" AutomationProperties.Name="关闭智能电源创建">
@@ -82,7 +82,7 @@
                         </StackPanel>
                     </Border>
 
-                    <TextBlock Text="本次将写入的已验证参数" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="0,0,0,8"/>
+                    <TextBlock Text="本次将调整的设置" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="0,0,0,8"/>
                     <ItemsControl x:Name="ParameterList">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -108,7 +108,7 @@
             <Border Grid.Row="2" Padding="20,14" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="0,1,0,0" CornerRadius="{DynamicResource Token.Radius.CardLarge}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource SecondaryButtonStyle}" Click="Cancel_Click" Margin="0,0,10,0"><TextBlock Text="取消"/></Button>
-                    <Button x:Name="CreateButton" Style="{StaticResource PrimaryButtonStyle}" Click="Create_Click" AutomationProperties.Name="生成受管电源计划草案"><TextBlock Text="生成受管计划草案"/></Button>
+                    <Button x:Name="CreateButton" Style="{StaticResource PrimaryButtonStyle}" Click="Create_Click" AutomationProperties.Name="创建电源方案"><TextBlock Text="创建电源方案"/></Button>
                 </StackPanel>
             </Border>
         </Grid>

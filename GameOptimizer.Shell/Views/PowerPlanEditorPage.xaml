@@ -93,7 +93,7 @@
                                       StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stretch="Uniform"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="内置受管策略" FontSize="15" FontWeight="SemiBold"
+                                <TextBlock Text="推荐电源方案" FontSize="15" FontWeight="SemiBold"
                                            Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
                                 <TextBlock Text="先复制当前计划，再在副本上调整。原来的 Windows 和厂商计划不会被直接修改。"
                                            Margin="0,3,0,0" FontSize="13" TextWrapping="Wrap"
@@ -101,7 +101,7 @@
                             </StackPanel>
                             <Button x:Name="BtnOpenIntelligentCreate" Grid.Column="2" Style="{StaticResource PrimaryButtonStyle}"
                                     Margin="16,0,0,0" VerticalAlignment="Center" Click="BtnOpenIntelligentCreate_Click"
-                                    ToolTip="先显示 CPU 匹配、计划名称与将写入的真实参数；确认后才创建独立副本"
+                                    ToolTip="先查看适合当前电脑的方案；确认后会新建副本，不会修改现有电源计划"
                                     AutomationProperties.Name="智能创建电源计划">
                                 <TextBlock Text="智能创建电源计划"/>
                             </Button>
@@ -221,7 +221,7 @@
                                                 </Button>
                                                 <Button Visibility="{Binding ManagedActionsVisibility}" Style="{StaticResource SecondaryButtonStyle}"
                                                         Tag="{Binding Guid}" Click="BtnDeleteManagedPlan_Click" Margin="8,0,0,0"
-                                                        ToolTip="切回创建前的源计划后删除此宇奇受管副本">
+                                                        ToolTip="切回原电源计划，然后删除本软件创建的方案">
                                                     <TextBlock Text="删除并切回原计划"/>
                                                 </Button>
                                             </StackPanel>
@@ -263,7 +263,7 @@
                                    Margin="0,2,0,0" FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
                         <StackPanel x:Name="AdvancedEditorPanel">
                         <ComboBox x:Name="ManagedPlanSelector" DisplayMemberPath="Name" SelectionChanged="ManagedPlanSelector_SelectionChanged"
-                                  MinHeight="36" Margin="0,0,0,14" AutomationProperties.Name="选择宇奇受管电源计划"/>
+                                  MinHeight="36" Margin="0,0,0,14" AutomationProperties.Name="选择宇奇创建的电源方案"/>
 
                         <controls:EnhancedSlider x:Name="SliderCpuMinimum" Title="处理器最小状态（AC）"
                                                  Description="保留动态降频可降低待机温度；极限 100% 会显著增加功耗。"
@@ -299,7 +299,7 @@
                                        Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
                             <Button x:Name="BtnApplyAll" DockPanel.Dock="Right" Style="{StaticResource PrimaryButtonStyle}"
                                     Click="BtnApplyAll_Click" Margin="16,0,0,0"
-                                    AutomationProperties.Name="备份并保存受管电源高级设置">
+                                    AutomationProperties.Name="备份并保存电源高级设置">
                                 <TextBlock Text="备份并保存"/>
                             </Button>
                         </DockPanel>
@@ -316,7 +316,7 @@
                         <Path Data="M12,8 A4,4 0 1 1 12,16 A4,4 0 1 1 12,8 M12,3 V5 M12,19 V21 M3,12 H5 M19,12 H21 M5.6,5.6 L7,7 M17,17 L18.4,18.4 M18.4,5.6 L17,7 M7,17 L5.6,18.4" Width="20" Height="20" Margin="0,1,12,0"
                               Stroke="{DynamicResource Theme.Brush.IconSecondary}" StrokeThickness="1.7" Stretch="Uniform"/>
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="安全边界" FontSize="13" FontWeight="SemiBold"
+                            <TextBlock Text="使用说明" FontSize="13" FontWeight="SemiBold"
                                        Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
                             <TextBlock x:Name="TxtPowerCapabilityState" Margin="0,4,0,0" FontSize="10" TextWrapping="Wrap"
                                        Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>

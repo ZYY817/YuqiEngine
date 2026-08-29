@@ -146,7 +146,7 @@
                   <ColumnDefinition Width="10" />
                   <ColumnDefinition Width="132" />
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="ProcessSearchBox" TextChanged="ProcessSearchBox_TextChanged" Padding="10,7,10,7" VerticalContentAlignment="Center" ToolTip="按进程名、窗口标题或 PID 搜索" />
+                <TextBox x:Name="ProcessSearchBox" TextChanged="ProcessSearchBox_TextChanged" Padding="10,7,10,7" VerticalContentAlignment="Center" ToolTip="按应用名称或窗口标题搜索" />
                 <ComboBox x:Name="ProcessFilterBox" Grid.Column="2" SelectionChanged="ProcessFilterBox_SelectionChanged" SelectedIndex="0">
                   <ComboBoxItem Content="全部进程" Tag="all" />
                   <ComboBoxItem Content="有窗口标题" Tag="window" />
@@ -159,7 +159,7 @@
                   <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="进程" Style="{StaticResource PageSubtitleStyle}" />
-                <TextBlock Grid.Column="1" Text="PID" Style="{StaticResource PageSubtitleStyle}" />
+                <TextBlock Grid.Column="1" Text="进程编号" Style="{StaticResource PageSubtitleStyle}" />
               </Grid>
               <Grid Grid.Row="5" Margin="0,7,0,8">
                 <ListBox x:Name="ProcessListBox" ItemsSource="{Binding ProcessList}" SelectedItem="{Binding SelectedProcess, Mode=TwoWay}" Background="{DynamicResource Theme.Brush.CardBackground}" BorderBrush="{DynamicResource Theme.Brush.GlassCardBorder}" BorderThickness="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True">

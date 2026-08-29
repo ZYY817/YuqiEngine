@@ -57,8 +57,8 @@ public partial class NetworkResetDialog : Window
         BackupDescText.Text = loc.Get("NetworkReset.BackupDesc");
         BackupCheckBox.IsChecked = true;
         BackupCheckBox.IsEnabled = false;
-        BackupTitleText.Text = "权威只读网络快照已完成";
-        BackupDescText.Text = "确认仅绑定当前不可变计划；快照或权限漂移将零写入阻断。";
+        BackupTitleText.Text = "网络设置已备份";
+        BackupDescText.Text = "只有当前网络状态未变化且权限正常时，软件才会继续重置。条件不满足时不会修改网络设置。";
         if (_prompt is not null)
             WarningDescText.Text = _prompt.Summary;
         TipText.Text = IconGlyphs.Lightbulb + " " + loc.Get("NetworkReset.NeedRestart");

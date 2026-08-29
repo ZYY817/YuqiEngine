@@ -60,7 +60,7 @@ public partial class CpuCoreManagementViewModel
             if (selected.Length == 0)
                 return "请选择至少一个逻辑核心后再继续。";
 
-            return $"将为 {SelectedProcess.Name}.exe（PID {SelectedProcess.Id}）配置 {selected.Length} 个逻辑核心：{string.Join(", ", selected)}。执行前会重新核验进程 identity，并要求显式确认。";
+            return $"准备为 {SelectedProcess.Name}.exe 选择 {selected.Length} 个 CPU 核心。开始前会再次确认该程序仍在运行；如果程序已退出或变更，本次不会继续。";
         }
     }
 
@@ -100,7 +100,7 @@ public partial class CpuCoreManagementViewModel
                 else
                 {
                     SelectedProcess = null;
-                    StatusText = "目标进程已退出或 PID 已被其他进程复用；请重新选择后再配置。";
+                    StatusText = "所选程序已退出或发生变化，请重新选择后再设置。";
                     if (IsAccelerating)
                     {
                         ToastService.Instance.Warning(
@@ -192,7 +192,7 @@ public partial class CpuCoreManagementViewModel
                 ProcessTuningRequest.Affinity(targetPid, affinityMask));
             if (!result.IsTerminalSuccess || result.Receipt is null)
             {
-                ToastService.Instance.Error(_loc.Get("CoreAccel.AccelFailed"), result.Message);
+                ToastService.Instance.Error("无法应用设置", "没有完成对这个程序的设置。请重新选择仍在运行的应用后再试。");
                 if (result.Kind == ProcessTuningResultKind.NotApplicable)
                     await LoadProcessListAsync();
                 return;
@@ -212,7 +212,7 @@ public partial class CpuCoreManagementViewModel
         }
         catch (Exception ex)
         {
-            ToastService.Instance.Error(_loc.Get("CoreAccel.AccelFailed"), ex.Message);
+            ToastService.Instance.Error("无法应用设置", "设置时出现问题。请重新选择仍在运行的应用后再试。");
             Debug.WriteLine($"[CpuCoreManagement][StartAccelerate] {ex.Message}");
         }
         finally
@@ -235,7 +235,7 @@ public partial class CpuCoreManagementViewModel
                 new GameOptimizer.Core.Contracts.Changes.RestoreRequest(_activeReceiptId.Value));
             if (!restored.IsTerminalSuccess)
             {
-                StatusText = restored.Message;
+                StatusText = "未能恢复默认核心分配，请确认程序仍在运行后重试。";
                 if (restored.Kind == ProcessTuningResultKind.NotApplicable)
                 {
                     _activeReceiptId = null;
