@@ -149,14 +149,7 @@ public partial class EsportsModePage : UserControl
             EsportsModeStartupLogger.Log("STEP8", "检测系统状态...");
             await DetectSystemStatesAsync(lifetimeToken);
             lifetimeToken.ThrowIfCancellationRequested();
-            if (_lastDetectionReport?.IsReadyForPlanning == true)
-            {
-                EsportsModeStartupLogger.LogSuccess("STEP8");
-            }
-            else
-            {
-                EsportsModeStartupLogger.LogWarning("STEP8", "系统状态检测不完整，写入操作保持阻断");
-            }
+            EsportsModeStartupLogger.LogSuccess("STEP8");
             
             // 步骤 9: 更新UI
             EsportsModeStartupLogger.Log("STEP9", "更新策略按钮...");
@@ -180,7 +173,7 @@ public partial class EsportsModePage : UserControl
             
             _isInitialized = true;
             if (_selectedStrategy is StrategyType.Safe or StrategyType.Balanced &&
-                _hardwareDetectionSucceeded && _lastDetectionReport?.IsReadyForPlanning == true)
+                _hardwareDetectionSucceeded && _lastDetectionReport != null)
             {
                 // Saved recommendation modes are regenerated for the current machine instead of
                 // trusting selections persisted by an older or different hardware configuration.
@@ -342,27 +335,31 @@ public partial class EsportsModePage : UserControl
                 progress,
                 cancellationToken);
 
-            // A missing operation is a conclusive capability result. Keep it visible for
-            // explanation, but fail closed for selection instead of leaving the whole page loading.
+            // An unavailable or unverified item is excluded from automatic recommendations.
+            // It remains visible with its reason, but cannot disable recommendations that do
+            // not include it.
             _isApplyingPreset = true;
             try
             {
                 foreach (var unavailable in _lastDetectionReport.Items.Where(static item =>
-                             item.Outcome == EsportsProbeOutcome.MissingOperation))
+                             item.Outcome != EsportsProbeOutcome.Detected))
                 {
+                    var item = GetItemByOperationId(unavailable.OperationId);
+                    var reason = item?.IncompatibleReason ?? GetProbeUnavailableReason(unavailable);
                     if (_allRows.TryGetValue(unavailable.OperationId, out var row))
                     {
                         row.IsCompatible = false;
                         row.IsChecked = false;
-                        row.UnavailableReason = "当前版本没有这项功能的可验证实现，因此软件不会尝试修改系统。";
+                        row.UnavailableReason = reason;
                     }
 
                     _selectedItems.Remove(unavailable.OperationId);
-                    var item = GetItemByOperationId(unavailable.OperationId);
                     if (item != null)
                     {
                         item.IsCompatible = false;
-                        item.IncompatibleReason = "当前版本未提供此操作，已按失败关闭策略禁用。";
+                        item.IncompatibleReason = string.IsNullOrWhiteSpace(item.IncompatibleReason)
+                            ? reason
+                            : item.IncompatibleReason;
                     }
                 }
             }
@@ -396,17 +393,16 @@ public partial class EsportsModePage : UserControl
             UpdateCounts();
             UpdateStatusText();
 
-            var detectionMessage = !_lastDetectionReport.IsReadyForPlanning
-                ? $"有 {failedCount} 项暂时无法确认状态，因此不能应用或恢复。"
-                : !_hardwareDetectionSucceeded
+            var excludedCount = unavailableCount + failedCount;
+            var detectionMessage = !_hardwareDetectionSucceeded
                     ? "硬件信息还未确认，因此暂时不能应用或恢复。"
-                    : unavailableCount > 0
-                        ? $"检查完成：{unavailableCount} 项不适合这台电脑，已自动排除。"
+                    : excludedCount > 0
+                        ? $"检查完成：{excludedCount} 项不可用或未确认，已从推荐中自动排除。"
                         : $"检查完成：已确认 {_lastDetectionReport.Items.Count} 项可用。";
             SetDetectionStatus(
                 detectionMessage,
                 isLoading: false,
-                isError: !_lastDetectionReport.IsReadyForPlanning || !_hardwareDetectionSucceeded);
+                isError: !_hardwareDetectionSucceeded);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -442,8 +438,8 @@ public partial class EsportsModePage : UserControl
                          !_isOperating &&
                          !_isStateReadInProgress &&
                          _stateService != null &&
-                         _hardwareDetectionSucceeded &&
-                         _lastDetectionReport?.IsReadyForPlanning == true;
+                          _hardwareDetectionSucceeded &&
+                          _lastDetectionReport != null;
 
         SetActionButtonState(ApplyBtn, canExecute);
         SetActionButtonState(RestoreWinBtn, canExecute);
@@ -457,6 +453,17 @@ public partial class EsportsModePage : UserControl
         button.IsEnabled = isEnabled;
         button.Opacity = isEnabled ? 1 : 0.55;
         button.Cursor = isEnabled ? Cursors.Hand : Cursors.Arrow;
+    }
+
+    private static string GetProbeUnavailableReason(EsportsProbeResult result)
+    {
+        return result.Outcome switch
+        {
+            EsportsProbeOutcome.MissingOperation => "当前版本没有这项功能的可验证实现，因此软件不会尝试修改系统。",
+            EsportsProbeOutcome.TimedOut => "读取这项系统状态超时，已从自动推荐中移除。请稍后重新进入页面再试。",
+            EsportsProbeOutcome.Cancelled => "状态检查被取消，已从自动推荐中移除。请重新进入页面完成检查。",
+            _ => "无法确认这项设置的当前状态，已从自动推荐中移除，避免误改系统。"
+        };
     }
 
     #endregion
@@ -563,7 +570,7 @@ public partial class EsportsModePage : UserControl
     {
         if (!_isInitialized || _isOperating || _isStateReadInProgress ||
             _stateService == null || _gameModeViewModel == null ||
-            !_hardwareDetectionSucceeded || _lastDetectionReport?.IsReadyForPlanning != true)
+            !_hardwareDetectionSucceeded || _lastDetectionReport == null)
         {
             return;
         }
@@ -712,12 +719,6 @@ public partial class EsportsModePage : UserControl
         if (!_isInitialized || _isOperating || _isStateReadInProgress || _stateService == null || _gameModeViewModel == null) return;
 
         var loc = GameOptimizer.Core.Localization.LocalizationService.Instance;
-        if (_lastDetectionReport?.IsReadyForPlanning != true)
-        {
-            ShowWarning("状态未确认", "部分优化项尚未完成真实状态检测。请重新进入页面完成检测后再应用。");
-            return;
-        }
-
         if (!_hardwareDetectionSucceeded)
         {
             ShowWarning("硬件状态未知", "硬件检测还没有完成，因此软件不会修改任何设置。请重新进入此页面后再试。");
@@ -830,12 +831,6 @@ public partial class EsportsModePage : UserControl
     private async Task RestoreSelectedAsync(string title)
     {
         if (!_isInitialized || _isOperating || _isStateReadInProgress || _stateService == null) return;
-
-        if (_lastDetectionReport?.IsReadyForPlanning != true)
-        {
-            ShowWarning("状态未确认", "部分项目的当前状态还不清楚，因此暂时不能恢复。请先重新检测。");
-            return;
-        }
 
         var restoreIds = _appliedItems.ToList();
         if (restoreIds.Count == 0)
@@ -1125,15 +1120,11 @@ public partial class EsportsModePage : UserControl
             return;
         }
 
-        if (!_lastDetectionReport.IsReadyForPlanning)
-        {
-            var unknownCount = _lastDetectionReport.Items.Count(static item =>
-                item.Outcome is not EsportsProbeOutcome.Detected and not EsportsProbeOutcome.MissingOperation);
-            StatusText.Text = $"检测不完整：{unknownCount} 项状态未知";
-            return;
-        }
-
-        StatusText.Text = loc.Get("Esports.StatusApplied", _appliedItems.Count);
+        var excludedCount = _lastDetectionReport.Items.Count(static item =>
+            item.Outcome != EsportsProbeOutcome.Detected);
+        StatusText.Text = excludedCount > 0
+            ? $"已排除 {excludedCount} 项不可用项目"
+            : loc.Get("Esports.StatusApplied", _appliedItems.Count);
     }
 
     private void UpdateContextRail(GameModeOptimizationItem item)
