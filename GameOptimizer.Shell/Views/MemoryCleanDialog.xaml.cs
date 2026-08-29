@@ -490,7 +490,7 @@ public partial class MemoryCleanDialog : Window
         {
             MemoryCleaningResultKind.Denied => "Windows 不允许修改这个应用。请换一个应用，或以管理员身份启动软件后重试。",
             MemoryCleaningResultKind.ReadOnly or MemoryCleaningResultKind.FailClosed => "当前无法安全完成此操作，因此没有修改任何应用。",
-            _ when string.Equals(detail, "用户已取消；未确认或未开始的操作没有执行。", StringComparison.Ordinal) => detail,
+            _ when string.Equals(detail, "用户已取消；未确认或未开始的操作没有执行。", StringComparison.Ordinal) => detail!,
             _ => "操作没有完成，应用没有被修改。"
         };
     }
