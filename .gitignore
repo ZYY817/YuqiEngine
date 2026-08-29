@@ -5,6 +5,7 @@ artifacts/
 TestResults/
 .audit*/
 .build-check-obj/
+.build-check-bin/
 .test-*/
 .verify-*/
 .cpu-core-artifacts/
