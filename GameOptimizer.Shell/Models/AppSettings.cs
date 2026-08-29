@@ -67,11 +67,6 @@ public class AppSettings
     public string? LogBackupDirectory { get; set; }
 
     /// <summary>
-    /// 游戏启动通知
-    /// </summary>
-    public bool NotifyOnGameLaunch { get; set; } = true;
-
-    /// <summary>
     /// 声音提示
     /// </summary>
     public bool EnableSoundNotification { get; set; } = false;

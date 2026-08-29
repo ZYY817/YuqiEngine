@@ -6,7 +6,7 @@
     <Color x:Key="Theme.Role.Surface">#0F1525</Color>
     <Color x:Key="Theme.Role.SurfaceRaised">#151C2F</Color>
     <Color x:Key="Theme.Role.TextPrimary">#F8FAFC</Color>
-    <Color x:Key="Theme.Role.TextSecondary">#A1A1AA</Color>
+    <Color x:Key="Theme.Role.TextSecondary">#CBD5E1</Color>
     <!-- Accent blue is intentionally bright; use deep ink for a verified readable contrast. -->
     <Color x:Key="Theme.Role.TextOnAccent">#0F172A</Color>
     <Color x:Key="Theme.Role.Border">#27272A</Color>
@@ -62,9 +62,9 @@
     <!-- Text Colors -->
     <Color x:Key="Theme.Text.Primary">#F8FAFC</Color>
     <Color x:Key="Theme.Text.PrimaryAlt">#F8FAFC</Color>
-    <Color x:Key="Theme.Text.Secondary">#A1A1AA</Color>
-    <!-- 4.72:1 against the darkest function-card surface (#0F1525). -->
-    <Color x:Key="Theme.Text.Muted">#81818B</Color>
+    <Color x:Key="Theme.Text.Secondary">#CBD5E1</Color>
+    <!-- Used for explanatory copy: intentionally readable, while still lower emphasis than primary text. -->
+    <Color x:Key="Theme.Text.Muted">#AEB8C7</Color>
     <Color x:Key="Theme.Text.Disabled">#52525B</Color>
     
     <!-- Icon Colors (深色模式用白色/浅色图标) -->

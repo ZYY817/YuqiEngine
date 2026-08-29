@@ -980,7 +980,7 @@ public partial class MasterModuleTemplate : UserControl
             : GetHumanizedDescription(toggle.Title, toggle.Description);
         var descText = new TextBlock { Text = description, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0) };
         ApplyTypographyTokens(descText, "Token.FontSize.ModuleDescription");
-        descText.SetResourceReference(TextBlock.ForegroundProperty, "Theme.Brush.TextMuted");
+        descText.SetResourceReference(TextBlock.ForegroundProperty, "Theme.Brush.TextSecondary");
         textPanel.Children.Add(descText);
 
         var feedbackText = new TextBlock

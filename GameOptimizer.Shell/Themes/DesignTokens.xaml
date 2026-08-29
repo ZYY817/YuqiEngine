@@ -223,11 +223,11 @@
 
     <!-- Function-module hierarchy. Keep these semantic so generated controls
          and XAML use one source of truth. -->
-    <sys:Double x:Key="Token.FontSize.ModuleCategory">12</sys:Double>
-    <sys:Double x:Key="Token.FontSize.ModuleStatus">12</sys:Double>
-    <sys:Double x:Key="Token.FontSize.ModuleDescription">13</sys:Double>
-    <sys:Double x:Key="Token.FontSize.ModuleItemTitle">14</sys:Double>
-    <sys:Double x:Key="Token.FontSize.ModuleSubtitle">14</sys:Double>
+    <sys:Double x:Key="Token.FontSize.ModuleCategory">13</sys:Double>
+    <sys:Double x:Key="Token.FontSize.ModuleStatus">13</sys:Double>
+    <sys:Double x:Key="Token.FontSize.ModuleDescription">15</sys:Double>
+    <sys:Double x:Key="Token.FontSize.ModuleItemTitle">16</sys:Double>
+    <sys:Double x:Key="Token.FontSize.ModuleSubtitle">16</sys:Double>
 
     <!-- ─────────────────────────────────────────────────────────────────────
          SHADOWS - 阴影系统 (极简 - 几乎无阴影)

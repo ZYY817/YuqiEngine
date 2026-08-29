@@ -101,26 +101,24 @@ public partial class SettingsPage : UserControl
         LanguageLabel.Text = loc.Get("Settings.Language");
         
         // Safety settings
-        RiskWarningTitle.Text = loc.Get("Settings.RiskWarning");
+        RiskWarningTitle.Text = isEnglish ? "Confirm before changing" : "操作前再确认";
         RiskWarningDesc.Text = isEnglish
-            ? "Show an additional warning in high-risk optimization confirmations"
-            : "高风险优化确认时显示额外警告";
-        SoundTitle.Text = loc.Get("Settings.SoundNotification");
+            ? "Ask for confirmation again before changing an item that may affect Windows."
+            : "修改可能影响系统的项目时，会再次问你是否继续。";
+        SoundTitle.Text = isEnglish ? "Completion sound" : "完成提示音";
         SoundDesc.Text = isEnglish
-            ? "Play the Windows notification sound after an optimization succeeds"
-            : "优化执行成功时播放系统提示音";
+            ? "Play one sound when an optimization finishes."
+            : "优化完成后播放一声提示。";
         
         // General settings
-        StartupTitle.Text = loc.Get("Settings.StartWithWindows");
+        StartupTitle.Text = isEnglish ? "Open when Windows starts" : "开机自动打开";
         StartupDesc.Text = isEnglish
-            ? "Run YuqiEngine after signing in to Windows"
-            : "登录 Windows 后自动运行 YuqiEngine";
-        TrayTitle.Text = loc.Get("Settings.MinimizeToTray");
+            ? "Open Yuqi Engine automatically after you sign in to Windows."
+            : "登录 Windows 后自动打开宇奇引擎。";
+        TrayTitle.Text = isEnglish ? "Keep running after closing" : "关闭后仍在后台运行";
         TrayDesc.Text = isEnglish
-            ? "Minimize or close to the tray; autostart launches directly into the tray"
-            : "最小化或关闭窗口时进入托盘；自启动时静默进入托盘";
-        GameNotifyTitle.Text = loc.Get("Settings.GameLaunchNotification");
-        GameNotifyDesc.Text = loc.Get("Settings.GameLaunchNotificationDesc");
+            ? "After the window closes, the app stays available in the system tray."
+            : "关闭窗口后，软件会留在右下角继续运行。";
         
         // Log management
         LogRetentionTitle.Text = loc.Get("Settings.LogRetention");
@@ -301,7 +299,6 @@ public partial class SettingsPage : UserControl
         RiskWarningToggle.IsChecked = _settings.ShowRiskWarnings;
         StartupToggle.IsChecked = _settings.StartWithWindows;
         TrayToggle.IsChecked = _settings.MinimizeToTray;
-        GameLaunchNotifyToggle.IsChecked = _settings.NotifyOnGameLaunch;
         SoundToggle.IsChecked = _settings.EnableSoundNotification;
 
         int sliderIndex = Array.IndexOf(_logRetentionDays, _settings.LogRetentionDays);

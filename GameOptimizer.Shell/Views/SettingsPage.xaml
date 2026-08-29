@@ -147,8 +147,8 @@
                         <Image Source="/Assets/yuqi-engine-mark.png" Margin="7" Stretch="Uniform"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock x:Name="TitleText" Text="全局配置" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="21" FontWeight="SemiBold"/>
-                        <TextBlock x:Name="SubtitleText" Text="自定义应用程序行为和外观" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,3,0,0"/>
+                        <TextBlock x:Name="TitleText" Text="应用设置" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="22" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="SubtitleText" Text="日常常用的选项在这里；高级工具在下方。" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="14" Margin="0,4,0,0"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -195,8 +195,8 @@
                         <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource ToggleRowStyle}">
                             <Grid>
                                 <StackPanel>
-                                    <TextBlock x:Name="RiskWarningTitle" Text="风险提示" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium"/>
-                                    <TextBlock x:Name="RiskWarningDesc" Text="高风险优化确认时显示额外警告" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,3,0,0"/>
+                                    <TextBlock x:Name="RiskWarningTitle" Text="操作前再确认" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="15" FontWeight="Medium"/>
+                                    <TextBlock x:Name="RiskWarningDesc" Text="修改可能影响系统的项目时，会再次问你是否继续。" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 <CheckBox x:Name="RiskWarningToggle" HorizontalAlignment="Right" VerticalAlignment="Center" Click="RiskWarningToggle_Click"/>
                             </Grid>
@@ -204,8 +204,8 @@
                         <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource ToggleRowStyle}">
                             <Grid>
                                 <StackPanel>
-                                    <TextBlock x:Name="SoundTitle" Text="声音提示" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium"/>
-                                    <TextBlock x:Name="SoundDesc" Text="优化执行成功时播放系统提示音" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,3,0,0"/>
+                                    <TextBlock x:Name="SoundTitle" Text="完成提示音" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="15" FontWeight="Medium"/>
+                                    <TextBlock x:Name="SoundDesc" Text="优化完成后播放一声提示。" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 <CheckBox x:Name="SoundToggle" HorizontalAlignment="Right" VerticalAlignment="Center" Click="SoundToggle_Click"/>
                             </Grid>
@@ -231,8 +231,8 @@
                         <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource ToggleRowStyle}">
                             <Grid>
                                 <StackPanel>
-                                    <TextBlock x:Name="StartupTitle" Text="开机自启动" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium"/>
-                                    <TextBlock x:Name="StartupDesc" Text="登录 Windows 后自动运行 YuqiEngine" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,3,0,0"/>
+                                    <TextBlock x:Name="StartupTitle" Text="开机自动打开" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="15" FontWeight="Medium"/>
+                                    <TextBlock x:Name="StartupDesc" Text="登录 Windows 后自动打开宇奇引擎。" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 <CheckBox x:Name="StartupToggle" HorizontalAlignment="Right" VerticalAlignment="Center" Click="StartupToggle_Click"/>
                             </Grid>
@@ -240,20 +240,10 @@
                         <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource ToggleRowStyle}">
                             <Grid>
                                 <StackPanel>
-                                    <TextBlock x:Name="TrayTitle" Text="最小化到托盘" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium"/>
-                                    <TextBlock x:Name="TrayDesc" Text="最小化或关闭窗口时进入托盘；自启动时静默进入托盘" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="TrayTitle" Text="关闭后仍在后台运行" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="15" FontWeight="Medium"/>
+                                    <TextBlock x:Name="TrayDesc" Text="关闭窗口后，软件会留在右下角继续运行。" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 <CheckBox x:Name="TrayToggle" HorizontalAlignment="Right" VerticalAlignment="Center" Click="TrayToggle_Click"/>
-                            </Grid>
-                        </Border>
-                        <!-- Why: NotifyOnGameLaunch 无实际游戏检测服务消费，隐藏避免误导用户 -->
-                        <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource ToggleRowStyle}" Visibility="Collapsed">
-                            <Grid>
-                                <StackPanel>
-                                    <TextBlock x:Name="GameNotifyTitle" Text="游戏启动通知" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium"/>
-                                    <TextBlock x:Name="GameNotifyDesc" Text="检测到游戏时显示通知" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,3,0,0"/>
-                                </StackPanel>
-                                <CheckBox x:Name="GameLaunchNotifyToggle" HorizontalAlignment="Right" VerticalAlignment="Center" IsEnabled="False"/>
                             </Grid>
                         </Border>
                     </Grid>
