@@ -121,6 +121,38 @@ public partial class FirstRunBaselineDialog : Window
 
         StepTextBlock.Text = "等待开始";
         StatusTextBlock.Text = "点击“开始备份”后将执行首次安全基线备份。";
+
+        ReplaceStaticText("当前为测试版本", "使用前请先备份");
+        ReplaceStaticText("功能、兼容性和恢复链仍在持续验证，可能存在未发现的问题。请在使用任何优化前完成安全备份，并优先在可恢复环境中测试。", "不同电脑的硬件、系统和驱动可能不同。遇到不可用的功能时，软件会提示原因，不会强行修改。");
+    }
+
+    private void ReplaceStaticText(string source, string replacement)
+    {
+        foreach (TextBlock textBlock in FindVisualChildren<TextBlock>(this))
+        {
+            if (string.Equals(textBlock.Text, source, StringComparison.Ordinal))
+            {
+                textBlock.Text = replacement;
+                return;
+            }
+        }
+    }
+
+    private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
+        {
+            var child = VisualTreeHelper.GetChild(root, index);
+            if (child is T typedChild)
+            {
+                yield return typedChild;
+            }
+
+            foreach (T descendant in FindVisualChildren<T>(child))
+            {
+                yield return descendant;
+            }
+        }
     }
 
     private static string Text(string key, string fallback) =>
@@ -543,7 +575,7 @@ public partial class FirstRunBaselineDialog : Window
             return;
         }
 
-        UpdateProgressSegments(5);
+        UpdateProgressSegments(4);
         FooterHintText.Text = stage switch
         {
             UiStage.Running => "正在备份中，请不要关闭窗口或关机。",
@@ -556,30 +588,29 @@ public partial class FirstRunBaselineDialog : Window
 
     private void ShowIntroStep()
     {
-        _introStep = Math.Clamp(_introStep, 1, 5);
+        _introStep = Math.Clamp(_introStep, 1, 4);
         UpdateProgressSegments(_introStep);
         WelcomeStepPanel.Visibility = _introStep == 1 ? Visibility.Visible : Visibility.Collapsed;
         BoundaryStepPanel.Visibility = _introStep == 2 ? Visibility.Visible : Visibility.Collapsed;
-        AuthorStepPanel.Visibility = _introStep == 3 ? Visibility.Visible : Visibility.Collapsed;
-        RiskStepPanel.Visibility = _introStep == 4 ? Visibility.Visible : Visibility.Collapsed;
-        BackupStepPanel.Visibility = _introStep == 5 ? Visibility.Visible : Visibility.Collapsed;
+        AuthorStepPanel.Visibility = Visibility.Collapsed;
+        RiskStepPanel.Visibility = _introStep == 3 ? Visibility.Visible : Visibility.Collapsed;
+        BackupStepPanel.Visibility = _introStep == 4 ? Visibility.Visible : Visibility.Collapsed;
 
         IntroBackBtn.Visibility = _introStep > 1 ? Visibility.Visible : Visibility.Collapsed;
         IntroExitBtn.Visibility = Visibility.Visible;
         IntroExitBtn.Content = _introStep == 1 ? "稍后再说" : "暂时跳过";
-        IntroNextBtn.Visibility = _introStep < 5 ? Visibility.Visible : Visibility.Collapsed;
-        StartBackupBtn.Visibility = _introStep == 5 ? Visibility.Visible : Visibility.Collapsed;
-        IntroNextBtn.Content = _introStep == 4 ? "→　继续" : "→　开始了解";
-        IntroNextBtn.IsEnabled = _introStep != 4 || _riskAcknowledged;
-        StartBackupBtn.IsEnabled = _introStep == 5 && _riskAcknowledged;
-        IntroStepIndicatorText.Text = $"第 {_introStep} 步 / 共 5 步";
+        IntroNextBtn.Visibility = _introStep < 4 ? Visibility.Visible : Visibility.Collapsed;
+        StartBackupBtn.Visibility = _introStep == 4 ? Visibility.Visible : Visibility.Collapsed;
+        IntroNextBtn.Content = _introStep == 3 ? "→　继续" : "→　开始了解";
+        IntroNextBtn.IsEnabled = _introStep != 3 || _riskAcknowledged;
+        StartBackupBtn.IsEnabled = _introStep == 4 && _riskAcknowledged;
+        IntroStepIndicatorText.Text = $"第 {_introStep} 步 / 共 4 步";
         FooterHintText.Text = _introStep switch
         {
-            1 => "第 1 步 / 共 5 步：欢迎",
-            2 => "第 2 步 / 共 5 步：了解边界",
-            3 => "第 3 步 / 共 5 步：免费与作者",
-            4 => "第 4 步 / 共 5 步：确认风险",
-            _ => "第 5 步 / 共 5 步：创建备份"
+            1 => "第 1 步 / 共 4 步：欢迎",
+            2 => "第 2 步 / 共 4 步：使用提醒",
+            3 => "第 3 步 / 共 4 步：确认备份",
+            _ => "第 4 步 / 共 4 步：创建备份"
         };
     }
 
@@ -587,7 +618,7 @@ public partial class FirstRunBaselineDialog : Window
     {
         for (var remaining = 5; remaining > 0; remaining--)
         {
-            if (epoch != _riskAcknowledgementEpoch || _introStep != 4 || !RiskAcknowledgementCheckBox.IsChecked.GetValueOrDefault())
+            if (epoch != _riskAcknowledgementEpoch || _introStep != 3 || !RiskAcknowledgementCheckBox.IsChecked.GetValueOrDefault())
             {
                 return;
             }
@@ -597,7 +628,7 @@ public partial class FirstRunBaselineDialog : Window
             await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(true);
         }
 
-        if (epoch == _riskAcknowledgementEpoch && _introStep == 4 && RiskAcknowledgementCheckBox.IsChecked.GetValueOrDefault())
+        if (epoch == _riskAcknowledgementEpoch && _introStep == 3 && RiskAcknowledgementCheckBox.IsChecked.GetValueOrDefault())
         {
             _riskAcknowledged = true;
             RiskCountdownText.Text = "已确认，可以继续创建首次安全备份";
@@ -608,7 +639,7 @@ public partial class FirstRunBaselineDialog : Window
 
     private async void StartBackupBtn_Click(object sender, RoutedEventArgs e)
     {
-        if (_introStep != 5 || !_riskAcknowledged || !StartBackupBtn.IsEnabled)
+        if (_introStep != 4 || !_riskAcknowledged || !StartBackupBtn.IsEnabled)
         {
             return;
         }
@@ -626,19 +657,19 @@ public partial class FirstRunBaselineDialog : Window
     private void IntroNextBtn_Click(object sender, RoutedEventArgs e)
     {
         _riskAcknowledgementEpoch++;
-        if (_introStep == 4 && !_riskAcknowledged)
+        if (_introStep == 3 && !_riskAcknowledged)
         {
             return;
         }
 
-        _introStep = Math.Min(5, _introStep + 1);
+        _introStep = Math.Min(4, _introStep + 1);
         ShowIntroStep();
     }
 
     private void RiskAcknowledgementCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         _riskAcknowledgementEpoch++;
-        if (_introStep != 4 || !RiskAcknowledgementCheckBox.IsChecked.GetValueOrDefault())
+        if (_introStep != 3 || !RiskAcknowledgementCheckBox.IsChecked.GetValueOrDefault())
         {
             _riskAcknowledged = false;
             IntroNextBtn.IsEnabled = false;
@@ -705,9 +736,10 @@ public partial class FirstRunBaselineDialog : Window
             ProgressSegment1,
             ProgressSegment2,
             ProgressSegment3,
-            ProgressSegment4,
-            ProgressSegment5
+            ProgressSegment4
         };
+
+        ProgressSegment5.Visibility = Visibility.Collapsed;
 
         for (var index = 0; index < segments.Length; index++)
         {
@@ -782,9 +814,8 @@ public partial class FirstRunBaselineDialog : Window
             return;
         }
 
+        // 首次引导结束后直接进入软件；作者与支持信息保留在标题栏与“关于”中，不再打断主流程。
         _authorInfoShown = true;
-        var dialog = new AboutDialog { Owner = this };
-        dialog.ShowDialog();
     }
 
     private void CloseAfterAuthorInfo()

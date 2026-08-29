@@ -434,7 +434,7 @@
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBlock Text="配置文件使用各自保存的核心规则；应用前仍由现有安全确认与进程 identity 校验决定是否执行。" Style="{StaticResource PageSubtitleStyle}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+        <TextBlock Text="每个程序会使用自己的核心选择；应用前软件会再次确认目标程序是否正确。" Style="{StaticResource PageSubtitleStyle}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
         <StackPanel Grid.Column="1" Orientation="Horizontal">
           <Button Click="BackToLiveButton_Click" Style="{StaticResource CompactButton}">返回实时绑定</Button>
           <Button Command="{Binding ApplyAllProfilesCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="8,0,0,0" Padding="16,8">应用全部配置</Button>

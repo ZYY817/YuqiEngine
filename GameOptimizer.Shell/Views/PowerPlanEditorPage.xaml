@@ -251,15 +251,15 @@
                                       StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stretch="Uniform"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="受管计划高级设置" FontSize="15" FontWeight="SemiBold"
+                <TextBlock Text="更多电源设置" FontSize="15" FontWeight="SemiBold"
                                            Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
-                                <TextBlock Text="只编辑宇奇创建的副本；每次保存前导出完整 .pow 备份，失败会补偿原值。"
+                <TextBlock Text="这里只能修改本软件创建的计划副本。保存前会自动备份，出错时会保留原来的设置。"
                                            Margin="0,2,0,0" FontSize="10"
                                            Foreground="{DynamicResource Theme.Brush.TextMuted}" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Grid>
 
-                        <TextBlock x:Name="TxtNoManagedPlan" Text="尚无受管计划。请先从上方策略或 Windows / OEM 计划创建副本；此处不会用默认值猜测系统参数。"
+                <TextBlock x:Name="TxtNoManagedPlan" Text="还没有可编辑的计划。请先在上方复制一份计划；软件不会猜测或强改你电脑的电源设置。"
                                    Margin="0,2,0,0" FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
                         <StackPanel x:Name="AdvancedEditorPanel">
                         <ComboBox x:Name="ManagedPlanSelector" DisplayMemberPath="Name" SelectionChanged="ManagedPlanSelector_SelectionChanged"
@@ -331,9 +331,9 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="恢复最近一次已验证更改" FontSize="14" FontWeight="SemiBold"
+                <TextBlock Text="恢复上一次保存前的设置" FontSize="14" FontWeight="SemiBold"
                                        Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
-                            <TextBlock Text="只恢复受管计划的已校验完整 .pow 备份；恢复前会再次备份当前受管计划。"
+                <TextBlock Text="只会恢复本软件创建的计划副本；恢复前会再备份当前设置。"
                                        Margin="0,4,0,0" FontSize="10" TextWrapping="Wrap"
                                        Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
                         </StackPanel>

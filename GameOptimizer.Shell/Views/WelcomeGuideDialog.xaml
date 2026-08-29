@@ -103,16 +103,15 @@
                                 <TextBlock x:Name="Step2Content" TextWrapping="Wrap" 
                                            Foreground="{DynamicResource Theme.Brush.TextSecondary}" 
                                            FontSize="13" LineHeight="22" Margin="0,0,0,12">
-                                    本软件会修改系统底层设置以优化性能，<Run FontWeight="SemiBold" Foreground="#F59E0B">强烈建议在优化前创建系统还原点</Run>，以便在出现问题时快速恢复。
+                                    使用前，请先创建一个 <Run FontWeight="SemiBold" Foreground="#F59E0B">Windows 还原点</Run>。遇到问题时，它能帮助你恢复系统设置。
                                 </TextBlock>
                                 <Border Background="#15F59E0B" BorderBrush="#30F59E0B" BorderThickness="1" CornerRadius="8" Padding="16" HorizontalAlignment="Stretch">
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock x:Name="BackupMethodLabel" Text="备份方法" 
                                                    Foreground="#F59E0B" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8" TextAlignment="Center"/>
                                         <TextBlock x:Name="BackupSteps" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" LineHeight="20" TextAlignment="Center">
-                                            <Run>1. 打开「设置」→「系统」→「关于」</Run><LineBreak/>
-                                            <Run>2. 点击「系统保护」→「创建还原点」</Run><LineBreak/>
-                                            <Run>3. 或在软件「设置」中开启「自动备份」</Run>
+                                            <Run>1. 在左侧打开「系统还原点」</Run><LineBreak/>
+                                            <Run>2. 输入名称后，点击「创建还原点」</Run>
                                         </TextBlock>
                                     </StackPanel>
                                 </Border>
@@ -144,17 +143,16 @@
                                 <TextBlock x:Name="Step3Content" TextWrapping="Wrap" 
                                            Foreground="{DynamicResource Theme.Brush.TextSecondary}" 
                                            FontSize="13" LineHeight="22">
-                                    <Run FontWeight="SemiBold">优化原理：</Run><LineBreak/>
-                                    通过调整 CPU 调度策略、内存管理、网络优先级等系统底层参数，减少不必要的后台占用，让更多资源分配给游戏进程。<LineBreak/><LineBreak/>
-                                    <Run FontWeight="SemiBold" Foreground="#3B82F6">效果说明：</Run><LineBreak/>
-                                    优化效果因硬件配置、系统环境和游戏类型而异。对大部分用户有效，但不保证 100% 提升。低配电脑提升更明显，高配电脑提升相对有限。
+                                    软件会根据你选择的项目调整 Windows 设置，减少不必要的后台占用。<LineBreak/><LineBreak/>
+                                    <Run FontWeight="SemiBold" Foreground="#3B82F6">请注意：</Run><LineBreak/>
+                                    效果会因电脑、驱动和游戏不同而变化。每个项目都可以单独查看说明，也可以恢复。
                                 </TextBlock>
                             </StackPanel>
                         </Grid>
                     </Border>
                     
                     <!-- Step 4: 支持作者 -->
-                    <Border Background="{DynamicResource Theme.Brush.CardBackground}" CornerRadius="12" Padding="24">
+                    <Border Background="{DynamicResource Theme.Brush.CardBackground}" CornerRadius="12" Padding="24" Visibility="Collapsed">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>

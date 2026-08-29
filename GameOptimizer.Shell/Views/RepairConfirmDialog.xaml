@@ -69,9 +69,9 @@
                     <!-- 检测依据和实际变更内容，确认前必须可见。 -->
                     <Border Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" CornerRadius="8" Padding="14,12" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="检测依据" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12" FontWeight="SemiBold"/>
+                            <TextBlock Text="发现了什么" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="SemiBold"/>
                             <TextBlock x:Name="DetectionText" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,10"/>
-                            <TextBlock Text="将要修改" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12" FontWeight="SemiBold"/>
+                            <TextBlock Text="修复时会做什么" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="SemiBold"/>
                             <TextBlock x:Name="ChangePlanText" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,10"/>
                             <TextBlock x:Name="RecoveryText" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" TextWrapping="Wrap"/>
                         </StackPanel>

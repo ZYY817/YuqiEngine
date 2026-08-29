@@ -1,7 +1,7 @@
 ﻿<Window x:Class="GameOptimizer.Shell.Views.OperationInfoDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="操作详情" Width="560" Height="480"
+        Title="功能说明" Width="560" Height="480"
         WindowStartupLocation="CenterOwner" WindowStyle="None"
         AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
         SizeToContent="Height" MaxHeight="600">
@@ -21,7 +21,7 @@
                 <Grid>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock x:Name="TypeIcon" Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,10,0" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}"/>
-                        <TextBlock x:Name="DialogTitle" Text="操作详情" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="DialogTitle" Text="功能说明" Foreground="{DynamicResource Theme.Brush.TextPrimaryAlt}" FontSize="15" FontWeight="SemiBold"/>
                     </StackPanel>
                     <Button Content="✕" HorizontalAlignment="Right" Click="Close_Click"
                             Background="Transparent" Foreground="{DynamicResource Theme.Brush.TextMuted}" BorderThickness="0"
@@ -51,7 +51,7 @@
                     </StackPanel>
                     
                     <!-- 目标信息 -->
-                    <TextBlock x:Name="LblTargetInfo" Text="🎯 操作目标" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,8"/>
+                    <TextBlock x:Name="LblTargetInfo" Text="🎯 这项功能会改什么" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" FontWeight="Medium" Margin="0,0,0,8"/>
                     <Border Background="{DynamicResource Theme.Brush.PanelBackground}" CornerRadius="8" Padding="14,12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1" Margin="0,0,0,16">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -63,18 +63,18 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             
-                            <TextBlock Grid.Row="0" Grid.Column="0" x:Name="LblTargetName" Text="目标名称:" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" x:Name="LblTargetName" Text="项目：" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" x:Name="TargetNameText" Text="-" Foreground="#4ADE80" FontSize="11" 
                                        FontFamily="Consolas" TextWrapping="Wrap"/>
                             
-                            <TextBlock Grid.Row="1" Grid.Column="0" x:Name="LblTargetValue" Text="目标状态:" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" Margin="0,6,0,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" x:Name="LblTargetValue" Text="建议：" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,6,0,0"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" x:Name="TargetValueText" Text="-" Foreground="#60A5FA" FontSize="11" 
                                        FontFamily="Consolas" Margin="0,6,0,0"/>
                         </Grid>
                     </Border>
                     
                     <!-- 手动操作入口 -->
-                    <TextBlock x:Name="ManualPathLabel" Text="📍 手动操作入口" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,8"/>
+                    <TextBlock x:Name="ManualPathLabel" Text="📍 系统入口（可选）" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" FontWeight="Medium" Margin="0,0,0,8"/>
                     <Border x:Name="ManualPathSection" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="8" Padding="14,12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1" Margin="0,0,0,6">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock x:Name="ManualPathText" Text="services.msc" Foreground="#FBBF24" FontSize="12" FontFamily="Consolas" VerticalAlignment="Center"/>
@@ -86,13 +86,13 @@
                         <Border Background="{DynamicResource Theme.Brush.Border}" CornerRadius="6" Padding="10,6" Cursor="Hand" MouseLeftButtonUp="CopyPath_Click" Margin="0,0,8,0">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="📄" FontSize="11"/>
-                                <TextBlock x:Name="CopyBtnText" Text="复制命令" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}" Margin="6,0,0,0"/>
+                                <TextBlock x:Name="CopyBtnText" Text="复制入口" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}" Margin="6,0,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border x:Name="OpenBtn" Background="{DynamicResource Theme.Brush.Border}" CornerRadius="6" Padding="10,6" Cursor="Hand" MouseLeftButtonUp="OpenPath_Click">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="🚀" FontSize="11"/>
-                                <TextBlock Text="立即打开" FontSize="11" Foreground="{DynamicResource Theme.Brush.TextSecondary}" Margin="6,0,0,0"/>
+                                <TextBlock Text="打开系统设置" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextSecondary}" Margin="6,0,0,0"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -102,7 +102,7 @@
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                                 <TextBlock Text="💡" FontSize="12"/>
-                                <TextBlock x:Name="LblManualSteps" Text="手动操作步骤" Foreground="#60A5FA" FontSize="12" FontWeight="Medium" Margin="6,0,0,0"/>
+                                <TextBlock x:Name="LblManualSteps" Text="手动操作方法（可选）" Foreground="#60A5FA" FontSize="13" FontWeight="Medium" Margin="6,0,0,0"/>
                             </StackPanel>
                             <TextBlock x:Name="ManualStepsText" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11" TextWrapping="Wrap" LineHeight="20"/>
                         </StackPanel>

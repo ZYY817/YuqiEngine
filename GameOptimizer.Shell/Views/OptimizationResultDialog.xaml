@@ -34,10 +34,10 @@
                                        Foreground="#22D3EE" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock x:Name="TitleText" Text="优化结果报告" 
+                            <TextBlock x:Name="TitleText" Text="本次操作结果"
                                        Foreground="{DynamicResource Theme.Brush.TextPrimary}" 
                                        FontSize="16" FontWeight="SemiBold"/>
-                            <TextBlock x:Name="SubtitleText" Text="查看优化执行详情" 
+                            <TextBlock x:Name="SubtitleText" Text="看看哪些已完成、哪些需要你处理"
                                        Foreground="{DynamicResource Theme.Brush.TextDisabled}" 
                                        FontSize="12" Margin="0,2,0,0"/>
                         </StackPanel>
@@ -246,7 +246,7 @@
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <TextBlock Text="&#xE893;" FontFamily="Segoe MDL2 Assets" Foreground="#8B94C6" FontSize="15" 
                                        VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBlock x:Name="SkippedHeader" Text="跳过项目（高风险，需单独配置）" 
+                            <TextBlock x:Name="SkippedHeader" Text="暂未处理的项目"
                                        Foreground="#8B94C6" FontSize="14" FontWeight="SemiBold"/>
                         </StackPanel>
                         <ItemsControl x:Name="SkippedList">
@@ -269,7 +269,7 @@
                                                 <TextBlock Text="{Binding SkipReason}" 
                                                            Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="11"/>
                                             </StackPanel>
-                                            <Button Grid.Column="2" Content="前往配置 →" Click="NavigateToConfig_Click"
+                                            <Button Grid.Column="2" Content="查看处理方法 →" Click="NavigateToConfig_Click"
                                                     Tag="{Binding NavigateTarget}" Cursor="Hand"
                                                     Background="Transparent" BorderThickness="0"
                                                     Foreground="#22D3EE" FontSize="11"

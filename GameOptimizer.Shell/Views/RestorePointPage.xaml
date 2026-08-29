@@ -51,7 +51,7 @@
         <ScrollViewer x:Name="ToolPageContentScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" Padding="24,20,24,28" Focusable="True" FocusVisualStyle="{StaticResource Token.FocusVisualStyle}">
             <StackPanel Style="{StaticResource Yuqi.ToolPageEntrance}">
                 <!-- Web 母版：窄顶栏 + 两张主操作卡 + 还原时间线。所有状态仍来自 RestorePointViewModel。 -->
-                <controls:ToolTopbar Margin="0,0,0,14" Title="系统还原点" Subtitle="在重大变更前留一份安全快照" IconGlyph="{x:Static constants:IconGlyphs.History}" StatusText="{Binding ViewModel.ProtectionStatusText, ElementName=Root}" StatusDetail="{Binding ViewModel.RestorePointCountText, ElementName=Root}">
+                <controls:ToolTopbar Margin="0,0,0,14" Title="系统还原点" Subtitle="在重要操作前，保存一份 Windows 还原点" IconGlyph="{x:Static constants:IconGlyphs.History}" StatusText="{Binding ViewModel.ProtectionStatusText, ElementName=Root}" StatusDetail="{Binding ViewModel.RestorePointCountText, ElementName=Root}">
                     <controls:ToolTopbar.Actions><StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <controls:StatusBadge Text="{Binding ViewModel.PageStateText, ElementName=Root}" Status="{Binding ViewModel.PageState, ElementName=Root, Converter={StaticResource PageStateToBadgeStatus}}" />
                         <Button Content="取消" Command="{Binding ViewModel.CancelCurrentOperationFromUiCommand, ElementName=Root}" IsEnabled="{Binding ViewModel.CanCancelCurrentOperation, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
@@ -78,7 +78,7 @@
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="8,0,0,0">
                                     <TextBlock Text="创建还原点" Style="{StaticResource WebTitle}" />
-                                    <TextBlock Text="为当前系统状态创建安全快照" Style="{StaticResource WebMeta}" Margin="0,2,0,0" />
+                                    <TextBlock Text="让 Windows 记住现在的系统状态，遇到问题时可尝试恢复。" Style="{StaticResource WebMeta}" Margin="0,2,0,0" />
                                 </StackPanel>
                                 <Border Grid.Column="2" Background="{DynamicResource Theme.Brush.IconBackground}" BorderBrush="{DynamicResource Theme.Brush.AccentBlue}" BorderThickness="1" CornerRadius="{DynamicResource Token.Radius.Badge}" Padding="7,2">
                                     <TextBlock Text="推荐" Foreground="{DynamicResource Theme.Brush.AccentBlue}" FontSize="10" />
@@ -104,11 +104,11 @@
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="8,0,0,0">
                                     <TextBlock Text="系统保护" Style="{StaticResource WebTitle}" />
-                                    <TextBlock Text="控制哪些磁盘可创建还原点" Style="{StaticResource WebMeta}" Margin="0,2,0,0" />
+                                    <TextBlock Text="查看并开启 Windows 的还原点功能。" Style="{StaticResource WebMeta}" Margin="0,2,0,0" />
                                 </StackPanel>
                             </Grid>
                             <TextBlock Text="{Binding ViewModel.ProtectionStatusText, ElementName=Root}" Style="{StaticResource WebTitle}" Margin="0,15,0,5" TextWrapping="Wrap" />
-                            <TextBlock Text="系统级还原将交由 Windows 恢复界面确认；应用不会将未知状态显示为成功。" Style="{StaticResource WebMeta}" TextWrapping="Wrap" />
+                            <TextBlock Text="恢复时会打开 Windows 的恢复界面，由 Windows 完成确认。" Style="{StaticResource WebMeta}" TextWrapping="Wrap" />
                             <StackPanel Orientation="Horizontal" Margin="0,13,0,0">
                                 <Button Content="系统保护" Command="{Binding ViewModel.OpenSystemRestoreSettingsCommand, ElementName=Root}" Style="{StaticResource WebToolButton}" />
                                 <Button Content="恢复向导" Command="{Binding ViewModel.OpenSystemRestoreWizardCommand, ElementName=Root}" Style="{StaticResource WebToolButton}" Margin="8,0,0,0" />
@@ -152,7 +152,7 @@
                             <ToggleButton Content="系统还原点" Style="{StaticResource Yuqi.RailToggle}" Command="{Binding ViewModel.SelectTimelineFilterCommand, ElementName=Root}" CommandParameter="System" IsChecked="{Binding ViewModel.TimelineFilter, ElementName=Root, Mode=OneWay, Converter={StaticResource RestoreTimelineFilterSelected}, ConverterParameter=System}" Margin="0,5,0,0" />
                             <ToggleButton Content="软件恢复" Style="{StaticResource Yuqi.RailToggle}" Command="{Binding ViewModel.SelectTimelineFilterCommand, ElementName=Root}" CommandParameter="Software" IsChecked="{Binding ViewModel.TimelineFilter, ElementName=Root, Mode=OneWay, Converter={StaticResource RestoreTimelineFilterSelected}, ConverterParameter=Software}" Margin="0,5,0,0" />
                             <Border Height="1" Background="{DynamicResource Theme.Brush.CardBorderSubtle}" Margin="7,13,7,11" />
-                            <TextBlock Text="仅展示本机可读取记录；恢复前会经过计划与系统确认。" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="7,0" />
+                            <TextBlock Text="这里只显示这台电脑能读取的记录；恢复前会先让你确认。" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="7,0" />
                         </StackPanel>
                     </Border>
                     <StackPanel Grid.Column="2">
@@ -175,7 +175,7 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="软件级恢复摘要" Style="{StaticResource WebTitle}" />
+                                        <TextBlock Text="本软件的恢复记录" Style="{StaticResource WebTitle}" />
                                     <TextBlock Text="{Binding ViewModel.SoftwareRecoverySummary, ElementName=Root}" Style="{StaticResource WebMeta}" Margin="0,4,0,0" />
                                     <TextBlock Text="{Binding ViewModel.SoftwareRecoveryDescription, ElementName=Root}" Style="{StaticResource WebMeta}" TextWrapping="Wrap" Margin="0,4,0,0" />
                                 </StackPanel>
@@ -207,7 +207,7 @@
                                                 <TextBlock Text="{Binding TypeDescription}" Style="{StaticResource WebMeta}" Margin="0,3,0,0" />
                                             </StackPanel>
                                         </Border>
-                                        <TextBlock Grid.Column="2" Text="执行与删除由 Windows 系统恢复界面管理" Style="{StaticResource WebMeta}" Width="162" TextWrapping="Wrap" VerticalAlignment="Center" Margin="9,0,0,0" />
+                                        <TextBlock Grid.Column="2" Text="恢复和删除由 Windows 的系统恢复界面处理" Style="{StaticResource WebMeta}" Width="162" TextWrapping="Wrap" VerticalAlignment="Center" Margin="9,0,0,0" />
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

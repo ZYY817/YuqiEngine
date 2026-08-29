@@ -250,7 +250,9 @@
                 </StackPanel>
             </Border>
             <!-- Section 4: Log Management -->
-            <Border Style="{StaticResource GlassCard}">
+            <Expander Header="日志与问题反馈（不常用）" IsExpanded="False" Margin="0,0,0,16"
+                      Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="16" FontWeight="SemiBold">
+            <Border Style="{StaticResource GlassCard}" Margin="0,10,0,0">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                         <Border Width="4" Height="20" CornerRadius="2" Background="{StaticResource Settings.LogAccent}" Margin="0,0,12,0"/>
@@ -451,6 +453,7 @@
                     </Border>
                 </StackPanel>
             </Border>
+            </Expander>
             <!-- Section 5: Data Management -->
             <Border CornerRadius="14" Padding="20" Margin="0,0,0,16" BorderThickness="1">
                 <Border.Background>
