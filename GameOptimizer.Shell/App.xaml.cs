@@ -479,7 +479,6 @@ public partial class App : Application
             await _orchestrator.TransitionToMainWindowAsync(mainWindow, activateMainWindow: !isRecoveryDevelopmentInstance).ConfigureAwait(false);
             if (!isAcceptanceUiInstance && !isRecoveryDevelopmentInstance)
             {
-                await Dispatcher.InvokeAsync(() => ShowFirstRunDialogIfNeeded(mainWindow));
                 await ShowReleaseNoticeIfNeededAsync(mainWindow).ConfigureAwait(false);
             }
             bool isSystemCleanupScanProbe = isAcceptanceUiInstance
@@ -867,69 +866,6 @@ public partial class App : Application
             _diagnosticLogService?.Append(LogLevel.Warning, "App.RegisterExtensions", 
                 "Failed to register module extensions", ex.Message);
         }
-    }
-
-    // First-use introduction is independent from the preview-scope notice.
-    private void ShowFirstRunDialogIfNeeded(Window owner)
-    {
-        var settingsPath = AppPaths.FirstRunFlagPath;
-        var dontShowPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(settingsPath) ?? "", "welcome_dont_show.flag");
-
-        // 如果用户选择了"不再显示"，则跳过
-        if (System.IO.File.Exists(dontShowPath)) return;
-        
-        // 如果已经显示过首次运行标记，也跳过
-        if (System.IO.File.Exists(settingsPath)) return;
-
-        try
-        {
-            var dir = System.IO.Path.GetDirectoryName(settingsPath);
-            if (!string.IsNullOrEmpty(dir))
-            {
-                string? dirError = null;
-                SafeDirectoryOperations.TryCreateDirectory(dir, out dirError);
-            }
-            SafeFileWriter.TryWriteAllText(settingsPath, DateTime.Now.ToString("O"));
-
-            var dialog = new Views.WelcomeGuideDialog { Owner = owner };
-            var result = dialog.ShowDialog();
-            
-            if (result == true && dialog.DontShowAgain)
-            {
-                try
-                {
-                    SafeFileWriter.TryWriteAllText(dontShowPath, DateTime.Now.ToString("O"));
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"[App] Failed to write dont_show flag: {ex.Message}");
-                }
-            }
-
-        }
-        catch (Exception ex)
-        {
-            // APP-004: 记录文件写入失败，但仍显示对话框
-            Debug.WriteLine($"[App] Failed to write first_run.flag: {ex.Message}");
-            _diagnosticLogService?.Append(LogLevel.Warning, "App.FirstRun", 
-                "Failed to write first run flag", ex.Message);
-            
-            // 即使标记文件写入失败，仍然显示欢迎对话框
-            try
-            {
-                var dialog = new Views.WelcomeGuideDialog { Owner = owner };
-                var result = dialog.ShowDialog();
-                
-                if (result == true && dialog.DontShowAgain)
-                {
-                    // P3-001: 使用 SafeFileWriter 替代裸露的 File.WriteAllText
-                    GameOptimizer.Core.Services.SafeFileWriter.TryWriteAllText(dontShowPath, DateTime.Now.ToString("O"));
-                }
-
-            }
-            catch (Exception dialogEx) { Debug.WriteLine($"[App] Failed to show WelcomeGuideDialog: {dialogEx.Message}"); }
-        }
-
     }
 
     // Why: 全自动测试模式 — 启动应用 → 跑完测试 → 保存报告 → 自动退出

@@ -59,8 +59,6 @@ public static class AppPaths
     public static string TransactionLogFilePath => Path.Combine(LogsDir, "transaction.log");
     public static string AudioDebugLogFilePath => Path.Combine(LogsDir, "audio_debug.log");
     public static string CrashLogPath => Path.Combine(AppDataRoot, "crash.log");
-    public static string FirstRunFlagPath => Path.Combine(AppDataRoot, "first_run.flag");
-    
     // 配置导出目录
     public static string ConfigsDir => Path.Combine(AppDataRoot, "configs");
     public static string TempDir => Path.Combine(AppDataRoot, "Temp");

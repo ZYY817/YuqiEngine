@@ -97,8 +97,6 @@ public class AppSettings
     /// <summary>
     /// 是否已显示欢迎引导
     /// </summary>
-    public bool HasShownWelcomeGuide { get; set; } = false;
-
     /// <summary>
     /// 最近一次已确认的发布范围提示。它与日志、备份和首次保护状态无关，
     /// 以便旧版本升级到新的测试版时仍会重新看到当前能力边界。

@@ -339,26 +339,6 @@ public partial class MainWindow : Window
         // 不自动触发新手引导，避免首次运行覆盖实际界面。
     }
     
-    private async void TriggerOnboardingIfNeeded()
-    {
-        try
-        {
-            // Why: WelcomeGuideDialog (App.xaml.cs) 已通过 first_run.flag 处理首次启动引导，
-            // 如果 flag 已存在说明首次启动流程已走过，此处不再重复触发
-            if (_appSettings.HasShownWelcomeGuide) return;
-            if (System.IO.File.Exists(GameOptimizer.Core.Constants.AppPaths.FirstRunFlagPath)) return;
-            
-            _appSettings.HasShownWelcomeGuide = true;
-            _appSettings.Save();
-            
-            await UserGuideService.Instance.StartMainOnboardingAsync(RootContainer);
-        }
-        catch (System.Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[MainWindow][TriggerOnboardingIfNeeded] {ex.Message}");
-        }
-    }
-
     private void MinimizeButton_Click(object sender, RoutedEventArgs e)
     {
         if (_appSettings.MinimizeToTray)
