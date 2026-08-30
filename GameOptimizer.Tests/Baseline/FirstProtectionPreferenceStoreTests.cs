@@ -35,6 +35,19 @@ public sealed class FirstProtectionPreferenceStoreTests : IDisposable
     }
 
     [Fact]
+    public async Task PreviousRevisionSkipIsShownOnceForTheNewSafetyOnboarding()
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
+        await File.WriteAllTextAsync(_path, "{\"schemaVersion\":1,\"status\":1}", Encoding.UTF8);
+
+        var state = await CreateStore().LoadAsync();
+
+        Assert.Equal(FirstProtectionPreferenceStatus.UserDeferred, state.Status);
+        Assert.Equal(0, state.OnboardingRevision);
+        Assert.True(state.ShouldOfferOnStartup);
+    }
+
+    [Fact]
     public async Task FailedBackupIsOfferedAgainOnTheNextStartup()
     {
         var store = CreateStore();

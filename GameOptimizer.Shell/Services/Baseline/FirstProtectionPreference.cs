@@ -9,7 +9,15 @@ namespace GameOptimizer.Shell.Services.Baseline;
 /// </summary>
 public sealed class FirstProtectionPreference
 {
+    /// <summary>
+    /// Bumps when the first-use safety explanation meaningfully changes.
+    /// A previous "skip" only suppresses the revision the user actually saw.
+    /// </summary>
+    public const int CurrentOnboardingRevision = 2;
+
     public int SchemaVersion { get; set; } = 1;
+
+    public int OnboardingRevision { get; set; } = CurrentOnboardingRevision;
 
     public FirstProtectionPreferenceStatus Status { get; set; } = FirstProtectionPreferenceStatus.Pending;
 
@@ -23,7 +31,9 @@ public sealed class FirstProtectionPreference
 
     public bool ShouldOfferOnStartup => Status is FirstProtectionPreferenceStatus.Pending
         or FirstProtectionPreferenceStatus.BackupFailed
-        or FirstProtectionPreferenceStatus.Corrupted;
+        or FirstProtectionPreferenceStatus.Corrupted
+        || (Status == FirstProtectionPreferenceStatus.UserDeferred
+            && OnboardingRevision < CurrentOnboardingRevision);
 }
 
 public enum FirstProtectionPreferenceStatus
