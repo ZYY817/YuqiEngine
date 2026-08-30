@@ -12,7 +12,7 @@ namespace GameOptimizer.Shell.Services.Baseline;
 /// </summary>
 internal static class BaselineRecoveryCoverageClassifier
 {
-	private static readonly string[] BaselineAdmissionDomainIds = ["D03", "D04", "D05", "D06", "D13"];
+	private static readonly string[] BaselineAdmissionDomainIds = ["D03", "D04", "D05", "D06"];
 
 	internal static IReadOnlyList<string> GetBaselineAdmissionDomainIds() => BaselineAdmissionDomainIds;
 

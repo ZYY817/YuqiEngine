@@ -10,7 +10,7 @@ public sealed class BaselineRecoveryCoverageClassifierTests
     [InlineData("D04", true)]
     [InlineData("D05", true)]
     [InlineData("D06", true)]
-    [InlineData("D13", true)]
+    [InlineData("D13", false)]
     [InlineData("D09", false)]
     [InlineData("D15", false)]
     [InlineData("D16", false)]

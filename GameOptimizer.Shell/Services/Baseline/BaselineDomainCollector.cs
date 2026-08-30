@@ -127,7 +127,7 @@ public sealed class BaselineDomainCollector : IBaselineDomainCollector
 		Create("D10", "启动配置", "bcdedit 导出结果", required: false),
 		Create("D11", "系统服务状态", "关键系统服务状态", required: false),
 		Create("D12", "计划任务状态", "关键计划任务状态", required: false),
-		Create("D13", "系统还原点", "系统还原点校验（必要时需手动处理）", required: true, supportsManualGuide: true),
+		Create("D13", "系统还原点", "Windows 系统保护提醒与状态记录（建议手动完成）", required: false, supportsManualGuide: true),
 		Create("D14", "诊断与审计", "事务日志与备份日志", required: false),
 		Create("D15", "本地策略", "本地组策略与安全策略", required: false),
 		Create("D16", "安全防护", "防火墙与 Defender 关键策略", required: false),

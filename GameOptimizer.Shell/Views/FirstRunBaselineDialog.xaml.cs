@@ -76,6 +76,7 @@ public partial class FirstRunBaselineDialog : Window
     private bool _allowClose;
     private bool _handlingCloseRequest;
     private bool _authorInfoShown;
+    private bool _systemRestorePointPending;
 
     public FirstRunBaselineDialog(
         IFirstRunBaselineOrchestrator baselineOrchestrator,
@@ -320,11 +321,16 @@ public partial class FirstRunBaselineDialog : Window
             if (result.Success)
             {
                 await _preferenceStore.RecordCompletedAsync().ConfigureAwait(true);
+                _systemRestorePointPending = result.RuntimeState.Domains.Any(domain =>
+                    string.Equals(domain.DomainId, "D13", StringComparison.OrdinalIgnoreCase)
+                    && domain.Status != BaselineDomainStatus.Succeeded);
                 MainProgressBar.IsIndeterminate = false;
                 MainProgressBar.Value = 100;
                 StepTextBlock.Text = "完成";
                 StatusTextBlock.Text = "备份已完成，并通过完整性校验。";
-                CompletedDetailTextBlock.Text = string.IsNullOrWhiteSpace(result.Message)
+                CompletedDetailTextBlock.Text = _systemRestorePointPending
+                    ? "软件自身的备份已完成并通过校验。Windows 系统还原点暂未创建；建议稍后从“系统保护”手动创建，不影响本次软件备份。"
+                    : string.IsNullOrWhiteSpace(result.Message)
                     ? $"安全基线建立成功（{DateTime.Now:yyyy-MM-dd HH:mm:ss}）。进入后会自动打开备份中心，你可以查看首次基线和系统还原点联动状态。"
                     : result.Message;
                 AppendLog("[完成] 首次安全备份已完成。");
@@ -575,6 +581,9 @@ public partial class FirstRunBaselineDialog : Window
         FailedRetryBtn.Visibility = stage == UiStage.Failed ? Visibility.Visible : Visibility.Collapsed;
         FailedExitBtn.Visibility = stage == UiStage.Failed ? Visibility.Visible : Visibility.Collapsed;
         CompletedEnterBtn.Visibility = stage == UiStage.Completed ? Visibility.Visible : Visibility.Collapsed;
+        CompletedOpenSettingsBtn.Visibility = stage == UiStage.Completed && _systemRestorePointPending
+            ? Visibility.Visible
+            : Visibility.Collapsed;
 
         if (stage == UiStage.Intro)
         {
@@ -732,6 +741,11 @@ public partial class FirstRunBaselineDialog : Window
     {
         ShowAuthorInfoBeforeEnteringSoftware();
         CloseAfterAuthorInfo();
+    }
+
+    private void CompletedOpenSettingsBtn_Click(object sender, RoutedEventArgs e)
+    {
+        _manualGuideService.OpenSystemProtectionSettings();
     }
 
     private void UpdateProgressSegments(int completedStep)

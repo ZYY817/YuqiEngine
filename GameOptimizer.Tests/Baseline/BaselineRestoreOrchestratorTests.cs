@@ -214,19 +214,19 @@ public sealed class BaselineRestoreOrchestratorTests
     }
 
     [Fact]
-    public void DomainDefinitions_OnlyCoreRecoveryDomainsAndRestorePointBlockFirstBaselineAdmission()
+    public void DomainDefinitions_OnlySoftwareCoreRecoveryDomainsBlockFirstBaselineAdmission()
     {
         var collector = new BaselineDomainCollector(
             NullLogger<BaselineDomainCollector>.Instance,
             new EmergencySnapshotService());
         var definitions = collector.GetDefinitions().ToDictionary(item => item.DomainId, StringComparer.OrdinalIgnoreCase);
 
-        foreach (string domainId in new[] { "D03", "D04", "D05", "D06", "D13" })
+        foreach (string domainId in new[] { "D03", "D04", "D05", "D06" })
         {
             Assert.True(definitions[domainId].Required, domainId + " must be a core baseline domain.");
         }
 
-        foreach (string domainId in new[] { "D01", "D02", "D08", "D09", "D10", "D15", "D16", "D18", "D22" })
+        foreach (string domainId in new[] { "D01", "D02", "D08", "D09", "D10", "D13", "D15", "D16", "D18", "D22" })
         {
             Assert.False(definitions[domainId].Required, domainId + " must remain an advisory/audit domain.");
         }

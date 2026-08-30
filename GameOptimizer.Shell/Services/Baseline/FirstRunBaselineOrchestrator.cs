@@ -191,19 +191,13 @@ public sealed class FirstRunBaselineOrchestrator : IFirstRunBaselineOrchestrator
 					{
 						continue;
 					}
-					runtime.CurrentStep = BaselineFlowStep.ManualGuide;
-					runtime.HasBlockingFailure = true;
-					await _runtimeStateStore.SaveAsync(runtime, ct).ConfigureAwait(continueOnCapturedContext: false);
-					await _baselineGateService.MarkBaselineFailureAsync("baseline_orchestrator_manual_required", FirstRunBaselineState.ManualInterventionRequired, manualResult.Message, ct).ConfigureAwait(continueOnCapturedContext: false);
-					Report(progress, runtime, BaselineFlowStep.ManualGuide, manualResult.Message, "D13", BaselineDomainStatus.ManualRequired);
-					result = new BaselineRunResult
-					{
-						Success = false,
-						RequiresManualGuide = true,
-						Message = manualResult.Message,
-						RuntimeState = runtime
-					};
-					goto end_IL_0237;
+					// Windows can reject a new restore point during its cooldown window or when
+					// protection is managed elsewhere. Record that truthfully, but do not reject
+					// an otherwise verified software backup: D13 has a manual recovery path.
+					Report(progress, runtime, BaselineFlowStep.Collecting,
+						"系统还原点暂不可用，已保留提示；软件备份会继续完成。",
+						"D13", BaselineDomainStatus.ManualRequired);
+					continue;
 				}
 				if (runtime.HasBlockingFailure)
 				{
@@ -412,7 +406,7 @@ public sealed class FirstRunBaselineOrchestrator : IFirstRunBaselineOrchestrator
 		runtime.ManualGuideCompleted = true;
 		runtime.CurrentStep = BaselineFlowStep.Collecting;
 		runtime.HasBlockingFailure = false;
-		await WriteManualDomainArtifactAsync(packageDirectory, domain, ct).ConfigureAwait(continueOnCapturedContext: false);
+		await WriteRestorePointDomainArtifactAsync(packageDirectory, domain, "System restore point verified.", ct).ConfigureAwait(continueOnCapturedContext: false);
 		await _runtimeStateStore.SaveAsync(runtime, ct).ConfigureAwait(continueOnCapturedContext: false);
 		await _baselineGateService.MarkBaselineFailureAsync("baseline_orchestrator_manual_recheck_passed", FirstRunBaselineState.Running, null, ct).ConfigureAwait(continueOnCapturedContext: false);
 		return result;
@@ -453,11 +447,13 @@ public sealed class FirstRunBaselineOrchestrator : IFirstRunBaselineOrchestrator
 		{
 			return (Success: false, ErrorMessage: diskCheck.ErrorMessage ?? "磁盘空间不足。", LockHandle: null);
 		}
-		Report(progress, runtime, BaselineFlowStep.Preflight, "正在检查系统还原能力。");
+		Report(progress, runtime, BaselineFlowStep.Preflight, "正在检查系统还原能力（建议项）。");
 		var (canCreateRestorePoint, restoreReason) = _systemRestoreService.CanCreateRestorePoint();
 		if (!canCreateRestorePoint)
 		{
-			return (Success: false, ErrorMessage: "系统还原能力检查未通过：" + restoreReason, LockHandle: null);
+			Report(progress, runtime, BaselineFlowStep.Preflight,
+				"系统还原点暂不可创建，稍后可从 Windows 系统保护中手动完成：" + restoreReason,
+				"D13", BaselineDomainStatus.Warning);
 		}
 		Report(progress, runtime, BaselineFlowStep.Preflight, "正在检查系统命令能力。");
 		(bool Success, string Message) commandCheck = BaselinePreflightCapabilityChecker.CheckCommandCapability();
@@ -516,6 +512,11 @@ public sealed class FirstRunBaselineOrchestrator : IFirstRunBaselineOrchestrator
 			domainProgress.ErrorCode = "BASELINE.D13.MANUAL_REQUIRED";
 			domainProgress.ErrorMessage = manualResult.Message;
 			domainProgress.FinishedUtc = DateTime.UtcNow;
+			await WriteRestorePointDomainArtifactAsync(
+				packageDirectory,
+				domainProgress,
+				"Windows 系统还原点未创建；请通过系统保护页面手动完成。",
+				ct).ConfigureAwait(continueOnCapturedContext: false);
 			await _runtimeStateStore.SaveAsync(runtime, ct).ConfigureAwait(continueOnCapturedContext: false);
 			return (Success: false, Message: manualResult.Message);
 		}
@@ -524,12 +525,12 @@ public sealed class FirstRunBaselineOrchestrator : IFirstRunBaselineOrchestrator
 		domainProgress.ErrorMessage = null;
 		domainProgress.FinishedUtc = DateTime.UtcNow;
 		runtime.ManualGuideCompleted = true;
-		await WriteManualDomainArtifactAsync(packageDirectory, domainProgress, ct).ConfigureAwait(continueOnCapturedContext: false);
+		await WriteRestorePointDomainArtifactAsync(packageDirectory, domainProgress, "System restore point verified.", ct).ConfigureAwait(continueOnCapturedContext: false);
 		await _runtimeStateStore.SaveAsync(runtime, ct).ConfigureAwait(continueOnCapturedContext: false);
 		return (Success: true, Message: string.Empty);
 	}
 
-	private static async Task WriteManualDomainArtifactAsync(string packageDirectory, BaselineDomainProgress domain, CancellationToken ct)
+	private static async Task WriteRestorePointDomainArtifactAsync(string packageDirectory, BaselineDomainProgress domain, string message, CancellationToken ct)
 	{
 		string artifactPath = Path.Combine(packageDirectory, domain.DomainId + ".json");
 		var payload = new
@@ -538,7 +539,7 @@ public sealed class FirstRunBaselineOrchestrator : IFirstRunBaselineOrchestrator
 			domainName = domain.DomainName,
 			status = domain.Status.ToString(),
 			finishedUtc = (domain.FinishedUtc ?? DateTime.UtcNow),
-			message = "System restore point verified."
+			message
 		};
 		string json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
 		{
