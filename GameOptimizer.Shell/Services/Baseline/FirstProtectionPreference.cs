@@ -17,7 +17,9 @@ public sealed class FirstProtectionPreference
 
     public int SchemaVersion { get; set; } = 1;
 
-    public int OnboardingRevision { get; set; } = CurrentOnboardingRevision;
+    // Missing in older preference files, which intentionally reads as revision 0
+    // so a newly introduced safety flow is shown once after an upgrade.
+    public int OnboardingRevision { get; set; }
 
     public FirstProtectionPreferenceStatus Status { get; set; } = FirstProtectionPreferenceStatus.Pending;
 

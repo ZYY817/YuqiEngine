@@ -83,6 +83,7 @@ public sealed class FirstProtectionPreferenceStore
         SaveAsync(new FirstProtectionPreference
         {
             Status = FirstProtectionPreferenceStatus.UserDeferred,
+            OnboardingRevision = FirstProtectionPreference.CurrentOnboardingRevision,
             IntroShownUtc = DateTime.UtcNow,
             LastFailureReason = failureReason
         }, ct);
@@ -91,6 +92,7 @@ public sealed class FirstProtectionPreferenceStore
         SaveAsync(new FirstProtectionPreference
         {
             Status = FirstProtectionPreferenceStatus.BackupFailed,
+            OnboardingRevision = FirstProtectionPreference.CurrentOnboardingRevision,
             IntroShownUtc = DateTime.UtcNow,
             LastFailureReason = string.IsNullOrWhiteSpace(reason) ? "首次保护备份未完成。" : reason
         }, ct);
@@ -99,6 +101,7 @@ public sealed class FirstProtectionPreferenceStore
         SaveAsync(new FirstProtectionPreference
         {
             Status = FirstProtectionPreferenceStatus.BackupCompleted,
+            OnboardingRevision = FirstProtectionPreference.CurrentOnboardingRevision,
             IntroShownUtc = DateTime.UtcNow,
             BackupCompletedUtc = DateTime.UtcNow
         }, ct);
@@ -106,6 +109,7 @@ public sealed class FirstProtectionPreferenceStore
     private static FirstProtectionPreference Corrupted(string reason) => new()
     {
         Status = FirstProtectionPreferenceStatus.Corrupted,
+        OnboardingRevision = FirstProtectionPreference.CurrentOnboardingRevision,
         LastFailureReason = reason
     };
 }
