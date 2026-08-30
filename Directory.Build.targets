@@ -4,6 +4,12 @@
     <EvidenceIsolationGlobs>**\_decompile*\**;**\*.bak;**\*_Backup.*;**\*_New.*;**\.verify_build\**;**\.verify-power-audit\**;**\_verify-build\**;**\docs\RECOVERY\**;**\_evidence*\**;**\_staging*\**;**\_recovery-history*\**;**\_temporary-validation*\**;**\obj\RestoreTruthfulnessTestsC\**</EvidenceIsolationGlobs>
   </PropertyGroup>
 
+  <!-- 发布包保留可诊断信息，但不生成可被误传的独立 PDB 文件。 -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="$(EvidenceIsolationGlobs)" />
     <Content Remove="$(EvidenceIsolationGlobs)" />

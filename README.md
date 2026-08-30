@@ -42,7 +42,7 @@
 
 ## 当前状态
 
-🚧 **v0.1** — 首个公开测试版；部分功能仍在持续完善。
+🚧 **v0.1.3-preview** — 测试预览版；部分功能仍在持续完善。
 
 欢迎提交 [Issue](https://github.com/ZYY817/YuqiEngine/issues) 反馈问题或建议。
 

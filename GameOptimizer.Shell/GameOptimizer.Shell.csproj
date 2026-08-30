@@ -38,9 +38,10 @@
     <AssemblyTitle>宇奇引擎</AssemblyTitle>
     <Description>游戏性能优化工具</Description>
     <Copyright>© 2026 宇奇</Copyright>
-    <Version>0.1.0</Version>
-    <FileVersion>0.1.0.0</FileVersion>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <Version>0.1.3-preview</Version>
+    <FileVersion>0.1.3.0</FileVersion>
+    <AssemblyVersion>0.1.3.0</AssemblyVersion>
+    <AssemblyInformationalVersion>0.1.3-preview</AssemblyInformationalVersion>
     <!-- 自定义 Main 入口，禁用 WPF 自动生成的 Main -->
     <StartupObject>GameOptimizer.Shell.Program</StartupObject>
   </PropertyGroup>

@@ -466,7 +466,7 @@
                         </Border>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <TextBlock Text="宇奇引擎 Yuqi Engine" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="18" FontWeight="Bold"/>
-                            <TextBlock Text="v0.1" Foreground="#3B82F6" FontSize="13" FontWeight="Medium" Margin="0,4,0,0"/>
+                            <TextBlock Text="v0.1.3-preview" Foreground="#3B82F6" FontSize="13" FontWeight="Medium" Margin="0,4,0,0"/>
                             <TextBlock x:Name="AppDescriptionText" Text="游戏性能优化工具" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,4,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
