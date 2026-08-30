@@ -481,6 +481,7 @@ public partial class App : Application
             await _orchestrator.TransitionToMainWindowAsync(mainWindow, activateMainWindow: !isRecoveryDevelopmentInstance).ConfigureAwait(false);
             if (!isAcceptanceUiInstance && !isRecoveryDevelopmentInstance)
             {
+                await ShowReleaseNoticeIfNeededAsync(mainWindow).ConfigureAwait(false);
                 await ShowFirstProtectionOnboardingIfNeededAsync(mainWindow).ConfigureAwait(false);
             }
             bool isSystemCleanupScanProbe = isAcceptanceUiInstance
@@ -647,6 +648,39 @@ public partial class App : Application
                 LogLevel.Warning,
                 "App.FirstProtectionOnboarding",
                 "首次保护引导未能显示；软件仍可继续使用，未建立基线时执行操作会单独请求风险确认。",
+                ex.Message);
+        }
+    }
+
+    private async Task ShowReleaseNoticeIfNeededAsync(Window owner)
+    {
+        try
+        {
+            var settings = Models.AppSettings.Load();
+            if (string.Equals(
+                    settings.AcknowledgedReleaseNoticeId,
+                    GameOptimizer.Shell.Services.ReleaseNoticePolicy.CurrentNoticeId,
+                    StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                var dialog = new Views.ReleaseNoticeDialog { Owner = owner };
+                if (dialog.ShowDialog() == true)
+                {
+                    settings.AcknowledgedReleaseNoticeId = GameOptimizer.Shell.Services.ReleaseNoticePolicy.CurrentNoticeId;
+                    settings.Save();
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            _diagnosticLogService?.Append(
+                LogLevel.Warning,
+                "App.ReleaseNotice",
+                "测试版使用范围提醒未能显示；未将其误记为已确认。",
                 ex.Message);
         }
     }

@@ -100,6 +100,12 @@ public class AppSettings
     public bool HasShownWelcomeGuide { get; set; } = false;
 
     /// <summary>
+    /// 最近一次已确认的发布范围提示。它与日志、备份和首次保护状态无关，
+    /// 以便旧版本升级到新的测试版时仍会重新看到当前能力边界。
+    /// </summary>
+    public string? AcknowledgedReleaseNoticeId { get; set; }
+
+    /// <summary>
     /// 引导优化风险提示：用户选择“不再提示”后置为 true。
     /// </summary>
 

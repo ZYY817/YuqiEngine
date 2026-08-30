@@ -1,0 +1,93 @@
+<Window x:Class="GameOptimizer.Shell.Views.ReleaseNoticeDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:constants="clr-namespace:GameOptimizer.Shell.Constants"
+        Title="测试版使用说明" Width="680" SizeToContent="Height" MinHeight="560"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="{DynamicResource Theme.Brush.DialogBackground}"
+        Foreground="{DynamicResource Theme.Brush.TextPrimary}"
+        Closing="Window_Closing">
+    <Border BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1" CornerRadius="14">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Padding="24,18" Background="{DynamicResource Theme.Brush.BackgroundSecondary}"
+                    BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="0,0,0,1"
+                    CornerRadius="14,14,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="38" Height="38" CornerRadius="10" Background="#20F59E0B" Margin="0,0,12,0">
+                        <TextBlock Text="{x:Static constants:IconGlyphs.Warning}" FontFamily="Segoe MDL2 Assets" FontSize="17"
+                                   Foreground="#F59E0B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="测试版使用说明" FontSize="18" FontWeight="SemiBold"/>
+                        <TextBlock Text="请在继续前了解当前可使用的范围" FontSize="12"
+                                   Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,3,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,20">
+                <StackPanel>
+                    <TextBlock Text="宇奇引擎正在持续完善" FontSize="24" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <TextBlock Text="这不是故障版，但它仍是测试版：部分功能正在开发、验证或等待不同电脑环境的兼容性确认。"
+                               FontSize="14" LineHeight="22" TextWrapping="Wrap"
+                               Foreground="{DynamicResource Theme.Brush.TextSecondary}" Margin="0,0,0,16"/>
+
+                    <Border Background="#161D4ED8" BorderBrush="#406366F1" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="现在可以怎么用" FontWeight="SemiBold" Foreground="#9AA8FF"/>
+                            <TextBlock Text="请优先使用首页“功能矩阵”中已有清楚说明、状态正常且可以应用的基础项目。每次只少量应用，并阅读项目右侧的作用、风险和可用性说明。"
+                                       FontSize="13" LineHeight="20" TextWrapping="Wrap" Margin="0,5,0,0"
+                                       Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#18F59E0B" BorderBrush="#40F59E0B" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="暂时不要使用" FontWeight="SemiBold" Foreground="#F7B84B"/>
+                            <TextBlock Text="高级工具箱、深度硬件或驱动调校，以及会修改电源计划、启动参数等底层设置的入口仍在完善中。即使页面出现，也不代表已适合所有电脑使用。"
+                                       FontSize="13" LineHeight="20" TextWrapping="Wrap" Margin="0,5,0,0"
+                                       Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#141E2A42" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
+                        <StackPanel>
+                            <TextBlock Text="开始前请记住" FontWeight="SemiBold"/>
+                            <TextBlock Text="创建 Windows 系统还原点；遇到“不可用”或“状态未确认”时不要尝试绕过；恢复功能只会撤销本软件有真实记录的改动。"
+                                       FontSize="13" LineHeight="20" TextWrapping="Wrap" Margin="0,5,0,0"
+                                       Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <Border Grid.Row="2" Padding="24,16" Background="{DynamicResource Theme.Brush.BackgroundSecondary}"
+                    BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="0,1,0,0"
+                    CornerRadius="0,0,14,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="AcknowledgementCheckBox" Grid.Column="0" VerticalAlignment="Center"
+                              Content="我已了解这是测试版，并会按上述范围使用"
+                              Checked="AcknowledgementCheckBox_Changed" Unchecked="AcknowledgementCheckBox_Changed"
+                              AutomationProperties.Name="确认已了解测试版使用范围"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="18,0,0,0">
+                        <Button Content="退出软件" MinWidth="92" Height="40" Margin="0,0,10,0"
+                                Click="ExitButton_Click" AutomationProperties.Name="退出软件"/>
+                        <Button x:Name="ContinueButton" Content="进入软件" MinWidth="128" Height="40"
+                                IsEnabled="False" Click="ContinueButton_Click"
+                                AutomationProperties.Name="确认测试版说明并进入软件"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
