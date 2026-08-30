@@ -311,7 +311,7 @@ public sealed class ShellVisualContractTests
     }
 
     [Fact]
-    public void ShellNavigationUsesAnExplicitCatalogSourceAndStartupOffersOptionalFirstProtection()
+    public void ShellNavigationUsesAnExplicitCatalogSourceAndStartupShowsTwoIndependentFirstUseNotices()
     {
         var shell = Read("GameOptimizer.Shell/MainWindow.xaml");
         var shellCode = Read("GameOptimizer.Shell/MainWindow.xaml.cs");
@@ -330,7 +330,10 @@ public sealed class ShellVisualContractTests
 
         Assert.DoesNotContain("EnsureMandatoryFirstRunBaselineAsync", app, StringComparison.Ordinal);
         Assert.DoesNotContain("CreateBackupIfNeededAsync", app, StringComparison.Ordinal);
-        Assert.Contains("ShowFirstProtectionOnboardingIfNeededAsync(mainWindow)", app, StringComparison.Ordinal);
+        var startupPath = app[..app.IndexOf("bool isSystemCleanupScanProbe", StringComparison.Ordinal)];
+        Assert.Contains("ShowFirstRunDialogIfNeeded(mainWindow)", startupPath, StringComparison.Ordinal);
+        Assert.Contains("ShowReleaseNoticeIfNeededAsync(mainWindow)", startupPath, StringComparison.Ordinal);
+        Assert.DoesNotContain("ShowFirstProtectionOnboardingIfNeededAsync(mainWindow)", startupPath, StringComparison.Ordinal);
         Assert.Contains("!isAcceptanceUiInstance && !isRecoveryDevelopmentInstance", app, StringComparison.Ordinal);
         Assert.Contains("services.AddSingleton<FirstProtectionPreferenceStore>()", app, StringComparison.Ordinal);
         Assert.Contains("services.AddSingleton<IFirstRunBaselineOrchestrator, FirstRunBaselineOrchestrator>()", app, StringComparison.Ordinal);

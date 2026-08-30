@@ -302,7 +302,6 @@ public partial class App : Application
                             services.AddSingleton<IGameLibraryScannerService, GameLibraryScannerService>();
                             services.AddSingleton<ISystemCompatibilityService, SystemCompatibilityService>();
                             services.AddSingleton<IHardwareDetectionService, HardwareDetectionService>();
-                            services.AddSingleton<IUpdateCheckService, UpdateCheckService>();
                             services.AddSingleton<INetworkSpeedTestService, NetworkSpeedTestService>();
                             services.AddSingleton<IPowerPlanEditorService, PowerPlanEditorService>();
                             services.AddSingleton<IConfigurationExportService, ConfigurationExportService>();
@@ -374,7 +373,6 @@ public partial class App : Application
                             services.AddSingleton<SettingsPage>(provider =>
                                 new SettingsPage(
                                     provider.GetRequiredService<IAppSettingsStore>(),
-                                    provider.GetRequiredService<IUpdateCheckService>(),
                                     provider.GetRequiredService<IConfigurationExportService>(),
                                     provider.GetRequiredService<DiagnosticPackageService>(),
                                     () => provider.GetRequiredService<IStartupEntryOwner>()));
@@ -481,8 +479,8 @@ public partial class App : Application
             await _orchestrator.TransitionToMainWindowAsync(mainWindow, activateMainWindow: !isRecoveryDevelopmentInstance).ConfigureAwait(false);
             if (!isAcceptanceUiInstance && !isRecoveryDevelopmentInstance)
             {
+                await Dispatcher.InvokeAsync(() => ShowFirstRunDialogIfNeeded(mainWindow));
                 await ShowReleaseNoticeIfNeededAsync(mainWindow).ConfigureAwait(false);
-                await ShowFirstProtectionOnboardingIfNeededAsync(mainWindow).ConfigureAwait(false);
             }
             bool isSystemCleanupScanProbe = isAcceptanceUiInstance
                 && string.Equals(acceptanceAction, "system-cleanup-scan", StringComparison.OrdinalIgnoreCase);
@@ -574,8 +572,6 @@ public partial class App : Application
                     _diagnosticLogService?.Append(LogLevel.Information, "App.Startup",
                         "Running without administrator privileges", string.Empty);
                 }
-
-                // 首次运行不再弹出教学或遮罩；用户可直接使用全部功能。
 
                 if (IsAutoTestMode(e.Args))
                 {
@@ -873,7 +869,7 @@ public partial class App : Application
         }
     }
 
-    // 保留旧实现仅供历史兼容；启动路径不再调用首次运行教学。
+    // First-use introduction is independent from the preview-scope notice.
     private void ShowFirstRunDialogIfNeeded(Window owner)
     {
         var settingsPath = AppPaths.FirstRunFlagPath;
@@ -884,8 +880,6 @@ public partial class App : Application
         
         // 如果已经显示过首次运行标记，也跳过
         if (System.IO.File.Exists(settingsPath)) return;
-
-        bool shouldStartGuide = false;
 
         try
         {
@@ -912,10 +906,6 @@ public partial class App : Application
                 }
             }
 
-            if (result == true)
-            {
-                shouldStartGuide = true;
-            }
         }
         catch (Exception ex)
         {
@@ -936,43 +926,10 @@ public partial class App : Application
                     GameOptimizer.Core.Services.SafeFileWriter.TryWriteAllText(dontShowPath, DateTime.Now.ToString("O"));
                 }
 
-                if (result == true)
-                {
-                    shouldStartGuide = true;
-                }
             }
             catch (Exception dialogEx) { Debug.WriteLine($"[App] Failed to show WelcomeGuideDialog: {dialogEx.Message}"); }
         }
 
-        // 启动首页引导
-        if (shouldStartGuide)
-        {
-            // 使用Dispatcher延迟执行，确保主窗口完全加载
-            _ = Dispatcher.BeginInvoke(new Action(async () =>
-            {
-                try
-                {
-                    await Task.Delay(800); // 等待主窗口完全显示和动画完成
-                    
-                    // 获取MainWindow的实际内容根容器
-                    var rootContainer = owner.FindName("RootContainer") as FrameworkElement;
-                    if (rootContainer != null)
-                    {
-                        await GameOptimizer.Shell.Services.UserGuideService.Instance.StartGuideAsync("overview", rootContainer);
-                    }
-                    else
-                    {
-                        Debug.WriteLine("[App] Failed to find RootContainer for guide");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"[App] Failed to start user guide: {ex.Message}");
-                    _diagnosticLogService?.Append(LogLevel.Warning, "App.UserGuide", 
-                        "Failed to start user guide", ex.Message);
-                }
-            }), System.Windows.Threading.DispatcherPriority.Background);
-        }
     }
 
     // Why: 全自动测试模式 — 启动应用 → 跑完测试 → 保存报告 → 自动退出

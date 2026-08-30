@@ -70,7 +70,49 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 
 	public sealed record SingleOperationRollbackResult(bool Success, string Message);
 
-	public sealed record OverviewEntry(string Key, string Title, string IconData, string StatusText, bool CanOpen = true);
+	public sealed class OverviewEntry : INotifyPropertyChanged
+	{
+		private readonly OptimizationModuleDefinition? _module;
+		private readonly string _staticStatusText;
+
+		public OverviewEntry(string key, string title, string iconData, OptimizationModuleDefinition module)
+		{
+			Key = key;
+			Title = title;
+			IconData = iconData;
+			_module = module;
+			_staticStatusText = string.Empty;
+			_module.PropertyChanged += OnModulePropertyChanged;
+		}
+
+		public OverviewEntry(string key, string title, string iconData, string statusText, bool canOpen = true)
+		{
+			Key = key;
+			Title = title;
+			IconData = iconData;
+			_staticStatusText = statusText;
+			CanOpen = canOpen;
+		}
+
+		public string Key { get; }
+		public string Title { get; }
+		public string IconData { get; }
+		public bool CanOpen { get; } = true;
+		public string StatusText => _module is null
+			? _staticStatusText
+			: $"{_module.AppliedCount}/{_module.TotalCount}";
+
+		public event PropertyChangedEventHandler? PropertyChanged;
+
+		private void OnModulePropertyChanged(object? sender, PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName is nameof(OptimizationModuleDefinition.AppliedCount)
+				or nameof(OptimizationModuleDefinition.TotalCount))
+			{
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusText)));
+			}
+		}
+	}
 
 	private static class IconPath
 	{
@@ -1753,13 +1795,8 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 		}
 		if (ModuleKeyToNavKeyMap.TryGetValue(moduleKey, out string navKey))
 		{
-			NavigationSectionModel navigationSectionModel = NavigationSections.FirstOrDefault((NavigationSectionModel s) => s.Key == navKey);
-			if (navigationSectionModel != null)
-			{
-				SelectedNavigationSection = navigationSectionModel;
-				NavigateToPageRequested?.Invoke(navKey);
-				return;
-			}
+			NavigateToPageRequested?.Invoke(navKey);
+			return;
 		}
 		NavigationSectionModel navigationSectionModel2 = NavigationSections.FirstOrDefault((NavigationSectionModel s) => s.Key == moduleKey);
 		if (navigationSectionModel2 != null)
@@ -2650,9 +2687,7 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 			{
 				continue;
 			}
-			int applied = module.Toggles.Count((OptimizationToggleModel t) => t.IsApplied);
-			string statusText = $"{applied}/{module.Toggles.Count}";
-			OverviewEntries.Add(new OverviewEntry(module.Key, module.Title, module.IconData, statusText));
+			OverviewEntries.Add(new OverviewEntry(module.Key, module.Title, module.IconData, module));
 		}
 		OverviewEntries.Add(new OverviewEntry("hardware", LocalizationService.Instance.Get("Nav.HardwareInfo"), IconPath.Hardware, "查看设备与系统信息"));
 		OverviewEntries.Add(new OverviewEntry("nettest", LocalizationService.Instance.Get("Nav.NetworkTest"), IconPath.NetworkTest, "网络延迟与稳定性检测"));

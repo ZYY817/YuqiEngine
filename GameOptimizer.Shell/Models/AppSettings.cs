@@ -151,7 +151,6 @@ public class AppSettings
     /// 选中的优化模式（performance/balanced/safe）
     /// </summary>
     public string GitHubRepo { get; set; } = "ZYY817/YuqiEngine";
-    public DateTime LastAutoUpdateCheckUtc { get; set; } = DateTime.MinValue;
 
     // P0-001: 配置持久化 - 性能加速配置
     /// <summary>

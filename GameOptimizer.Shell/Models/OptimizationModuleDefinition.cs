@@ -82,6 +82,7 @@ public class OptimizationModuleDefinition : INotifyPropertyChanged
     private void NotifyCountChanged()
     {
         OnPropertyChanged(nameof(AppliedCount));
+        OnPropertyChanged(nameof(TotalCount));
         OnPropertyChanged(nameof(ProgressWidth));
     }
 
@@ -106,6 +107,9 @@ public class OptimizationModuleDefinition : INotifyPropertyChanged
 
     // 已优化数量
     public int AppliedCount => Toggles.Count(t => t.IsApplied);
+
+    // 模块中实际注册的优化项数量，与对应功能页面共用同一份操作集合。
+    public int TotalCount => Toggles.Count;
 
     // 进度条宽度 (用于绑定)
     public double ProgressWidth => Toggles.Count == 0 ? 0 : (double)AppliedCount / Toggles.Count * 100;

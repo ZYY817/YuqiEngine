@@ -14,11 +14,6 @@ public static class LocalizationKeys
     
     // 设置页面
     public const string LanguageChanged = "Settings.LanguageChanged";
-    public const string UpdateServiceUnavailable = "Settings.UpdateServiceUnavailable";
-    public const string CheckUpdate = "Settings.CheckUpdate";
-    public const string NewVersionFound = "Settings.NewVersionFound";
-    public const string NoUpdateAvailable = "Settings.NoUpdateAvailable";
-    public const string CheckUpdateFailed = "Settings.CheckUpdateFailed";
     public const string OpenLogFolderFailed = "Settings.OpenLogFolderFailed";
     public const string ResetSettingsConfirm = "Settings.ResetSettingsConfirm";
     public const string ResetSettings = "Settings.ResetSettings";
