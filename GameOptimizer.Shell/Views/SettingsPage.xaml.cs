@@ -506,6 +506,7 @@ public partial class SettingsPage : UserControl
 
     private async void UpdateEntryButton_Click(object sender, RoutedEventArgs e)
     {
+        UpdatePanel.Visibility = Visibility.Visible;
         await PerformUpdateEntryActionAsync();
     }
 

@@ -549,7 +549,7 @@
                             </Button>
                         </StackPanel>
                     </Grid>
-                    <Border Style="{StaticResource UpdatePanelCardStyle}" MaxWidth="860" HorizontalAlignment="Center" Visibility="Collapsed">
+                    <Border x:Name="UpdatePanel" Style="{StaticResource UpdatePanelCardStyle}" MaxWidth="860" HorizontalAlignment="Center" Visibility="Collapsed">
                         <StackPanel>
                             <TextBlock x:Name="GitHubRepoTitleText" Text="版本更新"
                                        Foreground="{DynamicResource Theme.Brush.TextPrimary}"

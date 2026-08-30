@@ -65,7 +65,8 @@
     <Color x:Key="Theme.Text.Secondary">#CBD5E1</Color>
     <!-- Used for explanatory copy: intentionally readable, while still lower emphasis than primary text. -->
     <Color x:Key="Theme.Text.Muted">#AEB8C7</Color>
-    <Color x:Key="Theme.Text.Disabled">#52525B</Color>
+    <!-- Disabled text must remain legible on deep surfaces; state is communicated by control opacity as well. -->
+    <Color x:Key="Theme.Text.Disabled">#8492A6</Color>
     
     <!-- Icon Colors (深色模式用白色/浅色图标) -->
     <Color x:Key="Theme.Icon.Primary">#FFFFFF</Color>

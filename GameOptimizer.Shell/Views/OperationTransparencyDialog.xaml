@@ -10,6 +10,7 @@
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
+        Foreground="{DynamicResource Theme.Brush.TextPrimary}"
         ResizeMode="CanResizeWithGrip"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
@@ -102,7 +103,7 @@
                     <Border Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" CornerRadius="10" Padding="12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1" Margin="0,0,0,12">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="0"/>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="0"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
