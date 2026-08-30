@@ -333,6 +333,7 @@ public sealed class ShellVisualContractTests
         var startupPath = app[..app.IndexOf("bool isSystemCleanupScanProbe", StringComparison.Ordinal)];
         Assert.Contains("ShowReleaseNoticeIfNeededAsync(mainWindow)", startupPath, StringComparison.Ordinal);
         Assert.Contains("ShowFirstProtectionOnboardingIfNeededAsync(mainWindow)", startupPath, StringComparison.Ordinal);
+        Assert.Contains("dialog.ShowDialog()", app, StringComparison.Ordinal);
         Assert.DoesNotContain("WelcomeGuideDialog", app, StringComparison.Ordinal);
         Assert.Contains("!isAcceptanceUiInstance && !isRecoveryDevelopmentInstance", app, StringComparison.Ordinal);
         Assert.Contains("services.AddSingleton<FirstProtectionPreferenceStore>()", app, StringComparison.Ordinal);

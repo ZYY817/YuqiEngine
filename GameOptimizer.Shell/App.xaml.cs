@@ -621,6 +621,11 @@ public partial class App : Application
             var preference = await preferences.LoadAsync().ConfigureAwait(true);
             if (!preference.ShouldOfferOnStartup)
             {
+                _diagnosticLogService?.Append(
+                    LogLevel.Information,
+                    "App.FirstProtectionOnboarding",
+                    "首次安全备份引导已跳过：用户已处理当前版本的引导。",
+                    $"Status={preference.Status}; Revision={preference.OnboardingRevision}");
                 return;
             }
 
@@ -635,7 +640,12 @@ public partial class App : Application
                 {
                     Owner = owner
                 };
-                dialog.Show();
+                _diagnosticLogService?.Append(
+                    LogLevel.Information,
+                    "App.FirstProtectionOnboarding",
+                    "正在显示首次安全备份引导。",
+                    $"Status={preference.Status}; Revision={preference.OnboardingRevision}");
+                dialog.ShowDialog();
             });
         }
         catch (Exception ex)
