@@ -480,6 +480,7 @@ public partial class App : Application
             if (!isAcceptanceUiInstance && !isRecoveryDevelopmentInstance)
             {
                 await ShowReleaseNoticeIfNeededAsync(mainWindow).ConfigureAwait(false);
+                await ShowFirstProtectionOnboardingIfNeededAsync(mainWindow).ConfigureAwait(false);
             }
             bool isSystemCleanupScanProbe = isAcceptanceUiInstance
                 && string.Equals(acceptanceAction, "system-cleanup-scan", StringComparison.OrdinalIgnoreCase);
