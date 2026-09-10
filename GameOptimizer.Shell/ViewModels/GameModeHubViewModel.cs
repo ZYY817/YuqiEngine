@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GameOptimizer.Core.Models; // P3-030: 使用统一的CpuVendor枚举
 using GameOptimizer.Core.Optimization;
+using GameOptimizer.Shell.Helpers;
 using GameOptimizer.Shell.Models;
 using GameOptimizer.Shell.Services;
 using GameOptimizer.Shell.Theming;
@@ -409,13 +410,7 @@ public partial class GameModeHubViewModel : ObservableObject, IDisposable
 
         foreach (var item in allItems)
         {
-            item.IsSelected = mode switch
-            {
-                "all" or "performance" => true,
-                "balanced" => item.RiskLevel != OperationRiskLevel.Extreme,
-                "safe" => item.RiskLevel == OperationRiskLevel.Safe,
-                _ => false
-            };
+            item.IsSelected = CheckStateConflict.ComputePresetSelected(mode, item.RiskLevel, item.IsCompatible);
         }
     }
 
@@ -432,7 +427,11 @@ public partial class GameModeHubViewModel : ObservableObject, IDisposable
             "cpuvendor" => CpuVendorItems,
             _ => Enumerable.Empty<GameModeOptimizationItem>()
         };
-        foreach (var item in items) item.IsSelected = true;
+        foreach (var item in items)
+        {
+            if (item.IsCompatible)
+                item.IsSelected = true;
+        }
     }
 
     public void RefreshAllLocalizedTexts()
@@ -485,7 +484,8 @@ public partial class GameModeHubViewModel : ObservableObject, IDisposable
                 if (item != null)
                 {
                     item.IsApplied = toggle.IsApplied;
-                    if (toggle.IsApplied) item.IsSelected = true;
+                    if (toggle.IsApplied && item.IsCompatible)
+                        item.IsSelected = true;
                 }
             }
         }

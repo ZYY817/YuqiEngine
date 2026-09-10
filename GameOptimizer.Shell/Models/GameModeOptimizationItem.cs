@@ -60,13 +60,18 @@ public partial class GameModeOptimizationItem : ObservableObject
     [ObservableProperty]
     private string? incompatibleReason;
 
-    partial void OnIsSelectedChanging(bool value)
+    partial void OnIsSelectedChanged(bool value)
     {
-        // 不兼容项禁止选择
+        // Property setters must not throw: Select-all / filter / applied-sync used to crash
+        // Game Mode pages when a policy-denied or hardware-incompatible item was force-selected.
         if (value && !IsCompatible)
         {
-            throw new InvalidOperationException($"此优化项与当前硬件不兼容: {IncompatibleReason}");
+            IsSelected = false;
+            return;
         }
+
+        OnPropertyChanged(nameof(SelectionBorderBrush));
+        OnPropertyChanged(nameof(SelectionBackground));
     }
 
     public string RiskLabel
@@ -100,9 +105,4 @@ public partial class GameModeOptimizationItem : ObservableObject
         ? new SolidColorBrush(Color.FromRgb(0x1A, 0x25, 0x40))
         : new SolidColorBrush(Color.FromRgb(0x14, 0x1E, 0x30));
 
-    partial void OnIsSelectedChanged(bool value)
-    {
-        OnPropertyChanged(nameof(SelectionBorderBrush));
-        OnPropertyChanged(nameof(SelectionBackground));
-    }
 }

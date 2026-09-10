@@ -15,6 +15,7 @@ public partial class ProcessPriorityPage : UserControl
 {
     private const string IfeoBlockedMessage = "IFEO 持久优先级尚无独立 Owner、durable restore 与受控 Windows 验证，当前已零写入阻断。";
     private static bool IsIfeoBlocked => true;
+    private bool _synchronizingEnableToggle;
     private readonly ProcessPriorityViewModel _viewModel;
     private readonly IRegistryPriorityService _registryService;
     private readonly LocalizationService _loc;
@@ -48,7 +49,7 @@ public partial class ProcessPriorityPage : UserControl
 
     private void OnLanguageChanged(object? sender, string e)
     {
-        Dispatcher.Invoke(UpdateLocalizedTexts);
+        _ = Dispatcher.InvokeAsync(UpdateLocalizedTexts);
     }
 
     private void UpdateLocalizedTexts()
@@ -221,28 +222,43 @@ public partial class ProcessPriorityPage : UserControl
 
     private void EnableToggle_Changed(object sender, RoutedEventArgs e)
     {
-        if (IsIfeoBlocked)
-        {
-            ToastService.Instance.Error(_loc.Get("Common.Error"), IfeoBlockedMessage);
+        if (_synchronizingEnableToggle)
             return;
-        }
 
         if (sender is not CheckBox checkBox || checkBox.Tag is not string configId)
             return;
 
         var isEnabled = checkBox.IsChecked == true;
-        
+        if (IsIfeoBlocked)
+        {
+            RevertEnableToggle(checkBox, !isEnabled);
+            ToastService.Instance.Error(_loc.Get("Common.Error"), IfeoBlockedMessage);
+            return;
+        }
+
         try
         {
             _viewModel.ToggleEnabled(configId, isEnabled);
         }
         catch (Exception ex)
         {
-            checkBox.IsChecked = !isEnabled;
-            
+            RevertEnableToggle(checkBox, !isEnabled);
             ToastService.Instance.Error(
                 _loc.Get("Common.Error"),
                 ex.Message);
+        }
+    }
+
+    private void RevertEnableToggle(CheckBox checkBox, bool previous)
+    {
+        _synchronizingEnableToggle = true;
+        try
+        {
+            checkBox.IsChecked = previous;
+        }
+        finally
+        {
+            _synchronizingEnableToggle = false;
         }
     }
 }

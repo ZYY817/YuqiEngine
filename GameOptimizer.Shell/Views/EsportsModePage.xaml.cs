@@ -13,6 +13,7 @@ using GameOptimizer.Core.Optimization;
 using GameOptimizer.Core.Services;
 using GameOptimizer.Shell.Constants;
 using GameOptimizer.Shell.Controls;
+using GameOptimizer.Shell.Helpers;
 using GameOptimizer.Shell.Models;
 using GameOptimizer.Shell.Services;
 using GameOptimizer.Shell.Services.Baseline;
@@ -40,6 +41,7 @@ public partial class EsportsModePage : UserControl
     private bool _isOperating;
     private bool _isStateReadInProgress = true;
     private bool _isApplyingPreset;
+    private bool _isSynchronizingRowChecks;
     private bool _legacyExtremeSelectionCleared;
     private StrategyType? _selectedStrategy;
     private CancellationTokenSource? _lifetimeCancellation;
@@ -240,7 +242,7 @@ public partial class EsportsModePage : UserControl
 
     private void OnLanguageChanged(object? sender, string e)
     {
-        Dispatcher.Invoke(UpdateLocalizedTexts);
+        _ = Dispatcher.InvokeAsync(UpdateLocalizedTexts);
     }
 
     #endregion
@@ -917,14 +919,17 @@ public partial class EsportsModePage : UserControl
     private void OnRowCheckedChanged(object sender, RoutedEventArgs e)
     {
         if (sender is not OptimizationRow row) return;
-        if (_isApplyingPreset) return;
+        if (_isApplyingPreset || _isSynchronizingRowChecks) return;
         
         var loc = GameOptimizer.Core.Localization.LocalizationService.Instance;
-        
-        // 如果不兼容，阻止勾选并提示
-        if (!row.IsCompatible && row.IsChecked)
+        var conflict = CheckStateConflict.ResolveUserCheck(
+            row.IsChecked,
+            row.IsCompatible,
+            _appliedItems.Contains(row.OperationId));
+
+        if (conflict == CheckStateConflict.Action.RejectIncompatible)
         {
-            row.IsChecked = false;
+            SetRowCheckedSilently(row, false);
             var item = GetItemByOperationId(row.OperationId);
             ShowWarning(
                 loc.Get("Common.Warning") ?? "暂时不可用",
@@ -935,21 +940,18 @@ public partial class EsportsModePage : UserControl
         _selectedStrategy = StrategyType.Extreme;
         UpdateStrategyButtons();
         
-        // 核心逻辑修改：已应用的项允许用户关闭（相当于恢复操作）
         if (row.IsChecked)
         {
-            // 用户勾选：添加到待应用列表
             _selectedItems.Add(row.OperationId);
             EsportsModeStartupLogger.Log("TOGGLE", $"用户勾选: {row.OperationId}");
         }
         else
         {
-            // 用户取消勾选只改变待执行选择；系统真实状态只能由检测/恢复回读改变。
             _selectedItems.Remove(row.OperationId);
 
-            if (_appliedItems.Contains(row.OperationId))
+            if (conflict == CheckStateConflict.Action.RestoreApplied)
             {
-                row.IsChecked = true;
+                SetRowCheckedSilently(row, true);
                 ShowInfo("已应用项", "该项已由系统回读确认为已应用。请使用页面底部的恢复操作执行真实回退。");
             }
             else
@@ -1026,47 +1028,71 @@ public partial class EsportsModePage : UserControl
         EsportsModeStartupLogger.Log("UI_UPDATE", $"UpdateRowStateIndicators: _appliedItems.Count={_appliedItems.Count}, _selectedItems.Count={_selectedItems.Count}");
         
         int appliedCount = 0, pendingCount = 0, noneCount = 0;
-        
-        foreach (var (opId, row) in _allRows)
+        _isSynchronizingRowChecks = true;
+        try
         {
-            var isApplied = _appliedItems.Contains(opId);
-            var isSelected = _selectedItems.Contains(opId);
-            
-            var oldState = row.StateIndicator;
-            RowStateIndicator newState;
-            
-            // 核心逻辑修改：已应用的项显示为"已应用"，并且Toggle保持开启状态
-            if (isApplied)
+            foreach (var (opId, row) in _allRows)
             {
-                newState = RowStateIndicator.Applied;
-                appliedCount++;
+                var isApplied = _appliedItems.Contains(opId);
+                var isSelected = _selectedItems.Contains(opId);
                 
-                // 已应用的项，Toggle应该显示为开启状态
-                if (!row.IsChecked)
+                var oldState = row.StateIndicator;
+                RowStateIndicator newState;
+                
+                // 已应用项显示“已应用”。开关同步必须静默，否则已应用且不可用的行
+                // （例如策略禁止关闭、但注册表已是目标值的安全项）会在勾选/取消之间来回重入直到栈溢出。
+                if (isApplied)
                 {
-                    row.IsChecked = true;
-                    EsportsModeStartupLogger.Log("UI_UPDATE", $"同步UI: {opId} 已应用，设置Toggle为开启");
+                    newState = RowStateIndicator.Applied;
+                    appliedCount++;
+                    
+                    if (!row.IsChecked)
+                    {
+                        row.IsChecked = true;
+                        EsportsModeStartupLogger.Log("UI_UPDATE", $"同步UI: {opId} 已应用，设置Toggle为开启");
+                    }
+                }
+                else if (isSelected)
+                {
+                    newState = RowStateIndicator.Pending;
+                    pendingCount++;
+                }
+                else
+                {
+                    newState = RowStateIndicator.None;
+                    noneCount++;
+                }
+                
+                if (oldState != newState)
+                {
+                    row.StateIndicator = newState;
+                    EsportsModeStartupLogger.Log("UI_UPDATE", $"状态变更: {opId} [{oldState} → {newState}]");
                 }
             }
-            else if (isSelected)
-            {
-                newState = RowStateIndicator.Pending;
-                pendingCount++;
-            }
-            else
-            {
-                newState = RowStateIndicator.None;
-                noneCount++;
-            }
-            
-            if (oldState != newState)
-            {
-                row.StateIndicator = newState;
-                EsportsModeStartupLogger.Log("UI_UPDATE", $"状态变更: {opId} [{oldState} → {newState}]");
-            }
+        }
+        finally
+        {
+            _isSynchronizingRowChecks = false;
         }
         
         EsportsModeStartupLogger.Log("UI_UPDATE", $"状态统计: Applied={appliedCount}, Pending={pendingCount}, None={noneCount}");
+    }
+
+    private void SetRowCheckedSilently(OptimizationRow row, bool isChecked)
+    {
+        var alreadySynchronizing = _isSynchronizingRowChecks;
+        _isSynchronizingRowChecks = true;
+        try
+        {
+            row.IsChecked = isChecked;
+        }
+        finally
+        {
+            if (!alreadySynchronizing)
+            {
+                _isSynchronizingRowChecks = false;
+            }
+        }
     }
 
     private void UpdateCounts()
@@ -1336,10 +1362,10 @@ public partial class EsportsModePage : UserControl
                     {
                         foreach (var (opId, isEnabled) in config.EnabledItems)
                         {
-                            if (isEnabled && _allRows.ContainsKey(opId))
+                            if (isEnabled && _allRows.TryGetValue(opId, out var row) && row.IsCompatible)
                             {
                                 _selectedItems.Add(opId);
-                                _allRows[opId].IsChecked = true;
+                                row.IsChecked = true;
                             }
                         }
                     }

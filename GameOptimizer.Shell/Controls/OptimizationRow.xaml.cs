@@ -37,6 +37,10 @@ public partial class OptimizationRow : UserControl
 
     public OptimizationRow() => InitializeComponent();
 
+    // Programmatic IsChecked changes must not re-enter Checked/Unchecked. Esports mode used to
+    // bounce applied-but-incompatible rows until the UI thread overflowed the stack guard page.
+    private bool _synchronizingCheckState;
+
     private static void OnDescriptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is OptimizationRow row)
@@ -46,7 +50,19 @@ public partial class OptimizationRow : UserControl
             row.InfoBtn.Visibility = string.IsNullOrEmpty(desc) ? Visibility.Collapsed : Visibility.Visible;
         }
     }
-    private static void OnIsCheckedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) { if (d is OptimizationRow row) row.RowToggle.IsChecked = (bool)e.NewValue; }
+    private static void OnIsCheckedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not OptimizationRow row || row._synchronizingCheckState) return;
+        row._synchronizingCheckState = true;
+        try
+        {
+            row.RowToggle.IsChecked = (bool)e.NewValue;
+        }
+        finally
+        {
+            row._synchronizingCheckState = false;
+        }
+    }
     private static void OnIsCompatibleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) 
     { 
         if (d is OptimizationRow row) 
@@ -107,8 +123,37 @@ public partial class OptimizationRow : UserControl
     }
 
     private bool _isHighlighted;
-    private void OnToggleChecked(object sender, RoutedEventArgs e) { IsChecked = true; RaiseEvent(new RoutedEventArgs(CheckedChangedEvent, this)); }
-    private void OnToggleUnchecked(object sender, RoutedEventArgs e) { IsChecked = false; RaiseEvent(new RoutedEventArgs(CheckedChangedEvent, this)); }
+    private void OnToggleChecked(object sender, RoutedEventArgs e)
+    {
+        if (_synchronizingCheckState) return;
+        _synchronizingCheckState = true;
+        try
+        {
+            IsChecked = true;
+        }
+        finally
+        {
+            _synchronizingCheckState = false;
+        }
+
+        RaiseEvent(new RoutedEventArgs(CheckedChangedEvent, this));
+    }
+
+    private void OnToggleUnchecked(object sender, RoutedEventArgs e)
+    {
+        if (_synchronizingCheckState) return;
+        _synchronizingCheckState = true;
+        try
+        {
+            IsChecked = false;
+        }
+        finally
+        {
+            _synchronizingCheckState = false;
+        }
+
+        RaiseEvent(new RoutedEventArgs(CheckedChangedEvent, this));
+    }
     private void OnDetailsClick(object sender, MouseButtonEventArgs e) { RaiseEvent(new RoutedEventArgs(DetailsClickedEvent, this)); }
     private void OnMouseEnter(object sender, MouseEventArgs e) { if (IsCompatible && !_isHighlighted) RowBorder.Background = new SolidColorBrush(Color.FromArgb(0x12, 0x63, 0x66, 0xF1)); }
     private void OnMouseLeave(object sender, MouseEventArgs e) { if (!_isHighlighted) RowBorder.Background = new SolidColorBrush(Colors.Transparent); }

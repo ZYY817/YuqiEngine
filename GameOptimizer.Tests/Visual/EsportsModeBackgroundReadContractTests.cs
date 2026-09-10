@@ -54,6 +54,26 @@ public sealed class EsportsModeBackgroundReadContractTests
     }
 
     [Fact]
+    public void AppliedIncompatibleRowCheckSyncDoesNotReenterCheckedChanged()
+    {
+        var pageCode = Read(CodePath);
+        var rowCode = Read("GameOptimizer.Shell/Controls/OptimizationRow.xaml.cs");
+        var rowChanged = Slice(pageCode, "private void OnRowCheckedChanged", "private void OnRowDetailsClicked");
+        var indicators = Slice(pageCode, "private void UpdateRowStateIndicators", "private void SetRowCheckedSilently");
+
+        Assert.Contains("_isSynchronizingRowChecks", pageCode, StringComparison.Ordinal);
+        Assert.Contains("SetRowCheckedSilently", pageCode, StringComparison.Ordinal);
+        Assert.Contains("if (_isApplyingPreset || _isSynchronizingRowChecks) return;", rowChanged, StringComparison.Ordinal);
+        Assert.Contains("CheckStateConflict.ResolveUserCheck", rowChanged, StringComparison.Ordinal);
+        Assert.Contains("_isSynchronizingRowChecks = true;", indicators, StringComparison.Ordinal);
+        Assert.Contains("SetRowCheckedSilently(row, false);", rowChanged, StringComparison.Ordinal);
+        Assert.Contains("SetRowCheckedSilently(row, true);", rowChanged, StringComparison.Ordinal);
+        Assert.Contains("row.IsCompatible", Slice(pageCode, "private void LoadSavedConfiguration", "private void SaveConfiguration"), StringComparison.Ordinal);
+        Assert.Contains("_synchronizingCheckState", rowCode, StringComparison.Ordinal);
+        Assert.Contains("if (_synchronizingCheckState) return;", rowCode, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void DynamicPresetsAreGatedAndCustomDoesNotAutoSelectOperations()
     {
         var xaml = Read(XamlPath);

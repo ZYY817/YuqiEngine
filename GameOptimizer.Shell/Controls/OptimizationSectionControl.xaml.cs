@@ -40,7 +40,8 @@ public partial class OptimizationSectionControl : UserControl
         if (ItemsSource == null) return;
         foreach (var item in ItemsSource)
         {
-            if (item is GameModeOptimizationItem opt) opt.IsSelected = true;
+            if (item is GameModeOptimizationItem opt && opt.IsCompatible)
+                opt.IsSelected = true;
         }
     }
 
