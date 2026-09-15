@@ -48,7 +48,9 @@ public sealed record CommandResultPresentation(
         CommandResultStatus.PermissionDenied => isEnglish ? "Administrator permission is required to continue." : "需要管理员权限才能继续。",
         CommandResultStatus.Unsupported => isEnglish ? "This feature is not supported on the current system." : "当前系统不支持此功能。",
         CommandResultStatus.NotApplicable => isEnglish ? "This feature does not apply to the current device or configuration." : "此功能不适用于当前设备或配置。",
-        CommandResultStatus.Blocked => isEnglish ? "This operation is blocked by the current safety policy." : "当前安全策略已阻止此操作。",
+        CommandResultStatus.Blocked => isEnglish
+            ? "Windows blocked this write; it is not caused by missing administrator rights."
+            : "Windows 阻止了本次写入；这不是缺少管理员权限造成的。",
         CommandResultStatus.ReadOnly => isEnglish ? "This setting is read-only on the current system." : "当前系统中的此设置为只读。",
         CommandResultStatus.RequiresRecovery => isEnglish ? "The result cannot be verified safely. Use recovery or recheck the system state." : "无法安全验证结果，请先恢复或重新检测系统状态。",
         CommandResultStatus.RequiresReboot => isEnglish ? "Operation completed; restart Windows for the change to take effect." : "操作已完成，重启 Windows 后生效。",
@@ -205,10 +207,13 @@ public static class CommandResultPresentationMapper
             return CommandResultStatus.Cancelled;
         }
 
+        // Why: 已提权时 UnauthorizedAccess/拒绝访问 不能再归因成「缺管理员」——那是系统拒绝。
         if (exception is UnauthorizedAccessException
             || ContainsAny(text, "permission", "access denied", "administrator", "admin required", "权限", "拒绝访问"))
         {
-            return CommandResultStatus.PermissionDenied;
+            return GameOptimizer.Core.Services.WindowsElevation.IsElevated
+                ? CommandResultStatus.Blocked
+                : CommandResultStatus.PermissionDenied;
         }
 
         if (exception is NotSupportedException or PlatformNotSupportedException

@@ -62,6 +62,27 @@ public sealed class MemoryCleaningBoundaryTests
     }
 
     [Fact]
+    public void WorkingSetObservationFingerprintUsesOnlyStableProcessIdentity()
+    {
+        var identity = new MemoryProcessIdentity(
+            ProcessId: 1234,
+            CreationTimeUtcTicks: 638000000000000000,
+            ExecutableName: "test-process.exe",
+            ExecutableHash: "A1B2C3",
+            ExecutableHashAvailable: true,
+            SessionId: 1,
+            UserSecurityIdentifier: "S-1-5-21-test",
+            Architecture: "x64",
+            TopologyFingerprint: "topology-test");
+
+        var first = MemoryCleaningPayloadCodec.WorkingSetObservedFingerprint(identity);
+        var second = MemoryCleaningPayloadCodec.WorkingSetObservedFingerprint(identity);
+
+        Assert.Equal(first, second);
+        Assert.NotEqual(first, MemoryCleaningPayloadCodec.WorkingSetTrimFingerprint(identity));
+    }
+
+    [Fact]
     public async Task WindowsPlatformTrimsOnlyAnExplicitSelfOwnedTestProcess()
     {
         using var child = Process.Start(new ProcessStartInfo
@@ -93,6 +114,9 @@ public sealed class MemoryCleaningBoundaryTests
             var initial = MemoryCleaningPayloadCodec.DeserializeObserved(before!.Payload);
             Assert.NotNull(initial.ProcessIdentity);
             Assert.True(initial.ProcessIdentity!.IsUsable);
+            Assert.Equal(
+                MemoryCleaningPayloadCodec.WorkingSetObservedFingerprint(initial.ProcessIdentity),
+                before.Fingerprint);
 
             var target = MemoryCleaningRequest.ForWorkingSet(initial.ProcessIdentity);
             var change = new PreparedCapabilityChange(

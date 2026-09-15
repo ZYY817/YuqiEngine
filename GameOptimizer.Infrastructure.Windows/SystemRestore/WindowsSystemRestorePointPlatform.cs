@@ -235,11 +235,7 @@ public sealed class WindowsSystemRestorePointPlatform : ISystemRestorePointPlatf
         }
     }
 
-    private static bool IsAdministrator()
-    {
-        using var identity = WindowsIdentity.GetCurrent();
-        return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
-    }
+    private static bool IsAdministrator() => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 
     private static bool TryGetVolumeIdentity(string root, out string volumeIdentity)
     {

@@ -1,9 +1,8 @@
-﻿// File: GameOptimizer.Core/Services/PowerServiceDiagnostics.cs
+// File: GameOptimizer.Core/Services/PowerServiceDiagnostics.cs
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -80,19 +79,7 @@ public class PowerServiceDiagnostics
         return (false, $"修复未完成: {finalStatus.ErrorMessage}");
     }
     
-    public static bool IsAdministrator()
-    {
-        try
-        {
-            using var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    public static bool IsAdministrator() => WindowsElevation.IsElevated;
     
     private static async Task<bool> IsPowerServiceRunningAsync(CancellationToken ct)
     {

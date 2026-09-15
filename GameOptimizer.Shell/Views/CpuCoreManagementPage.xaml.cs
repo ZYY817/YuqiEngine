@@ -117,9 +117,9 @@ public partial class CpuCoreManagementPage : UserControl
             return;
         }
 
-        workspace.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) });
-        workspace.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(16) });
-        workspace.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8, GridUnitType.Star) });
+        workspace.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(300) });
+        workspace.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1) });
+        workspace.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
         Grid.SetRow(leftPane, 0);
         Grid.SetColumn(leftPane, 0);

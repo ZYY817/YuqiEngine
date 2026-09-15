@@ -180,7 +180,7 @@ public sealed class FileSystemCleanupQuarantine : ICleanupQuarantine
             throw new IOException(rootReason);
         }
 
-        await CleanupQuarantineManifestStore.EnsureEntryStillMatchesAsync(entry, cancellationToken).ConfigureAwait(false);
+        await CleanupQuarantineManifestStore.EnsureEntryStillMatchesAsync(entry, cancellationToken, requireContentHash: false).ConfigureAwait(false);
         await using CleanupQuarantineResourceLease? lease = await CleanupQuarantineManifestStore.TryAcquireResourceLeaseAsync(
             _root,
             entry.ResourceKey,
@@ -191,7 +191,7 @@ public sealed class FileSystemCleanupQuarantine : ICleanupQuarantine
             throw new IOException("cleanup.resource-lease-unavailable");
         }
 
-        await CleanupQuarantineManifestStore.EnsureEntryStillMatchesAsync(entry, cancellationToken).ConfigureAwait(false);
+        await CleanupQuarantineManifestStore.EnsureEntryStillMatchesAsync(entry, cancellationToken, requireContentHash: false).ConfigureAwait(false);
         string batch = Path.Combine(_root, DateTime.UtcNow.ToString("yyyyMMdd"), operationId);
         Directory.CreateDirectory(batch);
         string batchReason = string.Empty;
@@ -226,16 +226,35 @@ public sealed class FileSystemCleanupQuarantine : ICleanupQuarantine
 
 internal static class CleanupPreviewBuilder
 {
-    public static async Task<CleanupPreview> BuildAsync(CleanupItem item, CancellationToken cancellationToken)
+    // Preview is an interaction, not a background inventory job. These bounds
+    // keep a single cache (especially Windows Update) from holding the whole UI
+    // hostage. Only files actually found before the bound are returned, so an
+    // incomplete scan cannot expand the cleanup scope.
+    private const int DefaultFileLimit = 25_000;
+    private const int UpdateCacheFileLimit = 12_000;
+    private static readonly TimeSpan DefaultTimeBudget = TimeSpan.FromSeconds(4);
+    private static readonly TimeSpan UpdateCacheTimeBudget = TimeSpan.FromSeconds(3);
+
+    public static async Task<CleanupPreview> BuildAsync(
+        CleanupItem item,
+        IProgress<CleanupScanProgress>? progress,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(item);
         var entries = new List<CleanupPreviewEntry>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var metrics = new CleanupPreviewScanMetrics();
+        var budget = CleanupPreviewScanBudget.For(item);
+        ReportProgress(item, entries, metrics, budget, progress, force: true);
 
         foreach (string configuredRoot in item.TargetPaths)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            if (!budget.CanContinue())
+            {
+                metrics.MarkPartial(budget.Reason);
+                break;
+            }
             if (!CleanupPathPolicy.TryValidateRoot(configuredRoot, out string root, out _))
             {
                 continue;
@@ -245,9 +264,14 @@ internal static class CleanupPreviewBuilder
                 continue;
             }
 
-            foreach (string file in EnumerateFiles(root, item.Patterns, item.IncludeSubdirectories, metrics, cancellationToken))
+            foreach (string file in EnumerateFiles(root, item.Patterns, item.IncludeSubdirectories, metrics, budget, cancellationToken))
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                if (!budget.CanContinue())
+                {
+                    metrics.MarkPartial(budget.Reason);
+                    break;
+                }
                 if (!CleanupPathPolicy.TryValidateCandidate(root, file, out string candidate, out _) || !seen.Add(candidate))
                 {
                     continue;
@@ -256,21 +280,36 @@ internal static class CleanupPreviewBuilder
                 {
                     FileInfo info = new(candidate);
                     if (!info.Exists) continue;
-                    string hash = await CleanupQuarantineManifestStore.ComputeFileSha256Async(candidate, cancellationToken).ConfigureAwait(false);
-                    entries.Add(new(candidate, root, info.Length, info.LastWriteTimeUtc, hash));
+                    // Do not hash each file during preview. A complete content
+                    // hash is still required before quarantine and is captured
+                    // there, immediately before the atomic move and independent
+                    // verification. This keeps discovery responsive without
+                    // weakening the mutation boundary.
+                    entries.Add(new(candidate, root, info.Length, info.LastWriteTimeUtc));
+                    budget.RecordFile();
+                    ReportProgress(item, entries, metrics, budget, progress, force: false);
                 }
                 catch (OperationCanceledException) { throw; }
                 catch (UnauthorizedAccessException) { metrics.SkippedFiles++; }
                 catch (IOException) { metrics.SkippedFiles++; }
             }
+
+            if (metrics.IsPartial)
+            {
+                break;
+            }
         }
+
+        ReportProgress(item, entries, metrics, budget, progress, force: true);
 
         return new CleanupPreview(
             item.Id,
             entries,
             DateTimeOffset.UtcNow,
             skippedDirectoryCount: metrics.SkippedDirectories,
-            skippedFileCount: metrics.SkippedFiles);
+            skippedFileCount: metrics.SkippedFiles,
+            isPartial: metrics.IsPartial,
+            partialReason: metrics.PartialReason);
     }
 
     private static IEnumerable<string> EnumerateFiles(
@@ -278,6 +317,7 @@ internal static class CleanupPreviewBuilder
         string[] patterns,
         bool recursive,
         CleanupPreviewScanMetrics metrics,
+        CleanupPreviewScanBudget budget,
         CancellationToken cancellationToken)
     {
         string[] effectivePatterns = patterns.Length == 0 ? ["*"] : patterns;
@@ -286,11 +326,16 @@ internal static class CleanupPreviewBuilder
         while (pending.Count > 0)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            if (!budget.CanContinue())
+            {
+                metrics.MarkPartial(budget.Reason);
+                yield break;
+            }
             string directory = pending.Pop();
-            string[] files;
+            IEnumerable<string> files;
             try
             {
-                files = Directory.GetFiles(directory, "*", SearchOption.TopDirectoryOnly);
+                files = Directory.EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly);
             }
             catch (UnauthorizedAccessException)
             {
@@ -303,11 +348,37 @@ internal static class CleanupPreviewBuilder
                 continue;
             }
 
-            foreach (string file in files)
+            IEnumerator<string> fileEnumerator;
+            try
             {
-                if (effectivePatterns.Any(pattern => FileSystemName.MatchesSimpleExpression(pattern, Path.GetFileName(file), ignoreCase: true)))
+                fileEnumerator = files.GetEnumerator();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                metrics.SkippedDirectories++;
+                continue;
+            }
+            catch (IOException)
+            {
+                metrics.SkippedDirectories++;
+                continue;
+            }
+
+            using (fileEnumerator)
+            {
+                while (TryMoveNext(fileEnumerator, metrics))
                 {
-                    yield return file;
+                    string file = fileEnumerator.Current;
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (!budget.CanContinue())
+                    {
+                        metrics.MarkPartial(budget.Reason);
+                        yield break;
+                    }
+                    if (effectivePatterns.Any(pattern => FileSystemName.MatchesSimpleExpression(pattern, Path.GetFileName(file), ignoreCase: true)))
+                    {
+                        yield return file;
+                    }
                 }
             }
 
@@ -315,10 +386,10 @@ internal static class CleanupPreviewBuilder
             {
                 continue;
             }
-            string[] children;
+            IEnumerable<string> children;
             try
             {
-                children = Directory.GetDirectories(directory, "*", SearchOption.TopDirectoryOnly);
+                children = Directory.EnumerateDirectories(directory, "*", SearchOption.TopDirectoryOnly);
             }
             catch (UnauthorizedAccessException)
             {
@@ -331,24 +402,141 @@ internal static class CleanupPreviewBuilder
                 continue;
             }
 
-            foreach (string child in children)
+            IEnumerator<string> childEnumerator;
+            try
             {
-                try
+                childEnumerator = children.GetEnumerator();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                metrics.SkippedDirectories++;
+                continue;
+            }
+            catch (IOException)
+            {
+                metrics.SkippedDirectories++;
+                continue;
+            }
+
+            using (childEnumerator)
+            {
+                while (TryMoveNext(childEnumerator, metrics))
                 {
-                    if (!CleanupPathPolicy.IsReparsePoint(child))
+                    string child = childEnumerator.Current;
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (!budget.CanContinue())
                     {
-                        pending.Push(child);
+                        metrics.MarkPartial(budget.Reason);
+                        yield break;
                     }
+                    try
+                    {
+                        if (!CleanupPathPolicy.IsReparsePoint(child))
+                        {
+                            pending.Push(child);
+                        }
+                    }
+                    catch (UnauthorizedAccessException) { metrics.SkippedDirectories++; }
+                    catch (IOException) { metrics.SkippedDirectories++; }
                 }
-                catch (UnauthorizedAccessException) { metrics.SkippedDirectories++; }
-                catch (IOException) { metrics.SkippedDirectories++; }
             }
         }
+    }
+
+    private static bool TryMoveNext(IEnumerator<string> enumerator, CleanupPreviewScanMetrics metrics)
+    {
+        try
+        {
+            return enumerator.MoveNext();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            metrics.SkippedDirectories++;
+            return false;
+        }
+        catch (IOException)
+        {
+            metrics.SkippedDirectories++;
+            return false;
+        }
+    }
+
+    private static void ReportProgress(
+        CleanupItem item,
+        IReadOnlyCollection<CleanupPreviewEntry> entries,
+        CleanupPreviewScanMetrics metrics,
+        CleanupPreviewScanBudget budget,
+        IProgress<CleanupScanProgress>? progress,
+        bool force)
+    {
+        if (progress is null || (!force && !budget.ShouldReport()))
+        {
+            return;
+        }
+
+        progress.Report(new CleanupScanProgress(
+            item.Id,
+            entries.Count,
+            entries.Sum(entry => entry.SizeBytes),
+            metrics.SkippedDirectories,
+            metrics.SkippedFiles,
+            budget.Elapsed));
     }
 
     private sealed class CleanupPreviewScanMetrics
     {
         public int SkippedDirectories { get; set; }
         public int SkippedFiles { get; set; }
+        public bool IsPartial { get; private set; }
+        public string PartialReason { get; private set; } = string.Empty;
+
+        public void MarkPartial(string reason)
+        {
+            IsPartial = true;
+            PartialReason = reason;
+        }
+    }
+
+    private sealed class CleanupPreviewScanBudget
+    {
+        private readonly System.Diagnostics.Stopwatch _stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        private readonly TimeSpan _timeBudget;
+        private readonly int _fileLimit;
+        private TimeSpan _lastReported;
+        private int _filesObserved;
+
+        private CleanupPreviewScanBudget(TimeSpan timeBudget, int fileLimit)
+        {
+            _timeBudget = timeBudget;
+            _fileLimit = fileLimit;
+        }
+
+        public TimeSpan Elapsed => _stopwatch.Elapsed;
+        public string Reason => _filesObserved >= _fileLimit
+            ? $"为避免长时间等待，已在 {_fileLimit:N0} 个文件处停止继续扫描。"
+            : $"为避免长时间等待，已在 {_timeBudget.TotalSeconds:N0} 秒后停止继续扫描。";
+
+        public static CleanupPreviewScanBudget For(CleanupItem item) =>
+            string.Equals(item.Id, "update_cache", StringComparison.OrdinalIgnoreCase)
+                ? new(UpdateCacheTimeBudget, UpdateCacheFileLimit)
+                : new(DefaultTimeBudget, DefaultFileLimit);
+
+        public bool CanContinue()
+        {
+            return _filesObserved < _fileLimit && _stopwatch.Elapsed <= _timeBudget;
+        }
+
+        public void RecordFile() => _filesObserved++;
+
+        public bool ShouldReport()
+        {
+            if (_stopwatch.Elapsed - _lastReported < TimeSpan.FromMilliseconds(250))
+            {
+                return false;
+            }
+
+            _lastReported = _stopwatch.Elapsed;
+            return true;
+        }
     }
 }

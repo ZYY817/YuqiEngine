@@ -28,9 +28,7 @@ public sealed class WindowsNetworkAdapterDhcpPlatform : INetworkAdapterDhcpPlatf
                 false, false, false, "platform.unsupported", "仅支持 Windows。"));
         }
 
-        using var identity = WindowsIdentity.GetCurrent();
-        var isAdministrator = new WindowsPrincipal(identity)
-            .IsInRole(WindowsBuiltInRole.Administrator);
+        var isAdministrator = GameOptimizer.Core.Services.WindowsElevation.IsElevated;
         return Task.FromResult(new NetworkAdapterDhcpPlatformProbe(
             true,
             isAdministrator,

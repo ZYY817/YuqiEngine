@@ -28,50 +28,23 @@ public sealed class SystemGuard
         "pubgmobile", "gameloop"
     };
 
-    private static readonly object _lock = new();
-    private static bool? _isAdminCached;
-    private static DateTime _lastAdminCheck = DateTime.MinValue;
-    private static readonly TimeSpan AdminCacheExpiry = TimeSpan.FromMinutes(5);
+    /// <summary>
+    /// 是否具备管理员权限。唯一权威判定收敛到 <see cref="WindowsElevation"/>：
+    /// 它读取令牌 TOKEN_ELEVATION 与 TOKEN_GROUPS，而不是仅依赖 WindowsPrincipal.IsInRole
+    /// （后者在 UAC 筛选令牌下会误报"不是管理员"）。
+    /// </summary>
+    public static bool IsAdministrator => WindowsElevation.IsElevated;
 
-    public static bool IsAdministrator
-    {
-        get
-        {
-            lock (_lock)
-            {
-                // 缓存过期或未初始化时重新检查
-                if (!_isAdminCached.HasValue || DateTime.UtcNow - _lastAdminCheck > AdminCacheExpiry)
-                {
-                    _isAdminCached = CheckAdministrator();
-                    _lastAdminCheck = DateTime.UtcNow;
-                }
-            }
-            return _isAdminCached.Value;
-        }
-    }
+    /// <summary>当前账户是否属于管理员组（即使令牌被 UAC 筛选）。</summary>
+    public static bool IsAdministratorAccount => WindowsElevation.IsAdministratorAccount;
 
-    public static void RefreshPrivilegeStatus()
-    {
-        lock (_lock)
-        {
-            _isAdminCached = null;
-            _lastAdminCheck = DateTime.MinValue;
-        }
-    }
+    /// <summary>进程真实提权级别。</summary>
+    public static ElevationLevel ElevationLevel => WindowsElevation.Level;
 
-    private static bool CheckAdministrator()
-    {
-        try
-        {
-            using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
-            var principal = new System.Security.Principal.WindowsPrincipal(identity);
-            return principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    /// <summary>提权判定的人类可读原因，用于诊断与错误报告。</summary>
+    public static string ElevationDetail => WindowsElevation.Current.Detail;
+
+    public static void RefreshPrivilegeStatus() => WindowsElevation.Refresh();
 
     public static bool IsGameRunning()
     {
@@ -186,7 +159,8 @@ public sealed class SystemGuard
         
         if (requiresAdmin && !IsAdministrator)
         {
-            return OperationResult.PermissionDenied(loc.Get("Guard.NeedAdmin"));
+            var elevation = ElevationGate.Evaluate(operationId, operationRequiresAdministrator: true);
+            return OperationResult.PermissionDenied(elevation.UserMessage);
         }
 
         if (IsGameRunning())

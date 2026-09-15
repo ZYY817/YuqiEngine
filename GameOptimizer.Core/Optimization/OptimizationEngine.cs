@@ -633,9 +633,14 @@ public sealed class OptimizationEngine : IOptimizationEngine
         if (operation.RequiresAdmin && !SystemGuard.IsAdministrator)
         {
             _logger.LogWarning("Operation {OperationId} requires admin but running as normal user", operation.Id);
+            // Why: 已提权时不得再返回「请以管理员身份运行」；未提权时给出可操作指引。
+            var elevationGate = PermissionChecker.EvaluateElevationGate(
+                operation.Id,
+                SystemGuard.IsAdministrator,
+                SystemGuard.IsAdministratorAccount);
             return new OperationExecutionSummary(
                 operation.Id, operation.Title, Success: false, Changed: false,
-                Message: loc.Get("Engine.AdminRequired"), 
+                Message: elevationGate.Message,
                 Before: defaultStatus, After: defaultStatus);
         }
         

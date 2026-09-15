@@ -1,0 +1,8 @@
+<Project>
+  <!-- 仅用于本会话的隔离构建路径：预存的 obj/*.json 在本沙箱会话中不可写。 -->
+  <PropertyGroup>
+    <DshIsolatedRoot>$(MSBuildThisFileDirectory)</DshIsolatedRoot>
+    <BaseIntermediateOutputPath>$(DshIsolatedRoot)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(DshIsolatedRoot)bin\$(MSBuildProjectName)\</BaseOutputPath>
+  </PropertyGroup>
+</Project>

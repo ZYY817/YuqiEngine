@@ -51,7 +51,7 @@ public partial class ManagedPowerPlanCreateDialog : Window
             MatchedProfileNameText.Text = "当前设备没有可创建的电源方案";
             MatchedProfileDescriptionText.Text = "未读取到与当前 CPU 和供电条件兼容的策略；不会创建任何计划。";
             ProfileStatusText.Text = "不可用";
-            NameHintText.Text = "请刷新电源状态或检查管理员权限后重试。";
+            NameHintText.Text = "请刷新电源状态后重试。若已提权仍失败，请查看诊断中的真实拒绝原因。";
             ParameterList.ItemsSource = Array.Empty<PowerSettingPreview>();
             SafetyBoundaryText.Text = "Windows 和电脑厂商原有的电源计划不会被改动；只有本软件新建的方案才可以编辑。";
             CreateButton.IsEnabled = false;

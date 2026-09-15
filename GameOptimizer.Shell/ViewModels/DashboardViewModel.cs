@@ -1146,6 +1146,9 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 		_soundService = soundService;
 		_dispatcher = Dispatcher.CurrentDispatcher;
 		IsAdministrator = privilegeService.IsAdministrator;
+		// Why: 构造后若首次探测失败，可能把已提权进程冻成 IsAdministrator=false；启动完成前再读一次权威快照。
+		privilegeService.EnsureAuthoritativeSnapshot();
+		IsAdministrator = privilegeService.IsAdministrator;
 		_appSettings = _settingsStore.Current;
 		_settingsStore.Changed += (_, change) => _appSettings = change.Current;
 		if (privilegeService is INotifyPropertyChanged privilegeNotifier)
@@ -3018,7 +3021,8 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 			{
 				for (int num2 = 0; num2 < module.Toggles.Count && num2 < statuses.Count; num2++)
 				{
-					module.Toggles[num2].SyncOperationContract(statuses[num2], IsAdministrator);
+					// Why: 同步时直接读权威提权门面，避免 ViewModel 上的旧快照把已提权开关误判成缺管理员。
+					module.Toggles[num2].SyncOperationContract(statuses[num2], _privilegeService.IsAdministrator);
 				}
 			}
 			finally

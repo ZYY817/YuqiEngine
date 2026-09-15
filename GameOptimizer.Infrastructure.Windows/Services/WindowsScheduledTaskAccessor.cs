@@ -139,11 +139,7 @@ public sealed class WindowsScheduledTaskAccessor : IScheduledTaskAccessor
         }
     }
 
-    private static bool IsAdministrator()
-    {
-        using var identity = WindowsIdentity.GetCurrent();
-        return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
-    }
+    private static bool IsAdministrator() => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 
     private static void ValidateTaskPath(string taskPath)
     {

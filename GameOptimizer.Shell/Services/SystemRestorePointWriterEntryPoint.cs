@@ -184,14 +184,7 @@ internal static class SystemRestorePointWriterEntryPoint
     private sealed class WindowsSystemRestoreNativeApi : ISystemRestoreNativeApi
     {
         public bool IsWindows => OperatingSystem.IsWindows();
-        public bool IsAdministrator
-        {
-            get
-            {
-                using var identity = WindowsIdentity.GetCurrent();
-                return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
-            }
-        }
+        public bool IsAdministrator => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 
         public bool TryGetSystemVolumeIdentity(out string identity)
         {

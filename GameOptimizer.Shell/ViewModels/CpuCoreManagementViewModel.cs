@@ -112,22 +112,34 @@ public partial class CpuCoreManagementViewModel : ObservableObject, IDisposable
 
     private void CheckAdminPrivilege()
     {
-        try
+        // 判定收敛到唯一权威实现（令牌 TOKEN_ELEVATION + 管理员组 SID）。
+        IsAdmin = GameOptimizer.Core.Services.WindowsElevation.IsElevated;
+    }
+
+    /// <summary>
+    /// 权限提示文案：必须基于真实提权状态。已提权时不得再让用户"以管理员身份运行"，
+    /// 而要说明当前真实状态（含判定原因码），否则用户会去重试一个不可能有效的动作。
+    /// </summary>
+    public static string BuildPermissionHint(bool isElevated, bool isAdministratorAccount, string? reasonCode, string? detail)
+    {
+        var elevation = $"{reasonCode} - {detail}";
+
+        if (isElevated)
         {
-            using var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            IsAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+            return $"当前进程令牌已提权（管理员模式）：无需再以管理员身份运行，若仍失败请按提示里的具体原因处理。\n提权判定 / Elevation: {elevation}";
         }
-        catch
-        {
-            IsAdmin = false;
-        }
+
+        return isAdministratorAccount
+            ? $"当前账户在管理员组内，但进程令牌未提权（UAC 筛选令牌），需要以管理员身份重新启动。\n提权判定 / Elevation: {elevation}"
+            : $"当前账户不在管理员组内，需要管理员账户或管理员凭据。\n提权判定 / Elevation: {elevation}";
     }
 
     public async Task InitializeAsync()
     {
         try
         {
+            // Why: 门禁与提示都读真实提权状态，不能沿用构造函数期的旧快照。
+            CheckAdminPrivilege();
             IsLoading = true;
             LoadingText = _loc.Get("CoreAccel.LoadingDetecting");
 
@@ -176,9 +188,14 @@ public partial class CpuCoreManagementViewModel : ObservableObject, IDisposable
 
                 if (!IsAdmin)
                 {
+                    var elevation = GameOptimizer.Core.Services.WindowsElevation.Current;
                     ToastService.Instance.Warning(
                         _loc.Get("CoreAccel.PermissionHint"),
-                        _loc.Get("CoreAccel.PermissionHintDesc"));
+                        _loc.Get("CoreAccel.PermissionHintDesc") + "\n\n" + BuildPermissionHint(
+                            IsAdmin,
+                            GameOptimizer.Core.Services.PermissionChecker.IsAdministratorAccount(),
+                            elevation.ReasonCode,
+                            elevation.Detail));
                 }
             });
 

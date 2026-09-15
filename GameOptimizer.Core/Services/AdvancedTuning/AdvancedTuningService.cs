@@ -36,7 +36,7 @@ namespace GameOptimizer.Core.Services.AdvancedTuning
             }
             catch (UnauthorizedAccessException)
             {
-                return Task.FromResult(new TuningResult(false, "权限不足，请以管理员身份运行"));
+                return Task.FromResult(new TuningResult(false, ElevationGate.DescribeWriteDenial("修改系统调优项")));
             }
             catch (Exception ex)
             {
@@ -74,7 +74,7 @@ namespace GameOptimizer.Core.Services.AdvancedTuning
             }
             catch (UnauthorizedAccessException)
             {
-                return Task.FromResult(new TuningResult(false, "权限不足，请以管理员身份运行"));
+                return Task.FromResult(new TuningResult(false, ElevationGate.DescribeWriteDenial("修改系统调优项")));
             }
             catch (Exception ex)
             {
@@ -106,7 +106,7 @@ namespace GameOptimizer.Core.Services.AdvancedTuning
             }
             catch (UnauthorizedAccessException)
             {
-                return Task.FromResult(new TuningResult(false, "权限不足，请以管理员身份运行"));
+                return Task.FromResult(new TuningResult(false, ElevationGate.DescribeWriteDenial("修改系统调优项")));
             }
             catch (Exception ex)
             {
@@ -138,7 +138,7 @@ namespace GameOptimizer.Core.Services.AdvancedTuning
             }
             catch (UnauthorizedAccessException)
             {
-                return Task.FromResult(new TuningResult(false, "权限不足，请以管理员身份运行"));
+                return Task.FromResult(new TuningResult(false, ElevationGate.DescribeWriteDenial("修改系统调优项")));
             }
             catch (Exception ex)
             {

@@ -109,7 +109,7 @@ public static class SafeServiceHelper
         catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 5)
         {
             Debug.WriteLine($"[SafeService] No permission to start service {serviceName}: {ex.Message}");
-            return (false, $"无权限启动服务: {serviceName}。请以管理员身份运行程序。");
+            return (false, ElevationGate.DescribeWriteDenial($"无权限启动服务: {serviceName}"));
         }
         catch (InvalidOperationException ex)
         {
@@ -166,7 +166,7 @@ public static class SafeServiceHelper
         catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 5)
         {
             Debug.WriteLine($"[SafeService] No permission to stop service {serviceName}: {ex.Message}");
-            return (false, $"无权限停止服务: {serviceName}。请以管理员身份运行程序。");
+            return (false, ElevationGate.DescribeWriteDenial($"无权限停止服务: {serviceName}"));
         }
         catch (InvalidOperationException ex)
         {
@@ -255,7 +255,7 @@ public static class SafeServiceHelper
         }
         catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 5)
         {
-            return (false, $"无权限启动服务: {serviceName}。请以管理员身份运行程序。");
+            return (false, ElevationGate.DescribeWriteDenial($"无权限启动服务: {serviceName}"));
         }
         catch (InvalidOperationException ex)
         {
@@ -294,7 +294,7 @@ public static class SafeServiceHelper
         }
         catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 5)
         {
-            return (false, $"无权限停止服务: {serviceName}。请以管理员身份运行程序。");
+            return (false, ElevationGate.DescribeWriteDenial($"无权限停止服务: {serviceName}"));
         }
         catch (InvalidOperationException ex)
         {

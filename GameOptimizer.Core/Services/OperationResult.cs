@@ -36,8 +36,13 @@ public record OperationResult
     public static OperationResult TimedOut(string message = "操作超时") =>
         new() { Code = OperationResultCode.TimedOut, Message = message };
 
-    public static OperationResult PermissionDenied(string message = "需要管理员权限") =>
-        new() { Code = OperationResultCode.PermissionDenied, Message = message };
+    public static OperationResult PermissionDenied(string? message = null) =>
+        new()
+        {
+            Code = OperationResultCode.PermissionDenied,
+            // Why: 默认文案必须由 ElevationGate 按真实提权状态生成，已提权时不得再写「需要管理员」。
+            Message = message ?? ElevationGate.DescribeWriteDenial("系统写入")
+        };
 
     public static OperationResult NotSupported(string message = "当前系统不支持此操作") =>
         new() { Code = OperationResultCode.NotSupported, Message = message };

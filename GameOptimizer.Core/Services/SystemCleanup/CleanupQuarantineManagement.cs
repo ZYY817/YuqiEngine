@@ -621,7 +621,10 @@ internal static class CleanupQuarantineManifestStore
         string operationId,
         CancellationToken cancellationToken)
     {
-        await EnsureEntryStillMatchesAsync(entry, cancellationToken).ConfigureAwait(false);
+        // Fast previews intentionally contain only metadata. Bind the full
+        // content hash here, immediately before the durable move, then verify
+        // the destination independently after the move.
+        entry = await CaptureStableEntryAsync(entry, cancellationToken).ConfigureAwait(false);
         string manifestPath = destination + ".manifest.json";
         var manifest = CreateManifest(entry, itemId, destination, operationId, CleanupQuarantineState.MovePrepared, Guid.NewGuid(), "cleanup.move-prepared", "Durable quarantine move receipt written before source mutation.", mutationOccurred: false);
         await WriteManifestAsync(manifestPath, manifest, cancellationToken).ConfigureAwait(false);
@@ -663,12 +666,33 @@ internal static class CleanupQuarantineManifestStore
         }
     }
 
-    internal static async Task EnsureEntryStillMatchesAsync(CleanupPreviewEntry entry, CancellationToken cancellationToken)
+    internal static async Task EnsureEntryStillMatchesAsync(
+        CleanupPreviewEntry entry,
+        CancellationToken cancellationToken,
+        bool requireContentHash = true)
+    {
+        _ = await CaptureStableEntryAsync(entry, cancellationToken, requireContentHash).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Revalidates the exact allowlisted path and its preview metadata. For old
+    /// previews that already carry a hash, the hash must still match. For fast
+    /// previews the hash is produced here, at the mutation boundary, so the
+    /// manifest and post-move verification remain content-addressed.
+    /// </summary>
+    internal static async Task<CleanupPreviewEntry> CaptureStableEntryAsync(
+        CleanupPreviewEntry entry,
+        CancellationToken cancellationToken,
+        bool requireContentHash = true)
     {
         ArgumentNullException.ThrowIfNull(entry);
-        if (entry.PreviewId == Guid.Empty || !CleanupResourceIdentity.IsSha256(entry.ContentSha256))
+        if (entry.PreviewId == Guid.Empty)
         {
-            throw new CleanupPreviewDriftException("cleanup.preview-identity-invalid", "Cleanup preview has no complete immutable resource identity.");
+            throw new CleanupPreviewDriftException("cleanup.preview-identity-invalid", "Cleanup preview has no immutable preview identity.");
+        }
+        if (requireContentHash && !string.IsNullOrEmpty(entry.ContentSha256) && !CleanupResourceIdentity.IsSha256(entry.ContentSha256))
+        {
+            throw new CleanupPreviewDriftException("cleanup.preview-identity-invalid", "Cleanup preview has an invalid content identity.");
         }
         string rootReason = string.Empty;
         string pathReason = string.Empty;
@@ -685,11 +709,20 @@ internal static class CleanupQuarantineManifestStore
         {
             throw new CleanupPreviewDriftException("cleanup.preview-drift", "File size or last-write time changed after preview.");
         }
+
+        if (!requireContentHash)
+        {
+            return entry with { CanonicalPath = path };
+        }
+
         string hash = await ComputeFileSha256Async(path, cancellationToken).ConfigureAwait(false);
-        if (!string.Equals(hash, entry.ContentSha256, StringComparison.Ordinal))
+        if (CleanupResourceIdentity.IsSha256(entry.ContentSha256)
+            && !string.Equals(hash, entry.ContentSha256, StringComparison.Ordinal))
         {
             throw new CleanupPreviewDriftException("cleanup.preview-content-drift", "File content changed after preview.");
         }
+
+        return entry with { CanonicalPath = path, ContentSha256 = hash };
     }
 
     internal static async Task<CleanupQuarantineEntry?> TryReadVerifiedAsync(string root, string manifestPath, CancellationToken cancellationToken)

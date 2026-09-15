@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -518,7 +518,7 @@ public partial class OperationTransparencyDialog : Window
     {
         var conditions = new List<string>();
         conditions.Add(toggle.RequiresReboot ? "应用或回滚后需要重启。" : "默认无需重启。");
-        if (toggle.RequiresAdmin)
+        if (toggle.RequiresAdmin && !GameOptimizer.Core.Services.WindowsElevation.IsElevated)
         {
             conditions.Add("需要管理员权限。");
         }

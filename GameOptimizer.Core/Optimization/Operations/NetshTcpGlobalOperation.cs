@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GameOptimizer.Core.Services;
 
 namespace GameOptimizer.Core.Optimization.Operations;
 
@@ -107,7 +108,7 @@ public sealed class NetshTcpGlobalOperation : IOptimizationOperation
         var (current, error) = await ReadCurrentValueWithRetryAsync(forceRefresh: false, cancellationToken).ConfigureAwait(false);
         if (current is null)
         {
-            return new OperationStatus(false, error ?? "无法读取 TCP 参数。\n请确认已使用管理员权限运行。");
+            return new OperationStatus(false, error ?? ElevationGate.DescribeWriteDenial("读取 TCP 参数"));
         }
 
         var compliant = string.Equals(_normalize(current), _normalize(_desiredValue), StringComparison.OrdinalIgnoreCase);

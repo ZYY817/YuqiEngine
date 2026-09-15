@@ -1,4 +1,4 @@
-﻿// File: GameOptimizer.Shell/ViewModels/AppxCleanupViewModel.cs
+// File: GameOptimizer.Shell/ViewModels/AppxCleanupViewModel.cs
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -150,7 +150,7 @@ public partial class AppxCleanupViewModel : ObservableObject
             {
                 PageState = AppxCleanupPageState.Unauthorized;
                 StatusText = probe.ReasonCode == "permission.administrator-required"
-                    ? "需要以管理员身份运行本软件后才能管理预装应用。"
+                    ? GameOptimizer.Core.Services.ElevationGate.DescribeWriteDenial("管理预装应用")
                     : probe.Details;
                 return;
             }

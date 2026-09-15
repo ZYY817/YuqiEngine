@@ -1,4 +1,4 @@
-﻿// File: GameOptimizer.Shell/ViewModels/RepairCenterViewModel.cs
+// File: GameOptimizer.Shell/ViewModels/RepairCenterViewModel.cs
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -154,15 +154,7 @@ public partial class RepairCenterViewModel : ObservableObject, IDisposable
         });
     }
 
-    private static bool CheckIsAdmin()
-    {
-        try
-        {
-            using var identity = WindowsIdentity.GetCurrent();
-            return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
-        }
-        catch { return false; }
-    }
+    private static bool CheckIsAdmin() => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 
     public void Cleanup() => Dispose();
 
@@ -703,14 +695,17 @@ public partial class RepairCenterViewModel : ObservableObject, IDisposable
             }
 
             // P1-REPAIR-001: 权限只在确认异常后才检查，避免普通用户误点时无谓请求提升。
-            if (!GameOptimizer.Core.Services.PermissionChecker.IsRunningAsAdministrator())
+            var elevation = GameOptimizer.Core.Services.ElevationGate.Evaluate(
+                "系统修复",
+                operationRequiresAdministrator: true);
+            if (elevation.NeedsElevation)
             {
-                StatusMessage = Loc.Get("Repair.AdminRequired");
+                StatusMessage = GameOptimizer.Core.Services.ElevationGate.ShortLabel(elevation.Attribution);
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     Views.InfoDialog.Show(Application.Current.MainWindow,
                         Loc.Get("Common.AdminRequired"),
-                        Loc.Get("Repair.AdminRequiredMessage"),
+                        elevation.UserMessage,
                         Constants.IconGlyphs.Lock);
                 });
                 return;
@@ -953,15 +948,18 @@ public partial class RepairCenterViewModel : ObservableObject, IDisposable
     {
         if (IsScanning || IsRepairing || _disposed || !_repairOperationGate.TryEnter()) return;
 
-        if (!GameOptimizer.Core.Services.PermissionChecker.IsRunningAsAdministrator())
+        var powerElevation = GameOptimizer.Core.Services.ElevationGate.Evaluate(
+            "恢复默认电源方案",
+            operationRequiresAdministrator: true);
+        if (powerElevation.NeedsElevation)
         {
             _repairOperationGate.Exit();
-            StatusMessage = Loc.Get("Repair.AdminRequired");
+            StatusMessage = GameOptimizer.Core.Services.ElevationGate.ShortLabel(powerElevation.Attribution);
             await Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 Views.InfoDialog.Show(Application.Current.MainWindow,
                     Loc.Get("Common.AdminRequired"),
-                    Loc.Get("Repair.AdminRequiredMessage"),
+                    powerElevation.UserMessage,
                     Constants.IconGlyphs.Lock);
             });
             return;
@@ -1085,15 +1083,18 @@ public partial class RepairCenterViewModel : ObservableObject, IDisposable
     {
         if (IsScanning || IsRepairing || _disposed || !_repairOperationGate.TryEnter()) return;
 
-        if (!GameOptimizer.Core.Services.PermissionChecker.IsRunningAsAdministrator())
+        var fullRestoreElevation = GameOptimizer.Core.Services.ElevationGate.Evaluate(
+            "全量恢复",
+            operationRequiresAdministrator: true);
+        if (fullRestoreElevation.NeedsElevation)
         {
             _repairOperationGate.Exit();
-            StatusMessage = Loc.Get("Repair.AdminRequired");
+            StatusMessage = GameOptimizer.Core.Services.ElevationGate.ShortLabel(fullRestoreElevation.Attribution);
             await Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 Views.InfoDialog.Show(Application.Current.MainWindow,
                     Loc.Get("Common.AdminRequired"),
-                    Loc.Get("Repair.AdminRequiredMessage"),
+                    fullRestoreElevation.UserMessage,
                     Constants.IconGlyphs.Lock);
             });
             return;

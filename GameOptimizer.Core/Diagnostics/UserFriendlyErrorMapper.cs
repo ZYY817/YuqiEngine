@@ -4,6 +4,7 @@ using System.IO;
 using System.Security;
 using System.Text;
 using GameOptimizer.Core.Localization;
+using GameOptimizer.Core.Services;
 
 namespace GameOptimizer.Core.Diagnostics;
 
@@ -88,7 +89,7 @@ public static class UserFriendlyErrorMapper
         
         return ex switch
         {
-            UnauthorizedAccessException => loc.Get("Error.UnauthorizedAccess.Solution"),
+            UnauthorizedAccessException uae => ElevationGate.DescribeWriteDenial("访问系统资源", uae.Message),
             DirectoryNotFoundException => loc.Get("Error.DirectoryNotFound.Solution"),
             PathTooLongException => loc.Get("Error.PathTooLong.Solution"),
             

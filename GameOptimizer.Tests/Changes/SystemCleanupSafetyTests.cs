@@ -97,6 +97,7 @@ public sealed class SystemCleanupSafetyTests
         Assert.Single(preview.Entries);
         Assert.Equal(5, preview.TotalBytes);
         Assert.Equal(Path.GetFullPath(file), preview.Entries[0].CanonicalPath);
+        Assert.Equal(string.Empty, preview.Entries[0].ContentSha256);
         Assert.Throws<NotSupportedException>(() => ((IList<CleanupPreviewEntry>)preview.Entries).Add(preview.Entries[0]));
     }
 

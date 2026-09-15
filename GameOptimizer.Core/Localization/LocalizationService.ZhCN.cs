@@ -147,7 +147,6 @@ public sealed partial class LocalizationService
         ["Dashboard.QuickActions"] = "快捷操作",
         ["Dashboard.RecentActivity"] = "最近活动",
         ["Dashboard.RestoreDefaults"] = "恢复默认",
-        ["Dashboard.PermissionDenied"] = "需要管理员权限",
         ["Dashboard.SystemCheckTitle"] = "系统检查",
         ["Dashboard.ContinueOptimize"] = "是否仍要继续执行优化？",
         ["Dashboard.UserCancelled"] = "用户取消了优化操作",
@@ -279,7 +278,6 @@ public sealed partial class LocalizationService
         ["Settings.ImportConfig"] = "导入优化方案",
         
         // 错误消息
-        ["Error.PermissionDenied"] = "需要管理员权限，请右键以管理员身份运行程序",
         ["Error.OperationTimeout"] = "操作超时，请稍后重试",
         ["Error.GameRunning"] = "检测到游戏正在运行，建议关闭游戏后再进行优化",
         ["Error.DiskSpaceLow"] = "磁盘空间不足",
@@ -320,7 +318,6 @@ public sealed partial class LocalizationService
         ["Settings.StartupRegistryFailed"] = "设置开机启动失败，请检查权限",
         ["Settings.RegistryOpenFailed"] = "无法打开注册表项 HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
         ["Settings.ExePathFailed"] = "无法获取程序路径",
-        ["Settings.PermissionDenied"] = "权限不足，请以管理员身份运行",
         ["Settings.SecurityPolicyBlocked"] = "安全策略阻止了注册表访问",
         ["Settings.NewVersionFound"] = "发现新版本 v{0}\n\n发布日期: {1}\n\n是否打开下载页面？",
         ["Settings.NoUpdateAvailable"] = "当前已是最新版本",
@@ -393,7 +390,6 @@ public sealed partial class LocalizationService
             
             // 模块恢复
             ["Module.AdminRequired"] = "需要管理员权限",
-            ["Module.PleaseRestartAsAdmin"] = "此功能需要管理员权限才能执行。\n\n请右键点击程序图标，选择「以管理员身份运行」后重试。",
             
             // OPT-020: 状态检测
             ["Esports.DetectingState"] = "检测系统状态",
@@ -1486,8 +1482,6 @@ public sealed partial class LocalizationService
             ["Network.BackupFailed"] = "备份失败：{0}",
             ["Network.ResetSuccess"] = "网络配置已成功重置",
             ["Network.ResetNeedRestart"] = "请重启电脑以使更改生效。",
-            ["Network.NeedAdmin"] = "需要管理员权限",
-            ["Network.NeedAdminDesc"] = "重置网络配置需要管理员权限。\n\n请右键点击程序，选择「以管理员身份运行」后再试。",
             ["Network.EnterAddress"] = "请输入要测试的服务器地址",
             ["Network.InvalidFormat"] = "请输入有效的 IP 地址或域名",
             ["Network.FormatExample"] = "\n\n示例：\n• 192.168.1.1\n• game.server.com",
@@ -1598,7 +1592,6 @@ public sealed partial class LocalizationService
             ["Restore.SettingsOpened"] = "已打开系统保护设置。您可以在此启用或配置系统还原。\n启用后请点击【刷新列表】按钮更新状态。",
             ["Restore.OpenSettingsFailed"] = "打开系统设置失败：{0}",
             ["Restore.AlreadyEnabled"] = "系统还原已经启用，无需重复操作。",
-            ["Restore.NeedAdminToEnable"] = "启用系统还原需要管理员权限。\n请右键点击程序，选择【以管理员身份运行】后重试。",
             ["Restore.Enabling"] = "正在启用系统还原，请稍候...",
             ["Restore.EnableSuccess"] = "系统还原已成功启用！正在刷新状态...",
             ["Restore.EnableFailed"] = "启用系统还原失败。\n{0}",
@@ -1739,8 +1732,6 @@ public sealed partial class LocalizationService
             ["Backup.PreviewKey"] = "设置项",
             ["Backup.PreviewValue"] = "值",
             ["Backup.NoBackupYet"] = "暂无备份",
-            ["Backup.AdminRequired"] = "需要管理员权限",
-            ["Backup.AdminRequiredMessage"] = "备份操作需要管理员权限。\n\n请以管理员身份重新启动应用程序。",
             ["Backup.JustNow"] = "刚刚",
             ["Backup.MinutesAgo"] = "{0} 分钟前",
             ["Backup.HoursAgo"] = "{0} 小时前",
@@ -2352,7 +2343,6 @@ public sealed partial class LocalizationService
             ["MemClean.NoWhitelistToRemove"] = "白名单中没有进程",
             ["MemClean.SmartBoostComplete"] = "智能加速完成，释放 {0} MB",
             ["MemClean.SmartBoostFailed"] = "加速失败，可能需要管理员权限",
-            ["MemClean.RequiresAdmin"] = "清理待机内存需要管理员权限",
             ["MemClean.StandbyCleared"] = "已清理待机内存，释放 {0} MB",
             ["MemClean.WorkingSetsCleared"] = "已清理 {0} 个进程的工作集，释放 {1} MB",
 
@@ -2894,8 +2884,6 @@ public sealed partial class LocalizationService
             ["Cleanup.CancellingScan"] = "正在取消扫描...",
             ["Cleanup.CancellingClean"] = "正在取消清理...",
             ["Cleanup.Unknown"] = "未知",
-            ["Cleanup.AdminRequired"] = "需要管理员权限",
-            ["Cleanup.AdminRequiredMessage"] = "系统清理需要管理员权限才能删除系统文件。\n\n请以管理员身份重新启动应用程序。",
             ["Cleanup.CategorySystem"] = "系统缓存",
             ["Cleanup.CategoryUser"] = "用户缓存",
             ["Cleanup.CategoryGame"] = "游戏缓存",
@@ -3121,7 +3109,6 @@ public sealed partial class LocalizationService
             ["PowerEditor.AdvancedPanel"] = "高级面板",
             ["PowerEditor.ApplyChanges"] = "应用更改",
             ["PowerEditor.UnsavedChanges"] = "未保存更改: {0}",
-            ["PowerEditor.SwitchFailed"] = "切换失败，请以管理员身份运行",
             ["PowerEditor.SwitchFailedTitle"] = "切换失败",
             ["PowerEditor.CannotDeleteActive"] = "无法删除当前正在使用的电源计划。\n\n请先切换到其他电源计划后再删除。",
             ["PowerEditor.CannotDeleteTitle"] = "无法删除",
@@ -3512,7 +3499,6 @@ public sealed partial class LocalizationService
             ["Backup.ClearAllWarning"] = "⚠️ 危险操作警告 ⚠️\n\n您即将删除所有 {0} 个备份快照！\n\n此操作不可撤销，删除后将无法恢复任何系统设置。\n\n确定要继续吗？",
             
             // P1-025: 用户友好错误消息
-            ["Error.Friendly.RegistryAccessDenied"] = "无法访问系统设置，请以管理员身份运行程序",
             ["Error.Friendly.FileInUse"] = "文件正被其他程序使用，请关闭相关程序后重试",
             ["Error.Friendly.FileInUseWithName"] = "文件 {0} 正被其他程序使用，请关闭相关程序后重试",
             ["Error.Friendly.FileNotFound"] = "找不到文件：{0}",
@@ -3521,7 +3507,6 @@ public sealed partial class LocalizationService
             ["Error.Friendly.DiskFull"] = "磁盘空间不足，请清理磁盘后重试",
             ["Error.Friendly.NetworkTimeout"] = "网络连接超时，请检查网络后重试",
             ["Error.Friendly.ServiceUnavailable"] = "系统服务暂时不可用，请稍后重试",
-            ["Error.Friendly.PermissionDenied"] = "权限不足，请以管理员身份运行程序",
             ["Error.Friendly.InvalidOperation"] = "操作无效，请刷新后重试",
             ["Error.Friendly.Unknown"] = "操作失败，请查看日志获取详细信息",
             ["Error.Friendly.WmiTimeout"] = "系统信息查询超时，请稍后重试",
@@ -3540,7 +3525,6 @@ public sealed partial class LocalizationService
             
             // UAC 相关提示
             ["UAC.Denied"] = "用户取消了权限请求",
-            ["UAC.RetryAsAdmin"] = "此操作需要管理员权限。\n\n请右键点击程序图标，选择「以管理员身份运行」后重试。",
             ["UAC.ElevationRequired"] = "需要提升权限才能执行此操作",
             
             // P1-026: 高危操作确认
@@ -4034,7 +4018,6 @@ public sealed partial class LocalizationService
         ["Audio.Desc.Communication"] = "关闭语音通话时自动降低游戏音量的功能",
         
         // SystemGuard Messages
-        ["Guard.NeedAdmin"] = "此操作需要管理员权限，请右键以管理员身份运行程序",
         ["Guard.GameRunning"] = "检测到游戏正在运行 ({0})，建议关闭游戏后再进行优化操作",
         ["Guard.DiskSpaceLow"] = "系统盘可用空间不足，需要至少 {0}",
         
@@ -5075,14 +5058,8 @@ public sealed partial class LocalizationService
 本软件仅调整 Windows 电源计划参数，不会修改 BIOS 设置或进行硬件超频。所有调整都是可逆的，关闭激进模式即可恢复。",
         
         // P1 权限检查消息
-        ["Memory.AdminRequiredMessage"] = "内存优化需要管理员权限才能修改系统设置。\n\n请以管理员身份重新启动应用程序。",
         ["CpuAffinity.AdminRequired"] = "需要管理员权限",
-        ["CpuAffinity.AdminRequiredMessage"] = "设置CPU亲和性需要管理员权限。\n\n请以管理员身份重新启动应用程序。",
         ["Restore.AdminRequired"] = "需要管理员权限",
-        ["Restore.AdminRequiredMessage"] = "创建系统还原点需要管理员权限。\n\n请以管理员身份重新启动应用程序。",
-        ["Repair.AdminRequired"] = "需要管理员权限",
-        ["Repair.AdminRequiredMessage"] = "系统修复操作需要管理员权限。\n\n请以管理员身份重新启动应用程序。",
-        ["GameProfiles.AdminRequiredForOptimization"] = "游戏优化需要管理员权限。\n\n是否在不优化的情况下启动游戏？\n\n(点击\"是\"不优化启动，点击\"否\"取消)",
         
         // Esports Mode - Additional Keys
         ["Esports.SafeMode"] = "安全模式",
@@ -5206,7 +5183,6 @@ public sealed partial class LocalizationService
         ["Engine.RolledBack"] = "(已回滚)",
         ["Engine.RollbackFailed"] = "回滚失败: {0}",
         ["Engine.Unknown"] = "未知",
-        ["Engine.AdminRequired"] = "此操作需要管理员权限，请右键以管理员身份运行程序",
         ["Engine.Timeout"] = "操作超时",
         ["Engine.TimeoutRetry"] = "操作超时，可能是系统繁忙，请稍后重试",
         ["Engine.UnknownError"] = "未知错误",
@@ -5700,7 +5676,6 @@ public sealed partial class LocalizationService
         ["Restore.StatusEnabledWithHistory"] = "系统还原已启用（检测到还原点历史）",
         ["Restore.StatusDisabledNeedAdmin"] = "系统还原未启用（需要管理员权限查看详情）",
         ["Restore.NeedAdminForPoints"] = "需要管理员权限查看还原点",
-        ["Restore.EnableNeedAdmin"] = "启用系统还原需要管理员权限",
         ["Restore.EnableSuccessButVerifyFailed"] = "命令执行成功但验证失败，系统还原可能未正确启用",
         ["Restore.EnablePolicyBlocked"] = "组策略阻止了系统还原的启用",
         ["Restore.EnableAccessDenied"] = "访问被拒绝，请确保以管理员身份运行",
@@ -5712,7 +5687,6 @@ public sealed partial class LocalizationService
         ["SmartOpt.Diag.PlansFound"] = "发现 {0} 个电源计划",
         ["SmartOpt.Diag.RecommendedPlan"] = "推荐计划: {0}",
         ["SmartOpt.Diag.ListPlansFailed"] = "列出计划失败: {0}",
-        ["SmartOpt.Error.NotAdmin"] = "需要管理员权限才能创建电源计划",
         ["SmartOpt.Error.NotAdminDetailed"] = "程序未以管理员身份运行。请右键程序图标，选择\"以管理员身份运行\"。",
         ["SmartOpt.Error.PowerServiceDown"] = "电源服务未运行或 powercfg 命令不可用",
         ["SmartOpt.Error.NoActivePlan"] = "无法获取当前活动的电源计划",
@@ -5792,7 +5766,6 @@ public sealed partial class LocalizationService
         ["Error.SolutionHeader"] = "建议解决方案：",
         ["Error.UnauthorizedAccess.Title"] = "访问被拒绝",
         ["Error.UnauthorizedAccess.Message"] = "您没有权限执行此操作。文件或注册表项可能受系统保护。",
-        ["Error.UnauthorizedAccess.Solution"] = "请以管理员身份运行程序（右键 -> 以管理员身份运行）。",
         ["Error.UnauthorizedAccess.Short"] = "访问被拒绝，需要管理员权限",
         ["Error.DirectoryNotFound.Title"] = "目录未找到",
         ["Error.DirectoryNotFound.Message"] = "指定的目录不存在或已被删除。",

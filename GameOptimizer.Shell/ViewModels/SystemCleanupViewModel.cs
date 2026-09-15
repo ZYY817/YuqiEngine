@@ -47,6 +47,7 @@ public partial class SystemCleanupViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _currentItemName = string.Empty;
     [ObservableProperty] private int _skippedDirectoryCount;
     [ObservableProperty] private int _skippedFileCount;
+    [ObservableProperty] private int _partialPreviewCount;
     
     [ObservableProperty] private long _diskTotal;
     [ObservableProperty] private long _diskUsed;
@@ -243,6 +244,7 @@ public partial class SystemCleanupViewModel : ObservableObject, IDisposable
         ScanProgress = 0;
         SkippedDirectoryCount = 0;
         SkippedFileCount = 0;
+        PartialPreviewCount = 0;
         StatusText = Loc.Get("Cleanup.ScanningStatus");
         NotifyStateChanged();
 
@@ -260,16 +262,35 @@ public partial class SystemCleanupViewModel : ObservableObject, IDisposable
                 item.Size = 0;
                 item.FileCount = 0;
                 CurrentItemName = item.Name;
-                StatusText = Loc.Get("Cleanup.ScanningItem", current + 1, total, item.Name);
+                StatusText = $"正在扫描 ({current + 1}/{total})：{item.Name}。扫描只统计可清理文件，不会删除任何内容。";
 
                 try
                 {
-                    CleanupPreview preview = await _cleanupService.CreatePreviewAsync(item, token);
+                    int itemIndex = current + 1;
+                    IProgress<CleanupScanProgress> progress = new Progress<CleanupScanProgress>(scan =>
+                    {
+                        if (!IsScanning || !string.Equals(scan.ItemId, item.Id, StringComparison.Ordinal))
+                        {
+                            return;
+                        }
+
+                        StatusText = $"正在扫描 ({itemIndex}/{total})：{item.Name} · 已发现 {scan.FilesDiscovered:N0} 个文件 · 已用时 {Math.Max(1, (int)Math.Ceiling(scan.Elapsed.TotalSeconds))} 秒。可随时取消。";
+                    });
+                    CleanupPreview preview = await _cleanupService.CreatePreviewAsync(item, progress, token);
                     _previews[item.Id] = preview;
                     item.Size = preview.TotalBytes;
                     item.FileCount = preview.Entries.Count;
                     SkippedDirectoryCount += preview.SkippedDirectoryCount;
                     SkippedFileCount += preview.SkippedFileCount;
+                    if (preview.IsPartial)
+                    {
+                        PartialPreviewCount++;
+                        item.ErrorMessage = $"已快速结束扫描：{preview.PartialReason} 已找到的 {preview.Entries.Count:N0} 个文件可安全清理；未扫描部分不会被处理。";
+                    }
+                    else
+                    {
+                        item.ErrorMessage = string.Empty;
+                    }
                     item.State = CleanupState.Idle;
                 }
                 catch (OperationCanceledException) when (token.IsCancellationRequested)
@@ -293,7 +314,9 @@ public partial class SystemCleanupViewModel : ObservableObject, IDisposable
             StatusText = Loc.Get("Cleanup.ScanComplete", TotalFileCount, TotalSizeText);
             if (SkippedDirectoryCount > 0 || SkippedFileCount > 0)
                 StatusText += $"；已跳过 {SkippedDirectoryCount} 个无权限或不可访问目录、{SkippedFileCount} 个不可读取文件。";
-            PageDiagnosticService.Log("SystemCleanup", $"Scan completed: {TotalFileCount} files, {TotalSizeText}, previews={_previews.Count}, skippedDirectories={SkippedDirectoryCount}, skippedFiles={SkippedFileCount}.");
+            if (PartialPreviewCount > 0)
+                StatusText += $"；{PartialPreviewCount} 个目录为避免卡顿已快速结束，未扫描部分不会被清理。";
+            PageDiagnosticService.Log("SystemCleanup", $"Scan completed: {TotalFileCount} files, {TotalSizeText}, previews={_previews.Count}, skippedDirectories={SkippedDirectoryCount}, skippedFiles={SkippedFileCount}, partialPreviews={PartialPreviewCount}.");
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
@@ -328,15 +351,19 @@ public partial class SystemCleanupViewModel : ObservableObject, IDisposable
     [RelayCommand(CanExecute = nameof(CanClean))]
     private async Task CleanAsync()
     {
-        // P1-005: 权限检查 - 清理操作需要管理员权限
-        if (!GameOptimizer.Core.Services.PermissionChecker.IsRunningAsAdministrator())
+        // 统一 Elevation 门禁：未提权才阻断并给出可操作指引；已提权永不提示「以管理员身份运行」。
+        var elevation = GameOptimizer.Core.Services.ElevationGate.Evaluate(
+            "系统清理",
+            operationRequiresAdministrator: true);
+        if (elevation.NeedsElevation)
         {
-            StatusText = Loc.Get("Cleanup.AdminRequired");
+            StatusText = GameOptimizer.Core.Services.ElevationGate.ShortLabel(elevation.Attribution);
+            var message = elevation.UserMessage;
             await Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 Views.InfoDialog.Show(Application.Current.MainWindow,
                     Loc.Get("Common.AdminRequired"),
-                    Loc.Get("Cleanup.AdminRequiredMessage"),
+                    message,
                     Constants.IconGlyphs.Lock);
             });
             return;

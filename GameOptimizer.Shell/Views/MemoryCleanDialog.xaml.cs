@@ -417,7 +417,7 @@ public partial class MemoryCleanDialog : Window
             new[]
             {
                 "每个实例开始前都会确认它仍在运行；已退出或发生变化的实例会被跳过。",
-                "不会关闭应用、关闭窗口或删除任何文件。",
+                "不会结束进程、关闭应用或删除任何文件。",
                 "每个实例完成后都会读取一次结果；这个操作不能撤销。"
             },
             confirmationKeyword: null,
@@ -438,30 +438,40 @@ public partial class MemoryCleanDialog : Window
         {
             var succeeded = 0;
             var skipped = 0;
+            var failures = new List<string>();
             using var confirmationScope = BatchChangeConfirmationScope.Begin();
             for (var index = 0; index < processIds.Count; index++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 CleanProgressBar.Value = (index + 0.15) / processIds.Count * 100;
                 ProgressStatusText.Text = $"正在处理第 {index + 1} / {processIds.Count} 个实例…";
-                ProgressDetailText.Text = "正在检查它是否仍在运行，并确认可以继续。";
+                ProgressDetailText.Text = $"正在检查目标 PID：{processIds[index]} 是否仍在运行，并确认可以继续。";
                 var target = await _memoryCleaningOwner.CaptureWorkingSetTargetAsync(processIds[index], cancellationToken);
                 if (!target.Succeeded || target.Request is null)
                 {
                     skipped++;
+                    failures.Add(DescribeWorkingSetFailure(processIds[index], target.ReasonCode, target.Message));
+                    PageDiagnosticService.Log("MemoryClean", $"PID {processIds[index]} was not captured: {target.ReasonCode}.");
                     continue;
                 }
 
                 ProgressDetailText.Text = "正在释放该实例当前占用的一部分内存。";
                 var result = await _memoryCleaningOwner.RunInteractiveAsync(target.Request, cancellationToken);
                 if (result.IsTerminalSuccess)
+                {
                     succeeded++;
+                    PageDiagnosticService.Log("MemoryClean", $"PID {processIds[index]} completed: {result.ReasonCode}.");
+                }
                 else
+                {
                     skipped++;
+                    failures.Add(DescribeWorkingSetFailure(processIds[index], result.ReasonCode, result.Message));
+                    PageDiagnosticService.Log("MemoryClean", $"PID {processIds[index]} was not modified: {result.ReasonCode}.");
+                }
                 CleanProgressBar.Value = (index + 1d) / processIds.Count * 100;
             }
 
-            ShowWorkingSetResult(succeeded, processIds.Count, skipped);
+            ShowWorkingSetResult(succeeded, processIds.Count, skipped, BuildWorkingSetResultDetail(failures));
         }
         catch (OperationCanceledException)
         {
@@ -563,11 +573,45 @@ public partial class MemoryCleanDialog : Window
             : succeeded > 0
                 ? $"已处理 {succeeded} 个实例，另有 {skipped} 个未处理。"
                 : "没有实例被处理，应用没有被修改。";
+        WorkingSetResultDetailText.Text = string.IsNullOrWhiteSpace(detail) ? string.Empty : detail;
+        WorkingSetResultDetailText.Visibility = string.IsNullOrWhiteSpace(detail)
+            ? Visibility.Collapsed
+            : Visibility.Visible;
         MemoryBlockedReasonText.Text = string.IsNullOrWhiteSpace(detail)
             ? allSucceeded
                 ? "每个实例都已完成处理，应用没有被关闭。"
                 : "部分实例已退出、发生变化或不允许处理，因此被跳过。"
             : detail;
+    }
+
+    private static string BuildWorkingSetResultDetail(IReadOnlyList<string> failures)
+    {
+        if (failures.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var displayed = failures.Take(8).ToList();
+        var detail = "未处理原因：\n" + string.Join("\n", displayed);
+        return failures.Count > displayed.Count
+            ? detail + $"\n另有 {failures.Count - displayed.Count} 个实例未处理。"
+            : detail;
+    }
+
+    private static string DescribeWorkingSetFailure(int processId, string reasonCode, string message)
+    {
+        var reason = reasonCode switch
+        {
+            "memory.process-permission-denied" => "Windows 不允许修改这个实例的内存（权限不足或进程受保护）。",
+            "memory.process-access-denied" => "Windows 无法打开这个实例以释放内存。",
+            "memory.process-identity-unavailable" => "无法安全核验这个实例的身份，已跳过。",
+            "memory.process-identity-drift" => "这个实例在操作期间发生变化或已退出，已跳过。",
+            "memory.process-exited" => "这个实例已经退出，已跳过。",
+            "memory.confirmation-denied" => "未取得本次实例的确认，未执行操作。",
+            "execution.reported-mutation-without-target" => "Windows 已接收请求，但无法确认内存已释放，未将其算作成功。",
+            _ => string.IsNullOrWhiteSpace(message) ? "当前无法安全处理这个实例，已跳过。" : message
+        };
+        return $"PID {processId}：{reason}";
     }
 
     private void Cancel_Click(object sender, RoutedEventArgs e)

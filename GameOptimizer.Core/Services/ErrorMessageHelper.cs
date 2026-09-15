@@ -17,7 +17,7 @@ public static class ErrorMessageHelper
         return ex switch
         {
             UnauthorizedAccessException uae => GetUnauthorizedMessage(uae, loc),
-            SecurityException => loc.Get("Error.Friendly.PermissionDenied"),
+            SecurityException se => ElevationGate.DescribeWriteDenial("访问受保护资源", se.Message),
             Win32Exception w32 when w32.NativeErrorCode == 1223 => loc.Get("UAC.Denied"), // ERROR_CANCELLED
             FileNotFoundException fnf => GetFileNotFoundMessage(fnf, loc),
             DirectoryNotFoundException => loc.Get("Error.Friendly.DirectoryNotFound"),
@@ -64,12 +64,7 @@ public static class ErrorMessageHelper
     
     private static string GetUnauthorizedMessage(UnauthorizedAccessException ex, LocalizationService loc)
     {
-        var msg = ex.Message.ToLowerInvariant();
-        
-        if (msg.Contains("registry"))
-            return loc.Get("Error.Friendly.RegistryAccessDenied");
-        
-        return loc.Get("Error.Friendly.PermissionDenied");
+        return ElevationGate.DescribeWriteDenial("访问系统资源", ex.Message);
     }
     
     private static string GetGenericFriendlyMessage(Exception ex, LocalizationService loc)
@@ -79,9 +74,7 @@ public static class ErrorMessageHelper
         if (msg.Contains("could not find") && msg.Contains("file"))
             return loc.Get("Error.Friendly.FileNotFoundGeneric");
         if (msg.Contains("access") && msg.Contains("denied"))
-            return loc.Get("Error.Friendly.PermissionDenied");
-        if (msg.Contains("registry"))
-            return loc.Get("Error.Friendly.RegistryAccessDenied");
+            return ElevationGate.DescribeWriteDenial("访问系统资源", ex.Message);
         if (msg.Contains("timeout") || msg.Contains("timed out"))
             return loc.Get("Error.Friendly.NetworkTimeout");
         if (msg.Contains("not found") || msg.Contains("does not exist"))
@@ -112,7 +105,7 @@ public static class ErrorMessageHelper
     
     public static string GetAdminRetryMessage()
     {
-        return LocalizationService.Instance.Get("UAC.RetryAsAdmin");
+        return ElevationGate.DescribeWriteDenial("系统写入");
     }
     
     public static bool IsPermissionError(Exception ex)

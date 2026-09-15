@@ -27,7 +27,7 @@ public sealed class WindowsPowerPlatform : IPowerPlatform
             return Task.FromResult(new PowerEnvironment(false, 0, false, false, false, false, "Windows is required."));
 
         var build = Environment.OSVersion.Version.Build;
-        var administrator = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
+        var administrator = GameOptimizer.Core.Services.WindowsElevation.IsElevated;
         if (!GetPwrCapabilities(out var capabilities))
             return Task.FromResult(new PowerEnvironment(true, build, administrator, false, false, true, "Windows power capabilities could not be read; write is blocked."));
         var hasBattery = capabilities.SystemBatteriesPresent != 0;

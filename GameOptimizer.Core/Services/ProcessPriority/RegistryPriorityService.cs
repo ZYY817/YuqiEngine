@@ -1,6 +1,5 @@
 // File: GameOptimizer.Core/Services/ProcessPriority/RegistryPriorityService.cs
 using System;
-using System.Security.Principal;
 using GameOptimizer.Core.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
@@ -24,19 +23,7 @@ public class RegistryPriorityService : IRegistryPriorityService
         _logger = logger;
     }
 
-    public bool HasAdminPrivileges()
-    {
-        try
-        {
-            using var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    public bool HasAdminPrivileges() => WindowsElevation.IsElevated;
 
     public OperationResult SetProcessPriority(string executableName, CpuPriorityLevel priority)
     {

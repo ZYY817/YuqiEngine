@@ -398,16 +398,5 @@ public sealed class PerInterfaceRegistryCapability : IChangeCapability
         }
     }
 
-    private static bool IsAdministrator()
-    {
-        try
-        {
-            using var identity = WindowsIdentity.GetCurrent();
-            return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    private static bool IsAdministrator() => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 }

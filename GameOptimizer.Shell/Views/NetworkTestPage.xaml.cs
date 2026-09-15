@@ -797,7 +797,13 @@ public partial class NetworkTestPage : UserControl
         catch (Exception ex)
         {
             Debug.WriteLine($"[NetworkTest] Reset network failed: {ex.Message}");
-            ToastService.Instance.Error(loc.Get("Network.ResetNetwork"), loc.Get("Network.NeedAdmin"));
+            // Why: 任意异常都提示「需要管理员」会误导已提权用户；按真实提权分流。
+            var message = GameOptimizer.Core.Services.PermissionChecker.EvaluateElevationGate(
+                "网络重置",
+                GameOptimizer.Core.Services.WindowsElevation.IsElevated,
+                GameOptimizer.Core.Services.WindowsElevation.IsAdministratorAccount,
+                ex.Message).Message;
+            ToastService.Instance.Error(loc.Get("Network.ResetNetwork"), message);
         }
         finally
         {

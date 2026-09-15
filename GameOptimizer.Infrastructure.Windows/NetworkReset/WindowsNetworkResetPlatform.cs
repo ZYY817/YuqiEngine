@@ -23,14 +23,14 @@ public sealed class WindowsNetworkResetPlatform : INetworkResetPlatform
                 "仅支持 Windows。"));
         }
 
-        using var identity = WindowsIdentity.GetCurrent();
-        var administrator = new WindowsPrincipal(identity)
-            .IsInRole(WindowsBuiltInRole.Administrator);
+        var administrator = GameOptimizer.Core.Services.WindowsElevation.IsElevated;
         return Task.FromResult(new NetworkResetPlatformAssessment(
             true,
             administrator,
             administrator ? "platform.ready" : "permission.administrator-required",
-            administrator ? "Windows 网络命令可用。" : "需要管理员权限。"));
+            administrator
+                ? "Windows 网络命令可用。"
+                : GameOptimizer.Core.Services.WindowsElevation.DescribeMachineScopeUnavailable()));
     }
 
     public Task<NetworkResetSafetyAssessment> AssessResetSafetyAsync(

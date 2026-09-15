@@ -34,7 +34,10 @@ public sealed class WindowsAppxRemovalOwner : IAppxRemovalOwner
         }
 
         if (!IsCurrentUserAdministrator())
-            return Task.FromResult(new AppxPlatformAssessment(false, "permission.administrator-required", "当前用户 AppX 包移除能力要求以管理员身份运行。"));
+            return Task.FromResult(new AppxPlatformAssessment(
+                false,
+                "permission.administrator-required",
+                Core.Services.ElevationGate.DescribeWriteDenial("管理预装应用")));
 
         return Task.FromResult(new AppxPlatformAssessment(true, "applicable", "官方部署 API 可用，当前进程已提升且可枚举当前用户包。"));
     }
@@ -320,18 +323,7 @@ public sealed class WindowsAppxRemovalOwner : IAppxRemovalOwner
         }
     }
 
-    private static bool IsCurrentUserAdministrator()
-    {
-        try
-        {
-            using var identity = WindowsIdentity.GetCurrent();
-            return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            return false;
-        }
-    }
+    private static bool IsCurrentUserAdministrator() => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 
     private static string Sanitize(Exception ex) =>
         Truncate($"{ex.GetType().Name}: {ex.Message}");

@@ -251,6 +251,19 @@ public static class MemoryCleaningPayloadCodec
             identity.Architecture,
             identity.TopologyFingerprint));
 
+    public static string WorkingSetObservedFingerprint(MemoryProcessIdentity identity) =>
+        Hash(string.Join(
+            '|',
+            "memory-working-set-observed-v1",
+            identity.ProcessId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            identity.CreationTimeUtcTicks.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            identity.ExecutableName,
+            identity.ExecutableHash ?? string.Empty,
+            identity.SessionId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            identity.UserSecurityIdentifier,
+            identity.Architecture,
+            identity.TopologyFingerprint));
+
     public static string ProcessTerminationFingerprint(MemoryProcessIdentity identity) =>
         Hash(string.Join(
             '|',

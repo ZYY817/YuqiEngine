@@ -66,11 +66,7 @@ public sealed class WindowsPowerSettingEnvironmentProvider : IPowerSettingEnviro
         Environment.MachineName,
         IsAdministrator());
 
-    private static bool IsAdministrator()
-    {
-        using var identity = WindowsIdentity.GetCurrent();
-        return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
-    }
+    private static bool IsAdministrator() => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 }
 
 /// <summary>

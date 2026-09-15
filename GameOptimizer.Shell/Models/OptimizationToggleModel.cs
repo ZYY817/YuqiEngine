@@ -1,4 +1,4 @@
-﻿﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using GameOptimizer.Core.Localization;
 using GameOptimizer.Core.Optimization;
 using GameOptimizer.Core.Optimization.Providers;
@@ -297,6 +297,12 @@ public partial class OptimizationToggleModel : ObservableObject
     /// It is deliberately derived from the execution gate, so an unknown probe can never look ready.
     /// </summary>
     public ModuleCapabilityState CapabilityState => ResolveCapabilityState();
+
+    /// <summary>
+    /// 已提权却仍收到 PermissionRequired：这是探测/文案误归因，不是「缺管理员」。
+    /// </summary>
+    private bool IsStalePermissionRequired =>
+        SupportState == OperationSupportState.PermissionRequired && _isAdministrator;
 
     public string CapabilityStateLabel =>
         LocalizationService.Instance.Get($"Module.Capability.{CapabilityState}");
@@ -597,7 +603,9 @@ public partial class OptimizationToggleModel : ObservableObject
                 return;
             }
 
-            if (SupportState != OperationSupportState.Supported)
+            // Why: 已提权进程上仍出现 PermissionRequired 属于误归因（过期探测/错误文案），
+            // 不得把「需要管理员」当成真实阻断原因，否则用户已以管理员运行却仍见开关置灰。
+            if (SupportState != OperationSupportState.Supported && !IsStalePermissionRequired)
             {
                 BlockedReason = string.IsNullOrWhiteSpace(RuntimeStatusDetails)
                     ? LocalizationService.Instance.Get("Compatibility.UnknownBlock")
@@ -635,7 +643,8 @@ public partial class OptimizationToggleModel : ObservableObject
 
             if (RequiresAdmin && !_isAdministrator)
             {
-                BlockedReason = "需要管理员权限；当前进程未获得 operation 所需权限。";
+                BlockedReason = GameOptimizer.Core.Services.PermissionChecker.GetAdminRequiredMessage(
+                    OperationId ?? Title);
                 return;
             }
 
@@ -667,7 +676,11 @@ public partial class OptimizationToggleModel : ObservableObject
     {
         if (_stateMachine.IsOperating) return ModuleCapabilityState.Executing;
         if (SupportState == OperationSupportState.AlternativeAvailable) return ModuleCapabilityState.AlternativeAvailable;
-        if (SupportState == OperationSupportState.PermissionRequired) return ModuleCapabilityState.AdminRequired;
+        // Why: 已提权时 PermissionRequired 属误归因，不得再显示「需要管理员」；按已受支持继续评估。
+        if (SupportState == OperationSupportState.PermissionRequired && !_isAdministrator)
+        {
+            return ModuleCapabilityState.AdminRequired;
+        }
         if (SupportState == OperationSupportState.ManagedByPolicy) return ModuleCapabilityState.PolicyManaged;
         if (SupportState == OperationSupportState.Conflict) return ModuleCapabilityState.Conflict;
         if (SupportState == OperationSupportState.NotApplicable) return ModuleCapabilityState.NotApplicable;

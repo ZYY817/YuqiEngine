@@ -311,7 +311,7 @@ public class SystemCompatibilityChecker
         {
             WindowsBuild = Environment.OSVersion.Version.Build,
             WindowsVersion = GetWindowsVersionName(),
-            IsAdminMode = IsAdministrator()
+            IsAdminMode = WindowsElevation.IsElevated
         };
         
         return info;
@@ -340,19 +340,7 @@ public class SystemCompatibilityChecker
         };
     }
     
-    private static bool IsAdministrator()
-    {
-        try
-        {
-            var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
-            var principal = new System.Security.Principal.WindowsPrincipal(identity);
-            return principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    private static bool IsAdministrator() => WindowsElevation.IsElevated;
     
     private static bool CheckVirtualizationSupport()
     {

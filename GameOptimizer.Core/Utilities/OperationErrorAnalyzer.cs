@@ -23,7 +23,7 @@ public static class OperationErrorAnalyzer
             {
                 OperationType = operationContext,
                 TargetResource = string.Empty,
-                IsAdminMode = SystemGuard.IsAdministrator
+                IsAdminMode = WindowsElevation.IsElevated
             };
 
             var result = _diagnosticService.Value.Diagnose(ex, context);
@@ -41,7 +41,7 @@ public static class OperationErrorAnalyzer
         {
             OperationType = operationContext,
             TargetResource = targetResource,
-            IsAdminMode = SystemGuard.IsAdministrator
+            IsAdminMode = WindowsElevation.IsElevated
         };
 
         return _diagnosticService.Value.Diagnose(ex, context);
@@ -55,14 +55,17 @@ public static class OperationErrorAnalyzer
             {
                 OperationType = operationContext,
                 TargetResource = string.Empty,
-                IsAdminMode = SystemGuard.IsAdministrator
+                IsAdminMode = WindowsElevation.IsElevated
             };
 
             var result = _diagnosticService.Value.Diagnose(ex, context);
             
             if (context.IsAdminMode)
             {
-                return (false, result.UserMessage);
+                // Why: 已提权仍被拒绝访问时，不得再提示"需要管理员权限"。
+                return (false, PermissionChecker.GetSystemDeniedMessage(
+                    string.IsNullOrWhiteSpace(operationContext) ? "系统写入" : operationContext,
+                    result.UserMessage));
             }
 
             var needsAdmin = result.Category == ErrorCategory.Permission && 
@@ -70,7 +73,8 @@ public static class OperationErrorAnalyzer
 
             if (needsAdmin)
             {
-                return (true, "此操作需要管理员权限。请右键程序图标，选择\"以管理员身份运行\"。");
+                return (true, PermissionChecker.GetAdminRequiredMessage(
+                    string.IsNullOrWhiteSpace(operationContext) ? "系统写入" : operationContext));
             }
 
             return (false, result.UserMessage);

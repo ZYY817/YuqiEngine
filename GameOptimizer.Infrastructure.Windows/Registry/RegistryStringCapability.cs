@@ -620,11 +620,7 @@ public sealed class RegistryStringCapability : IChangeCapability
         return sid;
     }
 
-    private static bool IsAdministrator()
-    {
-        using var identity = WindowsIdentity.GetCurrent();
-        return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
-    }
+    private static bool IsAdministrator() => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 
     private static string Fingerprint(string payload) =>
         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(payload)));

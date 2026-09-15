@@ -1,5 +1,6 @@
 // File: GameOptimizer.Shell/Services/EsportsModeStateService.cs
 using GameOptimizer.Core.Optimization;
+using GameOptimizer.Core.Services;
 using GameOptimizer.Shell.Models;
 using GameOptimizer.Shell.Services.Baseline;
 
@@ -134,7 +135,7 @@ public sealed class EsportsModeStateService
                     registration.Operation.Title,
                     EsportsExecutionOutcome.Blocked,
                     EsportsFailureKind.PermissionDenied,
-                    "该操作需要管理员权限，电竞模式已在写入前阻断整个计划。"));
+                    ElevationGate.DescribeWriteDenial(registration.Operation.Title)));
                 continue;
             }
 

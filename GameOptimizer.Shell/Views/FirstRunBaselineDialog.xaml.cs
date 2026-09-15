@@ -1,4 +1,4 @@
-﻿// File: GameOptimizer.Shell/Views/FirstRunBaselineDialog.xaml.cs
+// File: GameOptimizer.Shell/Views/FirstRunBaselineDialog.xaml.cs
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -474,7 +474,7 @@ public partial class FirstRunBaselineDialog : Window
         var lower = reason.ToLowerInvariant();
         if (ContainsAny(lower, "access denied", "unauthorized", "permission", "权限", "管理员"))
         {
-            return "权限不足，无法完成备份。请用管理员身份重新打开软件后再试。";
+            return GameOptimizer.Core.Services.ElevationGate.DescribeWriteDenial("首次安全基线备份", reason);
         }
 
         if (ContainsAny(lower, "disk", "space", "磁盘", "空间"))

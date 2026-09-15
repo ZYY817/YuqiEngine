@@ -253,6 +253,14 @@
                     <Border Background="#2034C759" CornerRadius="8" Padding="20,12" Margin="0,24,0,0">
                         <TextBlock x:Name="FreedMemoryText" Text="已释放 0 MB 内存" Foreground="#34C759" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                     </Border>
+                    <TextBlock x:Name="WorkingSetResultDetailText"
+                               Foreground="{DynamicResource Theme.Brush.TextSecondary}"
+                               FontSize="12"
+                               MaxWidth="640"
+                               Margin="0,12,0,0"
+                               TextAlignment="Left"
+                               TextWrapping="Wrap"
+                               Visibility="Collapsed"/>
                 </StackPanel>
             </Border>
             
@@ -297,7 +305,8 @@
                         </Button.Template>
                     </Button>
                     
-                    <Button x:Name="ConfirmBtn" Grid.Column="2" Click="Confirm_Click" Cursor="Hand" IsEnabled="False">
+                    <Button x:Name="ConfirmBtn" Grid.Column="2" Click="Confirm_Click" Cursor="Hand" IsEnabled="False"
+                            ToolTip="释放所选进程工作集；不会结束进程">
                         <Button.Effect>
                             <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.3" Color="#2E88F2"/>
                         </Button.Effect>

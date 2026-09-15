@@ -52,7 +52,13 @@ public sealed class SystemCleanupService : ISystemCleanupService
 
     public IReadOnlyList<CleanupItem> GetCleanupItems() => _items.AsReadOnly();
 
-    public Task<CleanupPreview> CreatePreviewAsync(CleanupItem item, CancellationToken ct = default)
+    public Task<CleanupPreview> CreatePreviewAsync(CleanupItem item, CancellationToken ct = default) =>
+        CreatePreviewAsync(item, progress: null, ct: ct);
+
+    public Task<CleanupPreview> CreatePreviewAsync(
+        CleanupItem item,
+        IProgress<CleanupScanProgress>? progress,
+        CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(item);
         if (!_definitions.TryGetValue(item.Id, out CleanupItem? definition))
@@ -61,7 +67,7 @@ public sealed class SystemCleanupService : ISystemCleanupService
         }
         return Task.Run(async () =>
         {
-            CleanupPreview preview = await CleanupPreviewBuilder.BuildAsync(definition, ct).ConfigureAwait(false);
+            CleanupPreview preview = await CleanupPreviewBuilder.BuildAsync(definition, progress, ct).ConfigureAwait(false);
             if (!_issuedPreviews.TryAdd(preview.PreviewId, preview.Fingerprint))
             {
                 throw new InvalidOperationException("Cleanup preview identity collision.");
@@ -194,7 +200,8 @@ public sealed class SystemCleanupService : ISystemCleanupService
             {
                 await CleanupQuarantineManifestStore.EnsureEntryStillMatchesAsync(
                     entry with { CanonicalPath = currentPath },
-                    ct).ConfigureAwait(false);
+                    ct,
+                    requireContentHash: false).ConfigureAwait(false);
 
                 string operationId = preview.PreviewId.ToString("N") + "-" + entry.ResourceKey["cleanup.resource.".Length..][..16];
                 CleanupQuarantineMove move = await _quarantine.MoveWithReceiptAsync(

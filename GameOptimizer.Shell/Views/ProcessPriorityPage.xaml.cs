@@ -13,7 +13,7 @@ namespace GameOptimizer.Shell.Views;
 
 public partial class ProcessPriorityPage : UserControl
 {
-    private const string IfeoBlockedMessage = "IFEO 持久优先级尚无独立 Owner、durable restore 与受控 Windows 验证，当前已零写入阻断。";
+    private const string IfeoBlockedReason = "IFEO 持久优先级尚无独立 Owner、durable restore 与受控 Windows 验证，当前已零写入阻断。";
     private static bool IsIfeoBlocked => true;
     private bool _synchronizingEnableToggle;
     private readonly ProcessPriorityViewModel _viewModel;
@@ -101,16 +101,32 @@ public partial class ProcessPriorityPage : UserControl
         return null;
     }
 
+    /// <summary>
+    /// 本页阻断的真实原因是"IFEO 实现未就绪"，与提权无关。这里读进程真实提权状态，只为把话说准：
+    /// 已提权时不得再让用户去"以管理员身份运行"，未提权时也要说明提权不会解除这项阻断。
+    /// </summary>
     private void CheckAdminPrivileges()
     {
-        ToastService.Instance.Warning(_loc.Get("Common.Warning"), IfeoBlockedMessage);
+        ToastService.Instance.Warning(
+            _loc.Get("Common.Warning"),
+            BuildBlockingMessage(GameOptimizer.Core.Services.WindowsElevation.IsElevated));
+    }
+
+    /// <summary>阻断提示文案（含真实提权状态），加载提示与各操作入口共用。</summary>
+    public static string BuildBlockingMessage(bool isElevated)
+    {
+        var elevationLine = isElevated
+            ? "当前进程令牌已提权（管理员模式）：这项阻断不是权限不足，重复以管理员身份运行不会解除。"
+            : "当前进程未提权，但提权也不会解除这项阻断：原因是实现未就绪，不是权限问题。";
+
+        return $"{IfeoBlockedReason}\n\n{elevationLine}";
     }
 
     private void AddGameButton_Click(object sender, RoutedEventArgs e)
     {
         if (IsIfeoBlocked)
         {
-            ToastService.Instance.Error(_loc.Get("Common.Error"), IfeoBlockedMessage);
+            ToastService.Instance.Error(_loc.Get("Common.Error"), BuildBlockingMessage(GameOptimizer.Core.Services.WindowsElevation.IsElevated));
             return;
         }
 
@@ -144,7 +160,7 @@ public partial class ProcessPriorityPage : UserControl
     {
         if (IsIfeoBlocked)
         {
-            ToastService.Instance.Error(_loc.Get("Common.Error"), IfeoBlockedMessage);
+            ToastService.Instance.Error(_loc.Get("Common.Error"), BuildBlockingMessage(GameOptimizer.Core.Services.WindowsElevation.IsElevated));
             return;
         }
 
@@ -188,7 +204,7 @@ public partial class ProcessPriorityPage : UserControl
     {
         if (IsIfeoBlocked)
         {
-            ToastService.Instance.Error(_loc.Get("Common.Error"), IfeoBlockedMessage);
+            ToastService.Instance.Error(_loc.Get("Common.Error"), BuildBlockingMessage(GameOptimizer.Core.Services.WindowsElevation.IsElevated));
             return;
         }
 
@@ -232,7 +248,7 @@ public partial class ProcessPriorityPage : UserControl
         if (IsIfeoBlocked)
         {
             RevertEnableToggle(checkBox, !isEnabled);
-            ToastService.Instance.Error(_loc.Get("Common.Error"), IfeoBlockedMessage);
+            ToastService.Instance.Error(_loc.Get("Common.Error"), BuildBlockingMessage(GameOptimizer.Core.Services.WindowsElevation.IsElevated));
             return;
         }
 

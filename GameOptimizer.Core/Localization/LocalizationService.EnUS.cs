@@ -151,7 +151,6 @@ public sealed partial class LocalizationService
         ["Dashboard.QuickActions"] = "Quick Actions",
         ["Dashboard.RecentActivity"] = "Recent Activity",
         ["Dashboard.RestoreDefaults"] = "Restore Defaults",
-        ["Dashboard.PermissionDenied"] = "Administrator privileges required",
         ["Dashboard.SystemCheckTitle"] = "System Check",
         ["Dashboard.ContinueOptimize"] = "Do you still want to continue with optimization?",
         ["Dashboard.UserCancelled"] = "User cancelled the optimization",
@@ -287,7 +286,6 @@ public sealed partial class LocalizationService
         ["Settings.ImportConfig"] = "Import Optimization Profile",
         
         // Error Messages
-        ["Error.PermissionDenied"] = "Administrator privileges required. Please run as administrator.",
         ["Error.OperationTimeout"] = "Operation timed out. Please try again.",
         ["Error.GameRunning"] = "Game detected running. Please close the game before optimizing.",
         ["Error.DiskSpaceLow"] = "Insufficient disk space",
@@ -328,7 +326,6 @@ public sealed partial class LocalizationService
         ["Settings.StartupRegistryFailed"] = "Failed to set startup, please check permissions",
         ["Settings.RegistryOpenFailed"] = "Cannot open registry key HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
         ["Settings.ExePathFailed"] = "Cannot get application path",
-        ["Settings.PermissionDenied"] = "Permission denied, please run as administrator",
         ["Settings.SecurityPolicyBlocked"] = "Security policy blocked registry access",
         ["Settings.NewVersionFound"] = "New version v{0} available\n\nRelease date: {1}\n\nOpen download page?",
         ["Settings.NoUpdateAvailable"] = "You are using the latest version",
@@ -407,7 +404,6 @@ public sealed partial class LocalizationService
         
         // Module Restore
         ["Module.AdminRequired"] = "Administrator Permission Required",
-        ["Module.PleaseRestartAsAdmin"] = "This feature requires administrator privileges to execute.\n\nPlease right-click the program icon and select 'Run as administrator', then try again.",
         
         // OPT-020: State Detection
         ["Esports.DetectingState"] = "Detecting System State",
@@ -1510,8 +1506,6 @@ public sealed partial class LocalizationService
         ["Network.RestartingIn5Sec"] = "Computer will restart in 5 seconds...",
         ["Network.RestartManually"] = "Please restart your computer manually to complete the network reset.",
         
-        ["Network.NeedAdmin"] = "Administrator privileges required",
-        ["Network.NeedAdminDesc"] = "Resetting network configuration requires administrator privileges.\\n\\nPlease right-click the program and select 'Run as administrator'.",
         ["Network.EnterAddress"] = "Please enter server address to test",
         ["Network.InvalidFormat"] = "Please enter a valid IP address or domain name",
         ["Network.FormatExample"] = "\n\nExamples:\n• 192.168.1.1\n• game.server.com",
@@ -1618,7 +1612,6 @@ public sealed partial class LocalizationService
         ["Restore.SettingsOpened"] = "System protection settings opened. You can enable or configure system restore here.\nClick [Refresh] to update status after enabling.",
         ["Restore.OpenSettingsFailed"] = "Failed to open system settings: {0}",
         ["Restore.AlreadyEnabled"] = "System restore is already enabled.",
-        ["Restore.NeedAdminToEnable"] = "Administrator privileges required to enable system restore.\nPlease run as administrator and try again.",
         ["Restore.Enabling"] = "Enabling system restore, please wait...",
         ["Restore.EnableSuccess"] = "System restore enabled! Refreshing status...",
         ["Restore.EnableFailed"] = "Failed to enable system restore.\n{0}",
@@ -1757,8 +1750,6 @@ public sealed partial class LocalizationService
         ["Backup.PreviewKey"] = "Setting",
         ["Backup.PreviewValue"] = "Value",
         ["Backup.NoBackupYet"] = "No backup yet",
-        ["Backup.AdminRequired"] = "Administrator permission required",
-        ["Backup.AdminRequiredMessage"] = "Backup operations require administrator privileges.\n\nPlease restart the application as administrator.",
         ["Backup.JustNow"] = "Just now",
         ["Backup.MinutesAgo"] = "{0} minutes ago",
         ["Backup.HoursAgo"] = "{0} hours ago",
@@ -2309,8 +2300,6 @@ public sealed partial class LocalizationService
         ["Cleanup.CancellingScan"] = "Cancelling scan...",
         ["Cleanup.CancellingClean"] = "Cancelling cleanup...",
         ["Cleanup.Unknown"] = "Unknown",
-        ["Cleanup.AdminRequired"] = "Administrator permission required",
-        ["Cleanup.AdminRequiredMessage"] = "System cleanup requires administrator privileges to delete system files.\n\nPlease restart the application as administrator.",
         ["Cleanup.CategorySystem"] = "System Cache",
         ["Cleanup.CategoryUser"] = "User Cache",
         ["Cleanup.CategoryGame"] = "Game Cache",
@@ -2431,7 +2420,6 @@ public sealed partial class LocalizationService
         ["MemClean.NoWhitelistToRemove"] = "No processes in whitelist",
         ["MemClean.SmartBoostComplete"] = "Smart boost complete, freed {0} MB",
         ["MemClean.SmartBoostFailed"] = "Boost failed, may require administrator privileges",
-        ["MemClean.RequiresAdmin"] = "Clearing standby memory requires administrator privileges",
         ["MemClean.StandbyCleared"] = "Standby memory cleared, freed {0} MB",
         ["MemClean.WorkingSetsCleared"] = "Cleared working sets of {0} processes, freed {1} MB",
         ["MemClean.Title"] = "Memory Cleanup",
@@ -3444,7 +3432,6 @@ public sealed partial class LocalizationService
         ["PowerEditor.AdvancedPanel"] = "Advanced Panel",
         ["PowerEditor.ApplyChanges"] = "Apply Changes",
         ["PowerEditor.UnsavedChanges"] = "Unsaved Changes: {0}",
-        ["PowerEditor.SwitchFailed"] = "Switch failed. Please run as administrator.",
         ["PowerEditor.SwitchFailedTitle"] = "Switch Failed",
         ["PowerEditor.CannotDeleteActive"] = "Cannot delete the currently active power plan.\n\nPlease switch to another power plan first.",
         ["PowerEditor.CannotDeleteTitle"] = "Cannot Delete",
@@ -4494,7 +4481,6 @@ public sealed partial class LocalizationService
         ["PowerEditor.AdvancedPanel"] = "Advanced Panel",
         ["PowerEditor.ApplyChanges"] = "Apply Changes",
         ["PowerEditor.UnsavedChanges"] = "Unsaved Changes: {0}",
-        ["PowerEditor.SwitchFailed"] = "Switch failed. Please run as administrator.",
         ["PowerEditor.SwitchFailedTitle"] = "Switch Failed",
         ["PowerEditor.CannotDeleteActive"] = "Cannot delete the currently active power plan.\n\nPlease switch to another power plan first.",
         ["PowerEditor.CannotDeleteTitle"] = "Cannot Delete",
@@ -4998,7 +4984,6 @@ public sealed partial class LocalizationService
         ["Backup.ClearAllWarning"] = "?? DANGER WARNING ??\n\nYou are about to delete ALL {0} backup snapshots!\n\nThis action cannot be undone. You will not be able to restore any system settings.\n\nAre you sure you want to continue?",
         
         // P1-025: User-friendly error messages
-        ["Error.Friendly.RegistryAccessDenied"] = "Cannot access system settings. Please run as administrator.",
         ["Error.Friendly.FileInUse"] = "File is being used by another program. Please close it and try again.",
         ["Error.Friendly.FileInUseWithName"] = "File {0} is being used by another program. Please close it and try again.",
         ["Error.Friendly.FileNotFound"] = "File not found: {0}",
@@ -5007,7 +4992,6 @@ public sealed partial class LocalizationService
         ["Error.Friendly.DiskFull"] = "Disk space is full. Please free up space and try again.",
         ["Error.Friendly.NetworkTimeout"] = "Network connection timed out. Please check your connection and try again.",
         ["Error.Friendly.ServiceUnavailable"] = "System service temporarily unavailable. Please try again later.",
-        ["Error.Friendly.PermissionDenied"] = "Permission denied. Please run as administrator.",
         ["Error.Friendly.InvalidOperation"] = "Invalid operation. Please refresh and try again.",
         ["Error.Friendly.Unknown"] = "Operation failed. Please check logs for details.",
         ["Error.Friendly.WmiTimeout"] = "System information query timed out. Please try again later.",
@@ -5026,7 +5010,6 @@ public sealed partial class LocalizationService
         
         // UAC related messages
         ["UAC.Denied"] = "User cancelled the permission request",
-        ["UAC.RetryAsAdmin"] = "This operation requires administrator privileges.\n\nPlease right-click the program icon and select 'Run as administrator' to retry.",
         ["UAC.ElevationRequired"] = "Elevation required to perform this operation",
         
         // P1-026: High-risk operation confirmations
@@ -5083,7 +5066,6 @@ public sealed partial class LocalizationService
         ["Audio.Desc.Communication"] = "Disable automatic volume reduction during voice calls",
         
         // SystemGuard Messages
-        ["Guard.NeedAdmin"] = "This operation requires administrator privileges. Please run as administrator.",
         ["Guard.GameRunning"] = "Game detected running ({0}). Please close the game before optimizing.",
         ["Guard.DiskSpaceLow"] = "Insufficient disk space. At least {0} required.",
         
@@ -6314,14 +6296,8 @@ Core Parking Min        70-90%   → 100%
 This software only adjusts Windows power plan parameters. It does not modify BIOS settings or perform hardware overclocking. All adjustments are reversible by disabling aggressive mode.",
         
         // P1 Permission Check Messages
-        ["Memory.AdminRequiredMessage"] = "Memory optimization requires administrator privileges to modify system settings.\n\nPlease restart the application as administrator.",
         ["CpuAffinity.AdminRequired"] = "Administrator permission required",
-        ["CpuAffinity.AdminRequiredMessage"] = "Setting CPU affinity requires administrator privileges.\n\nPlease restart the application as administrator.",
         ["Restore.AdminRequired"] = "Administrator permission required",
-        ["Restore.AdminRequiredMessage"] = "Creating system restore points requires administrator privileges.\n\nPlease restart the application as administrator.",
-        ["Repair.AdminRequired"] = "Administrator permission required",
-        ["Repair.AdminRequiredMessage"] = "System repair operations require administrator privileges.\n\nPlease restart the application as administrator.",
-        ["GameProfiles.AdminRequiredForOptimization"] = "Game optimization requires administrator privileges.\n\nDo you want to launch the game without optimization?\n\n(Click Yes to launch without optimization, No to cancel)",
         
         // Esports Mode - Additional Keys
         ["Esports.SafeMode"] = "Safe Mode",
@@ -6446,7 +6422,6 @@ This software only adjusts Windows power plan parameters. It does not modify BIO
         ["Engine.RolledBack"] = "(Rolled back)",
         ["Engine.RollbackFailed"] = "Rollback failed: {0}",
         ["Engine.Unknown"] = "Unknown",
-        ["Engine.AdminRequired"] = "This operation requires administrator privileges. Please right-click and run as administrator.",
         ["Engine.Timeout"] = "Operation timed out",
         ["Engine.TimeoutRetry"] = "Operation timed out, the system may be busy. Please try again later.",
         ["Engine.UnknownError"] = "Unknown error",
@@ -6756,7 +6731,6 @@ This software only adjusts Windows power plan parameters. It does not modify BIO
         ["Restore.StatusEnabledWithHistory"] = "System Restore is enabled (restore point history detected)",
         ["Restore.StatusDisabledNeedAdmin"] = "System Restore is not enabled (admin required for details)",
         ["Restore.NeedAdminForPoints"] = "Admin required to view restore points",
-        ["Restore.EnableNeedAdmin"] = "Admin privileges required to enable System Restore",
         ["Restore.EnableSuccessButVerifyFailed"] = "Command succeeded but verification failed, System Restore may not be properly enabled",
         ["Restore.EnablePolicyBlocked"] = "Group Policy is blocking System Restore",
         ["Restore.EnableAccessDenied"] = "Access denied, please ensure running as administrator",
@@ -6768,7 +6742,6 @@ This software only adjusts Windows power plan parameters. It does not modify BIO
         ["SmartOpt.Diag.PlansFound"] = "Found {0} power plans",
         ["SmartOpt.Diag.RecommendedPlan"] = "Recommended plan: {0}",
         ["SmartOpt.Diag.ListPlansFailed"] = "Failed to list plans: {0}",
-        ["SmartOpt.Error.NotAdmin"] = "Admin privileges required to create power plan",
         ["SmartOpt.Error.NotAdminDetailed"] = "Application is not running as administrator. Please right-click the program icon and select \"Run as administrator\".",
         ["SmartOpt.Error.PowerServiceDown"] = "Power service is not running or powercfg command is unavailable",
         ["SmartOpt.Error.NoActivePlan"] = "Unable to get current active power plan",
@@ -6848,7 +6821,6 @@ This software only adjusts Windows power plan parameters. It does not modify BIO
         ["Error.SolutionHeader"] = "Suggested solution:",
         ["Error.UnauthorizedAccess.Title"] = "Access Denied",
         ["Error.UnauthorizedAccess.Message"] = "You do not have permission to perform this operation. The file or registry key may be protected by the system.",
-        ["Error.UnauthorizedAccess.Solution"] = "Please run the application as Administrator (right-click -> Run as administrator).",
         ["Error.UnauthorizedAccess.Short"] = "Access denied, administrator privileges required",
         ["Error.DirectoryNotFound.Title"] = "Directory Not Found",
         ["Error.DirectoryNotFound.Message"] = "The specified directory does not exist or has been deleted.",

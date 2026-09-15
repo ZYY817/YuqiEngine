@@ -638,7 +638,7 @@ internal sealed class RuntimeWindowsCompatibilityEnvironmentProbe : IWindowsComp
                 version.BuildNumber,
                 string.IsNullOrWhiteSpace(version.EditionId) ? "unknown" : version.EditionId,
                 version.IsServer,
-                _administratorOverride ?? SystemGuard.IsAdministrator,
+                _administratorOverride ?? WindowsElevation.IsElevated,
                 topology.Vendor,
                 DetectHybridProcessor(topology),
                 gpuNames.Count == 0

@@ -1,6 +1,5 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using System.Security.Principal;
 
 namespace GameOptimizer.Core.Services.Memory;
 
@@ -43,15 +42,7 @@ public sealed class MemoryCleanerService : IMemoryCleanerService
         public ulong AvailableExtendedVirtual;
     }
 
-    public bool IsAdministrator
-    {
-        get
-        {
-            using var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
-    }
+    public bool IsAdministrator => WindowsElevation.IsElevated;
 
     public MemoryStatus GetCurrentStatus()
     {

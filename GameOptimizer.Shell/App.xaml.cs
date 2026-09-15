@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -566,11 +566,17 @@ public partial class App : Application
             await Dispatcher.InvokeAsync(() =>
             {
                 var privilegeService = _host.Services.GetRequiredService<IUserPrivilegeService>();
+                privilegeService.EnsureAuthoritativeSnapshot();
                 if (!privilegeService.IsAdministrator)
                 {
                     Debug.WriteLine("[App] Running without administrator privileges, some features may be limited.");
                     _diagnosticLogService?.Append(LogLevel.Information, "App.Startup",
                         "Running without administrator privileges", string.Empty);
+                }
+                else
+                {
+                    _diagnosticLogService?.Append(LogLevel.Information, "App.Startup",
+                        "Running with elevated administrator token", string.Empty);
                 }
 
                 if (IsAutoTestMode(e.Args))

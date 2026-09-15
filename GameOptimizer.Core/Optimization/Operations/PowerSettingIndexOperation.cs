@@ -81,7 +81,7 @@ public sealed class PowerSettingIndexOperation : IOptimizationOperation
                     if (!SystemGuard.IsAdministrator)
                     {
                         return new OperationInvokeResult(false, false,
-                            "需要管理员权限访问电源计划。请右键程序图标，选择\"以管理员身份运行\"。");
+                            Services.ElevationGate.DescribeWriteDenial("访问电源计划"));
                     }
 
                     return new OperationInvokeResult(false, false,

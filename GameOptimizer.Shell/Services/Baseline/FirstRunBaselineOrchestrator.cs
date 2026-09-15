@@ -423,9 +423,10 @@ public sealed class FirstRunBaselineOrchestrator : IFirstRunBaselineOrchestrator
 		runtime.CurrentStep = BaselineFlowStep.Preflight;
 		await _runtimeStateStore.SaveAsync(runtime, ct).ConfigureAwait(continueOnCapturedContext: false);
 		Report(progress, runtime, BaselineFlowStep.Preflight, "正在检查管理员权限。");
-		if (!PermissionChecker.IsRunningAsAdministrator())
+		var elevation = ElevationGate.Evaluate("首次安全基线备份", operationRequiresAdministrator: true);
+		if (elevation.NeedsElevation)
 		{
-			return (Success: false, ErrorMessage: "当前未使用管理员权限启动，无法执行首次安全基线备份。", LockHandle: null);
+			return (Success: false, ErrorMessage: elevation.UserMessage, LockHandle: null);
 		}
 		Report(progress, runtime, BaselineFlowStep.Preflight, "正在检查主备份目录可写性。");
 		BaselineDirectoryProbeResult primaryProbe = BaselineMirrorDirectoryPolicy.ProbePrimaryDirectory(268435456L);

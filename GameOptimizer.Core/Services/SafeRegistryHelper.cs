@@ -60,12 +60,12 @@ public static class SafeRegistryHelper
         catch (SecurityException ex)
         {
             Debug.WriteLine($"[SafeRegistry] No permission to write {subKeyPath}: {ex.Message}");
-            return (null, $"无权限修改注册表项: {subKeyPath}。请以管理员身份运行程序。");
+            return (null, ElevationGate.DescribeWriteDenial($"无权限修改注册表项: {subKeyPath}"));
         }
         catch (UnauthorizedAccessException ex)
         {
             Debug.WriteLine($"[SafeRegistry] Write access denied to {subKeyPath}: {ex.Message}");
-            return (null, $"写入访问被拒绝: {subKeyPath}。请以管理员身份运行程序。");
+            return (null, ElevationGate.DescribeWriteDenial($"写入访问被拒绝: {subKeyPath}"));
         }
         catch (Exception ex)
         {
@@ -91,12 +91,12 @@ public static class SafeRegistryHelper
         catch (SecurityException ex)
         {
             Debug.WriteLine($"[SafeRegistry] No permission to create {subKeyPath}: {ex.Message}");
-            return (null, $"无权限创建注册表项: {subKeyPath}。请以管理员身份运行程序。");
+            return (null, ElevationGate.DescribeWriteDenial($"无权限创建注册表项: {subKeyPath}"));
         }
         catch (UnauthorizedAccessException ex)
         {
             Debug.WriteLine($"[SafeRegistry] Create access denied to {subKeyPath}: {ex.Message}");
-            return (null, $"创建访问被拒绝: {subKeyPath}。请以管理员身份运行程序。");
+            return (null, ElevationGate.DescribeWriteDenial($"创建访问被拒绝: {subKeyPath}"));
         }
         catch (Exception ex)
         {
@@ -179,12 +179,12 @@ public static class SafeRegistryHelper
         catch (SecurityException ex)
         {
             Debug.WriteLine($"[SafeRegistry] No permission to set value {valueName} in {subKeyPath}: {ex.Message}");
-            return (false, $"无权限修改注册表值: {valueName}。请以管理员身份运行程序。");
+            return (false, ElevationGate.DescribeWriteDenial($"无权限修改注册表值: {valueName}"));
         }
         catch (UnauthorizedAccessException ex)
         {
             Debug.WriteLine($"[SafeRegistry] Write access denied for {valueName} in {subKeyPath}: {ex.Message}");
-            return (false, $"写入访问被拒绝: {valueName}。请以管理员身份运行程序。");
+            return (false, ElevationGate.DescribeWriteDenial($"写入访问被拒绝: {valueName}"));
         }
         catch (Exception ex)
         {
@@ -220,12 +220,12 @@ public static class SafeRegistryHelper
         catch (SecurityException ex)
         {
             Debug.WriteLine($"[SafeRegistry] No permission to delete value {valueName} from {subKeyPath}: {ex.Message}");
-            return (false, $"无权限删除注册表值: {valueName}。请以管理员身份运行程序。");
+            return (false, ElevationGate.DescribeWriteDenial($"无权限删除注册表值: {valueName}"));
         }
         catch (UnauthorizedAccessException ex)
         {
             Debug.WriteLine($"[SafeRegistry] Delete access denied for {valueName} in {subKeyPath}: {ex.Message}");
-            return (false, $"删除访问被拒绝: {valueName}。请以管理员身份运行程序。");
+            return (false, ElevationGate.DescribeWriteDenial($"删除访问被拒绝: {valueName}"));
         }
         catch (Exception ex)
         {

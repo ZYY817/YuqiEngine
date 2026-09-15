@@ -1918,13 +1918,16 @@ namespace GameOptimizer.Shell.ViewModels
             if (string.IsNullOrEmpty(DeepRestoreSnapshotId)) return;
             if (IsDeepRestoring || IsLoading) return;
 
-            // 权限检查
-            if (!GameOptimizer.Core.Services.PermissionChecker.IsRunningAsAdministrator())
+            // 统一 Elevation 门禁
+            var elevation = GameOptimizer.Core.Services.ElevationGate.Evaluate(
+                "注册表备份恢复",
+                operationRequiresAdministrator: true);
+            if (elevation.NeedsElevation)
             {
-                StatusText = Loc.Get("Backup.AdminRequired");
+                StatusText = GameOptimizer.Core.Services.ElevationGate.ShortLabel(elevation.Attribution);
                 Views.InfoDialog.Show(Application.Current.MainWindow,
                     Loc.Get("Common.AdminRequired"),
-                    Loc.Get("Backup.AdminRequiredMessage"),
+                    elevation.UserMessage,
                     Constants.IconGlyphs.Lock);
                 return;
             }

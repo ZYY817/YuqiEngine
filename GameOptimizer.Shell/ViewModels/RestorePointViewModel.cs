@@ -706,7 +706,8 @@ public partial class RestorePointViewModel : ObservableObject
         }
         return CreateCapability.Status switch
         {
-            SystemRestorePointWorkflowStatus.PermissionDenied => "需要管理员权限。请以管理员身份重新启动应用后刷新。",
+            SystemRestorePointWorkflowStatus.PermissionDenied =>
+                GameOptimizer.Core.Services.ElevationGate.DescribeWriteDenial("创建系统还原点"),
             SystemRestorePointWorkflowStatus.ProtectionDisabled => "系统盘保护已关闭。请打开“系统保护”人工启用后刷新。",
             SystemRestorePointWorkflowStatus.PolicyDenied when SystemRestoreStatus.ProtectionState == SystemProtectionState.PolicyDisabled =>
                 "系统还原被组策略禁用。请联系管理员调整策略后刷新。",

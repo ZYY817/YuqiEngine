@@ -396,7 +396,7 @@ public sealed class CoreParkingDisableOperation : IOptimizationOperation
         var errorMsg = "无法获取或创建电源计划。";
         if (!diagnostics.IsAdministrator)
         {
-            errorMsg += "\n• 需要管理员权限才能修改电源设置";
+            errorMsg += "\n• " + Services.ElevationGate.DescribeWriteDenial("修改电源设置");
         }
 
         if (!diagnostics.IsPowerServiceRunning)
@@ -410,9 +410,18 @@ public sealed class CoreParkingDisableOperation : IOptimizationOperation
         }
 
         errorMsg += "\n\n建议操作：";
-        errorMsg += "\n1. 以管理员身份重新运行本程序";
-        errorMsg += "\n2. 检查 Power 服务是否正常运行 (services.msc)";
-        errorMsg += "\n3. 运行 'powercfg /list' 检查电源计划";
+        if (!diagnostics.IsAdministrator)
+        {
+            errorMsg += "\n1. 以管理员身份重新运行本程序";
+            errorMsg += "\n2. 检查 Power 服务是否正常运行 (services.msc)";
+            errorMsg += "\n3. 运行 'powercfg /list' 检查电源计划";
+        }
+        else
+        {
+            errorMsg += "\n1. 检查 Power 服务是否正常运行 (services.msc)";
+            errorMsg += "\n2. 运行 'powercfg /list' 检查电源计划";
+            errorMsg += "\n3. 查看事件查看器中的电源相关错误";
+        }
         return errorMsg;
     }
 

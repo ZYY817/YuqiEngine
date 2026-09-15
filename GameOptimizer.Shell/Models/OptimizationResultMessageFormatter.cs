@@ -21,9 +21,10 @@ public static class OptimizationResultMessageFormatter
 
         if (Contains(raw, "administrator", "管理员权限", "permission denied", "access denied", "拒绝访问"))
         {
-            return isAdministrator
-                ? WithDetail("已检测到管理员模式，但 Windows 拒绝了该设置写入。常见原因是组织策略、第三方安全软件、驱动占用或目标注册表 ACL 限制；本次未将其标记为已应用。", raw)
-                : WithDetail("此项目需要管理员权限。请退出后以管理员身份重新启动宇奇引擎，再执行本操作。", raw);
+            // Why: 统一走 ElevationGate，已提权时绝不返回「请以管理员身份重启」。
+            return WithDetail(
+                GameOptimizer.Core.Services.ElevationGate.DescribeFailure("优化写入", raw),
+                raw);
         }
 
         if (Contains(raw, "policy", "managed", "策略", "受管理"))

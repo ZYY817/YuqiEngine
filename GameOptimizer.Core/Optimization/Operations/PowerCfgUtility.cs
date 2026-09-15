@@ -189,7 +189,7 @@ internal static class PowerCfgUtility
     private static string GetSuggestion(Services.PowerServiceStatus diagnostics)
     {
         if (!diagnostics.IsAdministrator)
-            return "请以管理员身份运行程序";
+            return Services.ElevationGate.DescribeWriteDenial("读取电源计划");
         if (!diagnostics.IsPowerServiceRunning)
             return "请启动 Power 服务 (services.msc)";
         if (diagnostics.AvailablePlans.Count == 0)

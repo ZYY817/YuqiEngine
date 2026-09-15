@@ -64,11 +64,7 @@ public sealed class WindowsPowerSchemeEnvironmentProvider : IPowerSchemeEnvironm
         Environment.MachineName,
         IsAdministrator());
 
-    private static bool IsAdministrator()
-    {
-        using var identity = WindowsIdentity.GetCurrent();
-        return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
-    }
+    private static bool IsAdministrator() => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 
     PowerPlatformFacts IPowerPlatformFactsProvider.GetCurrent()
     {

@@ -199,7 +199,7 @@ public static class SafeProcessHelper
         catch (Win32Exception ex) when (ex.NativeErrorCode == 5)
         {
             Debug.WriteLine($"[SafeProcess] No permission to set affinity for {processId}: {ex.Message}");
-            return (false, "无权限修改进程亲和性。请以管理员身份运行程序。");
+            return (false, ElevationGate.DescribeWriteDenial("无权限修改进程亲和性"));
         }
         catch (InvalidOperationException)
         {
@@ -244,7 +244,7 @@ public static class SafeProcessHelper
         catch (Win32Exception ex) when (ex.NativeErrorCode == 5)
         {
             Debug.WriteLine($"[SafeProcess] No permission to set priority for {processId}: {ex.Message}");
-            return (false, "无权限修改进程优先级。请以管理员身份运行程序。");
+            return (false, ElevationGate.DescribeWriteDenial("无权限修改进程优先级"));
         }
         catch (InvalidOperationException)
         {
@@ -435,7 +435,7 @@ public static class SafeProcessHelper
         catch (Win32Exception ex) when (ex.NativeErrorCode == 5)
         {
             Debug.WriteLine($"[SafeProcess] No permission to kill {processId}: {ex.Message}");
-            return (false, "无权限终止进程。请以管理员身份运行程序。");
+            return (false, ElevationGate.DescribeWriteDenial("无权限终止进程"));
         }
         catch (InvalidOperationException)
         {

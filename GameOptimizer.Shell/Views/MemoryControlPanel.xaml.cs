@@ -483,8 +483,8 @@ public partial class MemoryControlPanel : UserControl
             ? "There was no memory to release. The app remains running."
             : "没有需要释放的内存，应用仍保持运行。",
         MemoryCleaningResultKind.Denied => IsEnglish
-            ? "Windows did not allow this app to be changed. Choose another app or run the software as administrator and try again."
-            : "Windows 不允许修改这个应用。请换一个应用，或以管理员身份启动软件后重试。",
+            ? GameOptimizer.Core.Services.ElevationGate.DescribeWriteDenial("change this app")
+            : GameOptimizer.Core.Services.ElevationGate.DescribeWriteDenial("修改该应用"),
         MemoryCleaningResultKind.ReadOnly or MemoryCleaningResultKind.FailClosed => IsEnglish
             ? "This action is not available safely right now, so no app was changed."
             : "当前无法安全完成此操作，因此没有修改任何应用。",

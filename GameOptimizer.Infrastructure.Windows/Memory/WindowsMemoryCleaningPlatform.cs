@@ -191,8 +191,10 @@ public sealed class WindowsMemoryCleaningPlatform : IMemoryCleaningPlatform
                 ? MemoryCleaningPayloadCodec.ProcessTerminationFingerprint(identity)
                 : capability == MemoryCleaningCapabilityKind.ProcessTermination && identity?.IsUsable == true
                     ? MemoryCleaningPayloadCodec.ProcessTerminationObservedFingerprint(identity)
-                : trimmed && identity is not null
-                    ? MemoryCleaningPayloadCodec.WorkingSetTrimFingerprint(identity)
+                : capability == MemoryCleaningCapabilityKind.WorkingSetTrim && identity?.IsUsable == true
+                    ? trimmed
+                        ? MemoryCleaningPayloadCodec.WorkingSetTrimFingerprint(identity)
+                        : MemoryCleaningPayloadCodec.WorkingSetObservedFingerprint(identity)
                     : MemoryCleaningPayloadCodec.Hash(payload),
             DateTimeOffset.UtcNow,
             "windows-memory-read-only-platform",
@@ -257,15 +259,42 @@ public sealed class WindowsMemoryCleaningPlatform : IMemoryCleaningPlatform
                 return Task.FromResult(new PlatformExecutionResult(false, false, "memory.capability-invalid", "不支持的进程操作，未执行任何操作。"));
             }
 
-            var before = process.WorkingSet64;
-            if (!SetProcessWorkingSetSize(process.Handle, new IntPtr(-1), new IntPtr(-1)))
+            // Do not use Process.Handle here. Depending on the runtime it can
+            // request substantially broader access than the trim itself needs,
+            // causing an execution-time denial after ProbeAsync already passed
+            // with PROCESS_SET_QUOTA. Keep the mutation handle identical to the
+            // least-privilege probe handle.
+            var handle = OpenProcess(ProcessQueryLimitedInformation | ProcessSetQuota, false, expected.ProcessId);
+            if (handle == IntPtr.Zero)
             {
                 var error = Marshal.GetLastWin32Error();
                 return Task.FromResult(new PlatformExecutionResult(
                     false,
                     false,
-                    error == 5 ? "memory.process-permission-denied" : "memory.working-set-trim-failed",
-                    error == 5 ? "没有修改目标进程工作集的权限，未执行任何操作。" : "Windows 拒绝释放目标进程工作集，未报告成功。"));
+                    error == 5 ? "memory.process-permission-denied" : "memory.process-access-denied",
+                    error == 5 ? "没有修改目标进程工作集的权限，未执行任何操作。" : "无法打开目标进程以执行工作集释放。"));
+            }
+
+            var before = process.WorkingSet64;
+            bool trimmed;
+            int trimError;
+            try
+            {
+                trimmed = SetProcessWorkingSetSize(handle, new IntPtr(-1), new IntPtr(-1));
+                trimError = trimmed ? 0 : Marshal.GetLastWin32Error();
+            }
+            finally
+            {
+                CloseHandle(handle);
+            }
+
+            if (!trimmed)
+            {
+                return Task.FromResult(new PlatformExecutionResult(
+                    false,
+                    false,
+                    trimError == 5 ? "memory.process-permission-denied" : "memory.working-set-trim-failed",
+                    trimError == 5 ? "没有修改目标进程工作集的权限，未执行任何操作。" : "Windows 拒绝释放目标进程工作集，未报告成功。"));
             }
 
             TrimBaselines[MarkerKey(expected)] = before;
@@ -338,16 +367,33 @@ public sealed class WindowsMemoryCleaningPlatform : IMemoryCleaningPlatform
 
     private static MemoryProcessIdentity ReadProcessIdentity(Process process)
     {
-        return new MemoryProcessIdentity(
-            process.Id,
-            process.StartTime.ToUniversalTime().Ticks,
-            process.ProcessName,
-            TryGetExecutableHash(process, out var hashAvailable),
-            hashAvailable,
-            process.SessionId,
-            TryGetUserSecurityIdentifier(process) ?? string.Empty,
-            GetArchitecture(process),
-            GetTopologyFingerprint());
+        IntPtr queryHandle = OpenProcess(ProcessQueryLimitedInformation, false, process.Id);
+        try
+        {
+            string? userSecurityIdentifier = queryHandle == IntPtr.Zero
+                ? null
+                : TryGetUserSecurityIdentifier(queryHandle);
+            string architecture = queryHandle == IntPtr.Zero
+                ? "unknown"
+                : GetArchitecture(queryHandle);
+            return new MemoryProcessIdentity(
+                process.Id,
+                process.StartTime.ToUniversalTime().Ticks,
+                process.ProcessName,
+                TryGetExecutableHash(process, out var hashAvailable),
+                hashAvailable,
+                process.SessionId,
+                userSecurityIdentifier ?? string.Empty,
+                architecture,
+                GetTopologyFingerprint());
+        }
+        finally
+        {
+            if (queryHandle != IntPtr.Zero)
+            {
+                CloseHandle(queryHandle);
+            }
+        }
     }
 
     private static string MarkerKey(MemoryProcessIdentity identity) =>
@@ -367,9 +413,9 @@ public sealed class WindowsMemoryCleaningPlatform : IMemoryCleaningPlatform
         catch { return null; }
     }
 
-    private static string? TryGetUserSecurityIdentifier(Process process)
+    private static string? TryGetUserSecurityIdentifier(IntPtr processHandle)
     {
-        if (!OpenProcessToken(process.Handle, TokenQuery, out var token)) return null;
+        if (!OpenProcessToken(processHandle, TokenQuery, out var token)) return null;
         try
         {
             using var identity = new WindowsIdentity(token);
@@ -379,8 +425,8 @@ public sealed class WindowsMemoryCleaningPlatform : IMemoryCleaningPlatform
         finally { CloseHandle(token); }
     }
 
-    private static string GetArchitecture(Process process) =>
-        IsWow64Process2(process.Handle, out var processMachine, out var nativeMachine)
+    private static string GetArchitecture(IntPtr processHandle) =>
+        IsWow64Process2(processHandle, out var processMachine, out var nativeMachine)
             ? $"proc:{processMachine:X4};native:{nativeMachine:X4}"
             : "unknown";
 

@@ -144,12 +144,7 @@ public sealed class WindowsBcdEditAccessor : IBcdEditAccessor
         }
     }
 
-    private static bool IsAdministrator()
-    {
-        using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
-        return new System.Security.Principal.WindowsPrincipal(identity)
-            .IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
-    }
+    private static bool IsAdministrator() => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 
     private static void ValidateElementName(string elementName)
     {

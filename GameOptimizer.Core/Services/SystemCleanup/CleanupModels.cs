@@ -122,6 +122,20 @@ public class CleanupResult
     public List<CleanupFileResult> FileResults { get; set; } = new();
 }
 
+/// <summary>
+/// Lightweight progress produced while a cleanup preview is being discovered.
+/// Preview discovery intentionally reports metadata only: the complete content
+/// hash is captured immediately before the file is quarantined, not while the
+/// user is waiting for the scan screen to become usable.
+/// </summary>
+public sealed record CleanupScanProgress(
+    string ItemId,
+    int FilesDiscovered,
+    long BytesDiscovered,
+    int SkippedDirectories,
+    int SkippedFiles,
+    TimeSpan Elapsed);
+
 public enum CleanupFileOutcome
 {
     Quarantined,
@@ -171,7 +185,9 @@ public sealed class CleanupPreview
         DateTimeOffset createdAtUtc,
         Guid? previewId = null,
         int skippedDirectoryCount = 0,
-        int skippedFileCount = 0)
+        int skippedFileCount = 0,
+        bool isPartial = false,
+        string? partialReason = null)
     {
         ItemId = itemId ?? throw new ArgumentNullException(nameof(itemId));
         PreviewId = previewId ?? Guid.NewGuid();
@@ -184,6 +200,10 @@ public sealed class CleanupPreview
         Fingerprint = ComputeFingerprint(ItemId, Entries);
         SkippedDirectoryCount = Math.Max(0, skippedDirectoryCount);
         SkippedFileCount = Math.Max(0, skippedFileCount);
+        IsPartial = isPartial;
+        PartialReason = isPartial
+            ? string.IsNullOrWhiteSpace(partialReason) ? "为保持响应速度，此目录未完成全量扫描。" : partialReason
+            : string.Empty;
     }
 
     public Guid PreviewId { get; }
@@ -194,6 +214,13 @@ public sealed class CleanupPreview
     public string Fingerprint { get; }
     public int SkippedDirectoryCount { get; }
     public int SkippedFileCount { get; }
+    /// <summary>
+    /// A partial preview is still safe to clean: it contains only files that
+    /// were actually discovered. Files outside the bounded scan are never
+    /// included in the preview and therefore can never be quarantined.
+    /// </summary>
+    public bool IsPartial { get; }
+    public string PartialReason { get; }
 
     private static string ComputeFingerprint(string itemId, IEnumerable<CleanupPreviewEntry> entries)
     {

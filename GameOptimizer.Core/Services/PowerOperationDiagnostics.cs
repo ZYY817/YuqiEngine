@@ -141,29 +141,46 @@ public class PowerOperationDiagnostics
         // 访问被拒绝
         if (lowerErr.Contains("access") && lowerErr.Contains("denied"))
         {
+            var elevated = WindowsElevation.IsElevated;
             var diagnostic = new DiagnosticResult
             {
                 Code = new ErrorCode(ErrorCategory.Permission, ErrorSeverity.High, 1001),
                 Category = ErrorCategory.Permission,
                 Severity = ErrorSeverity.High,
-                Title = "权限不足",
-                UserMessage = "需要管理员权限才能修改电源设置",
+                Title = elevated ? "系统拒绝写入" : "权限不足",
+                UserMessage = ElevationGate.DescribeWriteDenial($"电源操作: {operationTitle}", stdErr),
                 TechnicalDetails = $"powercfg.exe 错误输出:\n{stdErr}\n退出代码: {exitCode}",
-                PossibleCauses = new List<string>
-                {
-                    "程序未以管理员身份运行",
-                    "UAC 权限不足",
-                    "组策略限制"
-                },
-                Solutions = new List<SolutionStep>
-                {
-                    new()
+                PossibleCauses = elevated
+                    ? new List<string>
                     {
-                        Order = 1,
-                        Description = "右键程序图标，选择\"以管理员身份运行\"",
-                        RequiresAdmin = true
+                        "组策略限制",
+                        "安全软件拦截",
+                        "目标电源配置被保护"
                     }
-                },
+                    : new List<string>
+                    {
+                        "程序未以管理员身份运行",
+                        "UAC 权限不足",
+                        "组策略限制"
+                    },
+                Solutions = elevated
+                    ? new List<SolutionStep>
+                    {
+                        new()
+                        {
+                            Order = 1,
+                            Description = "检查组织策略与安全软件是否拦截 powercfg"
+                        }
+                    }
+                    : new List<SolutionStep>
+                    {
+                        new()
+                        {
+                            Order = 1,
+                            Description = "右键程序图标，选择\"以管理员身份运行\"",
+                            RequiresAdmin = true
+                        }
+                    },
                 Context = new DiagnosticContext
                 {
                     OperationType = $"电源操作: {operationTitle}",
@@ -171,9 +188,9 @@ public class PowerOperationDiagnostics
                     IsAdminMode = SystemCompatibilityChecker.CurrentSystem.IsAdminMode
                 }
             };
-            
+
             return EnhancedOperationResult.FailedWithDiagnostic(
-                $"{operationTitle} 失败: 权限不足",
+                elevated ? $"{operationTitle} 失败: 系统拒绝写入" : $"{operationTitle} 失败: 权限不足",
                 diagnostic);
         }
         
@@ -297,8 +314,10 @@ public class PowerOperationDiagnostics
                 new()
                 {
                     Order = 1,
-                    Description = "以管理员身份运行程序",
-                    RequiresAdmin = true
+                    Description = WindowsElevation.IsElevated
+                        ? "检查 Power 服务与电源计划是否正常"
+                        : "右键程序图标，选择\"以管理员身份运行\"后重试",
+                    RequiresAdmin = !WindowsElevation.IsElevated
                 },
                 new()
                 {

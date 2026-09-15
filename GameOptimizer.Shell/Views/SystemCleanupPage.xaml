@@ -399,6 +399,12 @@
                                             </Border>
                                         </StackPanel>
                                         <TextBlock Text="{Binding LocalizedDescription}" Foreground="{DynamicResource Theme.Brush.TextDisabled}" FontSize="12" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding ErrorMessage}"
+                                                   Foreground="#F6C453"
+                                                   FontSize="11"
+                                                   Margin="0,4,0,0"
+                                                   TextWrapping="Wrap"
+                                                   Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibility}}"/>
                                     </StackPanel>
                                     
                                     <!-- File Count -->
