@@ -1,0 +1,289 @@
+<div class="cleanup-page" data-state="idle">
+
+    <!-- ===== ① 顶部细带：面包屑 + 磁盘画像 ===== -->
+    <header class="cl-topbar">
+        <div class="cl-breadcrumb">
+            <i data-lucide="trash-2" class="cl-bc-icon"></i>
+            <span class="cl-bc-text">系统清理</span>
+            <span class="cl-bc-sub">释放磁盘空间 · 提升系统响应</span>
+        </div>
+        <div class="cl-disk">
+            <i data-lucide="hard-drive" class="cl-disk-icon"></i>
+            <div class="cl-disk-meta">
+                <span class="cl-disk-label">系统盘 C:</span>
+                <span class="cl-disk-bar"><span class="cl-disk-bar-fill" style="width:75%"></span></span>
+                <span class="cl-disk-text mono-text">387 / 512 <em>GB</em></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== ② Hero 中心圆 ===== -->
+    <section class="cl-hero" aria-label="扫描与清理中心">
+        <div class="cl-orb-wrap">
+            <svg class="cl-orb-ring" viewBox="0 0 320 320" aria-hidden="true">
+                <defs>
+                    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.9"/>
+                        <stop offset="50%" stop-color="#8A2BE2" stop-opacity="0.7"/>
+                        <stop offset="100%" stop-color="#FF2E93" stop-opacity="0.5"/>
+                    </linearGradient>
+                </defs>
+                <circle class="cl-orb-track" cx="160" cy="160" r="146"/>
+                <circle class="cl-orb-arc" cx="160" cy="160" r="146" stroke="url(#ringGrad)"/>
+                <circle class="cl-orb-progress" cx="160" cy="160" r="146"/>
+            </svg>
+
+            <button class="cl-orb" type="button" data-action="orb-action" id="orbBtn">
+                <span class="cl-orb-glow" aria-hidden="true"></span>
+                <span class="cl-orb-highlight" aria-hidden="true"></span>
+
+                <span class="cl-orb-face cl-orb-idle">
+                    <i data-lucide="scan-search" class="cl-orb-face-icon"></i>
+                    <span class="cl-orb-face-title">开始扫描</span>
+                    <span class="cl-orb-face-sub">检测系统垃圾文件</span>
+                </span>
+
+                <span class="cl-orb-face cl-orb-scanning">
+                    <span class="cl-orb-face-eyebrow">正在扫描</span>
+                    <span class="cl-orb-face-bignum mono-text" id="orbScanPercent">47</span>
+                    <span class="cl-orb-face-unit">%</span>
+                    <span class="cl-orb-face-sub" id="orbScanItem">Chrome 缓存</span>
+                </span>
+
+                <span class="cl-orb-face cl-orb-scanned">
+                    <span class="cl-orb-face-eyebrow">可释放空间</span>
+                    <span class="cl-orb-face-bignum mono-text"><em id="orbTotalSize">24.30</em></span>
+                    <span class="cl-orb-face-unit">GB</span>
+                    <span class="cl-orb-face-sub"><b id="orbTotalFiles">18,492</b> 文件 · 已选 <b id="orbSelected">12</b> / 14 项</span>
+                </span>
+
+                <span class="cl-orb-face cl-orb-cleaning">
+                    <span class="cl-orb-face-eyebrow">正在清理</span>
+                    <span class="cl-orb-face-bignum mono-text" id="orbCleanPercent">36</span>
+                    <span class="cl-orb-face-unit">%</span>
+                    <span class="cl-orb-face-sub mono-text"><span id="orbCleanCurrent">5</span> / <span id="orbCleanTotal">14</span> · <span id="orbCleanItem">系统临时文件</span></span>
+                </span>
+
+                <span class="cl-orb-face cl-orb-done">
+                    <i data-lucide="check-circle-2" class="cl-orb-face-icon cl-orb-done-icon"></i>
+                    <span class="cl-orb-face-title">已释放 <em>23.84</em> GB</span>
+                    <span class="cl-orb-face-sub">18,201 文件 · 用时 12 秒</span>
+                </span>
+            </button>
+        </div>
+
+        <div class="cl-hero-cta-row">
+            <button class="cl-cta-primary" type="button" data-action="primary">
+                <i data-lucide="scan-search" class="cl-cta-icon"></i>
+                <span class="cl-cta-text">开始扫描</span>
+            </button>
+            <button class="cl-cta-secondary" type="button" data-action="cancel" hidden>
+                <i data-lucide="x" class="cl-cta-icon"></i>
+                <span>取消</span>
+            </button>
+            <button class="cl-cta-ghost" type="button" data-action="release-memory" title="释放内存">
+                <i data-lucide="memory-stick" class="cl-cta-icon"></i>
+                <span>释放内存</span>
+            </button>
+        </div>
+
+        <div class="cl-status-line" data-status="idle" id="statusLine">
+            <i data-lucide="info" class="cl-status-icon"></i>
+            <span class="cl-status-text">点击中心球体开始扫描，或按下方按钮启动</span>
+        </div>
+    </section>
+
+    <!-- ===== ③ 类目 Tab + 批量操作 ===== -->
+    <nav class="cl-tabs" aria-label="清理类目筛选">
+        <div class="cl-tabs-left">
+            <button class="cl-tab is-active" data-cat="all"><span>全部</span><b class="cl-tab-count">14</b></button>
+            <button class="cl-tab" data-cat="system"><i data-lucide="shield" class="cl-tab-icon"></i><span>系统</span><b class="cl-tab-count">6</b></button>
+            <button class="cl-tab" data-cat="user"><i data-lucide="user" class="cl-tab-icon"></i><span>用户</span><b class="cl-tab-count">1</b></button>
+            <button class="cl-tab" data-cat="game"><i data-lucide="gamepad-2" class="cl-tab-icon"></i><span>游戏</span><b class="cl-tab-count">3</b></button>
+            <button class="cl-tab" data-cat="browser"><i data-lucide="globe" class="cl-tab-icon"></i><span>浏览器</span><b class="cl-tab-count">3</b></button>
+        </div>
+        <div class="cl-tabs-right">
+            <button class="cl-bulk-btn" data-bulk="all" title="全选"><i data-lucide="check-square" class="icon-sm"></i><span>全选</span></button>
+            <button class="cl-bulk-btn" data-bulk="safe" title="仅勾选安全项"><i data-lucide="shield-check" class="icon-sm"></i><span>仅安全</span></button>
+            <button class="cl-bulk-btn" data-bulk="none" title="全不选"><i data-lucide="square" class="icon-sm"></i><span>清空</span></button>
+        </div>
+    </nav>
+
+    <!-- ===== ④ 清理项列表 ===== -->
+    <section class="cl-list" aria-label="清理项列表">
+
+        <div class="cl-row" data-cat="system" data-risk="safe" data-checked="true">
+            <label class="cl-row-check"><input type="checkbox" checked><span class="cl-check-box"></span></label>
+            <i data-lucide="thermometer-snowflake" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">系统临时文件</span><span class="cl-risk-pill" data-risk="safe">安全</span></div>
+                <div class="cl-row-path mono-text">C:\Windows\Temp</div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">8.20 <em>GB</em></span><span class="cl-row-files mono-text">1,204 文件</span></div>
+            <button class="cl-row-detail" title="查看文件列表"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="system" data-risk="low" data-checked="true">
+            <label class="cl-row-check"><input type="checkbox" checked><span class="cl-check-box"></span></label>
+            <i data-lucide="zap" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">Windows 预读取</span><span class="cl-risk-pill" data-risk="low">低风险</span></div>
+                <div class="cl-row-path mono-text">C:\Windows\Prefetch</div>
+                <div class="cl-row-warn"><i data-lucide="info" class="icon-xs"></i><span>删后下次启动可能略慢，系统会重新生成</span></div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">0.42 <em>GB</em></span><span class="cl-row-files mono-text">312 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="system" data-risk="safe" data-checked="true">
+            <label class="cl-row-check"><input type="checkbox" checked><span class="cl-check-box"></span></label>
+            <i data-lucide="image" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">缩略图与图标缓存</span><span class="cl-risk-pill" data-risk="safe">安全</span></div>
+                <div class="cl-row-path mono-text">…\Explorer\thumbcache*.db</div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">0.31 <em>GB</em></span><span class="cl-row-files mono-text">28 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="system" data-risk="safe" data-checked="true">
+            <label class="cl-row-check"><input type="checkbox" checked><span class="cl-check-box"></span></label>
+            <i data-lucide="file-text" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">Windows 系统日志</span><span class="cl-risk-pill" data-risk="safe">安全</span></div>
+                <div class="cl-row-path mono-text">C:\Windows\Logs</div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">0.18 <em>GB</em></span><span class="cl-row-files mono-text">94 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="system" data-risk="medium" data-checked="false">
+            <label class="cl-row-check"><input type="checkbox"><span class="cl-check-box"></span></label>
+            <i data-lucide="download-cloud" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">Windows 更新缓存</span><span class="cl-risk-pill" data-risk="medium">中风险</span></div>
+                <div class="cl-row-path mono-text">…\SoftwareDistribution\Download</div>
+                <div class="cl-row-warn" data-risk="medium"><i data-lucide="alert-triangle" class="icon-xs"></i><span>删后下次更新需重新下载，建议保留</span></div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">3.10 <em>GB</em></span><span class="cl-row-files mono-text">2,041 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="system" data-risk="safe" data-checked="true">
+            <label class="cl-row-check"><input type="checkbox" checked><span class="cl-check-box"></span></label>
+            <i data-lucide="trash" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">回收站</span><span class="cl-risk-pill" data-risk="safe">安全</span></div>
+                <div class="cl-row-path mono-text">全盘 $Recycle.Bin · Shell API 安全清空</div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">2.04 <em>GB</em></span><span class="cl-row-files mono-text">186 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="user" data-risk="safe" data-checked="true">
+            <label class="cl-row-check"><input type="checkbox" checked><span class="cl-check-box"></span></label>
+            <i data-lucide="folder-clock" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">用户临时文件</span><span class="cl-risk-pill" data-risk="safe">安全</span></div>
+                <div class="cl-row-path mono-text">%TEMP%</div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">5.10 <em>GB</em></span><span class="cl-row-files mono-text">3,824 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="game" data-risk="safe" data-checked="true">
+            <label class="cl-row-check"><input type="checkbox" checked><span class="cl-check-box"></span></label>
+            <i data-lucide="cpu" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">GPU 着色器缓存</span><span class="cl-risk-pill" data-risk="safe">安全</span></div>
+                <div class="cl-row-path mono-text">NVIDIA · AMD · D3D Shader Cache</div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">2.84 <em>GB</em></span><span class="cl-row-files mono-text">5,392 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="game" data-risk="safe" data-checked="false">
+            <label class="cl-row-check"><input type="checkbox"><span class="cl-check-box"></span></label>
+            <i data-lucide="gamepad-2" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">Steam 缓存</span><span class="cl-risk-pill" data-risk="safe">安全</span></div>
+                <div class="cl-row-path mono-text">…\Steam\appcache</div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">1.20 <em>GB</em></span><span class="cl-row-files mono-text">412 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="game" data-risk="safe" data-checked="true">
+            <label class="cl-row-check"><input type="checkbox" checked><span class="cl-check-box"></span></label>
+            <i data-lucide="joystick" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">Epic Games 缓存</span><span class="cl-risk-pill" data-risk="safe">安全</span></div>
+                <div class="cl-row-path mono-text">…\EpicGamesLauncher\Saved\webcache</div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">0.18 <em>GB</em></span><span class="cl-row-files mono-text">96 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="browser" data-risk="safe" data-checked="true" data-blocked="chrome">
+            <label class="cl-row-check"><input type="checkbox" checked><span class="cl-check-box"></span></label>
+            <i data-lucide="chrome" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title">
+                    <span class="cl-row-name">Chrome 缓存</span>
+                    <span class="cl-risk-pill" data-risk="safe">安全</span>
+                    <span class="cl-block-pill"><i data-lucide="alert-circle" class="icon-xs"></i>Chrome 运行中</span>
+                </div>
+                <div class="cl-row-path mono-text">…\Chrome\…\Cache · Code Cache</div>
+                <div class="cl-row-warn" data-risk="block">
+                    <i data-lucide="alert-circle" class="icon-xs"></i>
+                    <span>清理前需关闭 Chrome 浏览器</span>
+                    <button class="cl-row-inline-btn">关闭浏览器</button>
+                </div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">2.10 <em>GB</em></span><span class="cl-row-files mono-text">4,892 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="browser" data-risk="safe" data-checked="true">
+            <label class="cl-row-check"><input type="checkbox" checked><span class="cl-check-box"></span></label>
+            <i data-lucide="globe-2" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">Edge 缓存</span><span class="cl-risk-pill" data-risk="safe">安全</span></div>
+                <div class="cl-row-path mono-text">…\Edge\…\Cache · Code Cache</div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">0.42 <em>GB</em></span><span class="cl-row-files mono-text">784 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+        <div class="cl-row" data-cat="browser" data-risk="safe" data-checked="false">
+            <label class="cl-row-check"><input type="checkbox"><span class="cl-check-box"></span></label>
+            <i data-lucide="flame" class="cl-row-icon"></i>
+            <div class="cl-row-main">
+                <div class="cl-row-title"><span class="cl-row-name">Firefox 缓存</span><span class="cl-risk-pill" data-risk="safe">安全</span></div>
+                <div class="cl-row-path mono-text">…\Firefox\Profiles\…\cache2</div>
+            </div>
+            <div class="cl-row-stat"><span class="cl-row-size mono-text">0.08 <em>GB</em></span><span class="cl-row-files mono-text">128 文件</span></div>
+            <button class="cl-row-detail"><i data-lucide="eye" class="icon-sm"></i></button>
+        </div>
+
+    </section>
+
+    <!-- ===== ⑤ 底部细信息条 ===== -->
+    <footer class="cl-footer">
+        <div class="cl-footer-cell">
+            <i data-lucide="shield-check" class="cl-footer-icon"></i>
+            <span>已启用管理员权限</span>
+        </div>
+        <span class="cl-footer-divider"></span>
+        <div class="cl-footer-cell">
+            <i data-lucide="info" class="cl-footer-icon"></i>
+            <span>清理操作不可撤销，请确认后执行</span>
+        </div>
+        <span class="cl-footer-divider"></span>
+        <div class="cl-footer-cell">
+            <i data-lucide="clock-4" class="cl-footer-icon"></i>
+            <span>上次清理 · 2 天前 · 释放 4.1 GB</span>
+        </div>
+    </footer>
+
+</div>

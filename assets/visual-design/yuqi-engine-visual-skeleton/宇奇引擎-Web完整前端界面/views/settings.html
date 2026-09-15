@@ -1,0 +1,423 @@
+<!--
+  软件设置 · Software Settings · YuqiEngine v3 (独立形态版)
+  数据严格对应 GameOptimizer.Shell\Views\SettingsPage.xaml 的真实功能
+  ⚠️ 没有主题切换（WPF UI 没暴露）
+  ⚠️ 没有"配置健康度"健康环（不属于设置页本身的形态）
+  ⚠️ 没有底部状态岛（设置页不需要）
+-->
+<div class="set-page" data-module="settings">
+
+    <!-- 页头：纯标题，无面包屑、无统计 -->
+    <header class="set-page-head">
+        <div class="set-page-head-left">
+            <div class="set-page-head-icon"><i data-lucide="settings"></i></div>
+            <div class="set-page-head-text">
+                <h1 class="set-page-title">全局配置</h1>
+                <p class="set-page-subtitle">自定义应用程序行为和外观</p>
+            </div>
+        </div>
+        <div class="set-page-head-right">
+            <span class="set-version-chip">
+                <span class="set-version-dot"></span>
+                <span class="mono-text">v0.11.0</span>
+            </span>
+        </div>
+    </header>
+
+    <!-- ============================================================
+         §1 · 外观与语言
+         WPF: AppearanceSectionTitle / ChineseLanguageBtn / EnglishLanguageBtn
+         ⚠️ 真实 WPF UI 中没有主题切换控件
+         ============================================================ -->
+    <section class="set-card" data-set-group="appearance">
+        <div class="set-card-bar set-card-bar--violet"></div>
+        <header class="set-card-head">
+            <i data-lucide="palette" class="set-card-icon set-card-icon--violet"></i>
+            <h3 class="set-card-title">外观与语言</h3>
+        </header>
+        <div class="set-card-body">
+            <div class="set-row set-row--column">
+                <span class="set-row-label-mini">语言</span>
+                <div class="set-language-segment" data-set-key="language">
+                    <button type="button" class="set-lang-btn is-active" data-value="zh-CN" aria-pressed="true">
+                        <span class="set-lang-icon">中</span>
+                        <span class="set-lang-name">简体中文</span>
+                    </button>
+                    <button type="button" class="set-lang-btn" data-value="en-US" aria-pressed="false">
+                        <span class="set-lang-icon">En</span>
+                        <span class="set-lang-name">English</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         §2 · 安全设置
+         WPF: SafetySectionTitle / AutoBackup / RiskWarning / Monitoring / Sound
+         ============================================================ -->
+    <section class="set-card" data-set-group="safety">
+        <div class="set-card-bar set-card-bar--green"></div>
+        <header class="set-card-head">
+            <i data-lucide="shield-check" class="set-card-icon set-card-icon--green"></i>
+            <h3 class="set-card-title">安全设置</h3>
+        </header>
+        <div class="set-card-body">
+            <ul class="set-toggle-list">
+                <li class="set-toggle-row" data-set-key="AutoBackupBeforeApply">
+                    <div class="set-toggle-text">
+                        <span class="set-toggle-title">自动备份</span>
+                        <span class="set-toggle-desc">优化前自动创建还原点</span>
+                    </div>
+                    <button type="button" class="set-switch is-active" role="switch" aria-checked="true"></button>
+                </li>
+                <li class="set-toggle-row" data-set-key="ShowRiskWarnings">
+                    <div class="set-toggle-text">
+                        <span class="set-toggle-title">风险提示</span>
+                        <span class="set-toggle-desc">高风险操作时显示警告</span>
+                    </div>
+                    <button type="button" class="set-switch is-active" role="switch" aria-checked="true"></button>
+                </li>
+                <li class="set-toggle-row" data-set-key="EnableRealTimeMonitoring">
+                    <div class="set-toggle-text">
+                        <span class="set-toggle-title">实时监控</span>
+                        <span class="set-toggle-desc">启用系统性能监控</span>
+                    </div>
+                    <button type="button" class="set-switch is-active" role="switch" aria-checked="true"></button>
+                </li>
+                <li class="set-toggle-row" data-set-key="EnableSoundNotification">
+                    <div class="set-toggle-text">
+                        <span class="set-toggle-title">声音提示</span>
+                        <span class="set-toggle-desc">操作完成时播放提示音</span>
+                    </div>
+                    <button type="button" class="set-switch" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         §3 · 常规设置 + 标题栏实时指标
+         WPF: GeneralSectionTitle / Startup / Tray / OptimizeNotify / ReduceMotion / TitleBarTelemetry
+         ============================================================ -->
+    <section class="set-card" data-set-group="general">
+        <div class="set-card-bar set-card-bar--amber"></div>
+        <header class="set-card-head">
+            <i data-lucide="sliders-horizontal" class="set-card-icon set-card-icon--amber"></i>
+            <h3 class="set-card-title">常规设置</h3>
+        </header>
+        <div class="set-card-body">
+            <ul class="set-toggle-list">
+                <li class="set-toggle-row" data-set-key="StartWithWindows">
+                    <div class="set-toggle-text">
+                        <span class="set-toggle-title">开机自启动</span>
+                        <span class="set-toggle-desc">系统启动时自动运行</span>
+                    </div>
+                    <button type="button" class="set-switch" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="set-toggle-row" data-set-key="MinimizeToTray">
+                    <div class="set-toggle-text">
+                        <span class="set-toggle-title">最小化到托盘</span>
+                        <span class="set-toggle-desc">关闭窗口时最小化</span>
+                    </div>
+                    <button type="button" class="set-switch" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="set-toggle-row" data-set-key="NotifyOnOptimizeComplete">
+                    <div class="set-toggle-text">
+                        <span class="set-toggle-title">优化完成通知</span>
+                        <span class="set-toggle-desc">优化完成后显示通知</span>
+                    </div>
+                    <button type="button" class="set-switch is-active" role="switch" aria-checked="true"></button>
+                </li>
+                <li class="set-toggle-row" data-set-key="ReduceMotion">
+                    <div class="set-toggle-text">
+                        <span class="set-toggle-title">减少动画效果</span>
+                        <span class="set-toggle-desc">启用无障碍动画模式</span>
+                    </div>
+                    <button type="button" class="set-switch" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+
+            <!-- 标题栏实时指标（在常规组下，对齐 WPF 结构） -->
+            <div class="set-subgroup">
+                <div class="set-subgroup-head">
+                    <span class="set-subgroup-title">标题栏实时指标</span>
+                    <span class="set-subgroup-desc">自定义主窗口右上角显示的两项数据，可选择 GPU、磁盘、网络延迟等组合</span>
+                </div>
+
+                <div class="set-titlebar-preview">
+                    <div class="set-titlebar-bar">
+                        <span class="set-titlebar-app">
+                            <span class="set-titlebar-logo">Y</span>
+                            <span class="set-titlebar-name">YuqiEngine</span>
+                        </span>
+                        <span class="set-titlebar-spacer"></span>
+                        <span class="set-titlebar-chip" id="telemetryPreviewPrimary">
+                            <i data-lucide="cpu" class="icon-xs"></i><span class="mono-text">28%</span>
+                        </span>
+                        <span class="set-titlebar-chip" id="telemetryPreviewSecondary">
+                            <i data-lucide="memory-stick" class="icon-xs"></i><span class="mono-text">62%</span>
+                        </span>
+                        <span class="set-titlebar-divider"></span>
+                        <span class="set-titlebar-winbtn"><i data-lucide="minus" class="icon-xs"></i></span>
+                        <span class="set-titlebar-winbtn"><i data-lucide="square" class="icon-xs"></i></span>
+                        <span class="set-titlebar-winbtn set-titlebar-winbtn--close"><i data-lucide="x" class="icon-xs"></i></span>
+                    </div>
+                </div>
+
+                <div class="set-telemetry-grid">
+                    <label class="set-telemetry-slot">
+                        <span class="set-telemetry-slot-label">第一项</span>
+                        <select class="set-select" data-set-key="TitleBarTelemetryPrimary">
+                            <option value="Cpu" selected>CPU 使用率</option>
+                            <option value="Gpu">GPU 使用率</option>
+                            <option value="Memory">内存使用率</option>
+                            <option value="Disk">磁盘活动</option>
+                            <option value="Network">网络速率</option>
+                            <option value="None">不显示</option>
+                        </select>
+                    </label>
+                    <label class="set-telemetry-slot">
+                        <span class="set-telemetry-slot-label">第二项</span>
+                        <select class="set-select" data-set-key="TitleBarTelemetrySecondary">
+                            <option value="Cpu">CPU 使用率</option>
+                            <option value="Gpu">GPU 使用率</option>
+                            <option value="Memory" selected>内存使用率</option>
+                            <option value="Disk">磁盘活动</option>
+                            <option value="Network">网络速率</option>
+                            <option value="None">不显示</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         §4 · 日志管理
+         WPF: LogSectionTitle / LogRetentionSlider / LogBackupDirectory（路径 + 三按钮 + 健康徽标 + 模式徽标）
+         ============================================================ -->
+    <section class="set-card" data-set-group="log">
+        <div class="set-card-bar set-card-bar--cyan"></div>
+        <header class="set-card-head">
+            <i data-lucide="file-text" class="set-card-icon set-card-icon--cyan"></i>
+            <h3 class="set-card-title">日志管理</h3>
+        </header>
+        <div class="set-card-body">
+            <!-- 日志保留时间 -->
+            <div class="set-row set-row--column" data-set-key="LogRetentionDays">
+                <div class="set-row-headline">
+                    <span class="set-row-title">日志保留时间</span>
+                    <span class="set-retention-value mono-text" id="logRetentionValue">14 天</span>
+                </div>
+                <div class="set-slider-wrap">
+                    <div class="set-slider-track">
+                        <div class="set-slider-fill" style="width:33.3%"></div>
+                        <button type="button" class="set-slider-thumb" style="left:33.3%" aria-label="日志保留时间"></button>
+                    </div>
+                    <div class="set-slider-ticks">
+                        <span data-idx="0">7天</span>
+                        <span data-idx="1" class="is-active">14天</span>
+                        <span data-idx="2">30天</span>
+                        <span data-idx="3">永久</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日志备份目录 -->
+            <div class="set-logdir-card">
+                <div class="set-logdir-head">
+                    <div class="set-logdir-text">
+                        <span class="set-logdir-title">日志备份目录</span>
+                        <span class="set-logdir-hint">日志归档与导出的输出位置，留空时使用应用默认目录</span>
+                    </div>
+                    <span class="set-logdir-mode-badge">默认</span>
+                </div>
+
+                <div class="set-logdir-path mono-text">
+                    C:\Users\Administrator\AppData\Roaming\YuqiEngine\logs
+                </div>
+
+                <div class="set-logdir-actions">
+                    <button type="button" class="set-btn-ghost">
+                        <i data-lucide="folder" class="icon-xs"></i><span>选择目录</span>
+                    </button>
+                    <button type="button" class="set-btn-ghost">
+                        <i data-lucide="external-link" class="icon-xs"></i><span>打开目录</span>
+                    </button>
+                    <button type="button" class="set-btn-ghost">
+                        <i data-lucide="rotate-ccw" class="icon-xs"></i><span>使用默认</span>
+                    </button>
+                </div>
+
+                <div class="set-logdir-status">
+                    <span class="set-logdir-health">
+                        <i data-lucide="check" class="icon-xs"></i>
+                        <span>目录可写入</span>
+                    </span>
+                    <span class="set-logdir-fallback">剩余空间 38.2 GB · 写入测试通过</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         §5 · 数据管理（红色边）
+         WPF: DataSectionTitle / Export / Import / OpenLog / ClearLogs / PeripheralAdvanced / ViewGuide / ResetSettings
+         ============================================================ -->
+    <section class="set-card set-card--data" data-set-group="data">
+        <div class="set-card-bar set-card-bar--red"></div>
+        <header class="set-card-head">
+            <i data-lucide="database" class="set-card-icon set-card-icon--red"></i>
+            <h3 class="set-card-title">数据管理</h3>
+        </header>
+        <div class="set-card-body">
+            <div class="set-action-row">
+                <button type="button" class="set-btn-ghost" data-set-action="export">
+                    <i data-lucide="upload" class="icon-xs"></i><span>导出配置</span>
+                </button>
+                <button type="button" class="set-btn-ghost" data-set-action="import">
+                    <i data-lucide="download" class="icon-xs"></i><span>导入配置</span>
+                </button>
+                <button type="button" class="set-btn-ghost" data-set-action="open-log">
+                    <i data-lucide="folder-open" class="icon-xs"></i><span>打开日志</span>
+                </button>
+                <button type="button" class="set-btn-ghost" data-set-action="clear-log">
+                    <i data-lucide="trash-2" class="icon-xs"></i><span>清除日志</span>
+                </button>
+                <button type="button" class="set-btn-ghost" data-set-action="peripheral-advanced">
+                    <i data-lucide="mouse-pointer-2" class="icon-xs"></i><span>外设高级设置</span>
+                </button>
+                <button type="button" class="set-btn-ghost" data-set-action="view-guide">
+                    <i data-lucide="book-open" class="icon-xs"></i><span>重新查看引导</span>
+                </button>
+                <button type="button" class="set-btn-danger" data-set-action="reset-all">
+                    <i data-lucide="rotate-ccw" class="icon-xs"></i><span>重置所有设置</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         §6 · 关于 + 更新管理（折叠）
+         WPF: AboutSection / Logo + Version + Description / About / Author / UpdateEntry
+              UpdatePanelCard（GitHubRepo + CheckUpdate + 进度 + 状态 + 云盘下载 + 通道双卡 + 三步引导）
+         ============================================================ -->
+    <section class="set-card" data-set-group="about">
+        <div class="set-card-bar set-card-bar--violet"></div>
+        <header class="set-card-head">
+            <i data-lucide="info" class="set-card-icon set-card-icon--violet"></i>
+            <h3 class="set-card-title">关于</h3>
+        </header>
+        <div class="set-card-body">
+            <div class="set-about">
+                <div class="set-about-logo">
+                    <img src="assets/yq_icon.ico" alt="宇奇引擎" class="set-about-logo-img" draggable="false">
+                </div>
+                <div class="set-about-meta">
+                    <h4 class="set-about-name">宇奇引擎 Yuqi Engine</h4>
+                    <p class="set-about-version mono-text">v0.11.0</p>
+                    <p class="set-about-desc">面向游戏与高性能场景的 Windows 系统优化套件</p>
+                </div>
+            </div>
+
+            <div class="set-about-actions">
+                <button type="button" class="set-btn-ghost">
+                    <i data-lucide="info" class="icon-xs"></i><span>关于</span>
+                </button>
+                <button type="button" class="set-btn-ghost">
+                    <i data-lucide="user" class="icon-xs"></i><span>作者</span>
+                </button>
+                <button type="button" class="set-btn-ghost set-update-toggle" id="setUpdateToggle" aria-expanded="false">
+                    <i data-lucide="refresh-cw" class="icon-xs"></i><span>更新管理</span>
+                    <i data-lucide="chevron-down" class="icon-xs set-update-toggle-arrow"></i>
+                </button>
+            </div>
+
+            <!-- 更新管理面板（默认折叠） -->
+            <div class="set-update-panel" id="setUpdatePanel" hidden>
+                <div class="set-update-section">
+                    <div class="set-update-section-head">
+                        <span class="set-update-section-title">GitHub 仓库</span>
+                        <span class="set-update-section-desc">用于检查更新的源仓库地址，格式 <code>owner/repo</code></span>
+                    </div>
+                    <div class="set-update-input">
+                        <i data-lucide="git-branch" class="icon-xs"></i>
+                        <input type="text" class="set-update-input-text mono-text" value="ZYY817/YuqiEngine" />
+                    </div>
+                </div>
+
+                <div class="set-update-flow-card">
+                    <i data-lucide="info" class="icon-xs"></i>
+                    <span class="set-update-flow-text">检查更新优先访问云盘镜像，云盘失败时自动回退到 GitHub Releases 直链</span>
+                    <span class="set-update-flow-badge">智能</span>
+                </div>
+
+                <div class="set-update-actions">
+                    <button type="button" class="set-btn-primary" id="setCheckUpdateBtn">
+                        <i data-lucide="refresh-cw" class="icon-xs"></i><span>检查更新</span>
+                    </button>
+                    <span class="set-update-meta">当前版本 v0.11.0 · 上次自动检查：今天 13:42</span>
+                </div>
+
+                <div class="set-update-status-card" id="setUpdateStatus">
+                    <i data-lucide="check-circle-2" class="icon-xs set-update-status-icon"></i>
+                    <span class="set-update-status-text">已是最新版本</span>
+                </div>
+
+                <div class="set-update-channels">
+                    <h5 class="set-update-channels-title">更新通道</h5>
+                    <div class="set-update-channels-grid">
+                        <div class="set-update-channel set-update-channel--primary">
+                            <div class="set-update-channel-head">
+                                <span class="set-update-channel-name">云端资源库</span>
+                                <span class="set-update-channel-tag set-update-channel-tag--primary">推荐</span>
+                            </div>
+                            <p class="set-update-channel-desc">国内访问稳定，更新包通过云盘镜像分发，含完整版与增量包</p>
+                            <div class="set-update-channel-actions">
+                                <button type="button" class="set-btn-link">
+                                    <i data-lucide="external-link" class="icon-xs"></i><span>打开云盘</span>
+                                </button>
+                                <button type="button" class="set-btn-link">
+                                    <i data-lucide="copy" class="icon-xs"></i><span>复制链接</span>
+                                </button>
+                            </div>
+                            <p class="set-update-channel-url mono-text">https://pan.quark.cn/s/432600ae9d8d</p>
+                        </div>
+                        <div class="set-update-channel">
+                            <div class="set-update-channel-head">
+                                <span class="set-update-channel-name">GitHub 直链</span>
+                                <span class="set-update-channel-tag">备用</span>
+                            </div>
+                            <p class="set-update-channel-desc">从 GitHub Releases 直接下载，速度受网络环境影响</p>
+                            <div class="set-update-channel-actions">
+                                <button type="button" class="set-btn-link">
+                                    <i data-lucide="git-branch" class="icon-xs"></i><span>打开发布页</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="set-update-steps">
+                    <h5 class="set-update-steps-title">手动更新指引</h5>
+                    <ol class="set-update-steps-list">
+                        <li class="set-update-step">
+                            <span class="set-update-step-num">1</span>
+                            <span class="set-update-step-text">通过云盘或 GitHub 下载最新版本压缩包</span>
+                        </li>
+                        <li class="set-update-step">
+                            <span class="set-update-step-num">2</span>
+                            <span class="set-update-step-text">关闭当前正在运行的 YuqiEngine</span>
+                        </li>
+                        <li class="set-update-step">
+                            <span class="set-update-step-num">3</span>
+                            <span class="set-update-step-text">解压覆盖原安装目录，重新启动即可完成更新</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>

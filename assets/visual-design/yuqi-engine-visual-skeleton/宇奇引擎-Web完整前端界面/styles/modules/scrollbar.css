@@ -1,0 +1,54 @@
+/* ==========================================================================
+   [ Module ] Scrollbar - 自定义滚动条
+   --------------------------------------------------------------------------
+   策略 Y：内容溢出时才出现 + 融入"雪原"基调
+   - 不溢出 → 浏览器原生不渲染滚动条（overflow-y: auto 的天然行为）
+   - 溢出   → 细 6px 半透明灰滚动条
+   - hover 容器才显形（macOS 风格安静感），离开后淡出
+   - 完全不抢戏，文字阅读时滚动条几乎隐形
+   ========================================================================== */
+
+/* ---------- Firefox ---------- */
+.sidebar-nav {
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+}
+
+.sidebar-nav:hover {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-scrollbar-thumb) transparent;
+}
+
+/* ---------- WebKit / Chromium ---------- */
+.sidebar-nav::-webkit-scrollbar {
+    width: var(--sb-scrollbar-width);
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 4px 0;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 999px;
+    border: 1.5px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 240ms ease-out;
+}
+
+/* hover 容器时 thumb 淡入 */
+.sidebar-nav:hover::-webkit-scrollbar-thumb {
+    background-color: var(--sb-scrollbar-thumb);
+}
+
+.sidebar-nav:hover::-webkit-scrollbar-thumb:hover {
+    background-color: var(--sb-scrollbar-thumb-hover);
+}
+
+/* ---------- 滚动时强制显示（更明显的反馈）---------- */
+/* 滚动事件由 JS 添加 .is-scrolling 类（后续可加，当前依赖 hover 即可）*/
+.sidebar-nav.is-scrolling::-webkit-scrollbar-thumb {
+    background-color: var(--sb-scrollbar-thumb);
+}

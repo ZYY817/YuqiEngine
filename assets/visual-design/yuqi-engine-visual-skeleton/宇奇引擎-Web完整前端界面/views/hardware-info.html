@@ -1,0 +1,383 @@
+<div class="hi-page" data-state="idle">
+
+    <!-- ===== ① 顶部细带：面包屑 + 设备指纹 + 主操作 ===== -->
+    <header class="hi-topbar">
+        <div class="hi-breadcrumb">
+            <i data-lucide="cpu" class="hi-bc-icon"></i>
+            <span class="hi-bc-text">硬件信息</span>
+            <span class="hi-bc-sub">这台电脑的硬件全貌 · 一屏看清</span>
+        </div>
+        <div class="hi-topbar-actions">
+            <span class="hi-fingerprint">
+                <i data-lucide="fingerprint" class="icon-xs"></i>
+                <span class="mono-text" id="hiFingerprint">SN · YQE-DEMO-001</span>
+            </span>
+            <button class="hi-btn hi-btn-ghost" type="button" data-action="refresh" id="hiRefreshBtn" title="重新读取硬件信息">
+                <i data-lucide="refresh-cw" class="hi-btn-icon" id="hiRefreshIcon"></i>
+                <span>刷新</span>
+            </button>
+            <button class="hi-btn hi-btn-ghost" type="button" data-action="export" id="hiExportBtn" title="导出为文本">
+                <i data-lucide="file-down" class="hi-btn-icon"></i>
+                <span>导出</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== ② 整机概要卡 ===== -->
+    <section class="hi-summary" aria-label="整机概要">
+        <div class="hi-summary-icon-wrap">
+            <i data-lucide="monitor" class="hi-summary-icon"></i>
+            <span class="hi-summary-icon-pulse"></span>
+        </div>
+        <div class="hi-summary-main">
+            <div class="hi-summary-name-row">
+                <h2 class="hi-summary-name" id="hiPcName">DESKTOP-YQENGINE</h2>
+                <span class="hi-summary-badge" data-tone="blue" id="hiOsBadge">Windows 11 · 23H2</span>
+                <span class="hi-summary-badge" data-tone="green">已激活</span>
+                <span class="hi-summary-badge" data-tone="dim">x64</span>
+            </div>
+            <div class="hi-summary-meta">
+                <span class="hi-meta-cell">
+                    <i data-lucide="user" class="icon-xs"></i>
+                    <span>账户 <b id="hiUser">YuqiUser</b></span>
+                </span>
+                <span class="hi-meta-divider"></span>
+                <span class="hi-meta-cell">
+                    <i data-lucide="timer" class="icon-xs"></i>
+                    <span>已运行 <b id="hiUptime">3 天 12 小时</b></span>
+                </span>
+                <span class="hi-meta-divider"></span>
+                <span class="hi-meta-cell">
+                    <i data-lucide="circuit-board" class="icon-xs"></i>
+                    <span>主板 <b id="hiMobo">MSI MAG B760M MORTAR</b></span>
+                </span>
+                <span class="hi-meta-divider"></span>
+                <span class="hi-meta-cell">
+                    <i data-lucide="calendar" class="icon-xs"></i>
+                    <span>装机 <b id="hiInstallDate">2024-08-12</b></span>
+                </span>
+            </div>
+        </div>
+        <div class="hi-summary-actions">
+            <button class="hi-icon-btn" type="button" data-action="copy-summary" title="复制整机摘要">
+                <i data-lucide="copy" class="icon-sm"></i>
+            </button>
+            <button class="hi-icon-btn" type="button" data-action="open-sysinfo" title="打开系统信息">
+                <i data-lucide="external-link" class="icon-sm"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- ===== ③ 核心硬件 6 卡网格 ===== -->
+    <section class="hi-grid" aria-label="核心硬件">
+
+        <!-- 处理器 -->
+        <article class="hi-card" data-kind="cpu">
+            <header class="hi-card-head">
+                <span class="hi-card-icon-wrap">
+                    <i data-lucide="cpu" class="hi-card-icon"></i>
+                </span>
+                <div class="hi-card-title-wrap">
+                    <span class="hi-card-eyebrow">处理器</span>
+                    <span class="hi-card-title" id="hiCpuName">Intel Core i7-13700K</span>
+                </div>
+                <span class="hi-card-tag" data-tone="blue">Raptor Lake</span>
+            </header>
+            <div class="hi-card-stats">
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiCpuCores">16<small>C</small> / 24<small>T</small></span>
+                    <span class="hi-stat-label">核心 / 线程</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text"><span id="hiCpuBase">3.4</span> ↑ <span id="hiCpuBoost">5.4</span> <small>GHz</small></span>
+                    <span class="hi-stat-label">基频 ↑ 睿频</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiCpuTdp">125 <small>W</small></span>
+                    <span class="hi-stat-label">额定功耗</span>
+                </div>
+            </div>
+            <footer class="hi-card-foot">
+                <span class="hi-foot-cell"><i data-lucide="thermometer" class="icon-xs"></i><span>当前 <b id="hiCpuTemp">42 °C</b></span></span>
+                <span class="hi-foot-cell"><i data-lucide="activity" class="icon-xs"></i><span>占用 <b id="hiCpuLoad">12%</b></span></span>
+            </footer>
+        </article>
+
+        <!-- 内存 -->
+        <article class="hi-card" data-kind="ram">
+            <header class="hi-card-head">
+                <span class="hi-card-icon-wrap">
+                    <i data-lucide="memory-stick" class="hi-card-icon"></i>
+                </span>
+                <div class="hi-card-title-wrap">
+                    <span class="hi-card-eyebrow">内存</span>
+                    <span class="hi-card-title" id="hiRamSize">32 GB DDR5</span>
+                </div>
+                <span class="hi-card-tag" data-tone="purple">双通道</span>
+            </header>
+            <div class="hi-card-stats">
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiRamSpeed">5600 <small>MT/s</small></span>
+                    <span class="hi-stat-label">实际频率</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiRamTiming">36-36-36-76</span>
+                    <span class="hi-stat-label">时序</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text"><span id="hiRamSlots">2</span>/<span id="hiRamSlotsMax">4</span></span>
+                    <span class="hi-stat-label">已用 / 总槽</span>
+                </div>
+            </div>
+            <footer class="hi-card-foot">
+                <div class="hi-meter">
+                    <span class="hi-meter-label">使用率</span>
+                    <span class="hi-meter-track"><span class="hi-meter-fill" id="hiRamFill" style="width:46%"></span></span>
+                    <span class="hi-meter-text mono-text"><b id="hiRamUsed">14.7</b> / 32 <small>GB</small></span>
+                </div>
+            </footer>
+        </article>
+
+        <!-- 显卡 -->
+        <article class="hi-card" data-kind="gpu">
+            <header class="hi-card-head">
+                <span class="hi-card-icon-wrap">
+                    <i data-lucide="cpu" class="hi-card-icon"></i>
+                </span>
+                <div class="hi-card-title-wrap">
+                    <span class="hi-card-eyebrow">显卡</span>
+                    <span class="hi-card-title" id="hiGpuName">NVIDIA GeForce RTX 4070 Ti</span>
+                </div>
+                <span class="hi-card-tag" data-tone="green">独显</span>
+            </header>
+            <div class="hi-card-stats">
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiGpuVram">12 <small>GB</small></span>
+                    <span class="hi-stat-label">显存</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiGpuDriver">552.22</span>
+                    <span class="hi-stat-label">驱动版本</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiGpuApi">DX12 · CUDA 8.9</span>
+                    <span class="hi-stat-label">API 支持</span>
+                </div>
+            </div>
+            <footer class="hi-card-foot">
+                <span class="hi-foot-cell"><i data-lucide="thermometer" class="icon-xs"></i><span>当前 <b id="hiGpuTemp">38 °C</b></span></span>
+                <span class="hi-foot-cell"><i data-lucide="zap" class="icon-xs"></i><span>功耗 <b id="hiGpuPwr">35 W</b></span></span>
+            </footer>
+        </article>
+
+        <!-- 存储 -->
+        <article class="hi-card" data-kind="disk">
+            <header class="hi-card-head">
+                <span class="hi-card-icon-wrap">
+                    <i data-lucide="hard-drive" class="hi-card-icon"></i>
+                </span>
+                <div class="hi-card-title-wrap">
+                    <span class="hi-card-eyebrow">存储</span>
+                    <span class="hi-card-title" id="hiDiskName">3 块磁盘 · 共 3.92 TB</span>
+                </div>
+                <span class="hi-card-tag" data-tone="amber">SSD 主盘</span>
+            </header>
+            <div class="hi-card-stats">
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text"><span id="hiDiskUsed">2.47</span> <small>TB</small></span>
+                    <span class="hi-stat-label">已用</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text"><span id="hiDiskFree">1.45</span> <small>TB</small></span>
+                    <span class="hi-stat-label">剩余</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiDiskHealth">良好</span>
+                    <span class="hi-stat-label">SMART 健康</span>
+                </div>
+            </div>
+            <footer class="hi-card-foot">
+                <div class="hi-meter">
+                    <span class="hi-meter-label">主盘 C:</span>
+                    <span class="hi-meter-track"><span class="hi-meter-fill" id="hiDiskFill" style="width:63%"></span></span>
+                    <span class="hi-meter-text mono-text"><b id="hiDiskCPct">63%</b></span>
+                </div>
+            </footer>
+        </article>
+
+        <!-- 网络 -->
+        <article class="hi-card" data-kind="net">
+            <header class="hi-card-head">
+                <span class="hi-card-icon-wrap">
+                    <i data-lucide="wifi" class="hi-card-icon"></i>
+                </span>
+                <div class="hi-card-title-wrap">
+                    <span class="hi-card-eyebrow">网络</span>
+                    <span class="hi-card-title" id="hiNetName">Realtek RTL8125 2.5GbE</span>
+                </div>
+                <span class="hi-card-tag" data-tone="green">已连接</span>
+            </header>
+            <div class="hi-card-stats">
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiNetLink">2.5 <small>Gbps</small></span>
+                    <span class="hi-stat-label">协商速率</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiNetIp">192.168.1.108</span>
+                    <span class="hi-stat-label">IPv4 地址</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiNetWifi">Wi-Fi 6E · BT 5.3</span>
+                    <span class="hi-stat-label">无线 / 蓝牙</span>
+                </div>
+            </div>
+            <footer class="hi-card-foot">
+                <span class="hi-foot-cell"><i data-lucide="arrow-down-to-line" class="icon-xs"></i><span>下行 <b id="hiNetDn">12.3 MB/s</b></span></span>
+                <span class="hi-foot-cell"><i data-lucide="arrow-up-from-line" class="icon-xs"></i><span>上行 <b id="hiNetUp">1.8 MB/s</b></span></span>
+            </footer>
+        </article>
+
+        <!-- 显示器 -->
+        <article class="hi-card" data-kind="monitor">
+            <header class="hi-card-head">
+                <span class="hi-card-icon-wrap">
+                    <i data-lucide="monitor-smartphone" class="hi-card-icon"></i>
+                </span>
+                <div class="hi-card-title-wrap">
+                    <span class="hi-card-eyebrow">显示器</span>
+                    <span class="hi-card-title" id="hiMonName">2 台 · 主屏 27" 2K</span>
+                </div>
+                <span class="hi-card-tag" data-tone="blue">144Hz</span>
+            </header>
+            <div class="hi-card-stats">
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiMonRes">2560 × 1440</span>
+                    <span class="hi-stat-label">分辨率</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiMonHz">144 <small>Hz</small></span>
+                    <span class="hi-stat-label">刷新率</span>
+                </div>
+                <span class="hi-stat-divider"></span>
+                <div class="hi-stat">
+                    <span class="hi-stat-num mono-text" id="hiMonGamut">sRGB 99%</span>
+                    <span class="hi-stat-label">色域</span>
+                </div>
+            </div>
+            <footer class="hi-card-foot">
+                <span class="hi-foot-cell"><i data-lucide="layout" class="icon-xs"></i><span>缩放 <b id="hiMonScale">125%</b></span></span>
+                <span class="hi-foot-cell"><i data-lucide="palette" class="icon-xs"></i><span>HDR <b id="hiMonHdr">支持</b></span></span>
+            </footer>
+        </article>
+
+    </section>
+
+    <!-- ===== ④ 详情分组（折叠） ===== -->
+    <section class="hi-details" aria-label="详细参数">
+
+        <!-- 磁盘明细 -->
+        <details class="hi-detail-group" open>
+            <summary class="hi-detail-head">
+                <i data-lucide="hard-drive" class="hi-detail-icon"></i>
+                <span class="hi-detail-title">磁盘明细</span>
+                <span class="hi-detail-count mono-text">3 块</span>
+                <i data-lucide="chevron-down" class="hi-detail-chev"></i>
+            </summary>
+            <div class="hi-detail-body">
+                <table class="hi-table">
+                    <thead>
+                        <tr>
+                            <th>盘符</th>
+                            <th>型号</th>
+                            <th>接口</th>
+                            <th>容量</th>
+                            <th>使用率</th>
+                            <th>健康</th>
+                            <th>温度</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hiDiskTbody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+        </details>
+
+        <!-- 网络适配器 -->
+        <details class="hi-detail-group" open>
+            <summary class="hi-detail-head">
+                <i data-lucide="network" class="hi-detail-icon"></i>
+                <span class="hi-detail-title">网络适配器</span>
+                <span class="hi-detail-count mono-text">2 个</span>
+                <i data-lucide="chevron-down" class="hi-detail-chev"></i>
+            </summary>
+            <div class="hi-detail-body">
+                <table class="hi-table">
+                    <thead>
+                        <tr>
+                            <th>名称</th>
+                            <th>类型</th>
+                            <th>IPv4</th>
+                            <th>MAC</th>
+                            <th>网关</th>
+                            <th>DNS</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hiNetTbody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+        </details>
+
+        <!-- BIOS / 主板 -->
+        <details class="hi-detail-group">
+            <summary class="hi-detail-head">
+                <i data-lucide="circuit-board" class="hi-detail-icon"></i>
+                <span class="hi-detail-title">主板与 BIOS</span>
+                <span class="hi-detail-count mono-text">UEFI</span>
+                <i data-lucide="chevron-down" class="hi-detail-chev"></i>
+            </summary>
+            <div class="hi-detail-body">
+                <dl class="hi-kv-grid" id="hiBiosGrid">
+                    <!-- JS 渲染 -->
+                </dl>
+            </div>
+        </details>
+
+        <!-- 电池（笔记本才显示） -->
+        <details class="hi-detail-group" id="hiBatteryGroup" hidden>
+            <summary class="hi-detail-head">
+                <i data-lucide="battery-charging" class="hi-detail-icon"></i>
+                <span class="hi-detail-title">电池</span>
+                <span class="hi-detail-count mono-text" id="hiBatteryCount">—</span>
+                <i data-lucide="chevron-down" class="hi-detail-chev"></i>
+            </summary>
+            <div class="hi-detail-body">
+                <dl class="hi-kv-grid" id="hiBatteryGrid">
+                    <!-- JS 渲染 -->
+                </dl>
+            </div>
+        </details>
+
+    </section>
+
+    <!-- ===== ⑤ 数据脚注 ===== -->
+    <footer class="hi-footnote">
+        <i data-lucide="info" class="icon-xs"></i>
+        <span>视觉演示数据 · 实际部署时由 WPF 后端通过 WMI / 注册表实时注入</span>
+    </footer>
+
+</div>

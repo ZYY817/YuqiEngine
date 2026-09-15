@@ -1,0 +1,259 @@
+/* ==========================================================================
+   [ Module ] Sidebar Container - 侧边栏容器（一片静默的雪原）
+   --------------------------------------------------------------------------
+   职责范围：
+     - 侧边栏整体结构（aside.sidebar）
+     - 滚动区域（nav.sidebar-nav）
+     - 分组（nav-group）
+     - 菜单项基础态（nav-item / hover / disabled / focus-visible）
+     - 底部 admin 卡片
+   不负责：
+     - 选中态视觉（交给 sidebar-active-snow.css / sidebar-active-prism.css）
+     - 滚动条样式（交给 scrollbar.css）
+   ========================================================================== */
+
+/* ---------- 容器 ---------- */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sb-surface-canvas);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 5;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ---------- 滚动区 ---------- */
+.sidebar-nav {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sb-group-gap);
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 6px;
+}
+
+/* ---------- 分组 ---------- */
+.nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sb-item-gap);
+}
+
+.nav-group-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sb-ink-tertiary);
+    margin: 10px 6px 6px 6px;
+    letter-spacing: 0.5px;
+    text-transform: none;
+}
+
+/* ---------- 菜单项基础态 ---------- */
+.nav-item {
+    display: flex;
+    align-items: center;
+    min-height: var(--sb-item-height);
+    padding: 7px var(--sb-item-padding-x);
+    margin: 1.5px 10px;
+    border-radius: var(--sb-item-radius);
+    text-decoration: none;
+    color: var(--sb-ink-secondary);
+    position: relative;
+    z-index: 2;
+    transition:
+        color var(--sb-duration-hover) ease-out,
+        background-color var(--sb-duration-hover) ease-out;
+}
+
+.nav-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+    transition: opacity var(--sb-duration-hover) ease-out;
+    opacity: 0.78;
+    flex-shrink: 0;
+}
+
+.nav-label {
+    font-size: 13px;
+    font-weight: 500;
+    flex: 1;
+}
+
+/* ---------- Hover ---------- */
+.nav-item:hover {
+    color: var(--sb-ink-primary);
+    background-color: rgba(15, 30, 50, 0.035);
+}
+
+.nav-item:hover .nav-icon {
+    opacity: 1;
+}
+
+/* ---------- 键盘 focus（无障碍）---------- */
+.nav-item:focus-visible {
+    outline: 2px solid rgba(125, 211, 240, 0.6);
+    outline-offset: -2px;
+}
+
+/* ---------- 选中态：仅负责文字加深，背景与材质交给 active-* 模块 ---------- */
+.nav-item.active {
+    color: var(--sb-ink-primary);
+    background-color: transparent;
+    box-shadow: none;
+    border: 1px solid transparent;
+}
+
+.nav-item.active::before {
+    display: none;
+}
+
+.nav-item.active .nav-label {
+    font-weight: 600;
+}
+
+.nav-item.active .nav-icon {
+    color: var(--sb-ink-primary);
+    opacity: 1;
+}
+
+/* ---------- 浮动选中态色块（JS 驱动定位）的基础几何 ---------- */
+/* 仅定义位置/尺寸，视觉效果由 active-snow / active-prism 各自接管 */
+.nav-active-bg {
+    position: absolute;
+    top: 0;          /* 关键：把 static position 显式锁死为内容顶端 0，
+                        避免 flex column 容器对 absolute 子元素的 static position
+                        推断不一致（不同浏览器/不同滚动状态下行为不同）。
+                        JS 计算 translateY 时只需关心 item 的内容偏移。 */
+    left: 10px;
+    right: 10px;
+    height: var(--sb-item-height);
+    border-radius: var(--sb-item-radius);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition:
+        transform var(--sb-duration-active) var(--sb-spring),
+        opacity var(--sb-duration-active) ease-out;
+    /* 默认无视觉，等 active-* 模块覆盖 */
+    background: transparent;
+}
+
+/* 历史 DOM 节点占位 */
+.nav-active-glow {
+    display: none;
+}
+
+/* ==========================================================================
+   底部 admin 卡片（保留原样式，归入侧边栏容器模块）
+   ========================================================================== */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-status {
+    background-color: var(--bg-window);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    padding: 12px 8px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    gap: 10px;
+}
+
+.admin-icon-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.admin-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--sb-ink-tertiary);
+}
+
+.admin-icon-wrapper .status-dot-green {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-success);
+    border-radius: 50%;
+    border: 2px solid var(--bg-desktop);
+}
+
+.admin-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.admin-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sb-ink-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-version {
+    font-size: 10px;
+    color: var(--sb-ink-tertiary);
+    margin-top: 2px;
+}
+
+.admin-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.admin-actions .action-btn {
+    background: transparent;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--sb-ink-tertiary);
+    transition: all var(--transition-fade);
+}
+
+.admin-actions .action-btn:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    color: var(--sb-ink-primary);
+}
+
+.admin-actions .heart-btn:hover {
+    color: var(--accent-danger);
+}
+
+.icon-xs {
+    width: 14px;
+    height: 14px;
+}

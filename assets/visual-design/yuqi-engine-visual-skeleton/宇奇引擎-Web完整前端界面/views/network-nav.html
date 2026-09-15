@@ -1,0 +1,174 @@
+<!--
+  网络优化 · Network Tuning · YuqiEngine v3
+  数据来自 GameOptimizer.Core BuildNetworkModule
+-->
+<div class="mod-page" data-module="network" style="--mod-accent: #0EA5E9; --mod-accent-soft: rgba(14, 165, 233, 0.10); --mod-accent-strong: rgba(14, 165, 233, 0.22);">
+
+    <header class="mod-topbar">
+        <div class="mod-breadcrumb">
+            <i data-lucide="network" class="mod-bc-icon"></i>
+            <span class="mod-bc-text">网络优化</span>
+            <span class="mod-bc-sub">降低延迟波动 · 保持吞吐稳定</span>
+        </div>
+        <div class="mod-topbar-extra"><span class="mem-spec-chip"><i data-lucide="wifi" class="icon-xs"></i><span>千兆有线 · ping 12ms</span></span></div>
+    </header>
+
+    <section class="mod-hero-row">
+        <div class="mod-hero-text">
+            <h1 class="mod-hero-title">网络稳定</h1>
+            <p class="mod-hero-sub">降低延迟波动，保持吞吐量稳定可预测</p>
+        </div>
+        <div class="mod-health-card">
+            <div class="mod-health-ring">
+                <svg class="mod-ring-svg" viewBox="0 0 56 56" aria-hidden="true">
+                    <circle cx="28" cy="28" r="22" class="mod-ring-track"/>
+                    <circle cx="28" cy="28" r="22" class="mod-ring-progress" stroke-dasharray="0 138" transform="rotate(-90 28 28)"/>
+                </svg>
+                <div class="mod-ring-num"><strong>0</strong><span>/</span><em>10</em></div>
+            </div>
+            <div class="mod-health-stat">
+                <span class="mod-health-stat-title">已启用 <strong>0%</strong></span>
+                <ul class="mod-health-list">
+                    <li><span class="mod-dot mod-dot--safe"></span><span>6 安全</span></li>
+                    <li><span class="mod-dot mod-dot--warn"></span><span>4 中</span></li>
+                    <li><span class="mod-dot mod-dot--danger"></span><span>0 高</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="mod-control-bar">
+        <div class="mod-filter-bar" role="tablist">
+            <button class="mod-filter-chip is-active" data-filter="all"><span>全部</span><em>10</em></button>
+            <button class="mod-filter-chip" data-filter="safe"><span class="mod-dot mod-dot--safe"></span><span>安全</span><em>6</em></button>
+            <button class="mod-filter-chip" data-filter="warn"><span class="mod-dot mod-dot--warn"></span><span>中等</span><em>4</em></button>
+            <button class="mod-filter-chip" data-filter="danger"><span class="mod-dot mod-dot--danger"></span><span>高风险</span><em>0</em></button>
+            <button class="mod-filter-chip" data-filter="recommend"><span class="mod-dot mod-dot--info"></span><span>推荐</span><em>4</em></button>
+        </div>
+        <div class="mod-control-actions">
+            <button class="mod-btn-ghost" type="button"><i data-lucide="shield-check" class="icon-xs"></i><span>一键优化（安全）</span></button>
+            <button class="mod-btn-ghost" type="button"><i data-lucide="rotate-ccw" class="icon-xs"></i><span>恢复默认</span><i data-lucide="chevron-down" class="icon-xs mod-btn-caret"></i></button>
+        </div>
+    </section>
+
+    <section class="mod-list">
+
+        <article class="mod-group" data-group="tcp">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#0EA5E9"><i data-lucide="cable"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">TCP / IP 协议栈</h3><p class="mod-group-sub">关闭自动调优、Nagle 与 ECN，固定网络参数</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 4 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>锁定 TCP 自动调优</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">netsh int tcp set global autotuninglevel=disabled，强制禁用接收窗口自动调优以获得确定性延迟</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 Nagle 算法</span><span class="mod-tag mod-tag--warn">中等</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">活动适配器 TcpAckFrequency=1、TCPNoDelay=1，禁用数据包合并，部分在线游戏减少发送等待</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 ECN</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">netsh int tcp set global ecncapability=disabled，关闭显式拥塞通知以避免固件兼容性问题</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>启用 RSS 接收端缩放</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">netsh int tcp set global rss=enabled，使网卡工作负载分散到多个 CPU 核心</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="adapter">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#A855F7"><i data-lucide="router"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">网卡硬件优化</h3><p class="mod-group-sub">关闭节能与中断调制，避免延迟峰值</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="warn" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用网卡节能</span><span class="mod-tag mod-tag--warn">中等</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">关闭设备级 PnP 网卡电源管理与厂商 EEE 开关，降低休眠 / 省电导致的延迟峰值</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用中断调制</span><span class="mod-tag mod-tag--warn">中等</span></div>
+                        <p class="mod-toggle-row-desc">*InterruptModeration=0，关闭中断合并，以最低延迟将数据包传递到 CPU</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>增大网卡缓冲区</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">*ReceiveBuffers / *TransmitBuffers=512，避免突发流量下丢包</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="qos">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#10B981"><i data-lucide="gauge"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">流量调度与服务</h3><p class="mod-group-sub">关闭 QoS 与传送优化，禁用 NetBIOS 等老旧服务</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 QoS 数据包调度</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">关闭 QoS Packet Scheduler，让游戏直接使用全部带宽，避免 20% 默认预留</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用网络节流索引</span><span class="mod-tag mod-tag--warn">中等</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">NetworkThrottlingIndex=0xFFFFFFFF，使多媒体调度不再限制网络吞吐</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 NetBIOS over TCP</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">关闭老旧的 NetBIOS / LMHOSTS 解析，减少广播流量与端口扫描面</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <div class="mod-empty" hidden><div class="mod-empty-icon"><i data-lucide="search-x"></i></div><p class="mod-empty-title">没有符合条件的项目</p><p class="mod-empty-hint">试试切换筛选条件</p></div>
+    </section>
+
+    <div class="mod-action-island">
+        <span class="mod-status-dot"></span><span class="mod-status-text">无未应用更改</span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat"><span>已选</span><strong class="mono-text">0</strong><span>项</span></span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat mod-island-stat--accent"><span>已生效</span><strong class="mono-text">0</strong><span>项</span></span>
+        <button class="mod-island-apply" type="button" disabled>立即应用</button>
+    </div>
+
+</div>

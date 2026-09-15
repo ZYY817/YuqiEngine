@@ -1,0 +1,167 @@
+<!--
+  外设优化 · Peripheral Tuning · YuqiEngine v3
+  数据来自 GameOptimizer.Core BuildPeripheralModule
+-->
+<div class="mod-page" data-module="peripheral" style="--mod-accent: #EC4899; --mod-accent-soft: rgba(236, 72, 153, 0.10); --mod-accent-strong: rgba(236, 72, 153, 0.22);">
+
+    <header class="mod-topbar">
+        <div class="mod-breadcrumb">
+            <i data-lucide="mouse-pointer-2" class="mod-bc-icon"></i>
+            <span class="mod-bc-text">外设优化</span>
+            <span class="mod-bc-sub">键盘 / 鼠标 / 显示器输入响应</span>
+        </div>
+        <div class="mod-topbar-extra"><span class="mem-spec-chip"><i data-lucide="mouse" class="icon-xs"></i><span>Logitech G Pro · 1000 Hz · 800 DPI</span></span></div>
+    </header>
+
+    <section class="mod-hero-row">
+        <div class="mod-hero-text">
+            <h1 class="mod-hero-title">外设调优</h1>
+            <p class="mod-hero-sub">面向键盘 / 鼠标 / 显示器的输入响应调整</p>
+        </div>
+        <div class="mod-health-card">
+            <div class="mod-health-ring">
+                <svg class="mod-ring-svg" viewBox="0 0 56 56" aria-hidden="true">
+                    <circle cx="28" cy="28" r="22" class="mod-ring-track"/>
+                    <circle cx="28" cy="28" r="22" class="mod-ring-progress" stroke-dasharray="0 138" transform="rotate(-90 28 28)"/>
+                </svg>
+                <div class="mod-ring-num"><strong>0</strong><span>/</span><em>9</em></div>
+            </div>
+            <div class="mod-health-stat">
+                <span class="mod-health-stat-title">已启用 <strong>0%</strong></span>
+                <ul class="mod-health-list">
+                    <li><span class="mod-dot mod-dot--safe"></span><span>7 安全</span></li>
+                    <li><span class="mod-dot mod-dot--warn"></span><span>2 中</span></li>
+                    <li><span class="mod-dot mod-dot--danger"></span><span>0 高</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="mod-control-bar">
+        <div class="mod-filter-bar" role="tablist">
+            <button class="mod-filter-chip is-active" data-filter="all"><span>全部</span><em>9</em></button>
+            <button class="mod-filter-chip" data-filter="safe"><span class="mod-dot mod-dot--safe"></span><span>安全</span><em>7</em></button>
+            <button class="mod-filter-chip" data-filter="warn"><span class="mod-dot mod-dot--warn"></span><span>中等</span><em>2</em></button>
+            <button class="mod-filter-chip" data-filter="danger"><span class="mod-dot mod-dot--danger"></span><span>高风险</span><em>0</em></button>
+            <button class="mod-filter-chip" data-filter="recommend"><span class="mod-dot mod-dot--info"></span><span>推荐</span><em>5</em></button>
+        </div>
+        <div class="mod-control-actions">
+            <button class="mod-btn-ghost" type="button"><i data-lucide="shield-check" class="icon-xs"></i><span>一键优化（安全）</span></button>
+            <button class="mod-btn-ghost" type="button"><i data-lucide="rotate-ccw" class="icon-xs"></i><span>恢复默认</span><i data-lucide="chevron-down" class="icon-xs mod-btn-caret"></i></button>
+        </div>
+    </section>
+
+    <section class="mod-list">
+
+        <article class="mod-group" data-group="mouse">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#EC4899"><i data-lucide="mouse"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">鼠标精度</h3><p class="mod-group-sub">关闭增强精度 · 移动加速 · 阈值平滑</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 4 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭"提高指针精确度"</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">MouseSpeed=0，禁用 Windows 鼠标加速，使移动距离与传感器原始数据 1:1 对应</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>设置标准 MouseThreshold</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">MouseThreshold1/2=0，配合关闭加速使用，保证完全线性的鼠标输入</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>设置鼠标灵敏度为 10/20</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">MouseSensitivity=10，使 Windows 灵敏度为中间档（无放大无缩小），获得最准确的输入</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭非活动窗口滚动</span><span class="mod-tag mod-tag--warn">中等</span></div>
+                        <p class="mod-toggle-row-desc">MouseWheelRouting=0，避免误滚动到背景窗口；多窗口用户慎用</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="keyboard">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#0EA5E9"><i data-lucide="keyboard"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">键盘响应</h3><p class="mod-group-sub">压低响应延迟 · 阻止 Hotkey 干扰</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>缩短 KeyboardDelay</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">KeyboardDelay=0，将首次重复延迟设为最短档（约 250ms），提升按键反馈</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>提高 KeyboardSpeed</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">KeyboardSpeed=31，将按键重复速率拉满，长按响应更紧凑</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭粘滞键 / 切换键 / 筛选键提示</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">关闭三组无障碍快捷键，避免游戏中误触 5 次 Shift 弹窗</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="display">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#A855F7"><i data-lucide="monitor-smartphone"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">显示器响应</h3><p class="mod-group-sub">关闭硬件鼠标轨迹 · 双显示器策略</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 2 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭硬件鼠标轨迹</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">MouseTrails=0，禁用拖尾光标效果，减少 GPU 复合负担</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 SnapTo（自动跳到默认按钮）</span><span class="mod-tag mod-tag--warn">中等</span></div>
+                        <p class="mod-toggle-row-desc">SnapToDefaultButton=0，禁止鼠标自动跳到对话框默认按钮，避免误操作</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <div class="mod-empty" hidden><div class="mod-empty-icon"><i data-lucide="search-x"></i></div><p class="mod-empty-title">没有符合条件的项目</p><p class="mod-empty-hint">试试切换筛选条件</p></div>
+    </section>
+
+    <div class="mod-action-island">
+        <span class="mod-status-dot"></span><span class="mod-status-text">无未应用更改</span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat"><span>已选</span><strong class="mono-text">0</strong><span>项</span></span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat mod-island-stat--accent"><span>已生效</span><strong class="mono-text">0</strong><span>项</span></span>
+        <button class="mod-island-apply" type="button" disabled>立即应用</button>
+    </div>
+
+</div>

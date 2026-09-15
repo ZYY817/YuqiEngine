@@ -1,0 +1,602 @@
+<!--
+  内存优化 · Memory Optimization · YuqiEngine v3
+  --------------------------------------------------------------------------
+  方案 C：通用矩阵模板（mod-page）+ 内存独有的"即时清理 Hero 卡"+ TOP5 紧凑条
+  骨架与其他 11 个矩阵模块完全一致；仅在顶部插入 mem-hero / mem-top-strip 两块独有内容
+  模态弹窗（mem-modal）保留，仅在"一键清理"时弹出
+-->
+<div class="mod-page" data-module="memory" style="--mod-accent: #22C55E; --mod-accent-soft: rgba(34, 197, 94, 0.10); --mod-accent-strong: rgba(34, 197, 94, 0.22);">
+
+    <!-- ① 顶部细带 -->
+    <header class="mod-topbar">
+        <div class="mod-breadcrumb">
+            <i data-lucide="memory-stick" class="mod-bc-icon"></i>
+            <span class="mod-bc-text">内存优化</span>
+            <span class="mod-bc-sub">让每一次回收都即时可见</span>
+        </div>
+        <div class="mod-topbar-extra">
+            <span class="mem-spec-chip">
+                <i data-lucide="cpu" class="icon-xs"></i>
+                <span>DDR5 5600 · 双通道 · 32 GB</span>
+            </span>
+        </div>
+    </header>
+
+    <!-- ② 即时清理 Hero 卡（内存独有，标识 "工具型" 能力） -->
+    <section class="mem-hero" aria-label="即时清理工具">
+        <div class="mem-hero-glow" aria-hidden="true"></div>
+
+        <!-- 左：圆环 -->
+        <div class="mem-hero-ring-wrap">
+            <svg class="mem-hero-ring-svg" viewBox="0 0 200 200" aria-hidden="true">
+                <defs>
+                    <linearGradient id="memHeroRingGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#34D399"/>
+                        <stop offset="100%" stop-color="#22C55E"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="100" cy="100" r="86" class="mem-hero-ring-track"/>
+                <circle cx="100" cy="100" r="86" class="mem-hero-ring-progress"
+                        id="memHeroRingProgress"
+                        stroke-dasharray="0 540"
+                        transform="rotate(-90 100 100)"/>
+            </svg>
+            <div class="mem-hero-ring-content">
+                <span class="mem-hero-ring-pct">
+                    <strong id="memHeroPct">39</strong><em>%</em>
+                </span>
+                <span class="mem-hero-ring-detail">
+                    <span class="mono-text" id="memHeroUsed">12.6</span>
+                    <span class="mem-hero-ring-sep">/</span>
+                    <span class="mono-text" id="memHeroTotal">32</span>
+                    <span class="mem-hero-ring-unit">GB</span>
+                </span>
+                <span class="mem-hero-ring-state" id="memHeroRingState">运行良好</span>
+            </div>
+        </div>
+
+        <!-- 中：文案 + 实时数据 -->
+        <div class="mem-hero-action-col">
+            <div class="mem-hero-tag">
+                <i data-lucide="zap" class="icon-xs"></i>
+                <span>即时清理工具</span>
+            </div>
+            <div class="mem-hero-headline">
+                <h2 class="mem-hero-title">一键释放被占用的内存</h2>
+                <p class="mem-hero-sub">
+                    预计可释放 <strong class="mono-text" id="memHeroEstimate">2.3 GB</strong>，约 <strong>1 秒</strong> 完成
+                </p>
+            </div>
+
+            <div class="mem-hero-stats">
+                <div class="mem-hero-stat">
+                    <span class="mem-hero-stat-key">可用</span>
+                    <span class="mem-hero-stat-val mono-text" id="memHeroAvail">19.4 GB</span>
+                </div>
+                <span class="mem-hero-stat-sep"></span>
+                <div class="mem-hero-stat">
+                    <span class="mem-hero-stat-key">已压缩</span>
+                    <span class="mem-hero-stat-val mono-text" id="memHeroCompressed">1.2 GB</span>
+                </div>
+                <span class="mem-hero-stat-sep"></span>
+                <div class="mem-hero-stat">
+                    <span class="mem-hero-stat-key">提交</span>
+                    <span class="mem-hero-stat-val mono-text" id="memHeroCommit">14.8 GB</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右：独立的圆形 CTA（卡片右侧、垂直居中） -->
+        <button class="mem-hero-cta" type="button" id="memHeroCleanBtn" title="一键清理内存" aria-label="一键清理内存">
+            <span class="mem-hero-cta-icon">
+                <i data-lucide="zap" class="icon-sm"></i>
+            </span>
+            <span class="mem-hero-cta-text">立即清理</span>
+            <span class="mem-hero-cta-shine" aria-hidden="true"></span>
+        </button>
+    </section>
+
+    <!-- ③ TOP5 紧凑横向条（内存独有 · 单行高度） -->
+    <section class="mem-top-strip" aria-label="占用排行 TOP 5">
+        <div class="mem-top-strip-head">
+            <div class="mem-top-strip-title">
+                <i data-lucide="bar-chart-3" class="icon-xs"></i>
+                <span>占用排行</span>
+                <em class="mem-top-strip-meta">TOP 5</em>
+            </div>
+            <button class="mem-top-strip-refresh" type="button" id="memTopRefresh" title="刷新">
+                <i data-lucide="refresh-cw" class="icon-xs"></i>
+            </button>
+        </div>
+        <ul class="mem-top-strip-list" id="memTopList">
+            <li class="mem-top-strip-row" data-pid="3284">
+                <span class="mem-top-strip-rank">1</span>
+                <span class="mem-top-strip-icon" style="background:rgba(66,133,244,.12);color:#4285F4">
+                    <i data-lucide="globe" class="icon-xs"></i>
+                </span>
+                <span class="mem-top-strip-text-col">
+                    <span class="mem-top-strip-name">chrome.exe</span>
+                    <span class="mem-top-strip-bar-wrap">
+                        <span class="mem-top-strip-bar" style="--w:88%;--c:#4285F4"></span>
+                    </span>
+                </span>
+                <span class="mem-top-strip-size mono-text">2.10 GB</span>
+            </li>
+            <li class="mem-top-strip-row" data-pid="6612">
+                <span class="mem-top-strip-rank">2</span>
+                <span class="mem-top-strip-icon" style="background:rgba(48,90,255,.12);color:#305AFF">
+                    <i data-lucide="image" class="icon-xs"></i>
+                </span>
+                <span class="mem-top-strip-text-col">
+                    <span class="mem-top-strip-name">Photoshop.exe</span>
+                    <span class="mem-top-strip-bar-wrap">
+                        <span class="mem-top-strip-bar" style="--w:75%;--c:#305AFF"></span>
+                    </span>
+                </span>
+                <span class="mem-top-strip-size mono-text">1.78 GB</span>
+            </li>
+            <li class="mem-top-strip-row" data-pid="2208">
+                <span class="mem-top-strip-rank">3</span>
+                <span class="mem-top-strip-icon" style="background:rgba(7,193,96,.12);color:#07C160">
+                    <i data-lucide="message-circle" class="icon-xs"></i>
+                </span>
+                <span class="mem-top-strip-text-col">
+                    <span class="mem-top-strip-name">WeChat.exe</span>
+                    <span class="mem-top-strip-bar-wrap">
+                        <span class="mem-top-strip-bar" style="--w:38%;--c:#07C160"></span>
+                    </span>
+                </span>
+                <span class="mem-top-strip-size mono-text">920 MB</span>
+            </li>
+            <li class="mem-top-strip-row" data-pid="5124">
+                <span class="mem-top-strip-rank">4</span>
+                <span class="mem-top-strip-icon" style="background:rgba(29,185,84,.12);color:#1DB954">
+                    <i data-lucide="music" class="icon-xs"></i>
+                </span>
+                <span class="mem-top-strip-text-col">
+                    <span class="mem-top-strip-name">Spotify.exe</span>
+                    <span class="mem-top-strip-bar-wrap">
+                        <span class="mem-top-strip-bar" style="--w:18%;--c:#1DB954"></span>
+                    </span>
+                </span>
+                <span class="mem-top-strip-size mono-text">428 MB</span>
+            </li>
+            <li class="mem-top-strip-row" data-pid="9018">
+                <span class="mem-top-strip-rank">5</span>
+                <span class="mem-top-strip-icon" style="background:rgba(244,180,0,.12);color:#F4B400">
+                    <i data-lucide="file-text" class="icon-xs"></i>
+                </span>
+                <span class="mem-top-strip-text-col">
+                    <span class="mem-top-strip-name">notepad++.exe</span>
+                    <span class="mem-top-strip-bar-wrap">
+                        <span class="mem-top-strip-bar" style="--w:9%;--c:#F4B400"></span>
+                    </span>
+                </span>
+                <span class="mem-top-strip-size mono-text">216 MB</span>
+            </li>
+        </ul>
+    </section>
+
+    <!-- ④ 控制栏（与其他矩阵模块完全一致） -->
+    <section class="mod-control-bar">
+        <!-- 左：筛选 chip -->
+        <div class="mod-filter-bar" role="tablist" aria-label="按风险筛选">
+            <button class="mod-filter-chip is-active" data-filter="all" role="tab" aria-selected="true">
+                <span>全部</span><em id="memFilterCountAll">14</em>
+            </button>
+            <button class="mod-filter-chip" data-filter="safe" role="tab" aria-selected="false">
+                <span class="mod-dot mod-dot--safe"></span><span>安全</span><em id="memFilterCountSafe">6</em>
+            </button>
+            <button class="mod-filter-chip" data-filter="warn" role="tab" aria-selected="false">
+                <span class="mod-dot mod-dot--warn"></span><span>中等</span><em id="memFilterCountWarn">5</em>
+            </button>
+            <button class="mod-filter-chip" data-filter="danger" role="tab" aria-selected="false">
+                <span class="mod-dot mod-dot--danger"></span><span>高风险</span><em id="memFilterCountDanger">2</em>
+            </button>
+            <button class="mod-filter-chip" data-filter="recommend" role="tab" aria-selected="false">
+                <span class="mod-dot mod-dot--info"></span><span>推荐</span><em id="memFilterCountRecommend">4</em>
+            </button>
+        </div>
+
+        <!-- 中：操作按钮 -->
+        <div class="mod-control-actions">
+            <button class="mod-btn-ghost" type="button" id="memBulkSafe" title="一键启用所有安全项">
+                <i data-lucide="shield-check" class="icon-xs"></i>
+                <span>一键优化（安全）</span>
+            </button>
+            <button class="mod-btn-ghost" type="button" id="memRestoreDefault" title="恢复默认">
+                <i data-lucide="rotate-ccw" class="icon-xs"></i>
+                <span>恢复默认</span>
+                <i data-lucide="chevron-down" class="icon-xs mod-btn-caret"></i>
+            </button>
+            <div class="mod-popover" id="memRestorePopover" hidden>
+                <button class="mod-popover-item" data-restore="recommend">
+                    <strong>恢复为推荐配置</strong>
+                    <span>仅启用所有安全项与推荐项</span>
+                </button>
+                <button class="mod-popover-item" data-restore="off">
+                    <strong>全部关闭</strong>
+                    <span>取消所有 14 项的启用状态</span>
+                </button>
+                <div class="mod-popover-divider"></div>
+                <button class="mod-popover-item mod-popover-item--danger" data-restore="reset">
+                    <strong>重置为出厂配置</strong>
+                    <span>清空所有自定义，恢复 Windows 默认</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 右：健康环 + 风险分布 -->
+        <div class="mod-health-card">
+            <div class="mod-health-ring">
+                <svg class="mod-ring-svg" viewBox="0 0 56 56" aria-hidden="true">
+                    <circle cx="28" cy="28" r="22" class="mod-ring-track"/>
+                    <circle cx="28" cy="28" r="22" class="mod-ring-progress"
+                            id="memHealthRing"
+                            stroke-dasharray="0 138"
+                            transform="rotate(-90 28 28)"/>
+                </svg>
+                <div class="mod-ring-num">
+                    <strong id="memHealthOn">2</strong><span>/</span><em id="memHealthTotal">14</em>
+                </div>
+            </div>
+            <div class="mod-health-stat">
+                <span class="mod-health-stat-title">已启用 <strong id="memHealthPct">14%</strong></span>
+                <ul class="mod-health-list">
+                    <li><span class="mod-dot mod-dot--safe"></span><span id="memDistSafe">2 安全</span></li>
+                    <li><span class="mod-dot mod-dot--warn"></span><span id="memDistWarn">0 中</span></li>
+                    <li><span class="mod-dot mod-dot--danger"></span><span id="memDistDanger">0 高</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ⑤ 开关矩阵（4 分组 × 14 项 · 与其他矩阵模块完全相同的 mod-* 命名） -->
+    <section class="mod-list" id="memList">
+
+        <!-- 分组 1：清理与释放 -->
+        <article class="mod-group" data-group="cleanup">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#22C55E">
+                        <i data-lucide="trash-2"></i>
+                    </span>
+                    <div class="mod-group-title-text">
+                        <h3 class="mod-group-title">清理与释放</h3>
+                        <p class="mod-group-sub">主动回收闲置内存，立竿见影</p>
+                    </div>
+                </div>
+                <span class="mod-group-meta"><strong class="mem-group-on" data-of="3">1</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>清理待机内存</span>
+                            <span class="mod-tag mod-tag--safe">安全</span>
+                            <span class="mod-tag mod-tag--recommend">推荐</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">释放系统缓存的待机内存（StandbyList），不影响运行中的进程</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="true">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>刷新工作集</span>
+                            <span class="mod-tag mod-tag--safe">安全</span>
+                            <span class="mod-tag mod-tag--recommend">推荐</span>
+                            <span class="mod-tag mod-tag--applied">已生效</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">主动调用 EmptyWorkingSet，回收闲置进程占用的物理内存</p>
+                    </div>
+                    <button class="mod-switch is-on" type="button" role="switch" aria-checked="true"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>定时清理（每 30 分钟）</span>
+                            <span class="mod-tag mod-tag--safe">安全</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">仅在 CPU 闲置时执行待机内存清理，不影响前台体验</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <!-- 分组 2：内核与压缩 -->
+        <article class="mod-group" data-group="kernel">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#A855F7">
+                        <i data-lucide="cpu"></i>
+                    </span>
+                    <div class="mod-group-title-text">
+                        <h3 class="mod-group-title">内核与压缩</h3>
+                        <p class="mod-group-sub">调整内核内存策略，需重启生效</p>
+                    </div>
+                </div>
+                <span class="mod-group-meta"><strong class="mem-group-on" data-of="4">1</strong> / 4 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="danger" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>禁用内存压缩</span>
+                            <span class="mod-tag mod-tag--danger">高风险</span>
+                            <span class="mod-tag mod-tag--ghost">需重启</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">关闭 Windows 内存压缩，可释放 CPU 占用，16 GB 以下不建议</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-recommend="true" data-applied="true">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>内核保留为非分页池</span>
+                            <span class="mod-tag mod-tag--warn">中等</span>
+                            <span class="mod-tag mod-tag--recommend">推荐</span>
+                            <span class="mod-tag mod-tag--applied">已生效</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">禁止内核驱动被换出到分页文件，减少 I/O 抖动</p>
+                    </div>
+                    <button class="mod-switch is-on" type="button" role="switch" aria-checked="true"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>清空页面文件（关机时）</span>
+                            <span class="mod-tag mod-tag--warn">中等</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">关机时清零 pagefile.sys 中的敏感数据，会延长关机时间</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="danger" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>禁用页面文件</span>
+                            <span class="mod-tag mod-tag--danger">高风险</span>
+                            <span class="mod-tag mod-tag--ghost">需 32 GB+</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">完全关闭虚拟内存，仅适合 32 GB 以上且无大型应用场景</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <!-- 分组 3：调度与优先级 -->
+        <article class="mod-group" data-group="scheduler">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#0EA5E9">
+                        <i data-lucide="layers"></i>
+                    </span>
+                    <div class="mod-group-title-text">
+                        <h3 class="mod-group-title">调度与优先级</h3>
+                        <p class="mod-group-sub">前后台权重与缓存分配</p>
+                    </div>
+                </div>
+                <span class="mod-group-meta"><strong class="mem-group-on" data-of="3">0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="warn" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>前台应用内存优先</span>
+                            <span class="mod-tag mod-tag--warn">中等</span>
+                            <span class="mod-tag mod-tag--recommend">推荐</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">将 Win32PrioritySeparation 设为前台优先，提高活动窗口响应速度</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>大型系统缓存模式</span>
+                            <span class="mod-tag mod-tag--safe">安全</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">让文件缓存优先于程序缓存，对文件密集型场景有提升</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>禁用预读取（Prefetch）</span>
+                            <span class="mod-tag mod-tag--warn">中等</span>
+                            <span class="mod-tag mod-tag--ghost">SSD 推荐</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">SSD 用户可关闭，节省启动期内存预占用</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <!-- 分组 4：高级与缓存 -->
+        <article class="mod-group" data-group="advanced">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#F59E0B">
+                        <i data-lucide="sliders-horizontal"></i>
+                    </span>
+                    <div class="mod-group-title-text">
+                        <h3 class="mod-group-title">高级与缓存</h3>
+                        <p class="mod-group-sub">面向进阶用户的细粒度调校</p>
+                    </div>
+                </div>
+                <span class="mod-group-meta"><strong class="mem-group-on" data-of="4">0</strong> / 4 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>启用 Superfetch / SysMain</span>
+                            <span class="mod-tag mod-tag--safe">安全</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">智能预测高频应用并预加载到内存，提高启动速度</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>启用 ReadyBoot 引导缓存</span>
+                            <span class="mod-tag mod-tag--safe">安全</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">优化首次启动期的文件读取顺序，缩短开机时间</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>开启大页面（Large Pages）</span>
+                            <span class="mod-tag mod-tag--warn">中等</span>
+                            <span class="mod-tag mod-tag--ghost">需特权</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">为支持的进程启用 2MB 大页，减少 TLB 失效</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title">
+                            <span>禁用核心隔离内存完整性</span>
+                            <span class="mod-tag mod-tag--warn">先确认</span>
+                            <span class="mod-tag mod-tag--ghost">VBS</span>
+                        </div>
+                        <p class="mod-toggle-row-desc">关闭 HVCI 可释放约 5-8% 内存开销，但会降低恶意驱动防护</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <!-- 空状态 -->
+        <div class="mod-empty" id="memEmpty" hidden>
+            <div class="mod-empty-icon"><i data-lucide="search-x"></i></div>
+            <p class="mod-empty-title">没有符合条件的项目</p>
+            <p class="mod-empty-hint">试试切换筛选条件，或重置筛选</p>
+        </div>
+    </section>
+
+    <!-- ⑥ 应用岛屿（与其他矩阵模块完全一致） -->
+    <div class="mod-action-island" id="memIsland">
+        <span class="mod-status-dot"></span>
+        <span class="mod-status-text" id="memIslandStatus">无未应用更改</span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat">
+            <span>已选</span>
+            <strong class="mono-text" id="memIslandPending">0</strong>
+            <span>项</span>
+        </span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat mod-island-stat--accent">
+            <span>已生效</span>
+            <strong class="mono-text" id="memIslandApplied">2</strong>
+            <span>项</span>
+        </span>
+        <button class="mod-island-apply" type="button" id="memIslandApply" disabled>
+            立即应用
+        </button>
+    </div>
+
+    <!-- ⑦ 清理结果模态弹窗（内存独有，仅"一键清理"时弹出） -->
+    <div class="mem-modal" id="memModal" hidden aria-hidden="true">
+        <div class="mem-modal-mask" data-action="modal-close"></div>
+        <div class="mem-modal-card" role="dialog" aria-modal="true" aria-labelledby="memModalTitle">
+            <button class="mem-modal-close" type="button" data-action="modal-close" aria-label="关闭">
+                <i data-lucide="x" class="icon-sm"></i>
+            </button>
+
+            <div class="mem-modal-hero">
+                <span class="mem-modal-check">
+                    <i data-lucide="check" class="icon-md"></i>
+                </span>
+                <h3 class="mem-modal-title" id="memModalTitle">清理完成</h3>
+                <p class="mem-modal-amount">
+                    共释放 <strong class="mono-text" id="memModalAmount">2.34 GB</strong> 内存
+                </p>
+                <p class="mem-modal-time">
+                    用时 <span class="mono-text" id="memModalDuration">1.2</span> 秒
+                </p>
+            </div>
+
+            <div class="mem-modal-body">
+                <h4 class="mem-modal-section-title">清理详情</h4>
+                <ul class="mem-modal-list">
+                    <li class="mem-modal-item">
+                        <span class="mem-modal-item-key">
+                            <i data-lucide="moon" class="icon-xs"></i>
+                            <span>待机内存清理</span>
+                        </span>
+                        <span class="mem-modal-item-val mono-text" data-key="standby">1.20 GB</span>
+                        <i data-lucide="check-circle-2" class="mem-modal-item-ok"></i>
+                    </li>
+                    <li class="mem-modal-item">
+                        <span class="mem-modal-item-key">
+                            <i data-lucide="refresh-ccw" class="icon-xs"></i>
+                            <span>工作集刷新</span>
+                        </span>
+                        <span class="mem-modal-item-val mono-text" data-key="workingset">680 MB</span>
+                        <i data-lucide="check-circle-2" class="mem-modal-item-ok"></i>
+                    </li>
+                    <li class="mem-modal-item">
+                        <span class="mem-modal-item-key">
+                            <i data-lucide="hard-drive" class="icon-xs"></i>
+                            <span>系统缓存释放</span>
+                        </span>
+                        <span class="mem-modal-item-val mono-text" data-key="syscache">340 MB</span>
+                        <i data-lucide="check-circle-2" class="mem-modal-item-ok"></i>
+                    </li>
+                    <li class="mem-modal-item">
+                        <span class="mem-modal-item-key">
+                            <i data-lucide="globe-2" class="icon-xs"></i>
+                            <span>DNS / 图标缓存</span>
+                        </span>
+                        <span class="mem-modal-item-val mono-text" data-key="dnscache">45 MB</span>
+                        <i data-lucide="check-circle-2" class="mem-modal-item-ok"></i>
+                    </li>
+                    <li class="mem-modal-item">
+                        <span class="mem-modal-item-key">
+                            <i data-lucide="clipboard" class="icon-xs"></i>
+                            <span>剪贴板 / 句柄释放</span>
+                        </span>
+                        <span class="mem-modal-item-val mono-text" data-key="handles">75 MB</span>
+                        <i data-lucide="check-circle-2" class="mem-modal-item-ok"></i>
+                    </li>
+                </ul>
+
+                <div class="mem-modal-compare">
+                    <div class="mem-modal-compare-row">
+                        <span class="mem-modal-compare-key">清理前</span>
+                        <span class="mem-modal-compare-val mono-text" id="memModalBefore">14.94 GB</span>
+                    </div>
+                    <span class="mem-modal-compare-arrow">
+                        <i data-lucide="arrow-down" class="icon-xs"></i>
+                    </span>
+                    <div class="mem-modal-compare-row mem-modal-compare-row--after">
+                        <span class="mem-modal-compare-key">清理后</span>
+                        <span class="mem-modal-compare-val mono-text" id="memModalAfter">12.60 GB</span>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mem-modal-foot">
+                <button class="mem-modal-btn mem-modal-btn--ghost" type="button" data-action="modal-close">
+                    <span>完成</span>
+                </button>
+                <button class="mem-modal-btn mem-modal-btn--primary" type="button" data-action="modal-clean-again">
+                    <i data-lucide="zap" class="icon-xs"></i>
+                    <span>再次清理</span>
+                </button>
+            </footer>
+        </div>
+    </div>
+
+</div>

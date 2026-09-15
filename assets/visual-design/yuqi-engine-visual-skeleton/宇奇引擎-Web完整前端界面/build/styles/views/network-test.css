@@ -1,0 +1,1081 @@
+/* ==========================================================================
+   网络测试 · Sonar on the Glass Pane（钛金族系版）
+   --------------------------------------------------------------------------
+   立场层：
+     - 概念种子：白玻璃面板上的诊室声呐
+     - 与修复中心 / 备份管理 / 系统还原点同族系，钛金浅底 + 白玻璃 + 极淡发丝
+     - 慢、稳、克制、可解释；雷达戏剧性靠层次而非色饱和度
+   语言层：
+     - 8 色 · 钛金底 + 蓝（脉冲主角）+ 紫（上传）+ 琥珀（抖动）+ 三态色（绿/黄/红）
+     - 圆角阶梯 8/12/14/16/pill
+     - 动效 ≤ 320ms（除雷达扫描 4200ms 与脉冲呼吸 2800ms）
+   反模式：
+     - 禁止深空黑底 / 整页深色舞台
+     - 禁止整面 filter blur 大区域应用
+     - 禁止赛博三色饱和铺底（青电 / 品红 / 琥珀同时大面积）
+     - 禁止族系外的紫色挪用（紫色仅用于"上传"语义，不做装饰）
+     - 禁止动画作用于 box-shadow / filter / backdrop-filter
+   ========================================================================== */
+
+/* ---------------- Token ---------------- */
+.nt-page {
+    /* 钛金底色族（与修复中心同源） */
+    --nt-bg-base:        #F4F5F7;
+    --nt-glass-fill:     rgba(255, 255, 255, 0.62);
+    --nt-glass-fill-hi:  rgba(255, 255, 255, 0.85);
+    --nt-glass-border:   rgba(255, 255, 255, 0.7);
+    --nt-line:           rgba(0, 0, 0, 0.06);
+    --nt-line-hi:        rgba(0, 0, 0, 0.10);
+
+    /* 文字三阶（钛金墨） */
+    --nt-ink:            #1A1D24;
+    --nt-ink-light:      #4B5563;
+    --nt-ink-tertiary:   #9CA3AF;
+
+    /* 语义色（与族系对齐） */
+    --nt-blue:           #2563EB;        /* 脉冲主角光 · 延迟 / 下载 */
+    --nt-blue-bg:        rgba(37, 99, 235, 0.10);
+    --nt-blue-soft:      rgba(37, 99, 235, 0.18);
+    --nt-blue-faint:     rgba(37, 99, 235, 0.06);
+
+    --nt-violet:         #7C3AED;        /* 上传 · 与备份页紫同源 */
+    --nt-violet-bg:      rgba(124, 58, 237, 0.10);
+
+    --nt-amber:          #B45309;        /* 抖动 / 丢包 · 与备份页金棕同源 */
+    --nt-amber-bg:       rgba(245, 158, 11, 0.12);
+
+    --nt-good:           #10B981;
+    --nt-good-bg:        rgba(16, 185, 129, 0.10);
+    --nt-fair:           #F59E0B;
+    --nt-fair-bg:        rgba(245, 158, 11, 0.12);
+    --nt-poor:           #DC2626;
+    --nt-poor-bg:        rgba(220, 38, 38, 0.08);
+
+    /* 圆角 / 动效 */
+    --nt-radius-sm:  8px;
+    --nt-radius-md: 12px;
+    --nt-radius-lg: 14px;
+    --nt-radius-xl: 16px;
+    --nt-radius-pill: 999px;
+
+    --nt-motion-fast: 180ms;
+    --nt-motion-base: 240ms;
+    --nt-motion-slow: 320ms;
+    --nt-motion-pulse: 2800ms;
+    --nt-motion-sweep: 4200ms;
+
+    --ease-pulse: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ---------------- 主容器 ---------------- */
+.main-content {
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    overflow: hidden;
+}
+
+.nt-page {
+    width: 100%;
+    height: 100%;
+    padding: 14px 22px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+    color: var(--nt-ink);
+}
+
+/* ==========================================================================
+   背景层：极弱径向晕（与族系底纹同强度）
+   ========================================================================== */
+.nt-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.nt-bg-nebula {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(60% 50% at 28% 22%, rgba(37, 99, 235, 0.05) 0%, transparent 60%),
+        radial-gradient(50% 40% at 78% 82%, rgba(124, 58, 237, 0.04) 0%, transparent 60%),
+        radial-gradient(40% 60% at 92% 12%, rgba(245, 158, 11, 0.03) 0%, transparent 70%);
+}
+
+.nt-bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(60% 50% at 50% 50%, #000 30%, transparent 100%);
+    -webkit-mask-image: radial-gradient(60% 50% at 50% 50%, #000 30%, transparent 100%);
+    opacity: 0.6;
+}
+
+.nt-bg-noise {
+    /* 浅底族系不再使用噪点 overlay；保留节点但置 0 */
+    display: none;
+}
+
+/* ==========================================================================
+   ① 顶部细带
+   ========================================================================== */
+.nt-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 4px 2px;
+    position: relative;
+    z-index: 2;
+}
+
+.nt-bc { display: flex; align-items: center; gap: 10px; }
+
+.nt-bc-icon {
+    width: 18px; height: 18px;
+    color: var(--nt-ink);
+    stroke-width: 2;
+}
+
+.nt-bc-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--nt-ink);
+    letter-spacing: 0.3px;
+}
+
+.nt-bc-sub {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--nt-ink-tertiary);
+    padding-left: 8px;
+    border-left: 1px solid var(--nt-line);
+    margin-left: 4px;
+}
+
+.nt-meta-row { display: flex; align-items: center; gap: 10px; }
+
+.nt-conn-pill, .nt-node-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 30px;
+    padding: 0 12px;
+    background: var(--nt-glass-fill);
+    border: 1px solid var(--nt-glass-border);
+    border-radius: var(--nt-radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--nt-ink-light);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    cursor: default;
+    transition: border-color var(--nt-motion-base) var(--ease-pulse),
+                color var(--nt-motion-base) var(--ease-pulse),
+                background-color var(--nt-motion-base) var(--ease-pulse);
+}
+
+.nt-node-pill { cursor: pointer; font-family: inherit; }
+.nt-node-pill:hover {
+    border-color: var(--nt-blue-soft);
+    color: var(--nt-ink);
+    background: var(--nt-glass-fill-hi);
+}
+
+.nt-conn-dot {
+    width: 8px; height: 8px;
+    background: var(--nt-good);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+    animation: ntDotBreath 2.4s ease-in-out infinite;
+}
+@keyframes ntDotBreath {
+    0%, 100% { opacity: 1;    transform: scale(1); }
+    50%      { opacity: 0.65; transform: scale(0.85); }
+}
+
+.nt-conn-icon { width: 14px; height: 14px; color: var(--nt-blue); stroke-width: 2.2; }
+.nt-conn-name { color: var(--nt-ink); font-weight: 700; }
+.nt-conn-sep  { width: 1px; height: 12px; background: var(--nt-line-hi); }
+.nt-conn-ip   { font-size: 11.5px; color: var(--nt-ink-light); }
+
+.nt-node-label { color: var(--nt-ink-tertiary); font-size: 11px; }
+.nt-node-name  { color: var(--nt-ink); font-weight: 700; }
+
+/* ==========================================================================
+   ② 主舞台
+   ========================================================================== */
+.nt-stage {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    z-index: 2;
+}
+
+@media (max-width: 1180px) {
+    .nt-stage { grid-template-columns: 1fr; }
+}
+
+/* ----- 雷达舱（白玻璃容器） ----- */
+.nt-radar-wrap {
+    background: var(--nt-glass-fill);
+    border: 1px solid var(--nt-glass-border);
+    border-radius: var(--nt-radius-xl);
+    padding: 18px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow:
+        0 6px 24px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    position: relative;
+    overflow: hidden;
+}
+/* 微弱底纹（与诊室诊断舱同强度） */
+.nt-radar-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.05) 0%, transparent 55%),
+        radial-gradient(circle at 90% 10%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* ----- 雷达盘本体 ----- */
+.nt-radar {
+    position: relative;
+    width: clamp(300px, 36vw, 420px);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 极淡的外圈光晕（不再是大模糊大发光） */
+.nt-radar-aura {
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.06) 0%, transparent 65%);
+    animation: ntAura 4s ease-in-out infinite;
+}
+@keyframes ntAura {
+    0%, 100% { opacity: 0.7; transform: scale(0.97); }
+    50%      { opacity: 1;   transform: scale(1.02); }
+}
+
+.nt-radar-rings {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+}
+
+/* 同心圆 · 极淡蓝发丝 */
+.nt-ring {
+    fill: none;
+    stroke: rgba(37, 99, 235, 0.16);
+    stroke-width: 1;
+}
+.nt-ring-2 { stroke: rgba(37, 99, 235, 0.20); }
+.nt-ring-3 { stroke: rgba(37, 99, 235, 0.22); stroke-dasharray: 2 6; }
+.nt-ring-4 { stroke: rgba(37, 99, 235, 0.30); }
+
+.nt-cross {
+    stroke: rgba(0, 0, 0, 0.06);
+    stroke-width: 1;
+    stroke-dasharray: 4 8;
+}
+
+.nt-tick {
+    stroke: rgba(37, 99, 235, 0.32);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+}
+.nt-tick-strong {
+    stroke: var(--nt-blue);
+    stroke-width: 2.2;
+}
+
+/* 中心光晕（覆盖到 SVG defs 上的 ntCoreGrad，浅化处理） */
+.nt-radar-rings circle[fill="url(#ntCoreGrad)"] {
+    opacity: 0.55;
+}
+
+/* 扫描扇区：浅蓝低饱和 */
+.nt-sweep {
+    transform-origin: 200px 200px;
+    transform: rotate(0deg);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    /* 重写 SVG 内的渐变 stop 颜色：通过 fill-opacity / opacity 整体降饱和 */
+}
+/* 让 sweep path 的实色不那么蓝紫——通过覆盖 fill 属性实现 */
+.nt-sweep path {
+    fill: rgba(37, 99, 235, 0.18) !important;
+}
+.nt-page[data-state="scanning"] .nt-sweep {
+    opacity: 1;
+    animation: ntSweep var(--nt-motion-sweep) linear infinite;
+}
+@keyframes ntSweep {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* ----- 4 个扇区点 ----- */
+.nt-sector {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0; height: 0;
+    transform: translate(-50%, -50%) rotate(var(--ang)) translateY(calc(clamp(300px, 36vw, 420px) * -0.42)) rotate(calc(-1 * var(--ang)));
+    pointer-events: none;
+}
+
+.nt-sector-dot {
+    display: block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.18);
+    border: 1.5px solid rgba(37, 99, 235, 0.40);
+    transform: translate(-50%, -50%);
+    transition: background-color 0.4s var(--ease-spring),
+                border-color 0.4s var(--ease-spring),
+                transform 0.4s var(--ease-spring);
+}
+
+.nt-sector[data-active="true"] .nt-sector-dot {
+    background: var(--nt-blue);
+    border-color: var(--nt-blue);
+    transform: translate(-50%, -50%) scale(1.5);
+}
+/* 不同 key 用不同发光色（与右侧晶片颜色对齐） */
+.nt-sector[data-key="up"][data-active="true"] .nt-sector-dot {
+    background: var(--nt-violet);
+    border-color: var(--nt-violet);
+}
+.nt-sector[data-key="jitter"][data-active="true"] .nt-sector-dot {
+    background: var(--nt-amber);
+    border-color: var(--nt-amber);
+}
+
+/* ----- 中心 ----- */
+.nt-core {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.nt-page[data-state="idle"] .nt-core { opacity: 0; }
+
+.nt-core-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--nt-ink-tertiary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.nt-core-num {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    line-height: 1;
+}
+
+.nt-core-value {
+    font-size: clamp(40px, 5.2vw, 60px);
+    font-weight: 200;
+    color: var(--nt-ink);
+    letter-spacing: -2px;
+    font-variant-numeric: tabular-nums;
+}
+
+.nt-core-unit {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--nt-blue);
+    letter-spacing: 1px;
+}
+
+.nt-core-hint {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--nt-ink-tertiary);
+    margin-top: 2px;
+    letter-spacing: 0.3px;
+}
+
+/* ----- 中心点火按钮（Idle 显示） ----- */
+.nt-ignite {
+    position: absolute;
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s var(--ease-spring),
+                transform 0.4s var(--ease-spring);
+    z-index: 4;
+    font-family: inherit;
+}
+.nt-page[data-state="scanning"] .nt-ignite,
+.nt-page[data-state="settled"] .nt-ignite { opacity: 0; pointer-events: none; transform: scale(0.6); }
+
+/* 外圈光环：浅蓝呼吸 */
+.nt-ignite-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, rgba(37, 99, 235, 0.04) 60%, transparent 100%);
+    animation: ntIgniteBreath 3s ease-in-out infinite;
+}
+@keyframes ntIgniteBreath {
+    0%, 100% { transform: scale(1);    opacity: 0.85; }
+    50%      { transform: scale(1.10); opacity: 1; }
+}
+
+/* 核心按钮：蓝实色（与族系 Primary 一致） */
+.nt-ignite-core {
+    position: relative;
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    background: var(--nt-blue);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+        0 8px 24px rgba(37, 99, 235, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: transform 0.22s var(--ease-spring),
+                background-color 0.22s var(--ease-spring);
+}
+.nt-ignite:hover .nt-ignite-core {
+    background: #1D4ED8;
+    transform: scale(1.04);
+}
+.nt-ignite:active .nt-ignite-core { transform: scale(0.96); }
+
+.nt-ignite-icon {
+    width: 22px; height: 22px;
+    color: #fff;
+    stroke-width: 2.4;
+    fill: #fff;
+}
+
+.nt-ignite-text {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* ----- 脉冲波环 ----- */
+.nt-pulse {
+    position: absolute;
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: 1.5px solid var(--nt-blue);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+.nt-page[data-state="scanning"] .nt-pulse,
+.nt-page[data-state="settled"] .nt-pulse {
+    animation: ntPulseRipple var(--nt-motion-pulse) var(--ease-pulse) infinite;
+}
+.nt-page[data-state="scanning"] .nt-pulse[data-i="2"],
+.nt-page[data-state="settled"]  .nt-pulse[data-i="2"]   { animation-delay: 0.93s; }
+.nt-page[data-state="scanning"] .nt-pulse[data-i="3"],
+.nt-page[data-state="settled"]  .nt-pulse[data-i="3"]   { animation-delay: 1.86s; }
+@keyframes ntPulseRipple {
+    0%   { transform: scale(0.6); opacity: 0.6; }
+    70%  { opacity: 0.08; }
+    100% { transform: scale(4.6); opacity: 0; }
+}
+
+/* ----- 雷达底部进度 ----- */
+.nt-stage-bar {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    position: relative;
+    z-index: 2;
+}
+
+.nt-stage-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: var(--nt-radius-pill);
+    overflow: hidden;
+}
+.nt-stage-fill {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--nt-blue), var(--nt-violet));
+    border-radius: var(--nt-radius-pill);
+    transition: width 0.18s ease;
+}
+
+.nt-stage-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11.5px; font-weight: 500;
+    color: var(--nt-ink-light);
+    letter-spacing: 0.3px;
+}
+.nt-stage-percent { color: var(--nt-blue); font-weight: 700; }
+
+/* ==========================================================================
+   ③ 右侧数据条 / 指标晶片
+   ========================================================================== */
+.nt-strip {
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    gap: 10px;
+    min-height: 0;
+}
+
+.nt-chip {
+    background: var(--nt-glass-fill);
+    border: 1px solid var(--nt-glass-border);
+    border-radius: var(--nt-radius-lg);
+    padding: 12px 14px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    transition: border-color var(--nt-motion-base) var(--ease-pulse),
+                background-color var(--nt-motion-base) var(--ease-pulse);
+}
+.nt-chip[data-active="true"] {
+    border-color: rgba(37, 99, 235, 0.32);
+    background: var(--nt-glass-fill-hi);
+}
+.nt-chip[data-key="up"][data-active="true"] {
+    border-color: rgba(124, 58, 237, 0.30);
+}
+.nt-chip[data-key="jitter"][data-active="true"] {
+    border-color: rgba(180, 83, 9, 0.30);
+}
+
+.nt-chip-head {
+    display: flex; align-items: center; gap: 10px;
+}
+
+.nt-chip-icon-wrap {
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    background: var(--nt-blue-bg);
+    border: 1px solid rgba(37, 99, 235, 0.18);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+
+.nt-chip-icon {
+    width: 14px; height: 14px;
+    color: var(--nt-blue);
+    stroke-width: 2.2;
+}
+
+.nt-chip[data-key="up"] .nt-chip-icon-wrap {
+    background: var(--nt-violet-bg);
+    border-color: rgba(124, 58, 237, 0.18);
+}
+.nt-chip[data-key="up"] .nt-chip-icon { color: var(--nt-violet); }
+
+.nt-chip[data-key="jitter"] .nt-chip-icon-wrap {
+    background: var(--nt-amber-bg);
+    border-color: rgba(180, 83, 9, 0.20);
+}
+.nt-chip[data-key="jitter"] .nt-chip-icon { color: var(--nt-amber); }
+
+.nt-chip-title-wrap {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column; gap: 1px;
+}
+.nt-chip-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--nt-ink);
+    letter-spacing: 0.3px;
+}
+.nt-chip-sub {
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--nt-ink-tertiary);
+    letter-spacing: 0.2px;
+}
+
+.nt-chip-grade {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 8px;
+    border-radius: var(--nt-radius-pill);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--nt-line);
+    color: var(--nt-ink-tertiary);
+    flex-shrink: 0;
+}
+.nt-chip-grade[data-grade="优秀"] {
+    background: var(--nt-good-bg);
+    border-color: rgba(16, 185, 129, 0.28);
+    color: var(--nt-good);
+}
+.nt-chip-grade[data-grade="良好"] {
+    background: var(--nt-fair-bg);
+    border-color: rgba(245, 158, 11, 0.30);
+    color: #B45309;
+}
+.nt-chip-grade[data-grade="一般"],
+.nt-chip-grade[data-grade="较差"] {
+    background: var(--nt-poor-bg);
+    border-color: rgba(220, 38, 38, 0.26);
+    color: var(--nt-poor);
+}
+
+.nt-chip-num {
+    display: flex; align-items: baseline; gap: 4px;
+    line-height: 1;
+}
+.nt-chip-value {
+    font-size: 28px;
+    font-weight: 200;
+    color: var(--nt-ink);
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+}
+.nt-chip-unit {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--nt-ink-light);
+    letter-spacing: 0.3px;
+}
+
+.nt-chip-spark {
+    width: 100%; height: 28px;
+    color: var(--nt-blue);
+    opacity: 0.9;
+}
+.nt-chip[data-key="up"] .nt-chip-spark { color: var(--nt-violet); }
+.nt-chip[data-key="jitter"] .nt-chip-spark { color: var(--nt-amber); }
+.nt-chip-spark svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.nt-chip-spark polyline {
+    transition: stroke 0.3s ease;
+}
+
+/* ==========================================================================
+   ④ 诊断报告区
+   ========================================================================== */
+.nt-report {
+    background: var(--nt-glass-fill);
+    border: 1px solid var(--nt-glass-border);
+    border-radius: var(--nt-radius-xl);
+    padding: 14px 16px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.nt-report-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+
+.nt-report-title-wrap { display: flex; align-items: center; gap: 8px; }
+
+.nt-report-icon {
+    width: 16px; height: 16px;
+    color: var(--nt-blue);
+    stroke-width: 2;
+}
+
+.nt-report-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--nt-ink);
+    letter-spacing: 0.3px;
+}
+
+.nt-report-time {
+    font-size: 11px;
+    color: var(--nt-ink-tertiary);
+    padding-left: 8px;
+    border-left: 1px solid var(--nt-line);
+    margin-left: 2px;
+    letter-spacing: 0.3px;
+}
+
+.nt-report-actions { display: flex; gap: 6px; }
+
+.nt-mini-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 28px;
+    padding: 0 10px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--nt-line-hi);
+    border-radius: var(--nt-radius-sm);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--nt-ink-light);
+    cursor: pointer;
+    transition: border-color var(--nt-motion-fast) var(--ease-pulse),
+                color var(--nt-motion-fast) var(--ease-pulse),
+                background-color var(--nt-motion-fast) var(--ease-pulse);
+    font-family: inherit;
+}
+.nt-mini-btn:hover {
+    border-color: var(--nt-blue-soft);
+    color: var(--nt-blue);
+    background: var(--nt-blue-bg);
+}
+
+.nt-mini-btn--accent {
+    background: var(--nt-blue);
+    border-color: var(--nt-blue);
+    color: #fff;
+    font-weight: 700;
+}
+.nt-mini-btn--accent:hover {
+    background: #1D4ED8;
+    border-color: #1D4ED8;
+    color: #fff;
+}
+
+.nt-report-list {
+    list-style: none;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.nt-report-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--nt-line);
+    border-left: 3px solid var(--nt-ink-tertiary);
+    border-radius: 6px var(--nt-radius-md) var(--nt-radius-md) 6px;
+    transition: background-color 0.22s ease, border-color 0.22s ease;
+}
+.nt-report-item[data-state="good"]  { border-left-color: var(--nt-good); background: rgba(16, 185, 129, 0.06); }
+.nt-report-item[data-state="fair"]  { border-left-color: var(--nt-fair); background: rgba(245, 158, 11, 0.06); }
+.nt-report-item[data-state="poor"]  { border-left-color: var(--nt-poor); background: rgba(220, 38, 38, 0.05); }
+
+.nt-report-item-icon {
+    width: 14px; height: 14px;
+    color: var(--nt-ink-tertiary);
+    stroke-width: 2.2;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+.nt-report-item[data-state="good"] .nt-report-item-icon { color: var(--nt-good); }
+.nt-report-item[data-state="fair"] .nt-report-item-icon { color: var(--nt-fair); }
+.nt-report-item[data-state="poor"] .nt-report-item-icon { color: var(--nt-poor); }
+
+.nt-report-item-main {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column; gap: 2px;
+}
+.nt-report-item-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--nt-ink);
+    letter-spacing: 0.2px;
+}
+.nt-report-item-desc {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--nt-ink-light);
+    line-height: 1.55;
+}
+
+/* ==========================================================================
+   ⑤ Modal · 自定义 Ping（白玻璃风格，与备份页 modal 同款）
+   ========================================================================== */
+.nt-modal-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 29, 36, 0.32);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.22s ease;
+    pointer-events: none;
+}
+.nt-modal-mask.is-open { opacity: 1; pointer-events: auto; }
+
+.nt-modal {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, calc(-50% + 16px));
+    width: min(480px, calc(100vw - 32px));
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--nt-glass-border);
+    border-radius: var(--nt-radius-xl);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.28s var(--ease-spring),
+                transform 0.28s var(--ease-spring);
+    pointer-events: none;
+    overflow: hidden;
+    color: var(--nt-ink);
+}
+.nt-modal.is-open {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+}
+
+.nt-modal-head {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 18px 18px 14px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(124, 58, 237, 0.04));
+    border-bottom: 1px solid var(--nt-line);
+}
+
+.nt-modal-icon {
+    width: 22px; height: 22px;
+    color: var(--nt-blue);
+    stroke-width: 2;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.nt-modal-title-wrap { flex: 1; min-width: 0; }
+.nt-modal-title {
+    display: block;
+    font-size: 14.5px; font-weight: 700; color: var(--nt-ink);
+    letter-spacing: 0.3px;
+}
+.nt-modal-sub {
+    display: block;
+    font-size: 12px; font-weight: 500;
+    color: var(--nt-ink-light);
+    margin-top: 3px;
+}
+
+.nt-modal-close {
+    width: 28px; height: 28px;
+    background: transparent;
+    border: 0;
+    border-radius: var(--nt-radius-sm);
+    color: var(--nt-ink-tertiary);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background-color 0.18s ease, color 0.18s ease;
+    flex-shrink: 0;
+}
+.nt-modal-close:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--nt-ink);
+}
+
+.nt-modal-body {
+    padding: 14px 18px;
+    display: flex; flex-direction: column; gap: 10px;
+}
+
+.nt-input-wrap {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 12px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid var(--nt-line-hi);
+    border-radius: var(--nt-radius-md);
+    transition: border-color 0.22s ease, box-shadow 0.22s ease;
+}
+.nt-input-wrap:focus-within {
+    border-color: var(--nt-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.nt-input-icon {
+    width: 14px; height: 14px;
+    color: var(--nt-ink-tertiary);
+    stroke-width: 2.2;
+    flex-shrink: 0;
+}
+
+.nt-input {
+    flex: 1; height: 100%;
+    background: transparent;
+    border: 0; outline: 0;
+    font-size: 13px; font-weight: 500;
+    color: var(--nt-ink);
+    font-family: inherit;
+    letter-spacing: 0.3px;
+}
+.nt-input::placeholder { color: var(--nt-ink-tertiary); }
+
+.nt-modal-output {
+    height: 160px;
+    overflow-y: auto;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--nt-line);
+    border-radius: var(--nt-radius-md);
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: var(--nt-ink);
+}
+.nt-modal-output-line {
+    display: block;
+    color: var(--nt-ink);
+    letter-spacing: 0.2px;
+}
+.nt-modal-output-line--dim { color: var(--nt-ink-tertiary); }
+.nt-modal-output-line--ok  { color: var(--nt-good); }
+.nt-modal-output-line--warn{ color: var(--nt-fair); }
+.nt-modal-output-line--err { color: var(--nt-poor); }
+
+.nt-modal-foot {
+    display: flex; justify-content: flex-end; gap: 8px;
+    padding: 12px 18px 16px;
+    border-top: 1px solid var(--nt-line);
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.nt-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: var(--nt-radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 0.22s var(--ease-pulse),
+                border-color 0.22s var(--ease-pulse),
+                color 0.22s var(--ease-pulse),
+                transform 0.22s var(--ease-pulse);
+    font-family: inherit;
+    letter-spacing: 0.3px;
+}
+
+.nt-btn-primary {
+    background: var(--nt-blue);
+    color: #fff;
+    border-color: var(--nt-blue);
+}
+.nt-btn-primary:hover {
+    background: #1D4ED8;
+    border-color: #1D4ED8;
+    transform: translateY(-1px);
+}
+
+.nt-btn-ghost {
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--nt-ink-light);
+    border-color: var(--nt-line-hi);
+}
+.nt-btn-ghost:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--nt-ink);
+}
+
+/* ==========================================================================
+   ⑥ 错峰入场 · Choreography
+   ========================================================================== */
+@keyframes ntStageIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+[data-stagger] {
+    animation: ntStageIn 0.55s var(--ease-pulse) both;
+}
+[data-stagger="1"] { animation-delay: 0.05s; }
+[data-stagger="2"] { animation-delay: 0.18s; }
+[data-stagger="3"] { animation-delay: 0.34s; }
+[data-stagger="4"] { animation-delay: 0.50s; }
+
+/* 数字滚动入场（结晶后） */
+@keyframes ntNumIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.nt-page[data-state="settled"] .nt-chip-value {
+    animation: ntNumIn 0.5s var(--ease-spring) both;
+}
+.nt-page[data-state="settled"] .nt-chip[data-key="ping"]   .nt-chip-value { animation-delay: 0.10s; }
+.nt-page[data-state="settled"] .nt-chip[data-key="down"]   .nt-chip-value { animation-delay: 0.25s; }
+.nt-page[data-state="settled"] .nt-chip[data-key="up"]     .nt-chip-value { animation-delay: 0.40s; }
+.nt-page[data-state="settled"] .nt-chip[data-key="jitter"] .nt-chip-value { animation-delay: 0.55s; }
+
+/* ==========================================================================
+   ⑦ 通用 / 滚动条
+   ========================================================================== */
+.icon-xs { width: 12px; height: 12px; stroke-width: 2.2; }
+.icon-sm { width: 14px; height: 14px; stroke-width: 2.2; }
+
+.nt-page::-webkit-scrollbar,
+.nt-modal-output::-webkit-scrollbar { width: 6px; height: 6px; }
+.nt-page::-webkit-scrollbar-thumb,
+.nt-modal-output::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.14);
+    border-radius: var(--nt-radius-pill);
+}
+.nt-page::-webkit-scrollbar-thumb:hover,
+.nt-modal-output::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.22);
+}
+.nt-page::-webkit-scrollbar-track,
+.nt-modal-output::-webkit-scrollbar-track { background: transparent; }

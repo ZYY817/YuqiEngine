@@ -1,0 +1,274 @@
+<div class="rc-page" data-state="idle">
+
+    <!-- ===== ① 诊断舱（顶部） ===== -->
+    <section class="rc-diagnostic" aria-label="一键诊断">
+        <!-- 左：脉冲核 -->
+        <div class="rc-dx-core-wrap">
+            <div class="rc-dx-core" id="rcDxCore">
+                <div class="rc-dx-core-ring rc-dx-core-ring-1"></div>
+                <div class="rc-dx-core-ring rc-dx-core-ring-2"></div>
+                <div class="rc-dx-core-ring rc-dx-core-ring-3"></div>
+                <div class="rc-dx-core-center">
+                    <i data-lucide="stethoscope" class="rc-dx-core-icon" id="rcDxCoreIcon"></i>
+                    <div class="rc-dx-core-num mono-text" id="rcDxScore">—</div>
+                    <div class="rc-dx-core-label" id="rcDxScoreLabel">健康分</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中：实时数据 -->
+        <div class="rc-dx-stats">
+            <h2 class="rc-dx-title">让电脑回到健康状态</h2>
+            <p class="rc-dx-sub">一键扫描系统潜在故障 · 自动定位 · 解释原理 · 安全修复</p>
+            <div class="rc-dx-grid">
+                <div class="rc-dx-stat">
+                    <span class="rc-dx-stat-num mono-text"><span id="rcStatTotal">38</span></span>
+                    <span class="rc-dx-stat-label">扫描项目</span>
+                </div>
+                <span class="rc-dx-stat-divider"></span>
+                <div class="rc-dx-stat">
+                    <span class="rc-dx-stat-num mono-text" data-tone="warn"><span id="rcStatDetected">0</span></span>
+                    <span class="rc-dx-stat-label">已检出</span>
+                </div>
+                <span class="rc-dx-stat-divider"></span>
+                <div class="rc-dx-stat">
+                    <span class="rc-dx-stat-num mono-text" data-tone="ok"><span id="rcStatFixed">0</span></span>
+                    <span class="rc-dx-stat-label">已修复</span>
+                </div>
+                <span class="rc-dx-stat-divider"></span>
+                <div class="rc-dx-stat">
+                    <span class="rc-dx-stat-num mono-text" data-tone="dim" id="rcStatLast">未扫描</span>
+                    <span class="rc-dx-stat-label">上次诊断</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右：主操作 -->
+        <div class="rc-dx-cta">
+            <button class="rc-btn rc-btn-primary rc-btn-lg" type="button" data-action="run-diagnostic" id="rcRunBtn">
+                <i data-lucide="scan-search" class="rc-btn-icon"></i>
+                <span id="rcRunBtnText">一键诊断扫描</span>
+            </button>
+            <button class="rc-btn rc-btn-warn" type="button" data-action="fix-all-detected" id="rcFixAllBtn" disabled>
+                <i data-lucide="wand-2" class="rc-btn-icon"></i>
+                <span>修复全部 <em class="mono-text" id="rcFixAllNum">0</em> 项</span>
+            </button>
+            <span class="rc-dx-tip">
+                <i data-lucide="shield-check" class="icon-xs"></i>
+                <span>所有修复均可回滚 · 不影响个人文件</span>
+            </span>
+        </div>
+
+        <!-- 扫描中态：覆盖式进度 -->
+        <div class="rc-dx-progress" id="rcDxProgress" hidden>
+            <div class="rc-dx-progress-list">
+                <div class="rc-dx-progress-row" data-phase="system">
+                    <i data-lucide="cpu" class="rc-dx-progress-icon"></i>
+                    <span class="rc-dx-progress-label">系统组件</span>
+                    <span class="rc-dx-progress-bar"><span class="rc-dx-progress-fill"></span></span>
+                    <span class="rc-dx-progress-pct mono-text">0%</span>
+                </div>
+                <div class="rc-dx-progress-row" data-phase="network">
+                    <i data-lucide="wifi" class="rc-dx-progress-icon"></i>
+                    <span class="rc-dx-progress-label">网络与连接</span>
+                    <span class="rc-dx-progress-bar"><span class="rc-dx-progress-fill"></span></span>
+                    <span class="rc-dx-progress-pct mono-text">0%</span>
+                </div>
+                <div class="rc-dx-progress-row" data-phase="driver">
+                    <i data-lucide="hard-drive" class="rc-dx-progress-icon"></i>
+                    <span class="rc-dx-progress-label">驱动与设备</span>
+                    <span class="rc-dx-progress-bar"><span class="rc-dx-progress-fill"></span></span>
+                    <span class="rc-dx-progress-pct mono-text">0%</span>
+                </div>
+                <div class="rc-dx-progress-row" data-phase="optimization">
+                    <i data-lucide="settings-2" class="rc-dx-progress-icon"></i>
+                    <span class="rc-dx-progress-label">优化项校验</span>
+                    <span class="rc-dx-progress-bar"><span class="rc-dx-progress-fill"></span></span>
+                    <span class="rc-dx-progress-pct mono-text">0%</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ② 主体：左导航 + 右网格 ===== -->
+    <section class="rc-body">
+
+        <!-- 左侧分类导航 -->
+        <aside class="rc-nav" aria-label="修复分类">
+            <div class="rc-nav-head">
+                <span class="rc-nav-head-text">分类</span>
+                <span class="rc-nav-head-tip">点击跳转</span>
+            </div>
+            <ul class="rc-nav-list" id="rcNavList">
+                <li><a class="rc-nav-item is-active" href="#rc-grp-common" data-group="common">
+                    <i data-lucide="zap" class="rc-nav-icon"></i>
+                    <span class="rc-nav-text">常见问题</span>
+                    <span class="rc-nav-count mono-text">8</span>
+                </a></li>
+                <li><a class="rc-nav-item" href="#rc-grp-system" data-group="system">
+                    <i data-lucide="square-stack" class="rc-nav-icon"></i>
+                    <span class="rc-nav-text">Windows 系统</span>
+                    <span class="rc-nav-count mono-text">6</span>
+                </a></li>
+                <li><a class="rc-nav-item" href="#rc-grp-network" data-group="network">
+                    <i data-lucide="wifi" class="rc-nav-icon"></i>
+                    <span class="rc-nav-text">网络与连接</span>
+                    <span class="rc-nav-count mono-text">5</span>
+                </a></li>
+                <li><a class="rc-nav-item" href="#rc-grp-media" data-group="media">
+                    <i data-lucide="speaker" class="rc-nav-icon"></i>
+                    <span class="rc-nav-text">音频与显示</span>
+                    <span class="rc-nav-count mono-text">4</span>
+                </a></li>
+                <li><a class="rc-nav-item" href="#rc-grp-game" data-group="game">
+                    <i data-lucide="gamepad-2" class="rc-nav-icon"></i>
+                    <span class="rc-nav-text">游戏与性能</span>
+                    <span class="rc-nav-count mono-text">5</span>
+                </a></li>
+                <li><a class="rc-nav-item" href="#rc-grp-rollback" data-group="rollback">
+                    <i data-lucide="undo-2" class="rc-nav-icon"></i>
+                    <span class="rc-nav-text">优化项回滚</span>
+                    <span class="rc-nav-count mono-text">3</span>
+                </a></li>
+            </ul>
+
+            <div class="rc-nav-foot">
+                <div class="rc-nav-legend">
+                    <span class="rc-legend-row"><span class="rc-dot rc-dot-blue"></span><span>正常</span></span>
+                    <span class="rc-legend-row"><span class="rc-dot rc-dot-amber"></span><span>检出</span></span>
+                    <span class="rc-legend-row"><span class="rc-dot rc-dot-green"></span><span>已修</span></span>
+                    <span class="rc-legend-row"><span class="rc-dot rc-dot-red"></span><span>失败</span></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧：分组卡片网格 -->
+        <main class="rc-grids" id="rcGrids">
+
+            <!-- 分组：常见问题 -->
+            <section class="rc-group" id="rc-grp-common" data-group="common">
+                <header class="rc-group-head">
+                    <i data-lucide="zap" class="rc-group-icon"></i>
+                    <h3 class="rc-group-title">常见问题</h3>
+                    <span class="rc-group-sub">最多用户遇到的修复项</span>
+                </header>
+                <div class="rc-card-grid">
+                    <!-- 卡片由 JS 渲染 -->
+                </div>
+            </section>
+
+            <!-- 分组：Windows 系统 -->
+            <section class="rc-group" id="rc-grp-system" data-group="system">
+                <header class="rc-group-head">
+                    <i data-lucide="square-stack" class="rc-group-icon"></i>
+                    <h3 class="rc-group-title">Windows 系统</h3>
+                    <span class="rc-group-sub">系统文件 / 服务 / 缓存</span>
+                </header>
+                <div class="rc-card-grid"></div>
+            </section>
+
+            <!-- 分组：网络与连接 -->
+            <section class="rc-group" id="rc-grp-network" data-group="network">
+                <header class="rc-group-head">
+                    <i data-lucide="wifi" class="rc-group-icon"></i>
+                    <h3 class="rc-group-title">网络与连接</h3>
+                    <span class="rc-group-sub">DNS / TCP / 网络适配器</span>
+                </header>
+                <div class="rc-card-grid"></div>
+            </section>
+
+            <!-- 分组：音频与显示 -->
+            <section class="rc-group" id="rc-grp-media" data-group="media">
+                <header class="rc-group-head">
+                    <i data-lucide="speaker" class="rc-group-icon"></i>
+                    <h3 class="rc-group-title">音频与显示</h3>
+                    <span class="rc-group-sub">声音 / 显卡 / 显示器</span>
+                </header>
+                <div class="rc-card-grid"></div>
+            </section>
+
+            <!-- 分组：游戏与性能 -->
+            <section class="rc-group" id="rc-grp-game" data-group="game">
+                <header class="rc-group-head">
+                    <i data-lucide="gamepad-2" class="rc-group-icon"></i>
+                    <h3 class="rc-group-title">游戏与性能</h3>
+                    <span class="rc-group-sub">DirectX / 运行库 / 性能</span>
+                </header>
+                <div class="rc-card-grid"></div>
+            </section>
+
+            <!-- 分组：优化项回滚 -->
+            <section class="rc-group" id="rc-grp-rollback" data-group="rollback">
+                <header class="rc-group-head">
+                    <i data-lucide="undo-2" class="rc-group-icon"></i>
+                    <h3 class="rc-group-title">优化项回滚</h3>
+                    <span class="rc-group-sub">本软件已应用优化的反向修复</span>
+                </header>
+                <div class="rc-card-grid"></div>
+            </section>
+
+        </main>
+
+    </section>
+
+    <!-- ===== ③ 详情抽屉（侧滑） ===== -->
+    <div class="rc-drawer-mask" id="rcDrawerMask" hidden></div>
+    <aside class="rc-drawer" id="rcDrawer" hidden role="dialog" aria-modal="true" aria-labelledby="rcDrawerTitle">
+        <header class="rc-drawer-head">
+            <span class="rc-drawer-icon-wrap" id="rcDrawerIconWrap">
+                <i data-lucide="info" class="rc-drawer-icon" id="rcDrawerIcon"></i>
+            </span>
+            <div class="rc-drawer-title-wrap">
+                <h3 class="rc-drawer-title" id="rcDrawerTitle">修复项详情</h3>
+                <span class="rc-drawer-meta" id="rcDrawerMeta">分类 · 风险等级 · 预计耗时</span>
+            </div>
+            <button class="rc-drawer-close" type="button" data-action="drawer-close" aria-label="关闭">
+                <i data-lucide="x" class="icon-sm"></i>
+            </button>
+        </header>
+
+        <div class="rc-drawer-body">
+            <section class="rc-drawer-section">
+                <h4 class="rc-drawer-section-title">
+                    <span class="rc-drawer-section-bar"></span>
+                    <span>这是什么问题</span>
+                </h4>
+                <p class="rc-drawer-section-text" id="rcDrawerWhat">—</p>
+            </section>
+
+            <section class="rc-drawer-section">
+                <h4 class="rc-drawer-section-title">
+                    <span class="rc-drawer-section-bar"></span>
+                    <span>为什么会发生</span>
+                </h4>
+                <ul class="rc-drawer-list" id="rcDrawerWhy"></ul>
+            </section>
+
+            <section class="rc-drawer-section">
+                <h4 class="rc-drawer-section-title">
+                    <span class="rc-drawer-section-bar"></span>
+                    <span>修复原理</span>
+                </h4>
+                <p class="rc-drawer-section-text" id="rcDrawerHow">—</p>
+                <pre class="rc-drawer-code mono-text" id="rcDrawerCmd"></pre>
+            </section>
+
+            <section class="rc-drawer-section">
+                <h4 class="rc-drawer-section-title">
+                    <span class="rc-drawer-section-bar"></span>
+                    <span>风险与影响</span>
+                </h4>
+                <ul class="rc-drawer-warns" id="rcDrawerWarns"></ul>
+            </section>
+        </div>
+
+        <footer class="rc-drawer-foot">
+            <button class="rc-btn rc-btn-ghost" type="button" data-action="drawer-close">取消</button>
+            <button class="rc-btn rc-btn-primary" type="button" data-action="drawer-fix" id="rcDrawerFix">
+                <i data-lucide="wand-2" class="rc-btn-icon"></i>
+                <span>立即修复</span>
+            </button>
+        </footer>
+    </aside>
+
+</div>

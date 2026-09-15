@@ -1,0 +1,381 @@
+<!-- ==========================================================================
+     启动项管理 · Startup Manager（钛金族系 · 与 cpu/repair/backup/restore 同源）
+     架构：顶部状态条 + 左侧分类栏 + 中央列表 + 底部操作条 + 详情抽屉 + 还原点联动
+========================================================================== -->
+<div class="st-view" data-view="startup-manager">
+
+    <!-- ==========================================================================
+         ① 顶部状态条 · 启动健康面板
+    ========================================================================== -->
+    <header class="st-topbar">
+        <div class="st-topbar-brand">
+            <div class="st-brand-chip">
+                <i data-lucide="power" class="st-brand-icon"></i>
+            </div>
+            <div class="st-brand-meta">
+                <span class="st-brand-name">启动项管理</span>
+                <div class="st-brand-sub">
+                    <span class="st-brand-badge st-brand-badge--scan">
+                        <i data-lucide="radar" class="icon-xs"></i>
+                        全域扫描
+                    </span>
+                    <span class="st-brand-dot"></span>
+                    <span>登录项 · 计划任务 · 后台服务</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="st-topbar-stats">
+            <div class="st-stat">
+                <span class="st-stat-label">启动耗时</span>
+                <div class="st-stat-row">
+                    <span class="st-stat-value" id="stStatBoot">12.4<em>s</em></span>
+                    <span class="st-stat-trend st-stat-trend--bad">
+                        <i data-lucide="trending-up" class="icon-xs"></i>
+                        +3.1s
+                    </span>
+                </div>
+                <div class="st-stat-bar">
+                    <div class="st-stat-bar-fill" style="width: 62%"></div>
+                </div>
+            </div>
+
+            <div class="st-stat">
+                <span class="st-stat-label">已启用</span>
+                <div class="st-stat-row">
+                    <span class="st-stat-value" id="stStatEnabled">23<em>/47</em></span>
+                </div>
+                <div class="st-stat-bar">
+                    <div class="st-stat-bar-fill st-stat-bar-fill--blue" style="width: 49%"></div>
+                </div>
+            </div>
+
+            <div class="st-stat">
+                <span class="st-stat-label">建议禁用</span>
+                <div class="st-stat-row">
+                    <span class="st-stat-value st-stat-value--amber" id="stStatSuggest">6<em>项</em></span>
+                </div>
+                <div class="st-stat-bar">
+                    <div class="st-stat-bar-fill st-stat-bar-fill--amber" style="width: 38%"></div>
+                </div>
+            </div>
+
+            <div class="st-stat">
+                <span class="st-stat-label">隐藏后台</span>
+                <div class="st-stat-row">
+                    <span class="st-stat-value st-stat-value--purple" id="stStatHidden">11<em>项</em></span>
+                    <span class="st-stat-trend st-stat-trend--info">
+                        <i data-lucide="eye" class="icon-xs"></i>
+                    </span>
+                </div>
+                <div class="st-stat-bar">
+                    <div class="st-stat-bar-fill st-stat-bar-fill--purple" style="width: 23%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="st-topbar-actions">
+            <button class="st-btn st-btn--ghost" id="stBtnScan" type="button" title="重新扫描">
+                <i data-lucide="refresh-cw" class="icon-xs"></i>
+                <span>扫描</span>
+            </button>
+            <button class="st-btn st-btn--primary" id="stBtnOptimize" type="button" title="一键优化（自动创建还原点）">
+                <i data-lucide="sparkles" class="icon-xs"></i>
+                <span>一键优化</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ==========================================================================
+         ② 主体双栏：分类栏 + 列表区
+    ========================================================================== -->
+    <div class="st-main">
+
+        <!-- 左侧 · 分类导航 -->
+        <aside class="st-sidepane">
+            <div class="st-sidepane-head">
+                <i data-lucide="filter" class="icon-xs"></i>
+                <span>分类</span>
+            </div>
+
+            <ul class="st-categorylist" id="stCategoryList">
+                <li class="st-category is-active" data-cat="all">
+                    <span class="st-category-icon st-category-icon--all">
+                        <i data-lucide="layers" class="icon-xs"></i>
+                    </span>
+                    <span class="st-category-label">全部启动项</span>
+                    <span class="st-category-count">47</span>
+                </li>
+                <li class="st-category" data-cat="login">
+                    <span class="st-category-icon st-category-icon--login">
+                        <i data-lucide="log-in" class="icon-xs"></i>
+                    </span>
+                    <span class="st-category-label">登录启动项</span>
+                    <span class="st-category-count">18</span>
+                </li>
+                <li class="st-category" data-cat="task">
+                    <span class="st-category-icon st-category-icon--task">
+                        <i data-lucide="calendar-clock" class="icon-xs"></i>
+                    </span>
+                    <span class="st-category-label">计划任务</span>
+                    <span class="st-category-count">14</span>
+                </li>
+                <li class="st-category" data-cat="service">
+                    <span class="st-category-icon st-category-icon--service">
+                        <i data-lucide="server-cog" class="icon-xs"></i>
+                    </span>
+                    <span class="st-category-label">后台服务</span>
+                    <span class="st-category-count">15</span>
+                </li>
+
+                <li class="st-category-divider"></li>
+
+                <li class="st-category" data-cat="suggest">
+                    <span class="st-category-icon st-category-icon--suggest">
+                        <i data-lucide="lightbulb" class="icon-xs"></i>
+                    </span>
+                    <span class="st-category-label">建议禁用</span>
+                    <span class="st-category-count st-category-count--amber">6</span>
+                </li>
+                <li class="st-category" data-cat="hidden">
+                    <span class="st-category-icon st-category-icon--hidden">
+                        <i data-lucide="eye-off" class="icon-xs"></i>
+                    </span>
+                    <span class="st-category-label">隐藏后台</span>
+                    <span class="st-category-count st-category-count--purple">11</span>
+                </li>
+                <li class="st-category" data-cat="danger">
+                    <span class="st-category-icon st-category-icon--danger">
+                        <i data-lucide="shield-alert" class="icon-xs"></i>
+                    </span>
+                    <span class="st-category-label">关键勿动</span>
+                    <span class="st-category-count st-category-count--red">8</span>
+                </li>
+                <li class="st-category" data-cat="disabled">
+                    <span class="st-category-icon st-category-icon--disabled">
+                        <i data-lucide="circle-slash" class="icon-xs"></i>
+                    </span>
+                    <span class="st-category-label">已禁用</span>
+                    <span class="st-category-count">12</span>
+                </li>
+            </ul>
+
+            <!-- 排序 -->
+            <div class="st-sidepane-foot">
+                <span class="st-sort-label">排序</span>
+                <div class="st-sort-chips" id="stSortChips">
+                    <button class="st-sort-chip is-active" data-sort="impact" type="button">
+                        <i data-lucide="zap" class="icon-xs"></i>
+                        影响
+                    </button>
+                    <button class="st-sort-chip" data-sort="name" type="button">
+                        <i data-lucide="arrow-down-az" class="icon-xs"></i>
+                        名称
+                    </button>
+                    <button class="st-sort-chip" data-sort="time" type="button">
+                        <i data-lucide="timer" class="icon-xs"></i>
+                        耗时
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧 · 列表区 -->
+        <section class="st-listpane">
+            <!-- 列表头：搜索 + 视图切换 -->
+            <div class="st-listpane-head">
+                <div class="st-search">
+                    <i data-lucide="search" class="st-search-icon"></i>
+                    <input
+                        type="text"
+                        class="st-search-input"
+                        id="stSearchInput"
+                        placeholder="搜索启动项 / 发布商 / 路径"
+                        autocomplete="off"
+                        spellcheck="false"
+                    />
+                    <button class="st-search-clear" id="stSearchClear" type="button" hidden>
+                        <i data-lucide="x" class="icon-xs"></i>
+                    </button>
+                </div>
+
+                <div class="st-listpane-toolbar">
+                    <button class="st-toolbar-btn" data-tool="show-publisher" type="button" title="按发布商筛选">
+                        <i data-lucide="building-2" class="icon-xs"></i>
+                    </button>
+                    <button class="st-toolbar-btn is-active" data-tool="show-impact" type="button" title="显示影响等级">
+                        <i data-lucide="zap" class="icon-xs"></i>
+                    </button>
+                    <button class="st-toolbar-btn" data-tool="show-path" type="button" title="显示路径">
+                        <i data-lucide="folder-search" class="icon-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 列表表头 -->
+            <div class="st-listhead">
+                <span class="st-listhead-col st-col-checkbox">
+                    <label class="st-checkbox">
+                        <input type="checkbox" id="stSelectAll" />
+                        <span class="st-checkbox-box">
+                            <i data-lucide="check" class="icon-xs"></i>
+                        </span>
+                    </label>
+                </span>
+                <span class="st-listhead-col st-col-app">应用</span>
+                <span class="st-listhead-col st-col-publisher">发布商</span>
+                <span class="st-listhead-col st-col-impact">影响</span>
+                <span class="st-listhead-col st-col-status">状态</span>
+                <span class="st-listhead-col st-col-actions">操作</span>
+            </div>
+
+            <!-- 列表 -->
+            <ul class="st-itemlist" id="stItemList">
+                <!-- 由 JS 渲染 -->
+                <li class="st-empty" hidden>
+                    <i data-lucide="search-x"></i>
+                    <span>未找到匹配的启动项</span>
+                </li>
+            </ul>
+
+            <!-- 列表底部状态 -->
+            <div class="st-listpane-foot">
+                <span class="st-listpane-foot-meta">
+                    <i data-lucide="info" class="icon-xs"></i>
+                    <span id="stFootMeta">显示 47 / 47 项 · 已选 0 项</span>
+                </span>
+                <span class="st-listpane-foot-tip">
+                    <i data-lucide="shield-check" class="icon-xs"></i>
+                    <span>所有改动会先创建还原点</span>
+                </span>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==========================================================================
+         ③ 底部操作条 · 批量动作
+    ========================================================================== -->
+    <footer class="st-actionbar" id="stActionbar" data-state="idle">
+        <div class="st-actionbar-summary">
+            <span class="st-actionbar-summary-icon">
+                <i data-lucide="hand" class="icon-sm"></i>
+            </span>
+            <span class="st-actionbar-summary-text" id="stActionbarText">
+                选中启动项后可批量操作
+            </span>
+        </div>
+
+        <div class="st-actionbar-buttons">
+            <button class="st-btn st-btn--ghost" id="stBtnDelay" type="button" disabled>
+                <i data-lucide="hourglass" class="icon-xs"></i>
+                <span>延迟启动</span>
+            </button>
+            <button class="st-btn st-btn--ghost st-btn--warn" id="stBtnDisable" type="button" disabled>
+                <i data-lucide="ban" class="icon-xs"></i>
+                <span>禁用所选</span>
+            </button>
+            <button class="st-btn st-btn--primary" id="stBtnEnable" type="button" disabled>
+                <i data-lucide="check" class="icon-xs"></i>
+                <span>启用所选</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- ==========================================================================
+         ④ 详情抽屉 · 启动项详细信息（路径、签名、影响、原理）
+    ========================================================================== -->
+    <div class="st-detail-mask" id="stDetailMask" hidden></div>
+    <aside class="st-detail-drawer" id="stDetailDrawer" hidden>
+        <header class="st-detail-head">
+            <div class="st-detail-head-meta">
+                <span class="st-detail-icon-wrap">
+                    <i data-lucide="file-cog" id="stDetailIcon"></i>
+                </span>
+                <div class="st-detail-titles">
+                    <h3 class="st-detail-title" id="stDetailTitle">应用名称</h3>
+                    <p class="st-detail-sub" id="stDetailSub">发布商 · 类别</p>
+                </div>
+            </div>
+            <button class="st-detail-close" id="stDetailClose" type="button" title="关闭">
+                <i data-lucide="x" class="icon-sm"></i>
+            </button>
+        </header>
+
+        <div class="st-detail-body" id="stDetailBody">
+            <!-- 动态内容 -->
+        </div>
+
+        <footer class="st-detail-foot">
+            <button class="st-btn st-btn--ghost" data-detail-action="locate" type="button">
+                <i data-lucide="folder-open" class="icon-xs"></i>
+                <span>打开位置</span>
+            </button>
+            <button class="st-btn st-btn--ghost st-btn--warn" data-detail-action="toggle" id="stDetailToggle" type="button">
+                <i data-lucide="ban" class="icon-xs"></i>
+                <span>禁用</span>
+            </button>
+        </footer>
+    </aside>
+
+    <!-- ==========================================================================
+         ⑤ 一键优化确认弹窗 · 还原点联动
+    ========================================================================== -->
+    <div class="st-confirm-mask" id="stConfirmMask" hidden></div>
+    <div class="st-confirm-modal" id="stConfirmModal" hidden role="dialog" aria-modal="true">
+        <header class="st-confirm-head">
+            <span class="st-confirm-head-icon">
+                <i data-lucide="sparkles"></i>
+            </span>
+            <div class="st-confirm-head-meta">
+                <h3 class="st-confirm-title">一键优化启动项</h3>
+                <p class="st-confirm-sub">检测到 6 项可安全禁用 · 预计提速 4.2s</p>
+            </div>
+            <button class="st-confirm-close" id="stConfirmClose" type="button">
+                <i data-lucide="x" class="icon-sm"></i>
+            </button>
+        </header>
+
+        <div class="st-confirm-body">
+            <!-- 还原点联动卡 -->
+            <div class="st-confirm-restore">
+                <div class="st-confirm-restore-icon">
+                    <i data-lucide="history"></i>
+                </div>
+                <div class="st-confirm-restore-meta">
+                    <span class="st-confirm-restore-title">操作前自动创建系统还原点</span>
+                    <span class="st-confirm-restore-desc">出现问题可一键回滚 · 与"系统还原点"模块联动</span>
+                </div>
+                <label class="st-confirm-toggle">
+                    <input type="checkbox" id="stConfirmRestore" checked />
+                    <span class="st-confirm-toggle-track">
+                        <span class="st-confirm-toggle-thumb"></span>
+                    </span>
+                </label>
+            </div>
+
+            <!-- 待处理项预览 -->
+            <div class="st-confirm-preview">
+                <div class="st-confirm-preview-head">
+                    <span>将禁用的启动项</span>
+                    <span class="st-confirm-preview-count" id="stConfirmCount">6 项</span>
+                </div>
+                <ul class="st-confirm-preview-list" id="stConfirmPreviewList">
+                    <!-- JS 渲染 -->
+                </ul>
+            </div>
+        </div>
+
+        <footer class="st-confirm-foot">
+            <button class="st-btn st-btn--ghost" id="stConfirmCancel" type="button">取消</button>
+            <button class="st-btn st-btn--primary" id="stConfirmApply" type="button">
+                <i data-lucide="check" class="icon-xs"></i>
+                <span>创建还原点并优化</span>
+            </button>
+        </footer>
+    </div>
+
+    <!-- ==========================================================================
+         ⑥ Toast 反馈
+    ========================================================================== -->
+    <div class="st-toast-stack" id="stToastStack"></div>
+</div>

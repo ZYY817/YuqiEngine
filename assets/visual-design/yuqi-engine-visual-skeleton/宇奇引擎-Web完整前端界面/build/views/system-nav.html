@@ -1,0 +1,174 @@
+<!--
+  系统调校 · System Tuning · YuqiEngine v3
+  数据来自 GameOptimizer.Core BuildSystemModule
+-->
+<div class="mod-page" data-module="system" style="--mod-accent: #6366F1; --mod-accent-soft: rgba(99, 102, 241, 0.10); --mod-accent-strong: rgba(99, 102, 241, 0.22);">
+
+    <header class="mod-topbar">
+        <div class="mod-breadcrumb">
+            <i data-lucide="settings-2" class="mod-bc-icon"></i>
+            <span class="mod-bc-text">系统调校</span>
+            <span class="mod-bc-sub">电源 · 调度 · 内核基础开关</span>
+        </div>
+        <div class="mod-topbar-extra"><span class="mem-spec-chip"><i data-lucide="zap" class="icon-xs"></i><span>电源方案 · 卓越性能</span></span></div>
+    </header>
+
+    <section class="mod-hero-row">
+        <div class="mod-hero-text">
+            <h1 class="mod-hero-title">系统核心调校</h1>
+            <p class="mod-hero-sub">面向电源、调度与内核的基础开关</p>
+        </div>
+        <div class="mod-health-card">
+            <div class="mod-health-ring">
+                <svg class="mod-ring-svg" viewBox="0 0 56 56" aria-hidden="true">
+                    <circle cx="28" cy="28" r="22" class="mod-ring-track"/>
+                    <circle cx="28" cy="28" r="22" class="mod-ring-progress" stroke-dasharray="0 138" transform="rotate(-90 28 28)"/>
+                </svg>
+                <div class="mod-ring-num"><strong>0</strong><span>/</span><em>10</em></div>
+            </div>
+            <div class="mod-health-stat">
+                <span class="mod-health-stat-title">已启用 <strong>0%</strong></span>
+                <ul class="mod-health-list">
+                    <li><span class="mod-dot mod-dot--safe"></span><span>6 安全</span></li>
+                    <li><span class="mod-dot mod-dot--warn"></span><span>4 中</span></li>
+                    <li><span class="mod-dot mod-dot--danger"></span><span>0 高</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="mod-control-bar">
+        <div class="mod-filter-bar" role="tablist">
+            <button class="mod-filter-chip is-active" data-filter="all"><span>全部</span><em>10</em></button>
+            <button class="mod-filter-chip" data-filter="safe"><span class="mod-dot mod-dot--safe"></span><span>安全</span><em>6</em></button>
+            <button class="mod-filter-chip" data-filter="warn"><span class="mod-dot mod-dot--warn"></span><span>中等</span><em>4</em></button>
+            <button class="mod-filter-chip" data-filter="danger"><span class="mod-dot mod-dot--danger"></span><span>高风险</span><em>0</em></button>
+            <button class="mod-filter-chip" data-filter="recommend"><span class="mod-dot mod-dot--info"></span><span>推荐</span><em>4</em></button>
+        </div>
+        <div class="mod-control-actions">
+            <button class="mod-btn-ghost" type="button"><i data-lucide="shield-check" class="icon-xs"></i><span>一键优化（安全）</span></button>
+            <button class="mod-btn-ghost" type="button"><i data-lucide="rotate-ccw" class="icon-xs"></i><span>恢复默认</span><i data-lucide="chevron-down" class="icon-xs mod-btn-caret"></i></button>
+        </div>
+    </section>
+
+    <section class="mod-list">
+
+        <article class="mod-group" data-group="schedule">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#6366F1"><i data-lucide="layers"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">游戏调度优先级</h3><p class="mod-group-sub">将 MMCSS Games 任务调度上调到高优先级</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>提高游戏任务优先级</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">Games 任务的 Priority=6，使游戏 CPU 调度权重更高，减少卡顿</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>设置游戏调度类别</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">Scheduling Category=High，保证 Games 任务始终运行在高优先级队列</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 Prefetch（仅 SSD）</span><span class="mod-tag mod-tag--warn">中等</span><span class="mod-tag mod-tag--ghost">SSD 推荐</span></div>
+                        <p class="mod-toggle-row-desc">EnablePrefetcher=0，避免 SSD 场景下的冗余预读；HDD 用户启动会变慢</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="power">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#F59E0B"><i data-lucide="battery-charging"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">电源与休眠</h3><p class="mod-group-sub">关闭休眠 / USB 节能 / 异构线程优先高性能</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 4 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭休眠并回收 hiberfil.sys</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">HibernateEnabled=0，禁用休眠以释放与内存等量的磁盘空间，加快关机速度</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 USB 选择性挂起</span><span class="mod-tag mod-tag--warn">中等</span></div>
+                        <p class="mod-toggle-row-desc">关闭 USB 节能挂起，避免供电不足导致的外设掉线，略增功耗</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 PCI-E ASPM 节能</span><span class="mod-tag mod-tag--warn">中等</span></div>
+                        <p class="mod-toggle-row-desc">关闭 PCI Express 链路节能，避免 NVMe / 网卡链路重新协商带来的延迟</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>处理器最低性能锁定 100%</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">ProcThrottleMin=100，禁止 CPU 在空闲时降频，保持稳定的输入响应</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="storage">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#10B981"><i data-lucide="hard-drive"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">存储与文件系统</h3><p class="mod-group-sub">8.3 短文件名 · 待机列表 · IO 锁页限制</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 NTFS 8.3 短文件名</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">关闭老式 8.3 命名生成，减轻文件系统写入负担，提升大目录访问速度</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>清空待机列表（StandbyList）</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">回收被缓存占用的待机内存，释放可用 RAM 给前台应用</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>优化 IO 页锁定限制</span><span class="mod-tag mod-tag--warn">中等</span></div>
+                        <p class="mod-toggle-row-desc">提升 IoPageLockLimit，使大块 I/O 请求一次性锁定更多页面，减少分包次数</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <div class="mod-empty" hidden><div class="mod-empty-icon"><i data-lucide="search-x"></i></div><p class="mod-empty-title">没有符合条件的项目</p><p class="mod-empty-hint">试试切换筛选条件</p></div>
+    </section>
+
+    <div class="mod-action-island">
+        <span class="mod-status-dot"></span><span class="mod-status-text">无未应用更改</span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat"><span>已选</span><strong class="mono-text">0</strong><span>项</span></span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat mod-island-stat--accent"><span>已生效</span><strong class="mono-text">0</strong><span>项</span></span>
+        <button class="mod-island-apply" type="button" disabled>立即应用</button>
+    </div>
+
+</div>

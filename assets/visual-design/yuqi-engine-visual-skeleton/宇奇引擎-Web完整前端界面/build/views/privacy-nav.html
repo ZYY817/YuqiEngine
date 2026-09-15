@@ -1,0 +1,174 @@
+<!--
+  隐私保护 · Privacy Protection · YuqiEngine v3
+  数据来自 GameOptimizer.Core BuildPrivacyModule
+-->
+<div class="mod-page" data-module="privacy" style="--mod-accent: #8B5CF6; --mod-accent-soft: rgba(139, 92, 246, 0.10); --mod-accent-strong: rgba(139, 92, 246, 0.22);">
+
+    <header class="mod-topbar">
+        <div class="mod-breadcrumb">
+            <i data-lucide="shield" class="mod-bc-icon"></i>
+            <span class="mod-bc-text">隐私保护</span>
+            <span class="mod-bc-sub">锁定遥测、权限与云同步</span>
+        </div>
+        <div class="mod-topbar-extra"><span class="mem-spec-chip"><i data-lucide="user-x" class="icon-xs"></i><span>诊断数据 · 仅必需</span></span></div>
+    </header>
+
+    <section class="mod-hero-row">
+        <div class="mod-hero-text">
+            <h1 class="mod-hero-title">隐私防护</h1>
+            <p class="mod-hero-sub">锁定遥测、权限与云同步，避免后台泄露个人数据</p>
+        </div>
+        <div class="mod-health-card">
+            <div class="mod-health-ring">
+                <svg class="mod-ring-svg" viewBox="0 0 56 56" aria-hidden="true">
+                    <circle cx="28" cy="28" r="22" class="mod-ring-track"/>
+                    <circle cx="28" cy="28" r="22" class="mod-ring-progress" stroke-dasharray="0 138" transform="rotate(-90 28 28)"/>
+                </svg>
+                <div class="mod-ring-num"><strong>0</strong><span>/</span><em>10</em></div>
+            </div>
+            <div class="mod-health-stat">
+                <span class="mod-health-stat-title">已启用 <strong>0%</strong></span>
+                <ul class="mod-health-list">
+                    <li><span class="mod-dot mod-dot--safe"></span><span>8 安全</span></li>
+                    <li><span class="mod-dot mod-dot--warn"></span><span>2 中</span></li>
+                    <li><span class="mod-dot mod-dot--danger"></span><span>0 高</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="mod-control-bar">
+        <div class="mod-filter-bar" role="tablist">
+            <button class="mod-filter-chip is-active" data-filter="all"><span>全部</span><em>10</em></button>
+            <button class="mod-filter-chip" data-filter="safe"><span class="mod-dot mod-dot--safe"></span><span>安全</span><em>8</em></button>
+            <button class="mod-filter-chip" data-filter="warn"><span class="mod-dot mod-dot--warn"></span><span>中等</span><em>2</em></button>
+            <button class="mod-filter-chip" data-filter="danger"><span class="mod-dot mod-dot--danger"></span><span>高风险</span><em>0</em></button>
+            <button class="mod-filter-chip" data-filter="recommend"><span class="mod-dot mod-dot--info"></span><span>推荐</span><em>5</em></button>
+        </div>
+        <div class="mod-control-actions">
+            <button class="mod-btn-ghost" type="button"><i data-lucide="shield-check" class="icon-xs"></i><span>一键优化（安全）</span></button>
+            <button class="mod-btn-ghost" type="button"><i data-lucide="rotate-ccw" class="icon-xs"></i><span>恢复默认</span><i data-lucide="chevron-down" class="icon-xs mod-btn-caret"></i></button>
+        </div>
+    </section>
+
+    <section class="mod-list">
+
+        <article class="mod-group" data-group="telemetry">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#8B5CF6"><i data-lucide="radio"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">遥测与诊断</h3><p class="mod-group-sub">关闭 CEIP、错误报告与诊断收集</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 4 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用广告 ID</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">重置 AdvertisingInfo 并将 Enabled 设为 0，阻止跨应用广告追踪</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>退出 CEIP 客户体验改善计划</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">同步关闭 SQM 客户体验改善计划，阻止使用数据被收集和上传</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用错误报告</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">HKLM/HKCU Disabled=1，阻止 Windows Error Reporting 上传 dump 文件</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用兼容性遥测</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">DisableUAR=1，阻止兼容性评估数据回传</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="capability">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#EF4444"><i data-lucide="lock"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">应用权限拒绝</h3><p class="mod-group-sub">阻止应用访问相机、麦克风与个人数据</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>拒绝相机访问</span><span class="mod-tag mod-tag--warn">中等</span></div>
+                        <p class="mod-toggle-row-desc">webcam capability=Deny，阻止应用使用摄像头；视频通话和拍照应用将无法使用</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>拒绝麦克风访问</span><span class="mod-tag mod-tag--warn">中等</span></div>
+                        <p class="mod-toggle-row-desc">microphone capability=Deny，语音聊天 / 会议 / 录音应用将无法使用麦克风</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>拒绝联系人访问</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">contacts capability=Deny，阻止应用读取联系人列表，保护社交隐私</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="cloud">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#0EA5E9"><i data-lucide="cloud-off"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">云同步与推荐内容</h3><p class="mod-group-sub">关闭设置同步、Cortana 与个性化体验</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭 Cortana</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">AllowCortana=0，彻底禁用语音助理与云端收集，减少后台资源占用</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用设置 / 应用同步</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">DisableSettingSync=1，强制本地化配置，阻止设置和应用数据上传到云端</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭云推荐内容</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">禁用 Spotlight / 消费者体验等云推送，消除锁屏广告与推荐应用</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <div class="mod-empty" hidden><div class="mod-empty-icon"><i data-lucide="search-x"></i></div><p class="mod-empty-title">没有符合条件的项目</p><p class="mod-empty-hint">试试切换筛选条件</p></div>
+    </section>
+
+    <div class="mod-action-island">
+        <span class="mod-status-dot"></span><span class="mod-status-text">无未应用更改</span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat"><span>已选</span><strong class="mono-text">0</strong><span>项</span></span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat mod-island-stat--accent"><span>已生效</span><strong class="mono-text">0</strong><span>项</span></span>
+        <button class="mod-island-apply" type="button" disabled>立即应用</button>
+    </div>
+
+</div>

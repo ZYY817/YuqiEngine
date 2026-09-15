@@ -1,0 +1,169 @@
+<!--
+  显卡优化 · Graphics Tuning · YuqiEngine v3
+  数据来自 GameOptimizer.Core BuildGraphicsModule
+-->
+<div class="mod-page" data-module="graphics" style="--mod-accent: #10B981; --mod-accent-soft: rgba(16, 185, 129, 0.10); --mod-accent-strong: rgba(16, 185, 129, 0.22);">
+
+    <header class="mod-topbar">
+        <div class="mod-breadcrumb">
+            <i data-lucide="monitor" class="mod-bc-icon"></i>
+            <span class="mod-bc-text">显卡优化</span>
+            <span class="mod-bc-sub">GPU 调度 · 全屏体验 · DWM 动效</span>
+        </div>
+        <div class="mod-topbar-extra">
+            <span class="mem-spec-chip"><i data-lucide="zap" class="icon-xs"></i><span>NVIDIA RTX 4070 · 12 GB · 545.84</span></span>
+        </div>
+    </header>
+
+    <section class="mod-hero-row">
+        <div class="mod-hero-text">
+            <h1 class="mod-hero-title">图形与帧率</h1>
+            <p class="mod-hero-sub">针对 GPU 调度与全屏体验的关键开关</p>
+        </div>
+        <div class="mod-health-card">
+            <div class="mod-health-ring">
+                <svg class="mod-ring-svg" viewBox="0 0 56 56" aria-hidden="true">
+                    <circle cx="28" cy="28" r="22" class="mod-ring-track"/>
+                    <circle cx="28" cy="28" r="22" class="mod-ring-progress" stroke-dasharray="0 138" transform="rotate(-90 28 28)"/>
+                </svg>
+                <div class="mod-ring-num"><strong>0</strong><span>/</span><em>9</em></div>
+            </div>
+            <div class="mod-health-stat">
+                <span class="mod-health-stat-title">已启用 <strong>0%</strong></span>
+                <ul class="mod-health-list">
+                    <li><span class="mod-dot mod-dot--safe"></span><span>7 安全</span></li>
+                    <li><span class="mod-dot mod-dot--warn"></span><span>2 中</span></li>
+                    <li><span class="mod-dot mod-dot--danger"></span><span>0 高</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="mod-control-bar">
+        <div class="mod-filter-bar" role="tablist">
+            <button class="mod-filter-chip is-active" data-filter="all"><span>全部</span><em>9</em></button>
+            <button class="mod-filter-chip" data-filter="safe"><span class="mod-dot mod-dot--safe"></span><span>安全</span><em>7</em></button>
+            <button class="mod-filter-chip" data-filter="warn"><span class="mod-dot mod-dot--warn"></span><span>中等</span><em>2</em></button>
+            <button class="mod-filter-chip" data-filter="danger"><span class="mod-dot mod-dot--danger"></span><span>高风险</span><em>0</em></button>
+            <button class="mod-filter-chip" data-filter="recommend"><span class="mod-dot mod-dot--info"></span><span>推荐</span><em>5</em></button>
+        </div>
+        <div class="mod-control-actions">
+            <button class="mod-btn-ghost" type="button"><i data-lucide="shield-check" class="icon-xs"></i><span>一键优化（安全）</span></button>
+            <button class="mod-btn-ghost" type="button"><i data-lucide="rotate-ccw" class="icon-xs"></i><span>恢复默认</span><i data-lucide="chevron-down" class="icon-xs mod-btn-caret"></i></button>
+        </div>
+    </section>
+
+    <section class="mod-list">
+
+        <article class="mod-group" data-group="schedule">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#10B981"><i data-lucide="zap"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">GPU 调度与优先级</h3><p class="mod-group-sub">HAGS · 独显优先 · SFIO 优先级</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="warn" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>开启硬件加速 GPU 调度（HAGS）</span><span class="mod-tag mod-tag--warn">中等</span><span class="mod-tag mod-tag--recommend">推荐</span><span class="mod-tag mod-tag--ghost">需重启</span></div>
+                        <p class="mod-toggle-row-desc">HwSchMode=2，让 GPU 直接管理调度队列，受支持驱动上可改善帧时间和输入响应</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>全局优先独显</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">DirectXUserGlobalSettings = GpuPreference=2，让系统默认使用高性能独立显卡，避免游戏误用核显</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>提升 GPU SFIO 优先级</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">SFIO Priority=High，使游戏流媒体 I/O 始终走高优通道，减少帧时间波动</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="fullscreen">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#0EA5E9"><i data-lucide="maximize-2"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">全屏与渲染</h3><p class="mod-group-sub">关闭 DWM 动效与全屏优化，降低输入延迟</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用全屏优化</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">强制 GameConfigStore 中 FSE 行为为传统独占模式，避免 Win10 全屏优化带来的输入延迟</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 DWM 桌面动画</span><span class="mod-tag mod-tag--warn">中等</span></div>
+                        <p class="mod-toggle-row-desc">关闭桌面窗口管理器淡入淡出与缩放动画，减少桌面合成对 GPU 的占用</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 VRR 节能</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">关闭 Variable Refresh Rate 的节能策略，避免 G-Sync / FreeSync 帧率波动时屏幕降频</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="recording">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#A855F7"><i data-lucide="video-off"></i></span>
+                    <div class="mod-group-title-text"><h3 class="mod-group-title">录制与监控</h3><p class="mod-group-sub">彻底关闭 Game DVR / Xbox 监控以释放 GPU</p></div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>彻底禁用 Game DVR</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">关闭 GameDVR/HKCU 录制开关与策略，释放 Game DVR 占用的 GPU 与内存</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 Xbox 游戏监控</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">阻止 GameMonitor 服务后台采样游戏行为，减少 GPU 与磁盘 I/O 占用</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用游戏模式优化（系统）</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">AutoGameModeEnabled=0，关闭 Windows 游戏模式自动优化，避免与手动优化冲突</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <div class="mod-empty" hidden><div class="mod-empty-icon"><i data-lucide="search-x"></i></div><p class="mod-empty-title">没有符合条件的项目</p><p class="mod-empty-hint">试试切换筛选条件</p></div>
+    </section>
+
+    <div class="mod-action-island">
+        <span class="mod-status-dot"></span><span class="mod-status-text">无未应用更改</span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat"><span>已选</span><strong class="mono-text">0</strong><span>项</span></span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat mod-island-stat--accent"><span>已生效</span><strong class="mono-text">0</strong><span>项</span></span>
+        <button class="mod-island-apply" type="button" disabled>立即应用</button>
+    </div>
+
+</div>

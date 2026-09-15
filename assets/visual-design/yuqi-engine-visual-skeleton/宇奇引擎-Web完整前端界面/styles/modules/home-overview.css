@@ -1,0 +1,2001 @@
+/* ==========================================================================
+   Home Overview · 概览仪表板（浮雪本色 / Snow-Native）
+   --------------------------------------------------------------------------
+   立场：首页 = 实时遥测 + 引导优化 + 优化进度 + 最近活动 + 系统画像
+   边界：仅作用于首页 .home-overview 及其子区域，不污染外壳/侧边栏
+   命名：所有变量以 --ov-* 前缀，独立作用域
+   反模式：禁止黑钛 / 禁止虚假健康分 / 禁止"体检/加速"杀软话术
+           禁止整卡彩色填充 / 禁止动态闪烁色块抢注意力
+   结构：
+     ① .ov-telemetry      实时监控带（6 张迷你卡 · 一行）
+     ② .ov-hero-action    引导优化大卡（占整行 · 单一最显眼入口）
+     ③ .ov-grid-row       双列：进度面板 + 活动面板
+     ④ .ov-footer-bar     底部细信息条（备份点 · 系统画像 · 运行时长）
+   ========================================================================== */
+
+.home-overview {
+    /* ----- 表面层（沿用浮雪外壳，不引入黑钛） ----- */
+    --ov-card-bg: rgba(255, 255, 255, 0.55);
+    --ov-card-bg-hover: rgba(255, 255, 255, 0.75);
+    --ov-card-border: rgba(255, 255, 255, 0.7);
+    --ov-card-border-hover: rgba(255, 255, 255, 0.95);
+    --ov-card-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+    --ov-card-shadow-hover: 0 8px 20px -4px rgba(0, 0, 0, 0.08);
+
+    /* ----- 状态色（仅作小尺寸状态点 / 进度条着色，不大面积上色） ----- */
+    --ov-state-applied: #10B981;   /* 已应用 / 健康 */
+    --ov-state-partial: #F59E0B;   /* 部分应用 / 注意 */
+    --ov-state-idle: #9CA3AF;      /* 未应用 / 中性 */
+    --ov-state-blocked: #EF4444;   /* 阻断 / 警告 */
+
+    /* ----- 字号系统 ----- */
+    --ov-eyebrow-tracking: 0.16em;
+}
+
+/* ==========================================================================
+   Home 根容器 — 替换 main-content 居中 placeholder 布局
+   ========================================================================== */
+.home-overview {
+    width: 100%;
+    height: 100%;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+    z-index: 2;
+    position: relative;
+}
+
+/* 让 main-content 在承载首页时取消居中布局 */
+.main-content:has(.home-overview) {
+    display: block;
+    align-items: stretch;
+    justify-content: stretch;
+}
+
+/* ==========================================================================
+   ① 实时监控带 · Live Telemetry Strip
+   --------------------------------------------------------------------------
+   6 张迷你卡平铺一行：CPU / 内存 / 磁盘 / GPU / 温度 / 网络
+   每张：图标 + 标签 + 大数值 + (折线 / 进度条 / 副信息)
+   ========================================================================== */
+.ov-telemetry {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.ov-tele-card {
+    background: var(--ov-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--ov-card-border);
+    border-radius: 12px;
+    padding: 12px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: var(--ov-card-shadow);
+    transition:
+        background-color var(--transition-fade),
+        border-color var(--transition-fade),
+        box-shadow var(--transition-fade);
+    min-height: 86px;
+}
+
+.ov-tele-card:hover {
+    background: var(--ov-card-bg-hover);
+    border-color: var(--ov-card-border-hover);
+    box-shadow: var(--ov-card-shadow-hover);
+}
+
+.ov-tele-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ov-tele-icon {
+    width: 14px;
+    height: 14px;
+    color: var(--text-secondary);
+    stroke-width: 1.8;
+}
+
+.ov-tele-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    letter-spacing: var(--ov-eyebrow-tracking);
+    text-transform: uppercase;
+    font-weight: 500;
+    flex: 1;
+}
+
+.ov-tele-warn-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ov-state-partial);
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.18);
+    flex-shrink: 0;
+}
+
+.ov-tele-value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    line-height: 1;
+}
+
+.ov-tele-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+}
+
+.ov-tele-unit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+/* 迷你折线（sparkline） */
+.ov-tele-spark {
+    height: 18px;
+    margin-top: auto;
+}
+
+.ov-tele-spark svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.ov-tele-spark svg polyline {
+    fill: none;
+    stroke: var(--ov-state-applied);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.85;
+    vector-effect: non-scaling-stroke;
+}
+
+.ov-tele-spark[data-state="warn"] svg polyline {
+    stroke: var(--ov-state-partial);
+}
+.ov-tele-spark[data-state="danger"] svg polyline {
+    stroke: var(--ov-state-blocked);
+}
+
+/* 迷你进度条（用于内存/磁盘） */
+.ov-tele-bar {
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin-top: auto;
+}
+
+.ov-tele-bar > span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--ov-state-applied);
+    transition: width 600ms var(--spring-damping);
+}
+
+.ov-tele-bar[data-state="warn"] > span {
+    background: var(--ov-state-partial);
+}
+.ov-tele-bar[data-state="danger"] > span {
+    background: var(--ov-state-blocked);
+}
+
+/* 迷你副信息文字（用于网络） */
+.ov-tele-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    margin-top: auto;
+    letter-spacing: -0.2px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   ② 引导优化大卡 · Smart Action Hero
+   --------------------------------------------------------------------------
+   首页唯一最显眼入口 —— 占整行，左侧图章 + 中部信息 + 右侧 CTA
+   配色：浅色背景 + 黑色 CTA，不引入彩色填充
+   ========================================================================== */
+.ov-hero-action {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.55) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--ov-card-border);
+    border-radius: var(--radius-card);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--ov-card-shadow);
+    position: relative;
+    overflow: hidden;
+    min-height: 100%;
+}
+
+/* 极淡的全息光晕装饰，不抢注意力 */
+.ov-hero-action::after {
+    content: "";
+    position: absolute;
+    top: -40%;
+    right: -10%;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 229, 255, 0.10) 0%, transparent 70%);
+    filter: blur(30px);
+    pointer-events: none;
+}
+
+.ov-hero-glyph {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(26, 29, 36, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    position: relative;
+    z-index: 1;
+}
+
+.ov-hero-icon {
+    width: 22px;
+    height: 22px;
+    color: #FFFFFF;
+    stroke-width: 1.8;
+}
+
+.ov-hero-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    z-index: 1;
+}
+
+.ov-hero-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ov-hero-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+}
+
+.ov-hero-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: #047857;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+}
+
+.ov-hero-desc {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+}
+
+.ov-hero-desc b {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+}
+
+.ov-hero-tags {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.ov-hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.ov-hero-tag-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--ov-state-idle);
+}
+.ov-hero-tag-dot[data-level="ok"]    { background: var(--ov-state-applied); }
+.ov-hero-tag-dot[data-level="warn"]  { background: var(--ov-state-partial); }
+.ov-hero-tag-dot[data-level="block"] { background: var(--ov-state-blocked); }
+
+/* 主 CTA：黑色按钮 + 箭头 */
+.ov-hero-cta {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border: none;
+    border-radius: var(--radius-btn);
+    background: var(--text-primary);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 6px 14px -2px rgba(26, 29, 36, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    transition:
+        background-color var(--transition-fade),
+        transform var(--transition-fade),
+        box-shadow var(--transition-fade);
+    position: relative;
+    z-index: 1;
+    font-family: inherit;
+}
+
+.ov-hero-cta:hover {
+    background: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -4px rgba(26, 29, 36, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.ov-hero-cta:active {
+    transform: translateY(0);
+}
+
+.ov-hero-cta-arrow {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2;
+    transition: transform var(--transition-fade);
+}
+
+.ov-hero-cta:hover .ov-hero-cta-arrow {
+    transform: translateX(2px);
+}
+
+/* ==========================================================================
+   ③ + ④ 双列：功能矩阵 + 最近活动（次要信息区，限定高度，不再抢空间）
+   ========================================================================== */
+.ov-grid-row {
+    flex-shrink: 0;
+    flex-grow: 0;
+    min-height: 0;
+    height: 240px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 12px;
+}
+
+.ov-panel {
+    background: var(--ov-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--ov-card-border);
+    border-radius: var(--radius-card);
+    padding: 16px 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: var(--ov-card-shadow);
+    min-height: 0;
+}
+
+.ov-panel-head {
+    flex-shrink: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.ov-panel-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+}
+
+.ov-panel-link {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: color var(--transition-fade);
+}
+
+.ov-panel-link:hover {
+    color: var(--text-primary);
+}
+
+/* ----- ③ 优化进度面板 ----- */
+.ov-progress-summary {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.ov-progress-summary-text {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.ov-progress-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+}
+
+.ov-progress-num-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+.ov-progress-bar-total {
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.ov-progress-bar-total > span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--ov-state-applied) 0%, #34D399 100%);
+}
+
+.ov-progress-list {
+    flex: 1;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.ov-progress-item {
+    display: grid;
+    grid-template-columns: 90px 1fr 44px;
+    align-items: center;
+    gap: 10px;
+}
+
+.ov-progress-name {
+    font-size: 12px;
+    color: var(--text-primary);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ov-progress-bar-mini {
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.ov-progress-bar-mini > span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--ov-state-applied);
+    transition: width 600ms var(--spring-damping);
+}
+
+.ov-progress-item[data-state="partial"] .ov-progress-bar-mini > span {
+    background: var(--ov-state-partial);
+}
+.ov-progress-item[data-state="idle"] .ov-progress-bar-mini > span {
+    background: var(--ov-state-idle);
+}
+
+.ov-progress-frac {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    letter-spacing: -0.2px;
+}
+
+/* ----- ④ 最近活动面板 ----- */
+.ov-activity-list {
+    flex: 1;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.ov-activity-item {
+    display: grid;
+    grid-template-columns: 44px 18px 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 6px;
+    border-radius: 8px;
+    transition: background-color var(--transition-fade);
+}
+
+.ov-activity-item:hover {
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.ov-activity-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+}
+
+.ov-activity-icon {
+    width: 14px;
+    height: 14px;
+    stroke-width: 1.8;
+    color: var(--text-secondary);
+}
+
+.ov-activity-item[data-kind="backup"] .ov-activity-icon {
+    color: var(--holo-cyan);
+    filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.3));
+}
+.ov-activity-item[data-kind="cleanup"] .ov-activity-icon {
+    color: var(--ov-state-applied);
+}
+.ov-activity-item[data-kind="apply"] .ov-activity-icon {
+    color: var(--text-primary);
+}
+
+.ov-activity-text {
+    font-size: 12px;
+    color: var(--text-primary);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ov-activity-text b {
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   ⑤ 底部细信息条 · System Footer Bar
+   --------------------------------------------------------------------------
+   合并：备份点状态 · 系统画像 · 运行时长
+   一行 / 极小字号 / 灰度色 / 不抢注意力
+   ========================================================================== */
+.ov-footer-bar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 10px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.ov-footer-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.ov-footer-icon {
+    width: 13px;
+    height: 13px;
+    stroke-width: 1.8;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+.ov-footer-label {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    letter-spacing: var(--ov-eyebrow-tracking);
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.ov-footer-value {
+    font-size: 12px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.ov-footer-value b {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+}
+
+.ov-footer-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ov-footer-divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+}
+
+.ov-footer-system {
+    flex: 1;
+    min-width: 0;
+}
+
+.ov-footer-uptime {
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   入场动画（仅一次性触发，不 loop）
+   ========================================================================== */
+@keyframes ov-fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.ov-telemetry,
+.ov-hero-action,
+.ov-grid-row,
+.ov-footer-bar {
+    animation: ov-fade-up 500ms var(--spring-damping) both;
+}
+
+.ov-telemetry   { animation-delay:  40ms; }
+.ov-hero-action { animation-delay: 140ms; }
+.ov-grid-row    { animation-delay: 220ms; }
+.ov-footer-bar  { animation-delay: 320ms; }
+
+/* 监控卡逐张错峰呈现 */
+.ov-tele-card {
+    animation: ov-fade-up 500ms var(--spring-damping) both;
+}
+.ov-telemetry > .ov-tele-card:nth-child(1) { animation-delay:  60ms; }
+.ov-telemetry > .ov-tele-card:nth-child(2) { animation-delay:  90ms; }
+.ov-telemetry > .ov-tele-card:nth-child(3) { animation-delay: 120ms; }
+.ov-telemetry > .ov-tele-card:nth-child(4) { animation-delay: 150ms; }
+.ov-telemetry > .ov-tele-card:nth-child(5) { animation-delay: 180ms; }
+.ov-telemetry > .ov-tele-card:nth-child(6) { animation-delay: 210ms; }
+
+/* ==========================================================================
+   ★ 智能建议区 · Smart Suggestions（上下文化的快速行动）
+   --------------------------------------------------------------------------
+   位置：在引导优化大卡 与 双列进度活动 之间
+   立场：每条建议 = 一个具体可执行的优化建议 + 一键行动按钮
+         不是按钮农场，每条都有上下文（meta 副信息）
+   ========================================================================== */
+.ov-suggest {
+    flex-shrink: 0;
+    background: var(--ov-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--ov-card-border);
+    border-radius: var(--radius-card);
+    padding: 14px 18px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: var(--ov-card-shadow);
+    animation: ov-fade-up 500ms var(--spring-damping) both;
+    animation-delay: 180ms;
+}
+
+.ov-suggest-head {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.ov-suggest-title-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ov-suggest-head-icon {
+    width: 14px;
+    height: 14px;
+    stroke-width: 1.8;
+    color: var(--text-secondary);
+}
+
+.ov-suggest-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+}
+
+.ov-suggest-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 999px;
+    padding: 1px 7px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.ov-suggest-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ov-suggest-item {
+    display: grid;
+    grid-template-columns: 6px 16px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 8px;
+    border-radius: 10px;
+    transition: background-color var(--transition-fade);
+}
+
+.ov-suggest-item:hover {
+    background: rgba(255, 255, 255, 0.55);
+}
+
+/* 左侧 6px 状态点 */
+.ov-suggest-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ov-state-idle);
+}
+.ov-suggest-item[data-level="ok"]    .ov-suggest-dot { background: var(--ov-state-applied); }
+.ov-suggest-item[data-level="warn"]  .ov-suggest-dot {
+    background: var(--ov-state-partial);
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.16);
+}
+.ov-suggest-item[data-level="block"] .ov-suggest-dot {
+    background: var(--ov-state-blocked);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.16);
+}
+
+.ov-suggest-icon {
+    width: 16px;
+    height: 16px;
+    stroke-width: 1.7;
+    color: var(--text-secondary);
+}
+
+.ov-suggest-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ov-suggest-text {
+    font-size: 12.5px;
+    color: var(--text-primary);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ov-suggest-text b {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+}
+
+.ov-suggest-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ov-suggest-btn {
+    flex-shrink: 0;
+    padding: 5px 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--text-primary);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition:
+        background-color var(--transition-fade),
+        border-color var(--transition-fade),
+        transform var(--transition-fade),
+        color var(--transition-fade);
+    font-family: inherit;
+}
+
+.ov-suggest-btn:hover {
+    background: var(--text-primary);
+    border-color: var(--text-primary);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+}
+
+.ov-suggest-btn:active {
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   底部信息条 · 累计收益单元（紧凑数字徽标，复用 .ov-footer-cell 基础）
+   ========================================================================== */
+.ov-footer-gain .ov-footer-icon {
+    color: var(--ov-state-applied);
+}
+
+.ov-footer-gain .ov-footer-value b {
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   标题栏铃铛红点（依附到 .action-btn-notify 内部）
+   ========================================================================== */
+.action-btn-notify {
+    position: relative;
+}
+
+.action-btn-notify .notify-bell-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ov-state-blocked, #EF4444);
+    box-shadow: 0 0 0 1.5px var(--titlebar-bg, rgba(255, 255, 255, 0.85));
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   通知抽屉 · Notification Drawer
+   --------------------------------------------------------------------------
+   从右侧滑入，宽 360px；遮罩可点击关闭；ESC 关闭
+   ========================================================================== */
+.ov-notify-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 18, 24, 0.18);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 240ms var(--spring-damping),
+        visibility 240ms var(--spring-damping);
+    z-index: 998;
+}
+
+.ov-notify-mask.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.ov-notify-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 360px;
+    max-width: 92vw;
+    background: rgba(252, 252, 253, 0.92);
+    backdrop-filter: blur(28px) saturate(140%);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    border-left: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: -16px 0 40px -8px rgba(0, 0, 0, 0.12);
+    transform: translateX(100%);
+    transition: transform 320ms var(--spring-damping);
+    display: flex;
+    flex-direction: column;
+    z-index: 999;
+    visibility: hidden;
+}
+
+.ov-notify-drawer.is-open {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+.ov-notify-head {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ov-notify-title-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ov-notify-head-icon {
+    width: 16px;
+    height: 16px;
+    stroke-width: 1.8;
+    color: var(--text-primary);
+}
+
+.ov-notify-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+}
+
+.ov-notify-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: #FFFFFF;
+    background: var(--ov-state-blocked, #EF4444);
+    border-radius: 999px;
+    padding: 1px 7px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.ov-notify-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ov-notify-action-btn {
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: transparent;
+    border-radius: 7px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background-color var(--transition-fade),
+        color var(--transition-fade);
+}
+
+.ov-notify-action-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+}
+
+.ov-notify-list {
+    flex: 1;
+    list-style: none;
+    margin: 0;
+    padding: 6px 8px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.ov-notify-item {
+    display: grid;
+    grid-template-columns: 6px 16px 1fr auto;
+    align-items: start;
+    gap: 10px;
+    padding: 11px 10px;
+    border-radius: 10px;
+    transition: background-color var(--transition-fade);
+}
+
+.ov-notify-item:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.ov-notify-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: transparent;
+    margin-top: 5px;
+}
+
+.ov-notify-item[data-unread="true"] .ov-notify-dot {
+    background: var(--ov-state-blocked, #EF4444);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.18);
+}
+
+.ov-notify-icon {
+    width: 16px;
+    height: 16px;
+    stroke-width: 1.7;
+    color: var(--text-secondary);
+    margin-top: 1px;
+}
+
+.ov-notify-item[data-kind="update"] .ov-notify-icon { color: var(--holo-cyan, #00E5FF); }
+.ov-notify-item[data-kind="warn"]   .ov-notify-icon { color: var(--ov-state-partial); }
+.ov-notify-item[data-kind="info"]   .ov-notify-icon { color: var(--text-secondary); }
+.ov-notify-item[data-kind="done"]   .ov-notify-icon { color: var(--ov-state-applied); }
+
+.ov-notify-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ov-notify-text {
+    font-size: 12.5px;
+    color: var(--text-primary);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+}
+
+.ov-notify-text b {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+}
+
+.ov-notify-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+}
+
+.ov-notify-link {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--text-primary);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition:
+        background-color var(--transition-fade),
+        border-color var(--transition-fade),
+        color var(--transition-fade);
+    font-family: inherit;
+    align-self: center;
+}
+
+.ov-notify-link:hover {
+    background: var(--text-primary);
+    border-color: var(--text-primary);
+    color: #FFFFFF;
+}
+
+.ov-notify-footer {
+    flex-shrink: 0;
+    padding: 10px 18px 14px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    text-align: center;
+}
+
+.ov-notify-foot-link {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: color var(--transition-fade);
+}
+
+.ov-notify-foot-link:hover {
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   ② 中部双列 · 已应用项数 + 引导优化
+   --------------------------------------------------------------------------
+   左：纯数字大牌 + 数据条（不用进度条，强调"做了多少"而不是"完成度"）
+   右：引导优化大按钮（沿用 .ov-hero-action 视觉规格）
+   ========================================================================== */
+.ov-mid-row {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: 1fr 1.35fr;
+    gap: 12px;
+    animation: ov-fade-up 500ms var(--spring-damping) both;
+    animation-delay: 140ms;
+}
+
+/* ----- ②-A 已应用优化项数卡片 ----- */
+.ov-applied-card {
+    background: var(--ov-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--ov-card-border);
+    border-radius: var(--radius-card);
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: var(--ov-card-shadow);
+    position: relative;
+    overflow: hidden;
+    transition:
+        background-color var(--transition-fade),
+        border-color var(--transition-fade),
+        box-shadow var(--transition-fade);
+}
+
+.ov-applied-card:hover {
+    background: var(--ov-card-bg-hover);
+    border-color: var(--ov-card-border-hover);
+    box-shadow: var(--ov-card-shadow-hover);
+}
+
+.ov-applied-head {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.ov-applied-head-icon {
+    width: 14px;
+    height: 14px;
+    stroke-width: 1.8;
+    color: var(--ov-state-applied);
+}
+
+.ov-applied-eyebrow {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    letter-spacing: var(--ov-eyebrow-tracking);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.ov-applied-num-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.ov-applied-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 40px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1.2px;
+}
+
+.ov-applied-unit {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* 数据条（不用进度条，纯信息栏） */
+.ov-applied-strip {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.ov-applied-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.ov-applied-cell-icon {
+    width: 12px;
+    height: 12px;
+    stroke-width: 1.8;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+.ov-applied-cell-label {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.04em;
+    font-weight: 500;
+}
+
+.ov-applied-cell-val {
+    font-size: 11.5px;
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ov-applied-cell-val b {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+}
+
+.ov-applied-divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+}
+
+/* 取消 hero-action 在中部双列里的入场动画延迟（容器统一处理） */
+.ov-mid-row > .ov-hero-action {
+    animation: none;
+}
+
+/* ==========================================================================
+   ③ 功能矩阵 · Function Matrix（22 项快速进入磁贴）
+   --------------------------------------------------------------------------
+   每块磁贴：图标 + 模块名 + 已应用计数（X/Y），点击跳转对应模块
+   ========================================================================== */
+.ov-panel-matrix {
+    padding: 14px 16px 12px;
+    gap: 10px;
+}
+
+.ov-panel-sub {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.02em;
+    font-weight: 500;
+}
+
+.ov-matrix-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(64px, 1fr);
+    gap: 6px;
+    overflow-y: auto;
+    min-height: 0;
+    padding-right: 2px;
+}
+
+.ov-matrix-tile {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto;
+    align-content: center;
+    justify-items: start;
+    gap: 4px;
+    padding: 9px 11px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background-color var(--transition-fade),
+        border-color var(--transition-fade),
+        transform var(--transition-fade),
+        box-shadow var(--transition-fade);
+    min-width: 0;
+    overflow: hidden;
+}
+
+.ov-matrix-tile:hover {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(255, 255, 255, 0.95);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.06);
+}
+
+.ov-matrix-tile:active {
+    transform: translateY(0);
+}
+
+.ov-matrix-icon {
+    width: 16px;
+    height: 16px;
+    stroke-width: 1.8;
+    color: var(--text-secondary);
+    transition: color var(--transition-fade);
+}
+
+.ov-matrix-tile:hover .ov-matrix-icon {
+    color: var(--text-primary);
+}
+
+.ov-matrix-name {
+    font-size: 11.5px;
+    color: var(--text-primary);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.ov-matrix-frac {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+    line-height: 1;
+}
+
+.ov-matrix-frac b {
+    color: var(--ov-state-applied);
+    font-weight: 600;
+}
+
+/* "工具/查看/配置" 类无进度的标签 */
+.ov-matrix-frac-tool {
+    color: var(--text-tertiary);
+    font-family: 'Inter', sans-serif;
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.04);
+}
+
+/* 矩阵滚动条美化 */
+.ov-matrix-grid::-webkit-scrollbar {
+    width: 6px;
+}
+.ov-matrix-grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+.ov-matrix-grid::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 3px;
+}
+.ov-matrix-grid::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.16);
+}
+
+/* ==========================================================================
+   ② 主视觉卡 · ov-hero-card
+   --------------------------------------------------------------------------
+   合并"已应用统计 + 引导优化"为一张大卡，作为首页视觉中心
+   占据中部最显眼位置，flex:1 撑满垂直空间，让下方功能矩阵成为次要信息
+   左：统计数字  ·  中：分隔线  ·  右：引导优化 CTA
+   ========================================================================== */
+.ov-hero-card {
+    flex: 1;
+    flex-shrink: 1;
+    min-height: 180px;
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto minmax(280px, 1.3fr);
+    align-items: stretch;
+    gap: 24px;
+    padding: 22px 28px;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.62) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--ov-card-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--ov-card-shadow);
+    position: relative;
+    overflow: hidden;
+    animation: ov-fade-up 500ms var(--spring-damping) both;
+    animation-delay: 140ms;
+}
+
+/* 主视觉卡的网格底纹（清晨雪原 · 极淡测绘网格，解决中央空旷） */
+.ov-hero-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(to right,  rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.045) 1px, transparent 1px);
+    background-size: 16px 16px;
+    background-position: -1px -1px;
+    /* 中心稍亮，边缘稍隐，避免网格抢戏 */
+    -webkit-mask-image: radial-gradient(ellipse at 70% 40%, #000 35%, transparent 90%);
+            mask-image: radial-gradient(ellipse at 70% 40%, #000 35%, transparent 90%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* 主视觉卡的极淡冷杉色辐射（替换原紫蓝高光，呼应深墨绿 CTA） */
+.ov-hero-card::after {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -10%;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, rgba(15, 118, 110, 0.10) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.ov-hero-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ----- 左：已应用统计 ----- */
+.ov-hero-stat {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.ov-hero-stat-head {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.ov-hero-stat-icon {
+    width: 14px;
+    height: 14px;
+    stroke-width: 1.8;
+    color: var(--ov-state-applied);
+}
+
+.ov-hero-stat-eyebrow {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    letter-spacing: var(--ov-eyebrow-tracking);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.ov-hero-stat-num-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    line-height: 1;
+}
+
+.ov-hero-stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 56px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1.8px;
+    /* 同色下划线：与 CTA 深墨绿成色彩闭环 */
+    position: relative;
+    padding-bottom: 6px;
+    background-image: linear-gradient(#0F766E, #0F766E);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0 3px;
+    animation: ov-num-underline 700ms var(--spring-damping) 360ms forwards;
+}
+
+@keyframes ov-num-underline {
+    from { background-size: 0 3px; }
+    to   { background-size: 100% 3px; }
+}
+
+.ov-hero-stat-unit {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.ov-hero-stat-strip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.ov-hero-stat-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.ov-hero-stat-cell-icon {
+    width: 12px;
+    height: 12px;
+    stroke-width: 1.8;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+.ov-hero-stat-cell-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.04em;
+    font-weight: 500;
+}
+
+.ov-hero-stat-cell-val {
+    font-size: 12px;
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.ov-hero-stat-cell-val b {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+.ov-hero-stat-divider {
+    width: 1px;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+/* ----- 中：竖向分隔线 ----- */
+.ov-hero-vsep {
+    width: 1px;
+    align-self: stretch;
+    margin: 4px 0;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 0, 0, 0.08) 20%,
+        rgba(0, 0, 0, 0.08) 80%,
+        transparent 100%
+    );
+}
+
+/* ----- 右：引导优化 CTA ----- */
+.ov-hero-cta-wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.ov-hero-cta-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ov-hero-cta-title-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ov-hero-cta-spark {
+    width: 18px;
+    height: 18px;
+    stroke-width: 1.8;
+    color: #0F766E;
+}
+
+.ov-hero-cta-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+}
+
+.ov-hero-cta-badge {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #0F766E;
+    background: rgba(15, 118, 110, 0.10);
+    border: 1px solid rgba(15, 118, 110, 0.22);
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.ov-hero-cta-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    font-weight: 400;
+}
+
+.ov-hero-cta-btn {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #0F766E 0%, #14918A 100%);
+    color: #FFF;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow:
+        0 4px 14px -4px rgba(15, 118, 110, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    transition:
+        transform 200ms var(--spring-damping),
+        box-shadow 200ms var(--spring-damping),
+        filter 200ms ease;
+}
+
+.ov-hero-cta-btn:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 8px 22px -6px rgba(15, 118, 110, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    filter: brightness(1.06);
+}
+
+.ov-hero-cta-btn:active {
+    transform: translateY(0);
+}
+
+.ov-hero-cta-btn-arrow {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2.2;
+    transition: transform 200ms var(--spring-damping);
+}
+
+.ov-hero-cta-btn:hover .ov-hero-cta-btn-arrow {
+    transform: translateX(3px);
+}
+
+/* ----- 响应式：窄宽时统计与 CTA 上下堆叠 ----- */
+@media (max-width: 980px) {
+    .ov-hero-card {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .ov-hero-vsep {
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(
+            to right,
+            transparent 0%,
+            rgba(0, 0, 0, 0.08) 20%,
+            rgba(0, 0, 0, 0.08) 80%,
+            transparent 100%
+        );
+    }
+}
+
+/* ==========================================================================
+   参数预览抽屉 (pw-param-drawer)
+   形态：附加在 app-window 软件窗口右边框外侧的"挂板"
+   - 不覆盖主内容，可与主内容并存对照
+   - 整个挂板内部为单容器整体滚动（核心参数 + 分隔线 + 全部参数完整展开）
+   - 由 app-wrapper（position: relative）做定位上下文
+   ========================================================================== */
+.pw-param-drawer {
+    position: absolute;
+    /* 与 app-wrapper padding=40px 对齐，使挂板高度等于 app-window 高度 */
+    top: 40px;
+    bottom: 40px;
+    /* 水平定位：app-window 居中 max-width=1200px，挂板贴在窗口右边缘外侧 12px 处 */
+    left: calc(50% + (var(--window-width) / 2) + 12px);
+    width: 360px;
+    max-width: calc(50% - (var(--window-width) / 2) - 24px);
+    /* 默认隐藏：透明 + 向左收回 + 不响应交互 */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-16px);
+    pointer-events: none;
+    transition:
+        opacity 280ms var(--spring-damping),
+        transform 320ms var(--spring-damping),
+        visibility 320ms var(--spring-damping);
+    z-index: 50;
+}
+
+.pw-param-drawer.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+/* 挂板视口宽度不足时自动隐藏（避免与软件窗口重叠） */
+@media (max-width: 1640px) {
+    .pw-param-drawer {
+        /* 视口太窄时改为悬浮在软件窗口内右侧（兜底），并叠加阴影 */
+        left: auto;
+        right: max(20px, calc(50% - (var(--window-width) / 2) + 20px));
+        max-width: 360px;
+    }
+}
+
+.pw-param-panel {
+    width: 100%;
+    height: 100%;
+    background: rgba(252, 252, 253, 0.94);
+    backdrop-filter: blur(28px) saturate(140%);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: var(--radius-card);
+    box-shadow:
+        0 24px 60px -12px rgba(0, 0, 0, 0.18),
+        0 8px 20px -8px rgba(0, 0, 0, 0.10),
+        inset 0 1px 1px rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ----- 内部布局：头部固定 + 主体整体单滚动 ----- */
+.pw-param-body {
+    flex: 1;
+    display: block;            /* 不再 flex 双区分割 */
+    overflow-y: auto;          /* 整体单滚动 */
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+}
+
+/* 区块改为自然高度，不再各自占 50% / 各自滚动 */
+.pw-param-section {
+    display: block;
+    overflow: visible;
+}
+
+/* 列表展开为完整高度，由外层 body 统一滚动 */
+.pw-param-list {
+    overflow: visible;
+    padding: 8px 0;
+}
+
+.pw-param-list--full {
+    max-height: none;          /* 移除高度限制，全部参数完整展开 */
+}
+
+.pw-param-head {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.pw-param-title-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pw-param-head-icon {
+    width: 16px;
+    height: 16px;
+    stroke-width: 1.8;
+    color: var(--text-primary);
+}
+
+.pw-param-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+}
+
+.pw-param-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pw-param-action-btn {
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: transparent;
+    border-radius: 7px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fade);
+}
+
+.pw-param-action-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-primary);
+}
+
+.pw-param-body {
+    flex: 1;
+    display: block;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+}
+
+.pw-param-section {
+    display: block;
+    overflow: visible;
+}
+
+.pw-param-section-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.pw-param-section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+}
+
+.pw-param-section-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+.pw-param-divider {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.04);
+    margin: 0 18px;
+}
+
+.pw-param-list {
+    overflow: visible;
+    padding: 8px 0;
+}
+
+.pw-param-list--full {
+    max-height: none;
+}
+
+.pw-param-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 18px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.02);
+    transition: background-color var(--transition-fade);
+}
+
+.pw-param-item:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.pw-param-key {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pw-param-value {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    margin-left: 12px;
+    flex-shrink: 0;
+}

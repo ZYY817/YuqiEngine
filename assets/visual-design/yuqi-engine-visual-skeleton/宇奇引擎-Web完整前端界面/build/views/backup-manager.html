@@ -1,0 +1,506 @@
+<div class="bk-page" data-state="idle">
+
+    <!-- ===== ① 顶部细带：标题 + 出厂底片状态 + 容量配额 ===== -->
+    <header class="bk-topbar">
+        <div class="bk-breadcrumb">
+            <i data-lucide="save" class="bk-bc-icon"></i>
+            <span class="bk-bc-text">备份管理</span>
+            <span class="bk-bc-sub">让每一次优化都可逆 · 出厂底片永远在</span>
+        </div>
+        <div class="bk-protection">
+            <div class="bk-protect-badge" data-on="true">
+                <i data-lucide="archive" class="bk-protect-icon"></i>
+                <span class="bk-protect-label">出厂底片</span>
+                <span class="bk-protect-state">已封存</span>
+            </div>
+            <div class="bk-quota">
+                <span class="bk-quota-label">容量</span>
+                <span class="bk-quota-bar"><span class="bk-quota-fill" style="width:38%"></span></span>
+                <span class="bk-quota-text mono-text">1.9 / 5 <em>GB</em></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== ② 主操作区：创建备份 + 保留策略（双卡片） ===== -->
+    <section class="bk-action-row" aria-label="备份主操作">
+
+        <!-- 创建备份卡片 -->
+        <article class="bk-card bk-card-create">
+            <header class="bk-card-head">
+                <div class="bk-card-title-wrap">
+                    <i data-lucide="plus-circle" class="bk-card-icon"></i>
+                    <div>
+                        <span class="bk-card-title">创建手动备份</span>
+                        <span class="bk-card-sub">把当前所有优化项打包成一个时间切片</span>
+                    </div>
+                </div>
+                <span class="bk-card-tag" data-tag="recommend">推荐</span>
+            </header>
+
+            <div class="bk-create-body">
+                <label class="bk-input-wrap">
+                    <i data-lucide="tag" class="bk-input-icon"></i>
+                    <input type="text" class="bk-input" id="bkCreateDesc"
+                           placeholder="例如：调电源方案前 / 全套优化完成"
+                           maxlength="64" value="手动备份">
+                    <span class="bk-input-counter mono-text"><span id="bkInputLen">4</span>/64</span>
+                </label>
+
+                <div class="bk-create-meta">
+                    <span class="bk-meta-cell">
+                        <i data-lucide="clock-4" class="icon-xs"></i>
+                        <span>预计 <b>8</b> 秒</span>
+                    </span>
+                    <span class="bk-meta-divider"></span>
+                    <span class="bk-meta-cell">
+                        <i data-lucide="database" class="icon-xs"></i>
+                        <span>占用约 <b>40 MB</b></span>
+                    </span>
+                    <span class="bk-meta-divider"></span>
+                    <span class="bk-meta-cell">
+                        <i data-lucide="rotate-ccw" class="icon-xs"></i>
+                        <span>随时可一键回滚</span>
+                    </span>
+                </div>
+
+                <div class="bk-create-cta-row">
+                    <button class="bk-btn bk-btn-primary" type="button" data-action="create-backup" id="bkCreateBtn">
+                        <i data-lucide="plus" class="bk-btn-icon"></i>
+                        <span>立即创建备份</span>
+                    </button>
+                    <button class="bk-btn bk-btn-ghost" type="button" data-action="cancel-create" id="bkCreateCancel" hidden>
+                        <i data-lucide="x" class="bk-btn-icon"></i>
+                        <span>取消</span>
+                    </button>
+                </div>
+
+                <!-- 创建中进度条（默认隐藏） -->
+                <div class="bk-create-progress" id="bkCreateProgress" hidden>
+                    <div class="bk-progress-track">
+                        <span class="bk-progress-fill" id="bkProgressFill" style="width:0%"></span>
+                    </div>
+                    <div class="bk-progress-meta">
+                        <span class="bk-progress-text" id="bkProgressText">正在打包优化项快照…</span>
+                        <span class="bk-progress-percent mono-text"><span id="bkProgressPct">0</span>%</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- 保留策略卡片 -->
+        <article class="bk-card bk-card-policy">
+            <header class="bk-card-head">
+                <div class="bk-card-title-wrap">
+                    <i data-lucide="settings-2" class="bk-card-icon"></i>
+                    <div>
+                        <span class="bk-card-title">自动备份策略</span>
+                        <span class="bk-card-sub">每次优化前自动留一份，超量自动清理最旧</span>
+                    </div>
+                </div>
+                <button class="bk-link-btn" type="button" data-action="open-policy">
+                    <span>高级配置</span>
+                    <i data-lucide="external-link" class="icon-xs"></i>
+                </button>
+            </header>
+
+            <ul class="bk-policy-list">
+                <li class="bk-policy-row">
+                    <i data-lucide="zap" class="bk-policy-icon"></i>
+                    <div class="bk-policy-main">
+                        <span class="bk-policy-name">优化前自动备份</span>
+                        <span class="bk-policy-meta mono-text">每次执行优化前生成增量切片</span>
+                    </div>
+                    <label class="bk-switch">
+                        <input type="checkbox" checked data-action="toggle-policy" data-key="auto-on-optimize">
+                        <span class="bk-switch-track"><span class="bk-switch-thumb"></span></span>
+                    </label>
+                </li>
+                <li class="bk-policy-row">
+                    <i data-lucide="layers" class="bk-policy-icon"></i>
+                    <div class="bk-policy-main">
+                        <span class="bk-policy-name">最大保留份数</span>
+                        <span class="bk-policy-meta mono-text">超出后自动清理最旧的自动备份</span>
+                    </div>
+                    <span class="bk-policy-value mono-text">20 份</span>
+                </li>
+                <li class="bk-policy-row">
+                    <i data-lucide="hard-drive" class="bk-policy-icon"></i>
+                    <div class="bk-policy-main">
+                        <span class="bk-policy-name">空间上限</span>
+                        <span class="bk-policy-meta mono-text">达到上限触发清理与提示</span>
+                    </div>
+                    <span class="bk-policy-value mono-text">5 GB</span>
+                </li>
+                <li class="bk-policy-row bk-policy-row--link" data-action="open-restore-point">
+                    <i data-lucide="link-2" class="bk-policy-icon"></i>
+                    <div class="bk-policy-main">
+                        <span class="bk-policy-name">联动系统还原点</span>
+                        <span class="bk-policy-meta mono-text">需要更深层保护？前往系统还原点</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="bk-policy-arrow"></i>
+                </li>
+            </ul>
+        </article>
+    </section>
+
+    <!-- ===== ③ 时间线区：分类 sticky + 备份卡片列表 ===== -->
+    <section class="bk-list-section">
+        <header class="bk-list-head">
+            <div class="bk-list-title-wrap">
+                <i data-lucide="layers" class="bk-list-icon"></i>
+                <span class="bk-list-title">备份时间线</span>
+                <span class="bk-list-count">共 <b id="bkTotalCount">8</b> 份</span>
+            </div>
+            <div class="bk-list-actions">
+                <button class="bk-list-action-btn" type="button" data-action="refresh-list">
+                    <i data-lucide="refresh-cw" class="icon-sm"></i>
+                    <span>刷新</span>
+                </button>
+                <button class="bk-list-action-btn bk-list-action-danger" type="button" data-action="cleanup-old">
+                    <i data-lucide="broom" class="icon-sm"></i>
+                    <span>清理旧备份</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="bk-list-body">
+            <!-- 左侧分类 sticky 导航 -->
+            <aside class="bk-filter-rail">
+                <button class="bk-filter-btn is-active" type="button" data-filter="all">
+                    <i data-lucide="layers" class="bk-filter-icon"></i>
+                    <span class="bk-filter-label">全部备份</span>
+                    <span class="bk-filter-count">8</span>
+                </button>
+                <button class="bk-filter-btn" type="button" data-filter="factory">
+                    <i data-lucide="archive" class="bk-filter-icon"></i>
+                    <span class="bk-filter-label">出厂底片</span>
+                    <span class="bk-filter-count">1</span>
+                </button>
+                <button class="bk-filter-btn" type="button" data-filter="auto">
+                    <i data-lucide="zap" class="bk-filter-icon"></i>
+                    <span class="bk-filter-label">自动备份</span>
+                    <span class="bk-filter-count">5</span>
+                </button>
+                <button class="bk-filter-btn" type="button" data-filter="manual">
+                    <i data-lucide="user" class="bk-filter-icon"></i>
+                    <span class="bk-filter-label">手动备份</span>
+                    <span class="bk-filter-count">1</span>
+                </button>
+                <button class="bk-filter-btn" type="button" data-filter="config">
+                    <i data-lucide="sliders" class="bk-filter-icon"></i>
+                    <span class="bk-filter-label">配置备份</span>
+                    <span class="bk-filter-count">1</span>
+                </button>
+
+                <div class="bk-filter-legend">
+                    <span class="bk-legend-item"><span class="bk-legend-dot" data-type="factory"></span>出厂底片</span>
+                    <span class="bk-legend-item"><span class="bk-legend-dot" data-type="auto"></span>自动</span>
+                    <span class="bk-legend-item"><span class="bk-legend-dot" data-type="manual"></span>手动</span>
+                    <span class="bk-legend-item"><span class="bk-legend-dot" data-type="config"></span>配置</span>
+                </div>
+            </aside>
+
+            <!-- 右侧时间线 -->
+            <ol class="bk-timeline" id="bkTimeline">
+                <!-- 出厂底片（永远在最底，置顶 sticky） -->
+                <li class="bk-tl-item bk-tl-item--factory" data-type="factory" data-id="000">
+                    <span class="bk-tl-node" data-type="factory">
+                        <i data-lucide="archive" class="bk-tl-node-icon"></i>
+                    </span>
+                    <div class="bk-tl-card bk-tl-card--factory">
+                        <header class="bk-tl-card-head">
+                            <span class="bk-tl-time">
+                                <span class="bk-tl-time-rel">11 天前</span>
+                                <span class="bk-tl-time-abs mono-text">2026-04-29 19:08:14</span>
+                            </span>
+                            <span class="bk-type-pill" data-type="factory">出厂底片</span>
+                        </header>
+                        <div class="bk-tl-desc">首次启动宇奇引擎时的原始系统状态快照</div>
+                        <div class="bk-tl-meta">
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#000</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>312 MB</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="layers" class="icon-xs"></i>全量</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="lock" class="icon-xs"></i>不可删除</span>
+                        </div>
+                        <div class="bk-tl-actions">
+                            <button class="bk-row-btn bk-row-btn-restore" data-action="restore" data-id="000">
+                                <i data-lucide="rotate-ccw" class="icon-sm"></i><span>恢复出厂状态</span>
+                            </button>
+                            <button class="bk-row-btn" data-action="detail" data-id="000">
+                                <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- 手动备份示例 -->
+                <li class="bk-tl-item" data-type="manual" data-id="008">
+                    <span class="bk-tl-node" data-type="manual">
+                        <i data-lucide="user" class="bk-tl-node-icon"></i>
+                    </span>
+                    <div class="bk-tl-card">
+                        <header class="bk-tl-card-head">
+                            <span class="bk-tl-time">
+                                <span class="bk-tl-time-rel">2 小时前</span>
+                                <span class="bk-tl-time-abs mono-text">2026-05-10 16:32:08</span>
+                            </span>
+                            <span class="bk-type-pill" data-type="manual">手动</span>
+                        </header>
+                        <div class="bk-tl-desc">全套优化完成 · 待重启验证</div>
+                        <div class="bk-tl-meta">
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#008</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>48 MB</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="check-circle-2" class="icon-xs"></i>32 项优化</span>
+                        </div>
+                        <div class="bk-tl-actions">
+                            <button class="bk-row-btn bk-row-btn-restore" data-action="restore" data-id="008">
+                                <i data-lucide="rotate-ccw" class="icon-sm"></i><span>回滚到此点</span>
+                            </button>
+                            <button class="bk-row-btn" data-action="detail" data-id="008">
+                                <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                            </button>
+                            <button class="bk-row-btn bk-row-btn-danger" data-action="delete" data-id="008">
+                                <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- 自动备份示例 1 -->
+                <li class="bk-tl-item" data-type="auto" data-id="007">
+                    <span class="bk-tl-node" data-type="auto">
+                        <i data-lucide="zap" class="bk-tl-node-icon"></i>
+                    </span>
+                    <div class="bk-tl-card">
+                        <header class="bk-tl-card-head">
+                            <span class="bk-tl-time">
+                                <span class="bk-tl-time-rel">2 小时前</span>
+                                <span class="bk-tl-time-abs mono-text">2026-05-10 16:30:42</span>
+                            </span>
+                            <span class="bk-type-pill" data-type="auto">自动 · 优化前</span>
+                        </header>
+                        <div class="bk-tl-desc">执行「电源方案：极速」前自动留底</div>
+                        <div class="bk-tl-meta">
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#007</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>12 MB</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="git-branch" class="icon-xs"></i>增量</span>
+                        </div>
+                        <div class="bk-tl-actions">
+                            <button class="bk-row-btn bk-row-btn-restore" data-action="restore" data-id="007">
+                                <i data-lucide="rotate-ccw" class="icon-sm"></i><span>回滚到此点</span>
+                            </button>
+                            <button class="bk-row-btn" data-action="detail" data-id="007">
+                                <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                            </button>
+                            <button class="bk-row-btn bk-row-btn-danger" data-action="delete" data-id="007">
+                                <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- 自动备份示例 2 -->
+                <li class="bk-tl-item" data-type="auto" data-id="006">
+                    <span class="bk-tl-node" data-type="auto">
+                        <i data-lucide="zap" class="bk-tl-node-icon"></i>
+                    </span>
+                    <div class="bk-tl-card">
+                        <header class="bk-tl-card-head">
+                            <span class="bk-tl-time">
+                                <span class="bk-tl-time-rel">昨天</span>
+                                <span class="bk-tl-time-abs mono-text">2026-05-09 21:14:55</span>
+                            </span>
+                            <span class="bk-type-pill" data-type="auto">自动 · 优化前</span>
+                        </header>
+                        <div class="bk-tl-desc">执行「禁用 Xbox 服务」前自动留底</div>
+                        <div class="bk-tl-meta">
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#006</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>8 MB</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="git-branch" class="icon-xs"></i>增量</span>
+                        </div>
+                        <div class="bk-tl-actions">
+                            <button class="bk-row-btn bk-row-btn-restore" data-action="restore" data-id="006">
+                                <i data-lucide="rotate-ccw" class="icon-sm"></i><span>回滚到此点</span>
+                            </button>
+                            <button class="bk-row-btn" data-action="detail" data-id="006">
+                                <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                            </button>
+                            <button class="bk-row-btn bk-row-btn-danger" data-action="delete" data-id="006">
+                                <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- 配置备份示例 -->
+                <li class="bk-tl-item" data-type="config" data-id="005">
+                    <span class="bk-tl-node" data-type="config">
+                        <i data-lucide="sliders" class="bk-tl-node-icon"></i>
+                    </span>
+                    <div class="bk-tl-card">
+                        <header class="bk-tl-card-head">
+                            <span class="bk-tl-time">
+                                <span class="bk-tl-time-rel">3 天前</span>
+                                <span class="bk-tl-time-abs mono-text">2026-05-07 14:02:30</span>
+                            </span>
+                            <span class="bk-type-pill" data-type="config">配置</span>
+                        </header>
+                        <div class="bk-tl-desc">软件配置导出 · 白名单 / 规则 / 偏好</div>
+                        <div class="bk-tl-meta">
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#005</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>1.2 MB</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="file-json" class="icon-xs"></i>YuqiConfig</span>
+                        </div>
+                        <div class="bk-tl-actions">
+                            <button class="bk-row-btn bk-row-btn-restore" data-action="restore" data-id="005">
+                                <i data-lucide="upload" class="icon-sm"></i><span>导入此配置</span>
+                            </button>
+                            <button class="bk-row-btn" data-action="export" data-id="005">
+                                <i data-lucide="download" class="icon-sm"></i><span>导出</span>
+                            </button>
+                            <button class="bk-row-btn bk-row-btn-danger" data-action="delete" data-id="005">
+                                <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- 自动备份示例 3 -->
+                <li class="bk-tl-item" data-type="auto" data-id="004">
+                    <span class="bk-tl-node" data-type="auto">
+                        <i data-lucide="zap" class="bk-tl-node-icon"></i>
+                    </span>
+                    <div class="bk-tl-card">
+                        <header class="bk-tl-card-head">
+                            <span class="bk-tl-time">
+                                <span class="bk-tl-time-rel">5 天前</span>
+                                <span class="bk-tl-time-abs mono-text">2026-05-05 09:48:11</span>
+                            </span>
+                            <span class="bk-type-pill" data-type="auto">自动 · 优化前</span>
+                        </header>
+                        <div class="bk-tl-desc">执行「关闭 Defender 实时防护」前自动留底</div>
+                        <div class="bk-tl-meta">
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#004</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>6 MB</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="git-branch" class="icon-xs"></i>增量</span>
+                        </div>
+                        <div class="bk-tl-actions">
+                            <button class="bk-row-btn bk-row-btn-restore" data-action="restore" data-id="004">
+                                <i data-lucide="rotate-ccw" class="icon-sm"></i><span>回滚到此点</span>
+                            </button>
+                            <button class="bk-row-btn" data-action="detail" data-id="004">
+                                <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                            </button>
+                            <button class="bk-row-btn bk-row-btn-danger" data-action="delete" data-id="004">
+                                <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- 自动备份示例 4 -->
+                <li class="bk-tl-item" data-type="auto" data-id="003">
+                    <span class="bk-tl-node" data-type="auto">
+                        <i data-lucide="zap" class="bk-tl-node-icon"></i>
+                    </span>
+                    <div class="bk-tl-card">
+                        <header class="bk-tl-card-head">
+                            <span class="bk-tl-time">
+                                <span class="bk-tl-time-rel">7 天前</span>
+                                <span class="bk-tl-time-abs mono-text">2026-05-03 22:01:09</span>
+                            </span>
+                            <span class="bk-type-pill" data-type="auto">自动 · 优化前</span>
+                        </header>
+                        <div class="bk-tl-desc">执行「网络优化套件」前自动留底</div>
+                        <div class="bk-tl-meta">
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#003</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>14 MB</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="git-branch" class="icon-xs"></i>增量</span>
+                        </div>
+                        <div class="bk-tl-actions">
+                            <button class="bk-row-btn bk-row-btn-restore" data-action="restore" data-id="003">
+                                <i data-lucide="rotate-ccw" class="icon-sm"></i><span>回滚到此点</span>
+                            </button>
+                            <button class="bk-row-btn" data-action="detail" data-id="003">
+                                <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                            </button>
+                            <button class="bk-row-btn bk-row-btn-danger" data-action="delete" data-id="003">
+                                <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- 自动备份示例 5 -->
+                <li class="bk-tl-item" data-type="auto" data-id="002">
+                    <span class="bk-tl-node" data-type="auto">
+                        <i data-lucide="zap" class="bk-tl-node-icon"></i>
+                    </span>
+                    <div class="bk-tl-card">
+                        <header class="bk-tl-card-head">
+                            <span class="bk-tl-time">
+                                <span class="bk-tl-time-rel">9 天前</span>
+                                <span class="bk-tl-time-abs mono-text">2026-05-01 11:25:48</span>
+                            </span>
+                            <span class="bk-type-pill" data-type="auto">自动 · 优化前</span>
+                        </header>
+                        <div class="bk-tl-desc">执行「禁用启动项 12 项」前自动留底</div>
+                        <div class="bk-tl-meta">
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#002</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>4 MB</span>
+                            <span class="bk-tl-meta-cell mono-text"><i data-lucide="git-branch" class="icon-xs"></i>增量</span>
+                        </div>
+                        <div class="bk-tl-actions">
+                            <button class="bk-row-btn bk-row-btn-restore" data-action="restore" data-id="002">
+                                <i data-lucide="rotate-ccw" class="icon-sm"></i><span>回滚到此点</span>
+                            </button>
+                            <button class="bk-row-btn" data-action="detail" data-id="002">
+                                <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                            </button>
+                            <button class="bk-row-btn bk-row-btn-danger" data-action="delete" data-id="002">
+                                <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+
+            </ol>
+        </div>
+    </section>
+
+    <!-- ===== ④ 二次确认 Modal ===== -->
+    <div class="bk-modal-mask" id="bkModalMask" hidden></div>
+    <div class="bk-modal" id="bkModal" role="dialog" aria-modal="true" hidden>
+        <header class="bk-modal-head" id="bkModalHead" data-kind="restore">
+            <i data-lucide="rotate-ccw" class="bk-modal-icon" id="bkModalIcon"></i>
+            <div class="bk-modal-title-wrap">
+                <span class="bk-modal-title" id="bkModalTitle">确认回滚到此备份</span>
+                <span class="bk-modal-sub" id="bkModalSub">软件将关闭并回到该备份时刻的状态</span>
+            </div>
+            <button class="bk-modal-close" type="button" data-action="modal-cancel">
+                <i data-lucide="x" class="icon-sm"></i>
+            </button>
+        </header>
+        <div class="bk-modal-body">
+            <div class="bk-modal-target">
+                <i data-lucide="package" class="bk-modal-target-icon"></i>
+                <div class="bk-modal-target-main">
+                    <span class="bk-modal-target-name" id="bkModalTargetName">#— · —</span>
+                    <span class="bk-modal-target-meta mono-text" id="bkModalTargetMeta">— · — · —</span>
+                </div>
+            </div>
+            <ul class="bk-modal-warns" id="bkModalWarns">
+                <!-- runtime fill -->
+            </ul>
+        </div>
+        <footer class="bk-modal-foot">
+            <button class="bk-btn bk-btn-ghost" type="button" data-action="modal-cancel">
+                <span>取消</span>
+            </button>
+            <button class="bk-btn bk-btn-primary" type="button" data-action="modal-confirm" id="bkModalConfirm">
+                <i data-lucide="rotate-ccw" class="bk-btn-icon"></i><span>确认回滚</span>
+            </button>
+        </footer>
+    </div>
+
+</div>

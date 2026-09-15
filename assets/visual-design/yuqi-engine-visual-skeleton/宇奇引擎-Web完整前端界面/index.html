@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宇奇引擎 - 液态超导</title>
+    <!-- 引入字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/shell.css">
+    <link rel="stylesheet" href="styles/module-template.css">
+    <!-- 引入 Lucide 图标库 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 外壳组件：标题栏 + 侧边栏 -->
+    <script src="scripts/components/title-bar.js" defer></script>
+    <script src="scripts/components/side-bar.js" defer></script>
+    <script src="scripts/yuqi-shell-bridge.js?v=navfix-20260514" defer></script>
+    <!-- 视图路由加载器（核心）：监听 view-changed → 按需加载视图 -->
+    <script src="scripts/view-loader.js" defer></script>
+</head>
+<body>
+    <div class="app-wrapper">
+        <div class="app-window">
+            <!-- 全息环境光背景 -->
+            <div class="ambient-light">
+                <div class="light-orb orb-1"></div>
+                <div class="light-orb orb-2"></div>
+                <div class="light-orb orb-3"></div>
+            </div>
+
+            <!-- 顶部标题栏 -->
+            <title-bar></title-bar>
+
+            <!-- 主体区域 -->
+            <div class="app-body">
+                <!-- 左侧导航栏 -->
+                <side-bar></side-bar>
+
+                <!-- 主内容区：由 view-loader 按需注入对应视图 HTML 片段 -->
+                <main class="main-content" id="mainContent">
+                    <!-- 默认视图内容由 view-loader 在 DOMContentLoaded 时加载 'overview' -->
+                </main>
+            </div>
+        </div>
+
+        <!-- ===== 参数预览抽屉（附加在软件窗口右边框外侧的挂板） ===== -->
+        <aside class="pw-param-drawer" id="pwParamDrawer" aria-hidden="true" aria-label="当前生效参数">
+            <div class="pw-param-panel">
+                <header class="pw-param-head">
+                    <div class="pw-param-title-wrap">
+                        <i data-lucide="settings" class="pw-param-head-icon"></i>
+                        <span class="pw-param-title">当前生效参数</span>
+                    </div>
+                    <div class="pw-param-actions">
+                        <button class="pw-param-action-btn" type="button" data-action="param-close" title="关闭">
+                            <i data-lucide="x" class="icon-sm"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="pw-param-body">
+                    <div class="pw-param-section">
+                        <div class="pw-param-section-header">
+                            <span class="pw-param-section-label">核心参数</span>
+                            <span class="pw-param-section-count mono-text" id="pwParamCoreCount">0</span>
+                        </div>
+                        <ul class="pw-param-list" id="pwParamCore">
+                            <!-- 核心参数列表由JS动态填充 -->
+                        </ul>
+                    </div>
+
+                    <div class="pw-param-divider"></div>
+
+                    <div class="pw-param-section">
+                        <div class="pw-param-section-header">
+                            <span class="pw-param-section-label">全部参数</span>
+                            <span class="pw-param-section-count mono-text" id="pwParamTotal">0</span>
+                        </div>
+                        <ul class="pw-param-list pw-param-list--full" id="pwParamFull">
+                            <!-- 全部参数列表由JS动态填充 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== 通知抽屉 ===== -->
+        <aside class="ov-notify-drawer" id="notifyDrawer" aria-hidden="true">
+            <header class="ov-notify-head">
+                <div class="ov-notify-title-wrap">
+                    <i data-lucide="bell" class="ov-notify-head-icon"></i>
+                    <span class="ov-notify-title">通知</span>
+                    <span class="ov-notify-count">3</span>
+                </div>
+                <div class="ov-notify-actions">
+                    <button class="ov-notify-action-btn" type="button" data-action="notify-mark-all" title="全部已读">
+                        <i data-lucide="check-check" class="icon-sm"></i>
+                    </button>
+                    <button class="ov-notify-action-btn" type="button" data-action="notify-close" title="关闭">
+                        <i data-lucide="x" class="icon-sm"></i>
+                    </button>
+                </div>
+            </header>
+
+            <ul class="ov-notify-list">
+                <li class="ov-notify-item" data-kind="update" data-unread="true">
+                    <span class="ov-notify-dot"></span>
+                    <i data-lucide="download" class="ov-notify-icon"></i>
+                    <div class="ov-notify-body">
+                        <span class="ov-notify-text">新版本 <b>v2.4.1</b> 可用</span>
+                        <span class="ov-notify-meta">优化引擎升级 · 修复 8 项问题 · 2 分钟前</span>
+                    </div>
+                    <button class="ov-notify-link" type="button">查看</button>
+                </li>
+                <li class="ov-notify-item" data-kind="warn" data-unread="true">
+                    <span class="ov-notify-dot"></span>
+                    <i data-lucide="alert-triangle" class="ov-notify-icon"></i>
+                    <div class="ov-notify-body">
+                        <span class="ov-notify-text">备份点已达 <b>10/10</b> 上限</span>
+                        <span class="ov-notify-meta">建议清理旧备份释放空间 · 14:02</span>
+                    </div>
+                    <button class="ov-notify-link" type="button">清理</button>
+                </li>
+                <li class="ov-notify-item" data-kind="info" data-unread="true">
+                    <span class="ov-notify-dot"></span>
+                    <i data-lucide="info" class="ov-notify-icon"></i>
+                    <div class="ov-notify-body">
+                        <span class="ov-notify-text">已应用 <b>CPU 高性能模式</b>，建议重启生效</span>
+                        <span class="ov-notify-meta">部分调校项需重启系统 · 13:55</span>
+                    </div>
+                    <button class="ov-notify-link" type="button">重启</button>
+                </li>
+                <li class="ov-notify-item" data-kind="done">
+                    <span class="ov-notify-dot"></span>
+                    <i data-lucide="check-circle-2" class="ov-notify-icon"></i>
+                    <div class="ov-notify-body">
+                        <span class="ov-notify-text">网络优化已完成（5 项）</span>
+                        <span class="ov-notify-meta">昨天 18:42</span>
+                    </div>
+                </li>
+            </ul>
+
+            <footer class="ov-notify-footer">
+                <a class="ov-notify-foot-link" href="#" data-action="notify-history">查看完整历史 →</a>
+            </footer>
+        </aside>
+
+        <!-- 通知抽屉遮罩 -->
+        <div class="ov-notify-mask" id="notifyMask" aria-hidden="true"></div>
+    </div>
+
+    <!-- ===== 外壳级交互（仅顶部按钮 / 通知抽屉，与具体视图无关） ===== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化首次出现的图标
+            if (window.lucide) lucide.createIcons();
+
+            // 通知抽屉
+            const notifyDrawer = document.getElementById('notifyDrawer');
+            const notifyMask = document.getElementById('notifyMask');
+            function openNotify() {
+                notifyDrawer.setAttribute('aria-hidden', 'false');
+                notifyMask.setAttribute('aria-hidden', 'false');
+                notifyDrawer.classList.add('is-open');
+                notifyMask.classList.add('is-open');
+            }
+            function closeNotify() {
+                notifyDrawer.setAttribute('aria-hidden', 'true');
+                notifyMask.setAttribute('aria-hidden', 'true');
+                notifyDrawer.classList.remove('is-open');
+                notifyMask.classList.remove('is-open');
+            }
+            notifyMask.addEventListener('click', closeNotify);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && notifyDrawer.classList.contains('is-open')) closeNotify();
+            });
+
+            // 参数预览抽屉
+            const paramDrawer = document.getElementById('pwParamDrawer');
+            function openParamDrawer() {
+                paramDrawer.setAttribute('aria-hidden', 'false');
+                paramDrawer.classList.add('is-open');
+            }
+            function closeParamDrawer() {
+                paramDrawer.setAttribute('aria-hidden', 'true');
+                paramDrawer.classList.remove('is-open');
+            }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && paramDrawer.classList.contains('is-open')) closeParamDrawer();
+            });
+
+            // 标题栏 / 通知动作（外壳级）
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                const action = btn.getAttribute('data-action');
+                if (action === 'notify-toggle') {
+                    notifyDrawer.classList.contains('is-open') ? closeNotify() : openNotify();
+                    return;
+                }
+                if (action === 'notify-close') { closeNotify(); return; }
+                if (action === 'notify-mark-all') {
+                    notifyDrawer.querySelectorAll('.ov-notify-item[data-unread="true"]').forEach(li => {
+                        li.removeAttribute('data-unread');
+                    });
+                    const cnt = notifyDrawer.querySelector('.ov-notify-count');
+                    if (cnt) cnt.textContent = '0';
+                    const bellDot = document.querySelector('.action-btn[data-action="notify-toggle"] .notify-bell-dot');
+                    if (bellDot) bellDot.style.display = 'none';
+                    return;
+                }
+            });
+
+            // 外壳级交互（参数预览抽屉）
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                const action = btn.getAttribute('data-action');
+                if (action === 'param-toggle') {
+                    paramDrawer.classList.contains('is-open') ? closeParamDrawer() : openParamDrawer();
+                    return;
+                }
+                if (action === 'param-close') { closeParamDrawer(); return; }
+            });
+        });
+    </script>
+</body>
+</html>

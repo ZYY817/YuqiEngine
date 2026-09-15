@@ -1,0 +1,299 @@
+<div class="home-overview">
+    <!-- ===== ① 实时监控带（Live Telemetry Strip · 6 张迷你卡） ===== -->
+    <section class="ov-telemetry" aria-label="实时系统遥测">
+        <div class="ov-tele-card" data-metric="cpu">
+            <div class="ov-tele-head">
+                <i data-lucide="cpu" class="ov-tele-icon"></i>
+                <span class="ov-tele-label">CPU</span>
+            </div>
+            <div class="ov-tele-value-row">
+                <span class="ov-tele-value">12</span>
+                <span class="ov-tele-unit">%</span>
+            </div>
+            <div class="ov-tele-spark" data-state="ok">
+                <svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
+                    <polyline points="0,18 10,16 20,17 30,14 40,15 50,13 60,11 70,14 80,12 90,10 100,12"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="ov-tele-card" data-metric="memory">
+            <div class="ov-tele-head">
+                <i data-lucide="memory-stick" class="ov-tele-icon"></i>
+                <span class="ov-tele-label">内存</span>
+            </div>
+            <div class="ov-tele-value-row">
+                <span class="ov-tele-value">45</span>
+                <span class="ov-tele-unit">%</span>
+            </div>
+            <div class="ov-tele-bar" data-state="ok">
+                <span style="width: 45%;"></span>
+            </div>
+        </div>
+
+        <div class="ov-tele-card" data-metric="disk">
+            <div class="ov-tele-head">
+                <i data-lucide="hard-drive" class="ov-tele-icon"></i>
+                <span class="ov-tele-label">磁盘 C</span>
+                <span class="ov-tele-warn-dot" title="空间紧张"></span>
+            </div>
+            <div class="ov-tele-value-row">
+                <span class="ov-tele-value">81</span>
+                <span class="ov-tele-unit">%</span>
+            </div>
+            <div class="ov-tele-bar" data-state="warn">
+                <span style="width: 81%;"></span>
+            </div>
+        </div>
+
+        <div class="ov-tele-card" data-metric="gpu">
+            <div class="ov-tele-head">
+                <i data-lucide="monitor" class="ov-tele-icon"></i>
+                <span class="ov-tele-label">GPU</span>
+            </div>
+            <div class="ov-tele-value-row">
+                <span class="ov-tele-value">8</span>
+                <span class="ov-tele-unit">%</span>
+            </div>
+            <div class="ov-tele-spark" data-state="ok">
+                <svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
+                    <polyline points="0,20 10,21 20,19 30,20 40,18 50,20 60,17 70,18 80,16 90,18 100,17"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="ov-tele-card" data-metric="net">
+            <div class="ov-tele-head">
+                <i data-lucide="wifi" class="ov-tele-icon"></i>
+                <span class="ov-tele-label">网络</span>
+            </div>
+            <div class="ov-tele-value-row">
+                <span class="ov-tele-value">18</span>
+                <span class="ov-tele-unit">ms</span>
+            </div>
+            <div class="ov-tele-meta">↓ 2.4 MB/s · ↑ 0.3 MB/s</div>
+        </div>
+    </section>
+
+    <!-- ===== ② 主视觉卡：已应用统计 + 引导优化（合并为一张卡） ===== -->
+    <section class="ov-hero-card" aria-label="优化总览与引导入口">
+        <div class="ov-hero-stat">
+            <div class="ov-hero-stat-head">
+                <i data-lucide="check-circle-2" class="ov-hero-stat-icon"></i>
+                <span class="ov-hero-stat-eyebrow">已应用优化</span>
+            </div>
+            <div class="ov-hero-stat-num-row">
+                <span class="ov-hero-stat-num">27</span>
+                <span class="ov-hero-stat-unit">项</span>
+            </div>
+            <div class="ov-hero-stat-strip">
+                <span class="ov-hero-stat-cell">
+                    <i data-lucide="layers" class="ov-hero-stat-cell-icon"></i>
+                    <span class="ov-hero-stat-cell-label">覆盖模块</span>
+                    <span class="ov-hero-stat-cell-val"><b>9</b></span>
+                </span>
+                <span class="ov-hero-stat-divider"></span>
+                <span class="ov-hero-stat-cell">
+                    <i data-lucide="clock-4" class="ov-hero-stat-cell-icon"></i>
+                    <span class="ov-hero-stat-cell-label">最近</span>
+                    <span class="ov-hero-stat-cell-val">网络优化 · <b>2 天前</b></span>
+                </span>
+            </div>
+        </div>
+
+        <span class="ov-hero-vsep" aria-hidden="true"></span>
+
+        <div class="ov-hero-cta-wrap">
+            <div class="ov-hero-cta-text">
+                <div class="ov-hero-cta-title-row">
+                    <i data-lucide="sparkles" class="ov-hero-cta-spark"></i>
+                    <span class="ov-hero-cta-title">引导优化</span>
+                    <span class="ov-hero-cta-badge">推荐</span>
+                </div>
+                <div class="ov-hero-cta-desc">逐步问询使用场景，自动配置最适合你的方案</div>
+            </div>
+            <button class="ov-hero-cta-btn" type="button" data-action="smart-wizard">
+                <span>开始引导优化</span>
+                <i data-lucide="arrow-right" class="ov-hero-cta-btn-arrow"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- ===== ③ + ④ 双列：功能矩阵 + 最近活动 ===== -->
+    <section class="ov-grid-row" aria-label="功能矩阵与最近活动">
+        <article class="ov-panel ov-panel-matrix">
+            <header class="ov-panel-head">
+                <span class="ov-panel-title">功能矩阵</span>
+                <span class="ov-panel-sub">点击磁贴快速进入</span>
+            </header>
+
+            <div class="ov-matrix-grid">
+                <a class="ov-matrix-tile" href="#" data-view="memory-optimization">
+                    <i data-lucide="memory-stick" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">内存优化</span>
+                    <span class="ov-matrix-frac"><b>3</b>/5</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="audio-optimization">
+                    <i data-lucide="speaker" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">音频优化</span>
+                    <span class="ov-matrix-frac"><b>0</b>/4</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="performance-boost">
+                    <i data-lucide="rocket" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">性能加速</span>
+                    <span class="ov-matrix-frac"><b>5</b>/8</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="cpu-nav">
+                    <i data-lucide="cpu" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">CPU 优化</span>
+                    <span class="ov-matrix-frac"><b>2</b>/6</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="graphics-nav">
+                    <i data-lucide="monitor" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">显卡优化</span>
+                    <span class="ov-matrix-frac"><b>1</b>/5</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="network-nav">
+                    <i data-lucide="network" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">网络优化</span>
+                    <span class="ov-matrix-frac"><b>6</b>/7</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="privacy-nav">
+                    <i data-lucide="shield" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">隐私保护</span>
+                    <span class="ov-matrix-frac"><b>2</b>/8</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="system-nav">
+                    <i data-lucide="settings-2" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">系统调校</span>
+                    <span class="ov-matrix-frac"><b>4</b>/10</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="explorer-nav">
+                    <i data-lucide="layout" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">桌面体验</span>
+                    <span class="ov-matrix-frac"><b>3</b>/6</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="tasks-nav">
+                    <i data-lucide="calendar-clock" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">任务调度</span>
+                    <span class="ov-matrix-frac"><b>0</b>/5</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="services-nav">
+                    <i data-lucide="server-cog" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">系统服务</span>
+                    <span class="ov-matrix-frac"><b>8</b>/12</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="system-cleanup">
+                    <i data-lucide="trash-2" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">系统清理</span>
+                    <span class="ov-matrix-frac"><b>0</b>/6</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="peripheral-nav">
+                    <i data-lucide="mouse" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">外设优化</span>
+                    <span class="ov-matrix-frac"><b>1</b>/4</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="hardware-info">
+                    <i data-lucide="hard-drive" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">硬件信息</span>
+                    <span class="ov-matrix-frac ov-matrix-frac-tool">查看</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="network-test">
+                    <i data-lucide="wifi" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">网络测试</span>
+                    <span class="ov-matrix-frac ov-matrix-frac-tool">工具</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="restore-point">
+                    <i data-lucide="history" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">还原点</span>
+                    <span class="ov-matrix-frac"><b>3</b> 个</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="repair-center">
+                    <i data-lucide="wrench" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">修复中心</span>
+                    <span class="ov-matrix-frac ov-matrix-frac-tool">工具</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="backup-manager">
+                    <i data-lucide="save" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">备份管理</span>
+                    <span class="ov-matrix-frac"><b>5</b> 个</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="cpu-core-management">
+                    <i data-lucide="microchip" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">CPU 核心调度</span>
+                    <span class="ov-matrix-frac"><b>2</b>/4</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="power-plan-editor">
+                    <i data-lucide="battery-charging" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">电源优化</span>
+                    <span class="ov-matrix-frac"><b>1</b>/3</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="startup-manager">
+                    <i data-lucide="power" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">启动项管理</span>
+                    <span class="ov-matrix-frac"><b>4</b>/12</span>
+                </a>
+                <a class="ov-matrix-tile" href="#" data-view="settings">
+                    <i data-lucide="settings" class="ov-matrix-icon"></i>
+                    <span class="ov-matrix-name">软件设置</span>
+                    <span class="ov-matrix-frac ov-matrix-frac-tool">配置</span>
+                </a>
+            </div>
+        </article>
+
+        <article class="ov-panel ov-panel-activity">
+            <header class="ov-panel-head">
+                <span class="ov-panel-title">最近活动</span>
+                <a class="ov-panel-link" href="#" data-action="activity-detail">查看完整日志 →</a>
+            </header>
+
+            <ul class="ov-activity-list">
+                <li class="ov-activity-item" data-kind="backup">
+                    <span class="ov-activity-time">14:02</span>
+                    <i data-lucide="save" class="ov-activity-icon"></i>
+                    <span class="ov-activity-text">创建备份点 <b>#023</b></span>
+                </li>
+                <li class="ov-activity-item" data-kind="apply">
+                    <span class="ov-activity-time">13:55</span>
+                    <i data-lucide="zap" class="ov-activity-icon"></i>
+                    <span class="ov-activity-text">应用 <b>CPU 高性能模式</b></span>
+                </li>
+                <li class="ov-activity-item" data-kind="cleanup">
+                    <span class="ov-activity-time">11:30</span>
+                    <i data-lucide="trash-2" class="ov-activity-icon"></i>
+                    <span class="ov-activity-text">清理释放 <b>4.1 GB</b> 空间</span>
+                </li>
+                <li class="ov-activity-item" data-kind="apply">
+                    <span class="ov-activity-time">昨天</span>
+                    <i data-lucide="wifi" class="ov-activity-icon"></i>
+                    <span class="ov-activity-text">网络优化（5 项）</span>
+                </li>
+                <li class="ov-activity-item" data-kind="apply">
+                    <span class="ov-activity-time">昨天</span>
+                    <i data-lucide="layout-dashboard" class="ov-activity-icon"></i>
+                    <span class="ov-activity-text">桌面体验（3 项）</span>
+                </li>
+                <li class="ov-activity-item" data-kind="apply">
+                    <span class="ov-activity-time">3 天前</span>
+                    <i data-lucide="server-cog" class="ov-activity-icon"></i>
+                    <span class="ov-activity-text">系统服务（8 项）</span>
+                </li>
+            </ul>
+        </article>
+    </section>
+
+    <!-- ===== ⑤ 底部细信息条 ===== -->
+    <footer class="ov-footer-bar" aria-label="系统信息">
+        <div class="ov-footer-cell ov-footer-system">
+            <i data-lucide="laptop-2" class="ov-footer-icon"></i>
+            <span class="ov-footer-meta">Windows 11 23H2 · i7-12700H · 16 GB · RTX 3060</span>
+        </div>
+
+        <span class="ov-footer-divider"></span>
+
+        <div class="ov-footer-cell ov-footer-uptime">
+            <i data-lucide="clock-4" class="ov-footer-icon"></i>
+            <span class="ov-footer-meta">已运行 3天 14小时</span>
+        </div>
+    </footer>
+</div>

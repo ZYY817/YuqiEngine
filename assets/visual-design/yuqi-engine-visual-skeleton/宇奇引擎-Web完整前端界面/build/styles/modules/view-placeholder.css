@@ -1,0 +1,78 @@
+/* ==========================================================================
+   View Placeholder · 视图占位页样式
+   --------------------------------------------------------------------------
+   未注册视图 / 加载失败 / 加载中 的统一表现
+   ========================================================================== */
+
+.main-content.is-loading {
+    opacity: 0.6;
+    transition: opacity 200ms ease;
+}
+
+.view-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.view-placeholder-card {
+    max-width: 480px;
+    padding: 48px 56px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 24px;
+    box-shadow:
+        0 24px 48px -12px rgba(0, 0, 0, 0.10),
+        0 8px 20px -6px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    text-align: center;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.view-placeholder-card--error {
+    background: rgba(255, 245, 240, 0.7);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.view-placeholder-icon {
+    width: 56px;
+    height: 56px;
+    color: var(--text-secondary);
+    stroke-width: 1.6;
+    margin-bottom: 18px;
+    opacity: 0.7;
+}
+
+.view-placeholder-card--error .view-placeholder-icon {
+    color: #B45309;
+}
+
+.view-placeholder-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 10px;
+    letter-spacing: 0.3px;
+}
+
+.view-placeholder-desc {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0 0 18px;
+    line-height: 1.6;
+}
+
+.view-placeholder-meta {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    padding: 4px 12px;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 999px;
+    letter-spacing: 0.3px;
+}

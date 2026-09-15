@@ -1,0 +1,304 @@
+<div class="nt-page" data-state="idle">
+
+    <!-- 背景层：星云 + 噪点（只在 .nt-page 内生效） -->
+    <div class="nt-bg" aria-hidden="true">
+        <div class="nt-bg-nebula"></div>
+        <div class="nt-bg-grid"></div>
+        <svg class="nt-bg-noise" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <filter id="ntNoise">
+                <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"></feTurbulence>
+                <feColorMatrix values="0 0 0 0 0.6   0 0 0 0 0.8   0 0 0 0 1   0 0 0 0.06 0"></feColorMatrix>
+            </filter>
+            <rect width="100%" height="100%" filter="url(#ntNoise)"></rect>
+        </svg>
+    </div>
+
+    <!-- ===== ① 顶部细带：标题 + 当前网络 + 节点选择 ===== -->
+    <header class="nt-topbar" data-stagger="1">
+        <div class="nt-bc">
+            <i data-lucide="radio-tower" class="nt-bc-icon"></i>
+            <span class="nt-bc-text">网络测试</span>
+            <span class="nt-bc-sub">Sonar Pulse · 测绘你与世界之间的延迟</span>
+        </div>
+        <div class="nt-meta-row">
+            <div class="nt-conn-pill" data-on="true">
+                <span class="nt-conn-dot"></span>
+                <i data-lucide="wifi" class="nt-conn-icon"></i>
+                <span class="nt-conn-name">WLAN · 5GHz</span>
+                <span class="nt-conn-sep"></span>
+                <span class="nt-conn-ip mono-text">192.168.1.36</span>
+            </div>
+            <button class="nt-node-pill" type="button" data-action="switch-node">
+                <i data-lucide="globe-2" class="icon-sm"></i>
+                <span class="nt-node-label">测试节点</span>
+                <span class="nt-node-name">上海 · BGP</span>
+                <i data-lucide="chevron-down" class="icon-xs"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== ② 主舞台：左雷达 + 右数据条 ===== -->
+    <section class="nt-stage" aria-label="测试舞台">
+
+        <!-- 左：雷达盘 -->
+        <article class="nt-radar-wrap" data-stagger="2">
+            <div class="nt-radar" id="ntRadar" role="img" aria-label="网络雷达">
+                <!-- 外层呼吸光环 -->
+                <span class="nt-radar-aura"></span>
+
+                <!-- 同心刻度环 -->
+                <svg class="nt-radar-rings" viewBox="0 0 400 400" aria-hidden="true">
+                    <defs>
+                        <radialGradient id="ntCoreGrad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="rgba(34,211,238,0.35)"></stop>
+                            <stop offset="60%" stop-color="rgba(34,211,238,0.06)"></stop>
+                            <stop offset="100%" stop-color="rgba(34,211,238,0)"></stop>
+                        </radialGradient>
+                        <linearGradient id="ntSweepGrad" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="rgba(34,211,238,0)"></stop>
+                            <stop offset="80%" stop-color="rgba(34,211,238,0.55)"></stop>
+                            <stop offset="100%" stop-color="rgba(217,70,239,0.85)"></stop>
+                        </linearGradient>
+                    </defs>
+                    <!-- 外环 -->
+                    <circle cx="200" cy="200" r="190" class="nt-ring nt-ring-1"></circle>
+                    <circle cx="200" cy="200" r="150" class="nt-ring nt-ring-2"></circle>
+                    <circle cx="200" cy="200" r="108" class="nt-ring nt-ring-3"></circle>
+                    <circle cx="200" cy="200" r="64"  class="nt-ring nt-ring-4"></circle>
+                    <!-- 十字辅助线 -->
+                    <line x1="200" y1="10"  x2="200" y2="390" class="nt-cross"></line>
+                    <line x1="10"  y1="200" x2="390" y2="200" class="nt-cross"></line>
+                    <!-- 中心光晕 -->
+                    <circle cx="200" cy="200" r="120" fill="url(#ntCoreGrad)"></circle>
+                    <!-- 扇区刻度（每 30°） -->
+                    <g class="nt-ticks">
+                        <!-- 12 个 tick 通过 transform 旋转 -->
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick"></line>
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick" style="transform-origin:200px 200px;transform:rotate(30deg);"></line>
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick" style="transform-origin:200px 200px;transform:rotate(60deg);"></line>
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick nt-tick-strong" style="transform-origin:200px 200px;transform:rotate(90deg);"></line>
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick" style="transform-origin:200px 200px;transform:rotate(120deg);"></line>
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick" style="transform-origin:200px 200px;transform:rotate(150deg);"></line>
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick nt-tick-strong" style="transform-origin:200px 200px;transform:rotate(180deg);"></line>
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick" style="transform-origin:200px 200px;transform:rotate(210deg);"></line>
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick" style="transform-origin:200px 200px;transform:rotate(240deg);"></line>
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick nt-tick-strong" style="transform-origin:200px 200px;transform:rotate(270deg);"></line>
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick" style="transform-origin:200px 200px;transform:rotate(300deg);"></line>
+                        <line x1="200" y1="14"  x2="200" y2="26" class="nt-tick" style="transform-origin:200px 200px;transform:rotate(330deg);"></line>
+                    </g>
+                    <!-- 扫描扇区（旋转） -->
+                    <g class="nt-sweep" id="ntSweep">
+                        <path d="M200,200 L200,12 A188,188 0 0 1 380,160 Z" fill="url(#ntSweepGrad)"></path>
+                    </g>
+                </svg>
+
+                <!-- 4 个扇区数据点（Ping / Down / Up / Jitter） -->
+                <span class="nt-sector" data-key="ping"   style="--ang:90deg;">
+                    <span class="nt-sector-dot"></span>
+                </span>
+                <span class="nt-sector" data-key="down"   style="--ang:0deg;">
+                    <span class="nt-sector-dot"></span>
+                </span>
+                <span class="nt-sector" data-key="up"     style="--ang:270deg;">
+                    <span class="nt-sector-dot"></span>
+                </span>
+                <span class="nt-sector" data-key="jitter" style="--ang:180deg;">
+                    <span class="nt-sector-dot"></span>
+                </span>
+
+                <!-- 中心：主数字（默认显示 Ping） -->
+                <div class="nt-core">
+                    <span class="nt-core-label" id="ntCoreLabel">就绪 · 等待脉冲</span>
+                    <div class="nt-core-num">
+                        <span class="nt-core-value mono-text" id="ntCoreValue">—</span>
+                        <span class="nt-core-unit" id="ntCoreUnit">ms</span>
+                    </div>
+                    <span class="nt-core-hint" id="ntCoreHint">点击下方按钮发起一次脉冲测速</span>
+                </div>
+
+                <!-- 中心点火按钮（Idle 态显示） -->
+                <button class="nt-ignite" type="button" data-action="ignite" id="ntIgnite">
+                    <span class="nt-ignite-ring"></span>
+                    <span class="nt-ignite-core">
+                        <i data-lucide="play" class="nt-ignite-icon"></i>
+                        <span class="nt-ignite-text">开始测试</span>
+                    </span>
+                </button>
+
+                <!-- 脉冲波环（点火后扩散） -->
+                <span class="nt-pulse" data-i="1"></span>
+                <span class="nt-pulse" data-i="2"></span>
+                <span class="nt-pulse" data-i="3"></span>
+            </div>
+
+            <!-- 雷达底部：进度+阶段 -->
+            <div class="nt-stage-bar">
+                <div class="nt-stage-track">
+                    <span class="nt-stage-fill" id="ntStageFill" style="width:0%"></span>
+                </div>
+                <div class="nt-stage-meta">
+                    <span class="nt-stage-text" id="ntStageText">脉冲就绪 · 准备扫描全球节点</span>
+                    <span class="nt-stage-percent mono-text"><span id="ntStagePct">0</span>%</span>
+                </div>
+            </div>
+        </article>
+
+        <!-- 右：数据条 -->
+        <aside class="nt-strip" data-stagger="3">
+
+            <!-- 4 张指标晶片 -->
+            <article class="nt-chip" data-key="ping">
+                <header class="nt-chip-head">
+                    <span class="nt-chip-icon-wrap">
+                        <i data-lucide="zap" class="nt-chip-icon"></i>
+                    </span>
+                    <div class="nt-chip-title-wrap">
+                        <span class="nt-chip-title">延迟 Ping</span>
+                        <span class="nt-chip-sub">RTT · 越低越好</span>
+                    </div>
+                    <span class="nt-chip-grade" data-grade="—">—</span>
+                </header>
+                <div class="nt-chip-num">
+                    <span class="nt-chip-value mono-text" id="ntPingVal">—</span>
+                    <span class="nt-chip-unit">ms</span>
+                </div>
+                <div class="nt-chip-spark">
+                    <svg viewBox="0 0 200 40" preserveAspectRatio="none" id="ntPingSpark">
+                        <polyline points="" fill="none" stroke="currentColor" stroke-width="1.5"></polyline>
+                    </svg>
+                </div>
+            </article>
+
+            <article class="nt-chip" data-key="down">
+                <header class="nt-chip-head">
+                    <span class="nt-chip-icon-wrap">
+                        <i data-lucide="arrow-down-to-line" class="nt-chip-icon"></i>
+                    </span>
+                    <div class="nt-chip-title-wrap">
+                        <span class="nt-chip-title">下载速度</span>
+                        <span class="nt-chip-sub">Download · 越高越好</span>
+                    </div>
+                    <span class="nt-chip-grade" data-grade="—">—</span>
+                </header>
+                <div class="nt-chip-num">
+                    <span class="nt-chip-value mono-text" id="ntDownVal">—</span>
+                    <span class="nt-chip-unit">Mbps</span>
+                </div>
+                <div class="nt-chip-spark">
+                    <svg viewBox="0 0 200 40" preserveAspectRatio="none" id="ntDownSpark">
+                        <polyline points="" fill="none" stroke="currentColor" stroke-width="1.5"></polyline>
+                    </svg>
+                </div>
+            </article>
+
+            <article class="nt-chip" data-key="up">
+                <header class="nt-chip-head">
+                    <span class="nt-chip-icon-wrap">
+                        <i data-lucide="arrow-up-from-line" class="nt-chip-icon"></i>
+                    </span>
+                    <div class="nt-chip-title-wrap">
+                        <span class="nt-chip-title">上传速度</span>
+                        <span class="nt-chip-sub">Upload · 越高越好</span>
+                    </div>
+                    <span class="nt-chip-grade" data-grade="—">—</span>
+                </header>
+                <div class="nt-chip-num">
+                    <span class="nt-chip-value mono-text" id="ntUpVal">—</span>
+                    <span class="nt-chip-unit">Mbps</span>
+                </div>
+                <div class="nt-chip-spark">
+                    <svg viewBox="0 0 200 40" preserveAspectRatio="none" id="ntUpSpark">
+                        <polyline points="" fill="none" stroke="currentColor" stroke-width="1.5"></polyline>
+                    </svg>
+                </div>
+            </article>
+
+            <article class="nt-chip" data-key="jitter">
+                <header class="nt-chip-head">
+                    <span class="nt-chip-icon-wrap">
+                        <i data-lucide="activity" class="nt-chip-icon"></i>
+                    </span>
+                    <div class="nt-chip-title-wrap">
+                        <span class="nt-chip-title">抖动 / 丢包</span>
+                        <span class="nt-chip-sub">Jitter · 越稳越好</span>
+                    </div>
+                    <span class="nt-chip-grade" data-grade="—">—</span>
+                </header>
+                <div class="nt-chip-num">
+                    <span class="nt-chip-value mono-text" id="ntJitterVal">—</span>
+                    <span class="nt-chip-unit">ms · <span id="ntLossVal">—</span>%</span>
+                </div>
+                <div class="nt-chip-spark">
+                    <svg viewBox="0 0 200 40" preserveAspectRatio="none" id="ntJitterSpark">
+                        <polyline points="" fill="none" stroke="currentColor" stroke-width="1.5"></polyline>
+                    </svg>
+                </div>
+            </article>
+        </aside>
+    </section>
+
+    <!-- ===== ③ 底部：诊断报告条 ===== -->
+    <section class="nt-report" data-stagger="4" aria-label="网络体检报告">
+        <header class="nt-report-head">
+            <div class="nt-report-title-wrap">
+                <i data-lucide="stethoscope" class="nt-report-icon"></i>
+                <span class="nt-report-title">网络体检报告</span>
+                <span class="nt-report-time mono-text" id="ntReportTime">尚未测试</span>
+            </div>
+            <div class="nt-report-actions">
+                <button class="nt-mini-btn" type="button" data-action="ping-target">
+                    <i data-lucide="target" class="icon-sm"></i><span>Ping 自定义</span>
+                </button>
+                <button class="nt-mini-btn" type="button" data-action="copy-report">
+                    <i data-lucide="copy" class="icon-sm"></i><span>复制报告</span>
+                </button>
+                <button class="nt-mini-btn nt-mini-btn--accent" type="button" data-action="re-ignite" id="ntReIgnite" hidden>
+                    <i data-lucide="refresh-cw" class="icon-sm"></i><span>再测一次</span>
+                </button>
+            </div>
+        </header>
+
+        <ul class="nt-report-list" id="ntReportList">
+            <li class="nt-report-item" data-state="idle">
+                <i data-lucide="circle-dashed" class="nt-report-item-icon"></i>
+                <div class="nt-report-item-main">
+                    <span class="nt-report-item-title">等待第一次脉冲</span>
+                    <span class="nt-report-item-desc">完成测速后，这里会自动生成针对延迟、带宽与稳定性的诊断建议</span>
+                </div>
+            </li>
+        </ul>
+    </section>
+
+    <!-- ===== Toast & 自定义 Ping Modal ===== -->
+    <div class="nt-modal-mask" id="ntModalMask" hidden></div>
+    <div class="nt-modal" id="ntModal" role="dialog" aria-modal="true" hidden>
+        <header class="nt-modal-head">
+            <i data-lucide="target" class="nt-modal-icon"></i>
+            <div class="nt-modal-title-wrap">
+                <span class="nt-modal-title">Ping 自定义目标</span>
+                <span class="nt-modal-sub">输入域名或 IP，立即发起 4 次脉冲探测</span>
+            </div>
+            <button class="nt-modal-close" type="button" data-action="modal-close">
+                <i data-lucide="x" class="icon-sm"></i>
+            </button>
+        </header>
+        <div class="nt-modal-body">
+            <label class="nt-input-wrap">
+                <i data-lucide="globe" class="nt-input-icon"></i>
+                <input type="text" class="nt-input" id="ntPingHost" placeholder="例如：www.bilibili.com" value="www.bilibili.com">
+            </label>
+            <div class="nt-modal-output mono-text" id="ntPingOutput">
+                <span class="nt-modal-output-line nt-modal-output-line--dim">// 等待发起脉冲…</span>
+            </div>
+        </div>
+        <footer class="nt-modal-foot">
+            <button class="nt-btn nt-btn-ghost" type="button" data-action="modal-close">
+                <span>关闭</span>
+            </button>
+            <button class="nt-btn nt-btn-primary" type="button" data-action="modal-ping">
+                <i data-lucide="send" class="icon-sm"></i><span>发起 Ping</span>
+            </button>
+        </footer>
+    </div>
+
+</div>

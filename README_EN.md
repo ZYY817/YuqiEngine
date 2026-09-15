@@ -286,7 +286,9 @@ There was also a practical concern that the source could be lightly reskinned, r
 
 During a large refactor and UI migration in the early hours of August 13, 2026, a serious accidental deletion occurred. The deletion scope executed by a tool extended beyond the intended project directory. The complete YuqiEngine development project, the new UI being migrated, and several other projects stored on the development F drive were affected. I tried backup recovery and data-recovery tools afterwards, but the complete source could not be recovered.
 
-> A screenshot of the contemporaneous record will be added here to explain the incident. It is provided only as factual context and contains no user-private information.
+> The image below is a contemporaneous record screenshot.
+
+![Incident record screenshot from August 13, 2026](./assets/current/incident-record-2026-08-13.png)
 
 The loss was painful, but it reinforced an important lesson: a local backup is not a complete backup strategy. Important projects should have multiple copies across separate disks, devices, or cloud storage. I hope this helps others avoid the same mistake.
 
@@ -299,7 +301,7 @@ Earlier screenshots, installers, and some feature descriptions in this README re
 
 #### What the repository will contain
 
-- **Web UI visual concept draft**: design and interaction reference for the earlier web UI; it is not a runnable current frontend;
+- **Web UI visual concept draft**: [Yuqi Engine full web frontend UI](./assets/visual-design/yuqi-engine-visual-skeleton/宇奇引擎-Web完整前端界面/) is an earlier external concept draft for design and interaction reference, not a runnable current frontend. If you find it useful and want to use it, feel free to do so.
 - **Early WPF software source**: a Windows `.NET 8 + WPF` project for learning, research, refactoring, and secondary development.
 
 #### Before you use it
@@ -332,7 +334,7 @@ This was a project built little by little after work and late at night. Even tho
 The published source may be downloaded, studied, researched, modified, and publicly released for non-commercial purposes without separate permission from the author.
 
 > [!TIP]
-> Whenever practical, retain the original project name **YuqiEngine**, the original author **智宇 / ZYY817**, and the original repository link in a README, release note, or other prominent place. Clearly state that your modified version is not an official release.
+> Original project: [YuqiEngine](https://github.com/ZYY817/YuqiEngine)
 
 > [!WARNING]
 > YuqiEngine and its source may not be resold, distributed for payment, used commercially, bundled for promotion, or presented as an official release.
@@ -356,5 +358,3 @@ Yuqi Engine is permanently free. Resale, paid distribution, and commercial use a
   <strong>Yuqi Engine</strong><br>
   <sub>Understand first, then choose. Verifiable and recoverable.</sub>
 </div>
-
-

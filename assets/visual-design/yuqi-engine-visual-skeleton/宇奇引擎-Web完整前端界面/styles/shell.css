@@ -1,0 +1,594 @@
+/* ==========================================================================
+   Design Tokens - 磨砂钛金与全息光影 (Frosted Titanium & Holographic Light)
+   ========================================================================== */
+/* ==========================================================================
+   [ Imports ] 模块化样式 - 按职责拆分，互不污染
+   --------------------------------------------------------------------------
+   tokens-sidebar       侧边栏专用 Design Token（雪原 + 浮雪）
+   sidebar-container    侧边栏容器、分组、菜单项基础态、底部 admin 卡
+   scrollbar            自定义滚动条（溢出才显形）
+   sidebar-active-snow  选中态：极简浮雪（纯白 + 物理投影）
+   ========================================================================== */
+@import url("modules/tokens-sidebar.css");
+@import url("modules/sidebar-container.css");
+@import url("modules/scrollbar.css");
+@import url("modules/sidebar-active-snow.css");
+@import url("modules/view-placeholder.css");
+/* home-overview.css 已改为视图按需加载（view-loader 注册到 'overview'），不再常驻 import */
+
+:root {
+    /* 尺寸 */
+    --window-width: 1200px;
+    --window-height: 800px;
+    --sidebar-width: 260px;
+    --titlebar-height: 60px;
+    
+    /* 圆角 - 极致平滑 */
+    --radius-window: 24px;
+    --radius-card: 16px;
+    --radius-btn: 10px;
+    
+    /* 色彩体系 - 钛白与珍珠灰 */
+    --bg-desktop: #E2E8F0; /* 调冷调暗的蓝灰桌面，凸显高光 */
+    --bg-window: rgba(255, 255, 255, 0.65); /* 亚克力玻璃表面 */
+    --bg-sidebar: transparent; 
+    --bg-main: rgba(255, 255, 255, 0.4); /* 主内容区，更透明的毛玻璃感 */
+    
+    --text-primary: #1A1D24;   /* 钛黑文字 */
+    --text-secondary: #6B7280; /* 灰文字 */
+    --text-tertiary: #9CA3AF;  /* 浅灰文字 */
+    
+    /* 全息强调色 */
+    --holo-cyan: #00E5FF;
+    --holo-pink: #FF2E93;
+    --holo-purple: #8A2BE2;
+    
+    --accent-primary: #000000; /* 极致黑作为主强调 */
+    --accent-success: #10B981; 
+    --accent-danger: #EF4444;  
+    
+    /* 边缘高光 - 模拟玻璃切割面 (CNC 高光倒角) */
+    --glass-edge: inset 0 1px 1px rgba(255, 255, 255, 0.9),
+                  inset 1px 0 1px rgba(255, 255, 255, 0.4),
+                  inset -1px 0 1px rgba(255, 255, 255, 0.4),
+                  inset 0 -1px 1px rgba(0, 0, 0, 0.04),
+                  0 0 0 1px rgba(0, 0, 0, 0.03); /* 极细外轮廓 */
+                  
+    /* 弥散阴影 - 模拟全局光照 (多重弥散阴影) */
+    --shadow-ambient: 0 40px 80px -20px rgba(0, 0, 0, 0.12),
+                      0 15px 35px -10px rgba(0, 0, 0, 0.06),
+                      0 0 20px rgba(0, 0, 0, 0.03);
+    
+    --shadow-card: 0 8px 24px -4px rgba(0, 0, 0, 0.04), 
+                   0 2px 6px -1px rgba(0, 0, 0, 0.02);
+                   
+    --shadow-nav-active: 0 4px 12px rgba(0, 0, 0, 0.06),
+                         0 1px 2px rgba(0, 0, 0, 0.04);
+    
+    /* 动效 - 物理弹簧阻尼 */
+    --spring-damping: cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    --transition-spring: 600ms var(--spring-damping);
+    --transition-fade: 200ms ease-out;
+}
+
+/* ==========================================================================
+   基础重置与全息环境光
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-desktop);
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    /* 极细噪点纹理叠加 */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* 全息环境光 (限制在窗口内部) */
+.ambient-light {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: var(--radius-window);
+    background: transparent;
+}
+
+.light-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.5;
+    animation: float 20s infinite ease-in-out alternate;
+}
+
+.orb-1 {
+    width: 600px; height: 600px;
+    background: rgba(0, 229, 255, 0.15);
+    top: -100px; left: -100px;
+}
+
+.orb-2 {
+    width: 500px; height: 500px;
+    background: rgba(255, 46, 147, 0.12);
+    bottom: -100px; right: -100px;
+    animation-delay: -10s;
+}
+
+.orb-3 {
+    width: 400px; height: 400px;
+    background: rgba(138, 43, 226, 0.1);
+    top: 40%; left: 40%;
+    animation-delay: -5s;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(60px, 60px) scale(1.1); }
+}
+
+/* 遥测数据专用等宽字体 */
+.mono-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+}
+
+/* ==========================================================================
+   桌面包装器与应用程序窗口
+   ========================================================================== */
+.app-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+}
+
+.app-window {
+    width: 100%;
+    max-width: var(--window-width);
+    height: 100%;
+    max-height: var(--window-height);
+    background-color: var(--bg-window);
+    border-radius: var(--radius-window);
+    /* 弥散阴影 + 玻璃切割边缘 */
+    box-shadow: var(--glass-edge), var(--shadow-ambient);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    position: relative;
+    /* 极致毛玻璃效果 */
+    backdrop-filter: blur(40px) saturate(150%);
+    -webkit-backdrop-filter: blur(40px) saturate(150%);
+}
+
+/* 内部高光层，模拟玻璃厚度 */
+.app-window::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: var(--radius-window);
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 20;
+}
+
+/* ==========================================================================
+   顶部标题栏 (Titlebar)
+   ========================================================================== */
+.titlebar {
+    height: var(--titlebar-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background-color: transparent;
+    -webkit-app-region: drag;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+}
+
+.titlebar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* Logo: 真实 ICO 图标（来自 GameOptimizer.Shell/Assets/yq_icon.ico） */
+.logo-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    flex-shrink: 0;
+    -webkit-user-drag: none;
+    user-select: none;
+    /* 保留极轻量阴影维持层级感，但不再覆盖图标本体颜色 */
+    filter: drop-shadow(0 1px 2px rgba(26, 29, 36, 0.18));
+}
+
+/* 三段式品牌文字：宇奇引擎 / Yuqi(青) / Engine(次级) */
+.brand-text {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    line-height: 1;
+}
+
+.brand-cn {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+}
+
+.brand-accent {
+    /* B1 极简墨色派：Yuqi 不再用青色强调，改为同墨色 + 字重 700，靠字重而非色彩拉层级 */
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.2px;
+}
+
+.brand-secondary {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.2px;
+}
+
+.titlebar-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    -webkit-app-region: no-drag;
+}
+
+/* 遥测数据组（CPU / MEM） */
+.telemetry-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 4px;
+}
+
+.telemetry-item {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.telemetry-label {
+    color: var(--text-tertiary);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.telemetry-value {
+    color: var(--text-primary);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* ----------------------------------------------------------------------
+   状态说明：四档动态状态（C2 实用状态）
+   档位（data-status）：
+     idle    空闲态  —— 中性灰点，静态
+     running 优化中  —— 青色脉冲点，呼吸动效
+     done    已完成  —— 绿点 + 微光晕
+     warn    异常    —— 琥珀点
+   ---------------------------------------------------------------------- */
+.status-caption {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 0 8px 0 0;
+    max-width: 200px;
+    transition: color var(--transition-fade);
+}
+
+.status-caption .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background-color: #9CA3AF;
+    box-shadow: none;
+    transition: background-color var(--transition-fade), box-shadow var(--transition-fade);
+}
+
+/* idle 空闲：默认中性灰点，文字次级灰 */
+.status-caption[data-status="idle"] {
+    color: var(--text-secondary);
+}
+.status-caption[data-status="idle"] .status-dot {
+    background-color: #9CA3AF;
+}
+
+/* running 优化中：青色脉冲点 */
+.status-caption[data-status="running"] {
+    color: var(--text-primary);
+}
+.status-caption[data-status="running"] .status-dot {
+    background-color: var(--holo-cyan);
+    box-shadow: 0 0 6px rgba(0, 229, 255, 0.55);
+    animation: status-pulse 1.5s ease-in-out infinite;
+}
+
+/* done 已完成：绿点带光晕 */
+.status-caption[data-status="done"] {
+    color: var(--text-primary);
+}
+.status-caption[data-status="done"] .status-dot {
+    background-color: var(--accent-success);
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+    animation: status-pop 300ms var(--spring-damping);
+}
+
+/* warn 异常：琥珀色点 */
+.status-caption[data-status="warn"] {
+    color: #B45309;
+}
+.status-caption[data-status="warn"] .status-dot {
+    background-color: #F59E0B;
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+}
+
+@keyframes status-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 0 6px rgba(0, 229, 255, 0.55);
+    }
+    50% {
+        opacity: 0.55;
+        transform: scale(0.85);
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.35);
+    }
+}
+
+@keyframes status-pop {
+    0%   { transform: scale(0.4); opacity: 0; }
+    60%  { transform: scale(1.25); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.status-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 垂直发丝分隔线（1×16） */
+.titlebar-separator {
+    width: 1px;
+    height: 16px;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin: 0 6px;
+    flex-shrink: 0;
+}
+
+/* 三个动作图标按钮：关于 / 反馈 / GitHub */
+.action-controls {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-right: 6px;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fade);
+    -webkit-app-region: no-drag;
+}
+
+.action-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+}
+
+.action-btn:active {
+    background-color: rgba(0, 0, 0, 0.08);
+    transform: scale(0.96);
+}
+
+/* 三个窗口控制按钮 */
+.window-controls {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.control-btn {
+    width: 40px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fade);
+    -webkit-app-region: no-drag;
+}
+
+.control-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+}
+
+.control-btn.close-btn:hover {
+    background-color: #E81123;
+    color: #FFFFFF;
+}
+
+/* 最小化：一根粗横线（复刻 WPF Border Width=18 Height=2） */
+.ctrl-glyph.ctrl-minimize {
+    display: block;
+    width: 14px;
+    height: 1.5px;
+    background: currentColor;
+    border-radius: 1px;
+}
+
+/* 最大化：空心方框（复刻 WPF Border Width=16 Height=16 BorderThickness=1.5） */
+.ctrl-glyph.ctrl-maximize {
+    display: block;
+    width: 11px;
+    height: 11px;
+    border: 1.3px solid currentColor;
+    border-radius: 1px;
+    background: transparent;
+    box-sizing: border-box;
+}
+
+/* 关闭：SVG 画的 X */
+.ctrl-close-svg {
+    width: 12px;
+    height: 12px;
+}
+
+.icon-sm {
+    width: 14px;
+    height: 14px;
+    stroke-width: 1.8;
+}
+
+/* GitHub 官方 Mark：与其他 action 图标视觉权重对齐 */
+.icon-github {
+    width: 14px;
+    height: 14px;
+    display: block;
+}
+
+/* ==========================================================================
+   主体区域 (App Body)
+   ========================================================================== */
+.app-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    padding: 0 20px 20px 0; /* 为主内容区留出边距 */
+}
+
+/* ==========================================================================
+   [ Sidebar 已抽离 ] 见 modules/sidebar-container.css 等 5 个模块文件
+   ========================================================================== */
+
+/* ==========================================================================
+   主内容区 (Main Content)
+   ========================================================================== */
+.main-content {
+    flex: 1;
+    background-color: var(--bg-main);
+    backdrop-filter: blur(24px) saturate(120%);
+    -webkit-backdrop-filter: blur(24px) saturate(120%);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card), inset 0 1px 1px rgba(255,255,255,0.8);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 主内容区内部高光 */
+.main-content::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: var(--radius-card);
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* 占位内容样式 */
+.content-placeholder {
+    text-align: center;
+    z-index: 2;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 40px 60px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+}
+
+.placeholder-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--text-primary);
+    opacity: 0.8;
+    margin-bottom: 8px;
+    filter: none;
+}
+
+.glass-card h2 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.glass-card p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   底部状态栏 (Statusbar)
+   ========================================================================== */
+.statusbar {
+    display: none;
+}

@@ -1,0 +1,394 @@
+<div class="rp-page" data-state="idle">
+
+    <!-- ===== ① 顶部细带：面包屑 + 保护状态 + 配额条 ===== -->
+    <header class="rp-topbar">
+        <div class="rp-breadcrumb">
+            <i data-lucide="history" class="rp-bc-icon"></i>
+            <span class="rp-bc-text">系统还原点</span>
+            <span class="rp-bc-sub">在重大变更前留一份安全快照</span>
+        </div>
+        <div class="rp-protection">
+            <div class="rp-protect-badge" data-on="true">
+                <i data-lucide="shield-check" class="rp-protect-icon"></i>
+                <span class="rp-protect-label">系统保护</span>
+                <span class="rp-protect-state">已启用</span>
+            </div>
+            <div class="rp-quota">
+                <span class="rp-quota-label">空间</span>
+                <span class="rp-quota-bar"><span class="rp-quota-fill" style="width:52%"></span></span>
+                <span class="rp-quota-text mono-text">4.2 / 8 <em>GB</em></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== ② 主操作区：创建还原点 + 系统保护配置（双卡片） ===== -->
+    <section class="rp-action-row" aria-label="还原点主操作">
+
+        <!-- 创建还原点卡片 -->
+        <article class="rp-card rp-card-create">
+            <header class="rp-card-head">
+                <div class="rp-card-title-wrap">
+                    <i data-lucide="plus-circle" class="rp-card-icon"></i>
+                    <div>
+                        <span class="rp-card-title">创建还原点</span>
+                        <span class="rp-card-sub">为系统当前状态创建一个安全快照</span>
+                    </div>
+                </div>
+                <span class="rp-card-tag" data-tag="recommend">推荐</span>
+            </header>
+
+            <div class="rp-create-body">
+                <label class="rp-input-wrap">
+                    <i data-lucide="tag" class="rp-input-icon"></i>
+                    <input type="text" class="rp-input" id="rpCreateDesc"
+                           placeholder="例如：安装显卡驱动前 / 大版本更新前"
+                           maxlength="64" value="手动还原点">
+                    <span class="rp-input-counter mono-text"><span id="rpInputLen">5</span>/64</span>
+                </label>
+
+                <div class="rp-create-meta">
+                    <span class="rp-meta-cell">
+                        <i data-lucide="clock-4" class="icon-xs"></i>
+                        <span>预计 <b>30</b> 秒</span>
+                    </span>
+                    <span class="rp-meta-divider"></span>
+                    <span class="rp-meta-cell">
+                        <i data-lucide="database" class="icon-xs"></i>
+                        <span>占用约 <b>500 MB</b></span>
+                    </span>
+                    <span class="rp-meta-divider"></span>
+                    <span class="rp-meta-cell">
+                        <i data-lucide="shield" class="icon-xs"></i>
+                        <span>不影响个人文件</span>
+                    </span>
+                </div>
+
+                <div class="rp-create-cta-row">
+                    <button class="rp-btn rp-btn-primary" type="button" data-action="create-restore-point" id="rpCreateBtn">
+                        <i data-lucide="plus" class="rp-btn-icon"></i>
+                        <span>立即创建还原点</span>
+                    </button>
+                    <button class="rp-btn rp-btn-ghost" type="button" data-action="cancel-create" id="rpCreateCancel" hidden>
+                        <i data-lucide="x" class="rp-btn-icon"></i>
+                        <span>取消</span>
+                    </button>
+                </div>
+
+                <!-- 创建中进度条（默认隐藏） -->
+                <div class="rp-create-progress" id="rpCreateProgress" hidden>
+                    <div class="rp-progress-track">
+                        <span class="rp-progress-fill" id="rpProgressFill" style="width:0%"></span>
+                    </div>
+                    <div class="rp-progress-meta">
+                        <span class="rp-progress-text" id="rpProgressText">正在创建快照…</span>
+                        <span class="rp-progress-percent mono-text"><span id="rpProgressPct">0</span>%</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- 系统保护配置卡片 -->
+        <article class="rp-card rp-card-protect">
+            <header class="rp-card-head">
+                <div class="rp-card-title-wrap">
+                    <i data-lucide="shield" class="rp-card-icon"></i>
+                    <div>
+                        <span class="rp-card-title">系统保护</span>
+                        <span class="rp-card-sub">控制哪些磁盘可以创建还原点</span>
+                    </div>
+                </div>
+                <button class="rp-link-btn" type="button" data-action="open-system-protect">
+                    <span>系统设置</span>
+                    <i data-lucide="external-link" class="icon-xs"></i>
+                </button>
+            </header>
+
+            <ul class="rp-disk-list">
+                <li class="rp-disk-row" data-on="true">
+                    <i data-lucide="hard-drive" class="rp-disk-icon"></i>
+                    <div class="rp-disk-main">
+                        <span class="rp-disk-name">本地磁盘 (C:)</span>
+                        <span class="rp-disk-meta mono-text">系统盘 · 配额 8 GB · 已用 4.2 GB</span>
+                    </div>
+                    <span class="rp-disk-pill" data-on="true">
+                        <i data-lucide="check" class="icon-xs"></i>已启用
+                    </span>
+                </li>
+                <li class="rp-disk-row" data-on="false">
+                    <i data-lucide="hard-drive" class="rp-disk-icon"></i>
+                    <div class="rp-disk-main">
+                        <span class="rp-disk-name">本地磁盘 (D:)</span>
+                        <span class="rp-disk-meta mono-text">数据盘 · 未启用保护</span>
+                    </div>
+                    <span class="rp-disk-pill" data-on="false">
+                        <i data-lucide="x" class="icon-xs"></i>未启用
+                    </span>
+                </li>
+            </ul>
+
+            <footer class="rp-card-foot">
+                <i data-lucide="info" class="icon-xs"></i>
+                <span>仅系统盘启用即可满足绝大多数还原需求</span>
+            </footer>
+        </article>
+
+    </section>
+
+    <!-- ===== ③ 列表区：工具栏 + 时间线 ===== -->
+    <section class="rp-list-section" aria-label="还原点列表">
+
+        <header class="rp-list-head">
+            <div class="rp-list-title-wrap">
+                <span class="rp-list-title">还原点列表</span>
+                <span class="rp-list-count"><b id="rpTotalCount">5</b> 个</span>
+            </div>
+            <div class="rp-list-tools">
+                <div class="rp-filter">
+                    <button class="rp-filter-btn is-active" data-filter="all"><span>全部</span></button>
+                    <button class="rp-filter-btn" data-filter="manual"><i data-lucide="user" class="icon-xs"></i><span>手动</span></button>
+                    <button class="rp-filter-btn" data-filter="system"><i data-lucide="cog" class="icon-xs"></i><span>系统</span></button>
+                    <button class="rp-filter-btn" data-filter="install"><i data-lucide="package" class="icon-xs"></i><span>安装</span></button>
+                    <button class="rp-filter-btn" data-filter="update"><i data-lucide="download" class="icon-xs"></i><span>更新</span></button>
+                </div>
+                <button class="rp-tool-btn" type="button" data-action="refresh-list" title="刷新">
+                    <i data-lucide="refresh-cw" class="icon-sm"></i>
+                </button>
+                <button class="rp-tool-btn" type="button" data-action="cleanup-old" title="清理旧还原点">
+                    <i data-lucide="broom" class="icon-sm"></i>
+                    <span>清理旧点</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 时间线 -->
+        <ol class="rp-timeline" id="rpTimeline">
+
+            <li class="rp-tl-item" data-type="manual" data-id="023">
+                <span class="rp-tl-node" data-type="manual">
+                    <i data-lucide="user" class="rp-tl-node-icon"></i>
+                </span>
+                <div class="rp-tl-card">
+                    <header class="rp-tl-card-head">
+                        <span class="rp-tl-time">
+                            <span class="rp-tl-time-rel">今天 14:02</span>
+                            <span class="rp-tl-time-abs mono-text">2026-05-10 14:02:31</span>
+                        </span>
+                        <span class="rp-type-pill" data-type="manual">手动</span>
+                    </header>
+                    <div class="rp-tl-desc">驱动更新前 · 安全快照</div>
+                    <div class="rp-tl-meta">
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#023</span>
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>680 MB</span>
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="hard-drive" class="icon-xs"></i>C:</span>
+                    </div>
+                    <div class="rp-tl-actions">
+                        <button class="rp-row-btn rp-row-btn-restore" data-action="restore" data-id="023">
+                            <i data-lucide="rotate-ccw" class="icon-sm"></i><span>还原到此点</span>
+                        </button>
+                        <button class="rp-row-btn" data-action="detail" data-id="023">
+                            <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                        </button>
+                        <button class="rp-row-btn rp-row-btn-danger" data-action="delete" data-id="023">
+                            <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                        </button>
+                    </div>
+                </div>
+            </li>
+
+            <li class="rp-tl-item" data-type="update" data-id="022">
+                <span class="rp-tl-node" data-type="update">
+                    <i data-lucide="download" class="rp-tl-node-icon"></i>
+                </span>
+                <div class="rp-tl-card">
+                    <header class="rp-tl-card-head">
+                        <span class="rp-tl-time">
+                            <span class="rp-tl-time-rel">昨天 09:15</span>
+                            <span class="rp-tl-time-abs mono-text">2026-05-09 09:15:08</span>
+                        </span>
+                        <span class="rp-type-pill" data-type="update">系统更新</span>
+                    </header>
+                    <div class="rp-tl-desc">Windows Update · KB5036893</div>
+                    <div class="rp-tl-meta">
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#022</span>
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>1.2 GB</span>
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="hard-drive" class="icon-xs"></i>C:</span>
+                    </div>
+                    <div class="rp-tl-actions">
+                        <button class="rp-row-btn rp-row-btn-restore" data-action="restore" data-id="022">
+                            <i data-lucide="rotate-ccw" class="icon-sm"></i><span>还原</span>
+                        </button>
+                        <button class="rp-row-btn" data-action="detail" data-id="022">
+                            <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                        </button>
+                        <button class="rp-row-btn rp-row-btn-danger" data-action="delete" data-id="022">
+                            <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                        </button>
+                    </div>
+                </div>
+            </li>
+
+            <li class="rp-tl-item" data-type="install" data-id="021">
+                <span class="rp-tl-node" data-type="install">
+                    <i data-lucide="package" class="rp-tl-node-icon"></i>
+                </span>
+                <div class="rp-tl-card">
+                    <header class="rp-tl-card-head">
+                        <span class="rp-tl-time">
+                            <span class="rp-tl-time-rel">3 天前</span>
+                            <span class="rp-tl-time-abs mono-text">2026-05-07 21:48:12</span>
+                        </span>
+                        <span class="rp-type-pill" data-type="install">软件安装</span>
+                    </header>
+                    <div class="rp-tl-desc">已安装：NVIDIA GeForce 驱动 552.22</div>
+                    <div class="rp-tl-meta">
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#021</span>
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>820 MB</span>
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="hard-drive" class="icon-xs"></i>C:</span>
+                    </div>
+                    <div class="rp-tl-actions">
+                        <button class="rp-row-btn rp-row-btn-restore" data-action="restore" data-id="021">
+                            <i data-lucide="rotate-ccw" class="icon-sm"></i><span>还原</span>
+                        </button>
+                        <button class="rp-row-btn" data-action="detail" data-id="021">
+                            <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                        </button>
+                        <button class="rp-row-btn rp-row-btn-danger" data-action="delete" data-id="021">
+                            <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                        </button>
+                    </div>
+                </div>
+            </li>
+
+            <li class="rp-tl-item" data-type="system" data-id="020">
+                <span class="rp-tl-node" data-type="system">
+                    <i data-lucide="cog" class="rp-tl-node-icon"></i>
+                </span>
+                <div class="rp-tl-card">
+                    <header class="rp-tl-card-head">
+                        <span class="rp-tl-time">
+                            <span class="rp-tl-time-rel">5 天前</span>
+                            <span class="rp-tl-time-abs mono-text">2026-05-05 03:00:00</span>
+                        </span>
+                        <span class="rp-type-pill" data-type="system">自动 · 系统</span>
+                    </header>
+                    <div class="rp-tl-desc">每周计划任务自动创建</div>
+                    <div class="rp-tl-meta">
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#020</span>
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>540 MB</span>
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="hard-drive" class="icon-xs"></i>C:</span>
+                    </div>
+                    <div class="rp-tl-actions">
+                        <button class="rp-row-btn rp-row-btn-restore" data-action="restore" data-id="020">
+                            <i data-lucide="rotate-ccw" class="icon-sm"></i><span>还原</span>
+                        </button>
+                        <button class="rp-row-btn" data-action="detail" data-id="020">
+                            <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                        </button>
+                        <button class="rp-row-btn rp-row-btn-danger" data-action="delete" data-id="020">
+                            <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                        </button>
+                    </div>
+                </div>
+            </li>
+
+            <li class="rp-tl-item" data-type="manual" data-id="019">
+                <span class="rp-tl-node" data-type="manual">
+                    <i data-lucide="user" class="rp-tl-node-icon"></i>
+                </span>
+                <div class="rp-tl-card">
+                    <header class="rp-tl-card-head">
+                        <span class="rp-tl-time">
+                            <span class="rp-tl-time-rel">2 周前</span>
+                            <span class="rp-tl-time-abs mono-text">2026-04-26 11:23:55</span>
+                        </span>
+                        <span class="rp-type-pill" data-type="manual">手动</span>
+                    </header>
+                    <div class="rp-tl-desc">系统大版本更新前快照</div>
+                    <div class="rp-tl-meta">
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="hash" class="icon-xs"></i>#019</span>
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="database" class="icon-xs"></i>980 MB</span>
+                        <span class="rp-tl-meta-cell mono-text"><i data-lucide="hard-drive" class="icon-xs"></i>C:</span>
+                    </div>
+                    <div class="rp-tl-actions">
+                        <button class="rp-row-btn rp-row-btn-restore" data-action="restore" data-id="019">
+                            <i data-lucide="rotate-ccw" class="icon-sm"></i><span>还原</span>
+                        </button>
+                        <button class="rp-row-btn" data-action="detail" data-id="019">
+                            <i data-lucide="info" class="icon-sm"></i><span>详情</span>
+                        </button>
+                        <button class="rp-row-btn rp-row-btn-danger" data-action="delete" data-id="019">
+                            <i data-lucide="trash-2" class="icon-sm"></i><span>删除</span>
+                        </button>
+                    </div>
+                </div>
+            </li>
+
+        </ol>
+
+        <!-- 空态（默认隐藏） -->
+        <div class="rp-empty" id="rpEmpty" hidden>
+            <i data-lucide="package-open" class="rp-empty-icon"></i>
+            <h3 class="rp-empty-title">尚未创建任何还原点</h3>
+            <p class="rp-empty-desc">在重大变更（驱动更新 / 系统更新 / 软件安装）前创建一个还原点，可以随时回到当前状态</p>
+            <button class="rp-btn rp-btn-primary" type="button" data-action="create-restore-point">
+                <i data-lucide="plus" class="rp-btn-icon"></i>
+                <span>创建第一个还原点</span>
+            </button>
+        </div>
+
+    </section>
+
+    <!-- ===== ④ 底部细信息条 ===== -->
+    <footer class="rp-footer">
+        <div class="rp-footer-cell">
+            <i data-lucide="shield-check" class="rp-footer-icon"></i>
+            <span>已启用管理员权限</span>
+        </div>
+        <span class="rp-footer-divider"></span>
+        <div class="rp-footer-cell">
+            <i data-lucide="alert-triangle" class="rp-footer-icon"></i>
+            <span>还原操作不可撤销，将自动重启系统</span>
+        </div>
+        <span class="rp-footer-divider"></span>
+        <div class="rp-footer-cell">
+            <i data-lucide="clock-4" class="rp-footer-icon"></i>
+            <span>最近一次还原点 · 今天 14:02</span>
+        </div>
+    </footer>
+
+    <!-- ===== ⑤ 还原确认弹窗（默认隐藏） ===== -->
+    <div class="rp-modal-mask" id="rpModalMask" hidden></div>
+    <div class="rp-modal" id="rpModal" role="dialog" aria-modal="true" hidden>
+        <header class="rp-modal-head" data-kind="restore" id="rpModalHead">
+            <span class="rp-modal-icon-wrap">
+                <i data-lucide="rotate-ccw" class="rp-modal-icon" id="rpModalIcon"></i>
+            </span>
+            <div class="rp-modal-title-wrap">
+                <h3 class="rp-modal-title" id="rpModalTitle">确认还原到此还原点</h3>
+                <p class="rp-modal-sub" id="rpModalSub">系统将重启并回到该时刻的状态</p>
+            </div>
+        </header>
+        <div class="rp-modal-body">
+            <div class="rp-modal-target" id="rpModalTarget">
+                <i data-lucide="history" class="rp-modal-target-icon"></i>
+                <div>
+                    <div class="rp-modal-target-name" id="rpModalTargetName">#023 · 驱动更新前 · 安全快照</div>
+                    <div class="rp-modal-target-meta mono-text" id="rpModalTargetMeta">2026-05-10 14:02:31 · 680 MB · C:</div>
+                </div>
+            </div>
+            <ul class="rp-modal-warns" id="rpModalWarns">
+                <li><i data-lucide="alert-triangle" class="icon-xs"></i><span>该操作 <b>不可撤销</b>，请确认后继续</span></li>
+                <li><i data-lucide="refresh-cw" class="icon-xs"></i><span>系统将自动 <b>重启</b>，预计耗时 5 - 10 分钟</span></li>
+                <li><i data-lucide="file-check" class="icon-xs"></i><span>个人文件 <b>不会受影响</b>，但还原点之后安装的程序将被移除</span></li>
+            </ul>
+        </div>
+        <footer class="rp-modal-foot">
+            <button class="rp-btn rp-btn-ghost" type="button" data-action="modal-cancel">取消</button>
+            <button class="rp-btn rp-btn-danger" type="button" data-action="modal-confirm" id="rpModalConfirm">
+                <i data-lucide="rotate-ccw" class="rp-btn-icon"></i>
+                <span>确认还原</span>
+            </button>
+        </footer>
+    </div>
+
+</div>

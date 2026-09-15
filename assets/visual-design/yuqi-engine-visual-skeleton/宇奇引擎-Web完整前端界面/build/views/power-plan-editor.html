@@ -1,0 +1,394 @@
+<!-- ==========================================================================
+   电源优化 · Power Optimize · The Power Console v3
+   --------------------------------------------------------------------------
+   叙事重构：CPU 智能识别 → 单按钮智能优化 → Windows 电源计划集中管理
+   架构：CPU 识别面板 → 状态条 → 左栏(智能优化 CTA + 电源计划列表) / 右栏(当前参数)
+        → 可编辑高级参数 → 智能优化弹窗 / 重命名弹窗 / 命令岛 / Toast
+   命名空间：pw-（power）· 钛金族系
+========================================================================== -->
+<section class="pw-page" data-state="idle" data-cpu="intel_hybrid">
+
+    <!-- ① CPU 智能识别面板 -->
+    <header class="pw-cpu-panel" id="pwCpuPanel">
+        <div class="pw-cpu-glow" aria-hidden="true"></div>
+
+        <div class="pw-cpu-main">
+            <div class="pw-cpu-identity">
+                <div class="pw-cpu-chip">
+                    <i data-lucide="cpu" class="pw-cpu-icon"></i>
+                    <span class="pw-cpu-pulse" aria-hidden="true"></span>
+                </div>
+                <div class="pw-cpu-meta">
+                    <div class="pw-cpu-name-row">
+                        <span class="pw-cpu-prefix">已识别</span>
+                        <h2 class="pw-cpu-name" id="pwCpuName">Intel Core i7-14700K</h2>
+                        <button class="pw-cpu-switcher-trigger" type="button" data-action="toggle-cpu-switcher" aria-label="切换演示 CPU">
+                            <i data-lucide="settings-2" class="icon-xs"></i>
+                        </button>
+                    </div>
+                    <div class="pw-cpu-arch-row">
+                        <span class="pw-cpu-arch-tag" id="pwCpuArchTag">
+                            <i data-lucide="layers" class="icon-xs"></i>
+                            <span id="pwCpuArchText">Intel 混合架构 (P-Core + E-Core)</span>
+                        </span>
+                        <span class="pw-cpu-spec mono-text" id="pwCpuSpec">8 P-Core + 12 E-Core · 28 线程</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pw-injection">
+                <div class="pw-injection-head">
+                    <i data-lucide="sparkles" class="pw-injection-spark"></i>
+                    <span class="pw-injection-title">AI 已为你的 CPU 准备 <strong id="pwInjectionCount">3</strong> 项专属优化</span>
+                </div>
+                <div class="pw-injection-tags" id="pwInjectionTags">
+                    <!-- 由 JS 渲染 -->
+                </div>
+                <div class="pw-injection-foot">
+                    <i data-lucide="lightbulb" class="icon-xs"></i>
+                    <span id="pwCpuRecommend">推荐锁定到 P-Core 以获得最佳单线程性能</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CPU 演示切换器（默认隐藏） -->
+        <div class="pw-cpu-switcher" id="pwCpuSwitcher" hidden>
+            <div class="pw-switcher-head">
+                <i data-lucide="flask-conical" class="icon-xs"></i>
+                <span>演示模式 · 切换 CPU 查看 AI 注入差异</span>
+                <button class="pw-switcher-close" type="button" data-action="close-cpu-switcher" aria-label="关闭">
+                    <i data-lucide="x" class="icon-xs"></i>
+                </button>
+            </div>
+            <div class="pw-switcher-grid">
+                <button class="pw-switcher-card" type="button" data-cpu-id="intel_hybrid" data-active="true">
+                    <span class="pw-switcher-vendor">Intel</span>
+                    <span class="pw-switcher-model">i7-14700K</span>
+                    <span class="pw-switcher-arch">混合架构 P+E</span>
+                </button>
+                <button class="pw-switcher-card" type="button" data-cpu-id="intel_standard">
+                    <span class="pw-switcher-vendor">Intel</span>
+                    <span class="pw-switcher-model">i7-10700K</span>
+                    <span class="pw-switcher-arch">标准架构</span>
+                </button>
+                <button class="pw-switcher-card" type="button" data-cpu-id="amd_x3d">
+                    <span class="pw-switcher-vendor">AMD</span>
+                    <span class="pw-switcher-model">R7 7800X3D</span>
+                    <span class="pw-switcher-arch">X3D · V-Cache</span>
+                </button>
+                <button class="pw-switcher-card" type="button" data-cpu-id="amd_multi_ccd">
+                    <span class="pw-switcher-vendor">AMD</span>
+                    <span class="pw-switcher-model">R9 7950X</span>
+                    <span class="pw-switcher-arch">多 CCD</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ② 当前激活电源计划状态条 -->
+    <section class="pw-active-bar" id="pwActiveBar" aria-label="当前激活电源计划">
+        <div class="pw-active-main">
+            <span class="pw-active-pulse" aria-hidden="true"></span>
+            <div class="pw-active-meta">
+                <span class="pw-active-label">当前激活</span>
+                <strong class="pw-active-name" id="pwActivePlan">平衡（推荐）</strong>
+                <span class="pw-active-source" id="pwActiveSource">Windows 默认</span>
+            </div>
+            <span class="pw-active-divider"></span>
+            <span class="pw-active-stat">
+                <i data-lucide="plug-zap" class="icon-xs"></i>
+                <span id="pwAcStatus">市电接入 · 100%</span>
+            </span>
+            <span class="pw-active-divider"></span>
+            <span class="pw-active-stat">
+                <i data-lucide="shield-check" class="icon-xs"></i>
+                <span id="pwAdminStatus">管理员权限已就绪</span>
+            </span>
+        </div>
+        <div class="pw-active-actions">
+            <button class="pw-btn pw-btn-ghost" type="button" data-action="open-param-drawer" id="pwOpenDrawerBtn">
+                <i data-lucide="activity" class="icon-xs"></i>
+                <span>当前参数</span>
+            </button>
+            <button class="pw-btn pw-btn-ghost" type="button" data-action="refresh-plans">
+                <i data-lucide="refresh-cw" class="icon-xs"></i>
+                <span>刷新</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- ③ 主操作区 · 单栏（当前参数已移至右侧抽屉） -->
+    <section class="pw-main-grid">
+
+        <!-- 左栏（独占全宽） -->
+        <article class="pw-left-col">
+
+            <!-- ③.1 智能优化 CTA（核心入口 · 单按钮） -->
+            <section class="pw-smart-hero" id="pwSmartHero">
+                <div class="pw-smart-hero-bg" aria-hidden="true"></div>
+                <div class="pw-smart-hero-icon">
+                    <i data-lucide="sparkles"></i>
+                </div>
+                <div class="pw-smart-hero-meta">
+                    <h3 class="pw-smart-hero-title">AI 智能优化</h3>
+                    <p class="pw-smart-hero-desc" id="pwSmartHeroDesc">
+                        基于你的 <strong id="pwSmartHeroCpu">Intel 混合架构</strong>，自动生成最优电源计划
+                    </p>
+                    <ul class="pw-smart-hero-bullets" id="pwSmartHeroBullets">
+                        <!-- 由 JS 渲染 3 条要点 -->
+                    </ul>
+                </div>
+                <button class="pw-btn pw-btn-primary pw-smart-hero-btn" type="button" data-action="open-smart-modal">
+                    <i data-lucide="zap" class="icon-xs"></i>
+                    <span>开始智能优化</span>
+                </button>
+            </section>
+
+            <!-- ③.2 Windows 电源计划列表（独立区） -->
+            <section class="pw-plans">
+                <header class="pw-section-head">
+                    <div class="pw-section-title-wrap">
+                        <i data-lucide="layout-list" class="pw-section-icon"></i>
+                        <div>
+                            <h3 class="pw-section-title">电源计划</h3>
+                            <span class="pw-section-sub">系统电源计划 · 切换 / 重命名 / 删除 / 新建</span>
+                        </div>
+                    </div>
+                    <button class="pw-btn pw-btn-ghost" type="button" data-action="create-plan">
+                        <i data-lucide="plus" class="icon-xs"></i>
+                        <span>新建空白计划</span>
+                    </button>
+                </header>
+
+                <ul class="pw-plan-list" id="pwPlanList" role="list">
+                    <!-- 由 JS 渲染：Windows 默认 3 项 + 用户自定义 N 项 -->
+                </ul>
+            </section>
+        </article>
+    </section>
+
+    <!-- ④ 高级电源参数 · 6 大分组（可编辑） -->
+    <section class="pw-advanced">
+        <header class="pw-section-head">
+            <div class="pw-section-title-wrap">
+                <i data-lucide="sliders-horizontal" class="pw-section-icon"></i>
+                <div>
+                    <h3 class="pw-section-title">高级电源参数</h3>
+                    <span class="pw-section-sub">可编辑 · 修改后点击"应用"写入当前计划</span>
+                </div>
+            </div>
+            <div class="pw-advanced-actions">
+                <span class="pw-advanced-dirty" id="pwAdvancedDirty" hidden>
+                    <i data-lucide="circle-dot" class="icon-xs"></i>
+                    <span>有 <strong id="pwAdvancedDirtyCount">0</strong> 项未保存</span>
+                </span>
+                <button class="pw-btn pw-btn-ghost" type="button" data-action="reset-advanced" id="pwAdvancedResetBtn" disabled>
+                    <i data-lucide="rotate-ccw" class="icon-xs"></i>
+                    <span>重置</span>
+                </button>
+                <button class="pw-btn pw-btn-primary" type="button" data-action="apply-advanced" id="pwAdvancedApplyBtn" disabled>
+                    <i data-lucide="check" class="icon-xs"></i>
+                    <span>应用更改</span>
+                </button>
+                <button class="pw-btn pw-btn-ghost" type="button" data-action="toggle-all-groups">
+                    <i data-lucide="chevrons-up-down" class="icon-xs"></i>
+                    <span>全部折叠</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="pw-group-grid" id="pwGroupGrid">
+            <!-- 由 JS 渲染 · 每行支持 input/select 编辑 -->
+        </div>
+    </section>
+
+    <!-- ⑤ 智能优化弹窗（点击单按钮后弹出） -->
+    <div class="pw-modal" id="pwSmartModal" hidden role="dialog" aria-modal="true" aria-labelledby="pwSmartTitle">
+        <div class="pw-modal-mask" data-action="close-smart"></div>
+        <div class="pw-modal-card pw-modal-card--smart">
+            <header class="pw-modal-head">
+                <div class="pw-modal-title-wrap">
+                    <span class="pw-modal-icon-chip pw-modal-icon-chip--ai">
+                        <i data-lucide="sparkles" class="pw-modal-icon"></i>
+                    </span>
+                    <div>
+                        <h3 class="pw-modal-title" id="pwSmartTitle">AI 智能优化</h3>
+                        <span class="pw-modal-sub" id="pwSmartSub">基于 Intel 混合架构 · 已为你生成最优配置</span>
+                    </div>
+                </div>
+                <button class="pw-icon-btn" type="button" data-action="close-smart" aria-label="关闭">
+                    <i data-lucide="x"></i>
+                </button>
+            </header>
+
+            <div class="pw-modal-body">
+                <!-- AI 推荐摘要卡 -->
+                <div class="pw-smart-summary">
+                    <div class="pw-smart-summary-head">
+                        <i data-lucide="zap" class="icon-xs"></i>
+                        <span>将创建新电源计划</span>
+                    </div>
+                    <div class="pw-smart-summary-body">
+                        <input class="pw-smart-name-input" id="pwSmartNameInput" type="text" maxlength="32"
+                               value="YuqiEngine - AI 智能优化"
+                               aria-label="新计划名称">
+                        <div class="pw-smart-summary-tags" id="pwSmartTags">
+                            <!-- 由 JS 渲染：CPU + 架构 + 注入项数 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI 推荐 vs 当前 Diff 列表 -->
+                <div class="pw-diff-section">
+                    <header class="pw-diff-section-head">
+                        <i data-lucide="layout-grid" class="icon-xs"></i>
+                        <span>基础参数变更</span>
+                        <span class="pw-diff-count mono-text"><span id="pwSmartBaseCount">0</span> 项</span>
+                    </header>
+                    <ul class="pw-diff-list" id="pwSmartBaseList"></ul>
+                </div>
+
+                <div class="pw-diff-section pw-diff-section--ai">
+                    <header class="pw-diff-section-head pw-diff-section-head--ai">
+                        <i data-lucide="sparkles" class="icon-xs"></i>
+                        <span>AI 为你的 CPU 注入</span>
+                        <span class="pw-diff-count mono-text"><span id="pwSmartAiCount">0</span> 项</span>
+                    </header>
+                    <ul class="pw-diff-list pw-diff-list--ai" id="pwSmartAiList"></ul>
+                </div>
+
+                <div class="pw-smart-tip">
+                    <i data-lucide="info" class="icon-xs"></i>
+                    <span>原有电源计划将完整保留 · 新计划应用后会自动激活</span>
+                </div>
+            </div>
+
+            <footer class="pw-modal-foot">
+                <button class="pw-btn pw-btn-ghost" type="button" data-action="close-smart">取消</button>
+                <button class="pw-btn pw-btn-primary" type="button" data-action="confirm-smart" id="pwSmartApplyBtn">
+                    <i data-lucide="zap" class="icon-xs"></i>
+                    <span>创建并应用</span>
+                </button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ⑥ 重命名弹窗（轻量） -->
+    <div class="pw-modal" id="pwRenameModal" hidden role="dialog" aria-modal="true">
+        <div class="pw-modal-mask" data-action="close-rename"></div>
+        <div class="pw-modal-card pw-modal-card--rename">
+            <header class="pw-modal-head">
+                <div class="pw-modal-title-wrap">
+                    <span class="pw-modal-icon-chip">
+                        <i data-lucide="pen-line" class="pw-modal-icon"></i>
+                    </span>
+                    <div>
+                        <h3 class="pw-modal-title">重命名电源计划</h3>
+                        <span class="pw-modal-sub" id="pwRenameSub">输入新的名称</span>
+                    </div>
+                </div>
+                <button class="pw-icon-btn" type="button" data-action="close-rename" aria-label="关闭">
+                    <i data-lucide="x"></i>
+                </button>
+            </header>
+            <div class="pw-modal-body">
+                <label class="pw-rename-label">
+                    <span>计划名称</span>
+                    <input class="pw-smart-name-input" id="pwRenameInput" type="text" maxlength="32" />
+                </label>
+            </div>
+            <footer class="pw-modal-foot">
+                <button class="pw-btn pw-btn-ghost" type="button" data-action="close-rename">取消</button>
+                <button class="pw-btn pw-btn-primary" type="button" data-action="confirm-rename">
+                    <i data-lucide="check" class="icon-xs"></i>
+                    <span>确认</span>
+                </button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ⑦ 删除确认弹窗 -->
+    <div class="pw-modal" id="pwDeleteModal" hidden role="dialog" aria-modal="true">
+        <div class="pw-modal-mask" data-action="close-delete"></div>
+        <div class="pw-modal-card pw-modal-card--rename">
+            <header class="pw-modal-head">
+                <div class="pw-modal-title-wrap">
+                    <span class="pw-modal-icon-chip pw-modal-icon-chip--danger">
+                        <i data-lucide="trash-2" class="pw-modal-icon"></i>
+                    </span>
+                    <div>
+                        <h3 class="pw-modal-title">删除电源计划</h3>
+                        <span class="pw-modal-sub" id="pwDeleteSub">删除后无法恢复</span>
+                    </div>
+                </div>
+                <button class="pw-icon-btn" type="button" data-action="close-delete" aria-label="关闭">
+                    <i data-lucide="x"></i>
+                </button>
+            </header>
+            <div class="pw-modal-body">
+                <p class="pw-delete-text" id="pwDeleteText">即将删除「<strong>名称</strong>」，确认操作？</p>
+            </div>
+            <footer class="pw-modal-foot">
+                <button class="pw-btn pw-btn-ghost" type="button" data-action="close-delete">取消</button>
+                <button class="pw-btn pw-btn-danger" type="button" data-action="confirm-delete">
+                    <i data-lucide="trash-2" class="icon-xs"></i>
+                    <span>确认删除</span>
+                </button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ⑧ 命令岛 -->
+    <div class="pw-command-island" id="pwCommandIsland" hidden>
+        <div class="pw-island-spinner" aria-hidden="true">
+            <span class="pw-spinner-ring"></span>
+        </div>
+        <div class="pw-island-meta">
+            <strong class="pw-island-title" id="pwIslandTitle">正在应用</strong>
+            <span class="pw-island-step" id="pwIslandStep">…</span>
+        </div>
+        <div class="pw-island-progress">
+            <span class="pw-island-progress-fill" id="pwIslandProgress" style="width:0%"></span>
+        </div>
+    </div>
+
+    <!-- ⑨ Toast -->
+    <div class="pw-toast" id="pwToast" hidden role="status" aria-live="polite">
+        <i data-lucide="check-circle-2" class="pw-toast-icon" id="pwToastIcon"></i>
+        <span class="pw-toast-text" id="pwToastText">已应用</span>
+    </div>
+
+    <!-- ⑩ 右侧参数抽屉 -->
+    <div class="pw-drawer" id="pwParamDrawer" role="dialog" aria-modal="true" aria-label="当前生效参数">
+        <div class="pw-drawer-mask" data-action="close-param-drawer"></div>
+        <div class="pw-drawer-panel">
+            <header class="pw-drawer-head">
+                <div class="pw-section-title-wrap">
+                    <i data-lucide="activity" class="pw-section-icon"></i>
+                    <div>
+                        <h3 class="pw-section-title">当前生效参数</h3>
+                        <span class="pw-section-sub">来源 · <span id="pwCurrentSource">平衡（Windows 默认）</span></span>
+                    </div>
+                </div>
+                <button class="pw-icon-btn" type="button" data-action="close-param-drawer" aria-label="关闭">
+                    <i data-lucide="x"></i>
+                </button>
+            </header>
+
+            <div class="pw-drawer-body">
+                <ul class="pw-param-list" id="pwParamCore">
+                    <!-- 核心 6 项由 JS 渲染（只读） -->
+                </ul>
+                <div class="pw-drawer-divider"></div>
+                <div class="pw-drawer-full-header">
+                    <span class="pw-drawer-full-label">全部参数</span>
+                    <span class="pw-drawer-full-count mono-text" id="pwParamTotal">22</span>
+                </div>
+                <ul class="pw-param-list pw-param-list--full" id="pwParamFull">
+                    <!-- 完整由 JS 渲染（只读） -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</section>

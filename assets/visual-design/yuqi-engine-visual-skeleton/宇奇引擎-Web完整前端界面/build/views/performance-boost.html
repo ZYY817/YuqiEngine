@@ -1,0 +1,189 @@
+<!--
+  性能加速 · Performance Boost · YuqiEngine v3
+  数据来自 GameOptimizer.Core BuildPerformanceModule
+-->
+<div class="mod-page" data-module="performance" style="--mod-accent: #F59E0B; --mod-accent-soft: rgba(245, 158, 11, 0.10); --mod-accent-strong: rgba(245, 158, 11, 0.22);">
+
+    <header class="mod-topbar">
+        <div class="mod-breadcrumb">
+            <i data-lucide="rocket" class="mod-bc-icon"></i>
+            <span class="mod-bc-text">性能加速</span>
+            <span class="mod-bc-sub">聚焦 CPU / GPU / 系统级调校</span>
+        </div>
+        <div class="mod-topbar-extra">
+            <span class="mem-spec-chip">
+                <i data-lucide="zap" class="icon-xs"></i>
+                <span>游戏模式 · 已就绪</span>
+            </span>
+        </div>
+    </header>
+
+    <section class="mod-hero-row">
+        <div class="mod-hero-text">
+            <h1 class="mod-hero-title">性能加速</h1>
+            <p class="mod-hero-sub">聚焦 CPU / GPU / 系统级调校，释放更多算力给游戏</p>
+        </div>
+        <div class="mod-health-card">
+            <div class="mod-health-ring">
+                <svg class="mod-ring-svg" viewBox="0 0 56 56" aria-hidden="true">
+                    <circle cx="28" cy="28" r="22" class="mod-ring-track"/>
+                    <circle cx="28" cy="28" r="22" class="mod-ring-progress" stroke-dasharray="0 138" transform="rotate(-90 28 28)"/>
+                </svg>
+                <div class="mod-ring-num"><strong>0</strong><span>/</span><em>10</em></div>
+            </div>
+            <div class="mod-health-stat">
+                <span class="mod-health-stat-title">已启用 <strong>0%</strong></span>
+                <ul class="mod-health-list">
+                    <li><span class="mod-dot mod-dot--safe"></span><span>4 安全</span></li>
+                    <li><span class="mod-dot mod-dot--warn"></span><span>3 中</span></li>
+                    <li><span class="mod-dot mod-dot--danger"></span><span>3 高</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="mod-control-bar">
+        <div class="mod-filter-bar" role="tablist" aria-label="按风险筛选">
+            <button class="mod-filter-chip is-active" data-filter="all" role="tab" aria-selected="true"><span>全部</span><em>10</em></button>
+            <button class="mod-filter-chip" data-filter="safe" role="tab" aria-selected="false"><span class="mod-dot mod-dot--safe"></span><span>安全</span><em>4</em></button>
+            <button class="mod-filter-chip" data-filter="warn" role="tab" aria-selected="false"><span class="mod-dot mod-dot--warn"></span><span>中等</span><em>3</em></button>
+            <button class="mod-filter-chip" data-filter="danger" role="tab" aria-selected="false"><span class="mod-dot mod-dot--danger"></span><span>高风险</span><em>3</em></button>
+            <button class="mod-filter-chip" data-filter="recommend" role="tab" aria-selected="false"><span class="mod-dot mod-dot--info"></span><span>推荐</span><em>3</em></button>
+        </div>
+        <div class="mod-control-actions">
+            <button class="mod-btn-ghost" type="button"><i data-lucide="shield-check" class="icon-xs"></i><span>一键优化（安全）</span></button>
+            <button class="mod-btn-ghost" type="button"><i data-lucide="rotate-ccw" class="icon-xs"></i><span>恢复默认</span><i data-lucide="chevron-down" class="icon-xs mod-btn-caret"></i></button>
+        </div>
+    </section>
+
+    <section class="mod-list">
+
+        <article class="mod-group" data-group="game">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#F59E0B"><i data-lucide="gamepad-2"></i></span>
+                    <div class="mod-group-title-text">
+                        <h3 class="mod-group-title">游戏模式</h3>
+                        <p class="mod-group-sub">为前台游戏争取更多系统资源</p>
+                    </div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="safe" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>启用系统游戏模式</span><span class="mod-tag mod-tag--safe">安全</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">AutoGameModeEnabled=1，Windows 自动为游戏分配更多系统资源，减少后台干扰</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 Game DVR 策略</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">AllowGameDVR=0，通过系统策略禁止游戏录制，释放 GPU 和内存资源</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭 Game Bar 启动提示</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">ShowStartupPanel=0，关闭 Game Bar 启动提示和技巧面板，减少游戏启动时的弹窗干扰</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="background">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#0EA5E9"><i data-lucide="bell-off"></i></span>
+                    <div class="mod-group-title-text">
+                        <h3 class="mod-group-title">后台与通知</h3>
+                        <p class="mod-group-sub">压制系统级后台占用，保持游戏沉浸</p>
+                    </div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 4 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="warn" data-recommend="true" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁用 UWP 程序后台运行</span><span class="mod-tag mod-tag--warn">中等</span><span class="mod-tag mod-tag--recommend">推荐</span></div>
+                        <p class="mod-toggle-row-desc">阻止通用应用在后台占用资源，释放被 UWP 应用占用的内存和 CPU</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>禁止商店应用自动更新</span><span class="mod-tag mod-tag--warn">中等</span></div>
+                        <p class="mod-toggle-row-desc">AutoDownload=2，避免游戏时后台下载和安装 Microsoft Store 应用更新占用带宽</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="warn" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭 Windows 自动更新</span><span class="mod-tag mod-tag--warn">中等</span></div>
+                        <p class="mod-toggle-row-desc">NoAutoUpdate=1，避免游戏时突然下载更新；需手动检查安全更新</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="safe" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭安全通知气泡</span><span class="mod-tag mod-tag--safe">安全</span></div>
+                        <p class="mod-toggle-row-desc">关闭安全中心烦人的提示气泡，游戏时不会被通知弹窗打断</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <article class="mod-group" data-group="security">
+            <header class="mod-group-head">
+                <div class="mod-group-title-wrap">
+                    <span class="mod-group-icon" style="--mod-group-tone:#EF4444"><i data-lucide="shield-alert"></i></span>
+                    <div class="mod-group-title-text">
+                        <h3 class="mod-group-title">安全缓解（高风险）</h3>
+                        <p class="mod-group-sub">⚠ 关闭后将牺牲安全性换取性能，仅纯游戏机推荐</p>
+                    </div>
+                </div>
+                <span class="mod-group-meta"><strong>0</strong> / 3 启用</span>
+            </header>
+            <ul class="mod-toggle-list">
+                <li class="mod-toggle-row" data-risk="danger" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭 VBS / 内存完整性</span><span class="mod-tag mod-tag--danger">高风险</span><span class="mod-tag mod-tag--ghost">需重启</span></div>
+                        <p class="mod-toggle-row-desc">禁用基于虚拟化的安全 (VBS) 与 HVCI，约可换回 5-10% CPU 性能；将关闭核心隔离</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="danger" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭 Defender 实时防护</span><span class="mod-tag mod-tag--danger">高风险</span></div>
+                        <p class="mod-toggle-row-desc">⚠ 关闭后系统将失去实时反病毒保护，仅建议在受控的纯游戏环境使用</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+                <li class="mod-toggle-row" data-risk="danger" data-applied="false">
+                    <div class="mod-toggle-info">
+                        <div class="mod-toggle-row-title"><span>关闭 SmartScreen</span><span class="mod-tag mod-tag--danger">高风险</span></div>
+                        <p class="mod-toggle-row-desc">禁用 Windows 应用与浏览器的 SmartScreen 信誉过滤，可能下载或运行未经验证的程序</p>
+                    </div>
+                    <button class="mod-switch" type="button" role="switch" aria-checked="false"></button>
+                </li>
+            </ul>
+        </article>
+
+        <div class="mod-empty" hidden><div class="mod-empty-icon"><i data-lucide="search-x"></i></div><p class="mod-empty-title">没有符合条件的项目</p><p class="mod-empty-hint">试试切换筛选条件</p></div>
+    </section>
+
+    <div class="mod-action-island">
+        <span class="mod-status-dot"></span>
+        <span class="mod-status-text">无未应用更改</span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat"><span>已选</span><strong class="mono-text">0</strong><span>项</span></span>
+        <span class="mod-island-divider"></span>
+        <span class="mod-island-stat mod-island-stat--accent"><span>已生效</span><strong class="mono-text">0</strong><span>项</span></span>
+        <button class="mod-island-apply" type="button" disabled>立即应用</button>
+    </div>
+
+</div>

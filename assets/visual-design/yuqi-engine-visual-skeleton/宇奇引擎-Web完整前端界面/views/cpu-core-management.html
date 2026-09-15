@@ -1,0 +1,289 @@
+<!-- ==========================================================================
+   CPU 核心调度 · The Console · 指挥台
+   - 顶部 CPU 信息条（型号 / P+E / 逻辑核 / 当前负载）
+   - 左 进程列表（搜索 · 过滤 · 单选）
+   - 右 核心矩阵（P/E 核棋盘 · SMT 拓扑 · 快速预设）
+   - 底部应用工具栏（应用 · 重置 · 保存预设）
+   - 浮层 预设抽屉（推荐 4 套预设）
+   ========================================================================== -->
+<section class="cpu-view" data-view="cpu-core-management">
+
+    <!-- ============= 顶部 CPU 信息条 ============= -->
+    <header class="cpu-topbar">
+        <div class="cpu-topbar-brand">
+            <div class="cpu-brand-chip">
+                <i data-lucide="cpu" class="cpu-brand-icon"></i>
+            </div>
+            <div class="cpu-brand-meta">
+                <span class="cpu-brand-name" id="cpuBrandName">Intel Core i7-14700K</span>
+                <span class="cpu-brand-sub">
+                    <span class="cpu-brand-badge cpu-brand-badge--p">8 P-Core</span>
+                    <span class="cpu-brand-badge cpu-brand-badge--e">12 E-Core</span>
+                    <span class="cpu-brand-dot"></span>
+                    <span id="cpuLogicalCount">28 逻辑核</span>
+                    <span class="cpu-brand-dot"></span>
+                    <span>基础 3.4 GHz · 加速 5.6 GHz</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="cpu-topbar-stats">
+            <div class="cpu-stat">
+                <span class="cpu-stat-label">总占用</span>
+                <span class="cpu-stat-value" id="cpuLoadTotal">23<em>%</em></span>
+                <div class="cpu-stat-bar"><div class="cpu-stat-bar-fill" id="cpuLoadBar" style="width:23%"></div></div>
+            </div>
+            <div class="cpu-stat">
+                <span class="cpu-stat-label">P 核负载</span>
+                <span class="cpu-stat-value cpu-stat-value--p">31<em>%</em></span>
+                <div class="cpu-stat-bar"><div class="cpu-stat-bar-fill cpu-stat-bar-fill--p" style="width:31%"></div></div>
+            </div>
+            <div class="cpu-stat">
+                <span class="cpu-stat-label">E 核负载</span>
+                <span class="cpu-stat-value cpu-stat-value--e">18<em>%</em></span>
+                <div class="cpu-stat-bar"><div class="cpu-stat-bar-fill cpu-stat-bar-fill--e" style="width:18%"></div></div>
+            </div>
+            <div class="cpu-stat">
+                <span class="cpu-stat-label">温度</span>
+                <span class="cpu-stat-value">52<em>°C</em></span>
+                <div class="cpu-stat-bar"><div class="cpu-stat-bar-fill" style="width:42%"></div></div>
+            </div>
+        </div>
+
+        <button class="cpu-topbar-refresh" type="button" data-action="cpu-refresh" title="重新检测">
+            <i data-lucide="refresh-cw" class="icon-sm"></i>
+            <span>重新检测</span>
+        </button>
+    </header>
+
+    <!-- ============= 主体：左右双栏 ============= -->
+    <div class="cpu-main">
+
+        <!-- ----- 左：进程列表 ----- -->
+        <aside class="cpu-procpane">
+            <div class="cpu-procpane-head">
+                <div class="cpu-procpane-title-wrap">
+                    <i data-lucide="list" class="cpu-procpane-title-icon"></i>
+                    <h3 class="cpu-procpane-title">运行进程</h3>
+                    <span class="cpu-procpane-count" id="procCount">15</span>
+                </div>
+                <div class="cpu-procpane-search">
+                    <i data-lucide="search" class="cpu-procpane-search-icon"></i>
+                    <input type="text" id="procSearch" class="cpu-procpane-search-input" placeholder="搜索进程名 / PID">
+                </div>
+            </div>
+
+            <!-- 过滤标签栏 -->
+            <div class="cpu-procpane-filters" id="procFilters">
+                <button class="cpu-filter-chip is-active" data-filter="all" type="button">
+                    <i data-lucide="layers" class="icon-xs"></i>全部
+                </button>
+                <button class="cpu-filter-chip" data-filter="foreground" type="button">
+                    <i data-lucide="square-mouse-pointer" class="icon-xs"></i>前台
+                </button>
+                <button class="cpu-filter-chip" data-filter="game" type="button">
+                    <i data-lucide="gamepad-2" class="icon-xs"></i>游戏
+                </button>
+                <button class="cpu-filter-chip" data-filter="high-cpu" type="button">
+                    <i data-lucide="flame" class="icon-xs"></i>高 CPU
+                </button>
+                <button class="cpu-filter-chip" data-filter="custom" type="button">
+                    <i data-lucide="pin" class="icon-xs"></i>已绑定
+                </button>
+            </div>
+
+            <!-- 列表表头 -->
+            <div class="cpu-proctable-head">
+                <span class="col-name">进程</span>
+                <span class="col-pid">PID</span>
+                <span class="col-cpu">CPU</span>
+                <span class="col-mem">内存</span>
+                <span class="col-aff">亲和性</span>
+            </div>
+
+            <!-- 进程列表（JS 注入） -->
+            <ul class="cpu-proclist" id="procList" role="listbox" aria-label="进程列表">
+                <!-- 占位骨架 · JS 接管后清空 -->
+                <li class="cpu-proc-skeleton"></li>
+                <li class="cpu-proc-skeleton"></li>
+                <li class="cpu-proc-skeleton"></li>
+            </ul>
+
+            <!-- 列表底部状态条 -->
+            <footer class="cpu-procpane-foot">
+                <span class="cpu-procpane-foot-meta">
+                    <i data-lucide="info" class="icon-xs"></i>
+                    点击进程后可在右侧调整其核心亲和性
+                </span>
+            </footer>
+        </aside>
+
+        <!-- ----- 右：核心矩阵 ----- -->
+        <section class="cpu-corepane">
+
+            <!-- 当前选中进程头 -->
+            <header class="cpu-corepane-head">
+                <div class="cpu-target">
+                    <div class="cpu-target-icon-wrap" id="targetIconWrap">
+                        <i data-lucide="mouse-pointer-2" class="cpu-target-icon"></i>
+                    </div>
+                    <div class="cpu-target-meta">
+                        <span class="cpu-target-label">当前调度目标</span>
+                        <span class="cpu-target-name" id="targetName">未选择进程</span>
+                        <span class="cpu-target-sub" id="targetSub">从左侧选择一个进程开始</span>
+                        <span class="cpu-target-preferred" id="targetPreferred" hidden>
+                            <i data-lucide="star" class="icon-xs"></i>
+                            <span>首选核心：</span>
+                            <strong id="targetPreferredLabel">P0</strong>
+                            <button class="cpu-target-preferred-clear" type="button" data-action="cpu-clear-preferred" title="清除首选">
+                                <i data-lucide="x" class="icon-xs"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 快速预设按钮组 -->
+                <div class="cpu-preset-quick" id="presetQuick">
+                    <button class="cpu-preset-btn" data-preset="all" type="button" disabled>
+                        <i data-lucide="check-square" class="icon-xs"></i>全选
+                    </button>
+                    <button class="cpu-preset-btn" data-preset="p-only" type="button" disabled>
+                        <i data-lucide="zap" class="icon-xs"></i>仅 P 核
+                    </button>
+                    <button class="cpu-preset-btn" data-preset="e-only" type="button" disabled>
+                        <i data-lucide="leaf" class="icon-xs"></i>仅 E 核
+                    </button>
+                    <button class="cpu-preset-btn" data-preset="invert" type="button" disabled>
+                        <i data-lucide="flip-horizontal-2" class="icon-xs"></i>反选
+                    </button>
+                </div>
+            </header>
+
+            <!-- 核心棋盘 -->
+            <div class="cpu-corematrix-wrap">
+                <div class="cpu-corematrix-legend">
+                    <span class="cpu-legend-item"><span class="cpu-legend-dot cpu-legend-dot--p"></span>P-Core 性能核</span>
+                    <span class="cpu-legend-item"><span class="cpu-legend-dot cpu-legend-dot--e"></span>E-Core 能效核</span>
+                    <span class="cpu-legend-item"><span class="cpu-legend-dot cpu-legend-dot--ht"></span>HT 副线程</span>
+                    <span class="cpu-legend-item"><span class="cpu-legend-dot cpu-legend-dot--on"></span>已分配</span>
+                    <span class="cpu-legend-item"><span class="cpu-legend-dot cpu-legend-dot--star"><i data-lucide="star"></i></span>首选核心</span>
+                    <span class="cpu-legend-tip">
+                        <i data-lucide="info" class="icon-xs"></i>
+                        右键核心格可设为首选 · 帧数玄学党专用
+                    </span>
+                </div>
+
+                <!-- 棋盘 · JS 注入 cell -->
+                <div class="cpu-corematrix" id="coreMatrix" aria-label="CPU 核心矩阵">
+                    <!-- cell · JS 渲染 -->
+                </div>
+
+                <!-- SMT 拓扑微图 -->
+                <div class="cpu-topology">
+                    <div class="cpu-topology-head">
+                        <i data-lucide="git-fork" class="icon-xs"></i>
+                        <span>SMT 拓扑：物理核 → 逻辑核映射</span>
+                    </div>
+                    <div class="cpu-topology-body" id="cpuTopology">
+                        <!-- JS 注入物理核组 -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- ============= 底部应用工具栏 ============= -->
+    <footer class="cpu-actionbar">
+        <div class="cpu-actionbar-summary">
+            <i data-lucide="check-circle-2" class="cpu-actionbar-summary-icon"></i>
+            <span class="cpu-actionbar-summary-text" id="actionSummary">未选择进程 · 0 / 28 核已勾选</span>
+        </div>
+        <div class="cpu-actionbar-buttons">
+            <button class="cpu-btn cpu-btn--ghost" type="button" data-action="cpu-reset" disabled>
+                <i data-lucide="rotate-ccw" class="icon-xs"></i>恢复默认
+            </button>
+            <button class="cpu-btn cpu-btn--ghost" type="button" data-action="cpu-save-preset" disabled>
+                <i data-lucide="bookmark-plus" class="icon-xs"></i>保存为预设
+            </button>
+            <button class="cpu-btn cpu-btn--primary" type="button" data-action="cpu-apply" id="cpuApplyBtn" disabled>
+                <i data-lucide="zap" class="icon-xs"></i>应用到该进程
+            </button>
+        </div>
+    </footer>
+
+    <!-- ============= 浮层：预设抽屉 ============= -->
+    <button class="cpu-preset-fab" type="button" data-action="cpu-preset-toggle" title="预设方案">
+        <i data-lucide="sparkles" class="icon-sm"></i>
+        <span>预设</span>
+    </button>
+
+    <aside class="cpu-preset-drawer" id="cpuPresetDrawer" aria-hidden="true">
+        <header class="cpu-preset-drawer-head">
+            <i data-lucide="sparkles" class="cpu-preset-drawer-icon"></i>
+            <h4 class="cpu-preset-drawer-title">推荐预设方案</h4>
+            <button class="cpu-preset-drawer-close" type="button" data-action="cpu-preset-close" title="关闭">
+                <i data-lucide="x" class="icon-sm"></i>
+            </button>
+        </header>
+        <ul class="cpu-preset-list">
+            <li class="cpu-preset-card" data-recipe="game">
+                <div class="cpu-preset-card-icon"><i data-lucide="gamepad-2"></i></div>
+                <div class="cpu-preset-card-meta">
+                    <span class="cpu-preset-card-title">游戏 · 仅 P 核</span>
+                    <span class="cpu-preset-card-desc">锁定 P-Core 主线程，避开 E 核掉帧</span>
+                    <span class="cpu-preset-card-tag">推荐 · valorant / 帧数敏感</span>
+                </div>
+                <button class="cpu-preset-card-btn" type="button">应用</button>
+            </li>
+            <li class="cpu-preset-card" data-recipe="stream">
+                <div class="cpu-preset-card-icon"><i data-lucide="video"></i></div>
+                <div class="cpu-preset-card-meta">
+                    <span class="cpu-preset-card-title">直播 · P0–P3</span>
+                    <span class="cpu-preset-card-desc">前 4 个 P 核保游戏，其余给编码器</span>
+                    <span class="cpu-preset-card-tag">推荐 · OBS / 推流</span>
+                </div>
+                <button class="cpu-preset-card-btn" type="button">应用</button>
+            </li>
+            <li class="cpu-preset-card" data-recipe="single-best">
+                <div class="cpu-preset-card-icon"><i data-lucide="target"></i></div>
+                <div class="cpu-preset-card-meta">
+                    <span class="cpu-preset-card-title">单核独占 · 锁 P0</span>
+                    <span class="cpu-preset-card-desc">仅允许在最强核心上跑，避免任何核间迁移</span>
+                    <span class="cpu-preset-card-tag">极致玄学 · 永劫无间 / 单线程瓶颈</span>
+                </div>
+                <button class="cpu-preset-card-btn" type="button">应用</button>
+            </li>
+            <li class="cpu-preset-card" data-recipe="background">
+                <div class="cpu-preset-card-icon"><i data-lucide="leaf"></i></div>
+                <div class="cpu-preset-card-meta">
+                    <span class="cpu-preset-card-title">后台 · 仅 E 核</span>
+                    <span class="cpu-preset-card-desc">把后台进程压到能效核，释放 P 核</span>
+                    <span class="cpu-preset-card-tag">推荐 · 网盘 / 同步工具</span>
+                </div>
+                <button class="cpu-preset-card-btn" type="button">应用</button>
+            </li>
+            <li class="cpu-preset-card" data-recipe="default">
+                <div class="cpu-preset-card-icon"><i data-lucide="rotate-ccw"></i></div>
+                <div class="cpu-preset-card-meta">
+                    <span class="cpu-preset-card-title">默认 · 全部核心</span>
+                    <span class="cpu-preset-card-desc">交回系统调度，恢复 Windows 默认策略</span>
+                    <span class="cpu-preset-card-tag">通用 · 还原</span>
+                </div>
+                <button class="cpu-preset-card-btn" type="button">应用</button>
+            </li>
+        </ul>
+        <footer class="cpu-preset-drawer-foot">
+            <i data-lucide="info" class="icon-xs"></i>
+            <span>预设仅作用于当前选中的进程，应用后可随时重置</span>
+        </footer>
+    </aside>
+
+    <!-- 预设抽屉遮罩 -->
+    <div class="cpu-preset-mask" id="cpuPresetMask" aria-hidden="true"></div>
+
+    <!-- Toast 容器 -->
+    <div class="cpu-toast-stack" id="cpuToastStack" aria-live="polite"></div>
+
+</section>

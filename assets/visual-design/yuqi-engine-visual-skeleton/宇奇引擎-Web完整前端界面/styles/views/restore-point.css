@@ -1,0 +1,1234 @@
+/* ==========================================================================
+   系统还原点 · 时间线即记忆
+   --------------------------------------------------------------------------
+   · 严格继承宇奇引擎钛金体系（不引入新色相）
+   · 主操作区双卡片：创建还原点 · 系统保护
+   · 中部时间线：节点 + 卡片 + 类型胶囊（手动 / 系统 / 安装 / 更新）
+   · 高危操作走 modal 二次确认
+   ========================================================================== */
+
+:root {
+    /* 还原点类型色（语义化命名） */
+    --rp-manual-color:  #2563EB;  /* 手动 - 蓝 */
+    --rp-manual-bg:     rgba(37, 99, 235, 0.10);
+    --rp-system-color:  #6B7280;  /* 系统 - 灰 */
+    --rp-system-bg:     rgba(107, 114, 128, 0.10);
+    --rp-install-color: #7C3AED;  /* 安装 - 紫 */
+    --rp-install-bg:    rgba(124, 58, 237, 0.10);
+    --rp-update-color:  #B45309;  /* 更新 - 琥珀 */
+    --rp-update-bg:     rgba(245, 158, 11, 0.12);
+
+    /* 危险与确认 */
+    --rp-danger-color:  #DC2626;
+    --rp-danger-bg:     rgba(220, 38, 38, 0.08);
+    --rp-success-color: #10B981;
+    --rp-success-bg:    rgba(16, 185, 129, 0.08);
+
+    /* 时间线参数 */
+    --rp-tl-axis-x:    24px;
+    --rp-tl-node-size: 32px;
+}
+
+/* ==========================================================================
+   主内容区改造（与 cleanup 保持一致）
+   ========================================================================== */
+.main-content {
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    overflow: hidden;
+}
+
+.rp-page {
+    width: 100%;
+    height: 100%;
+    padding: 14px 22px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+}
+
+/* ==========================================================================
+   ① 顶部细带：面包屑 + 系统保护徽标 + 配额条
+   ========================================================================== */
+.rp-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 4px 2px;
+}
+
+.rp-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rp-bc-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--text-primary);
+    stroke-width: 2;
+}
+
+.rp-bc-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+}
+
+.rp-bc-sub {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    padding-left: 8px;
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+    margin-left: 4px;
+}
+
+.rp-protection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rp-protect-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.rp-protect-badge[data-on="true"] .rp-protect-icon {
+    color: var(--rp-success-color);
+}
+
+.rp-protect-badge[data-on="false"] .rp-protect-icon {
+    color: var(--rp-danger-color);
+}
+
+.rp-protect-icon {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.2;
+}
+
+.rp-protect-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+}
+
+.rp-protect-state {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.rp-quota {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.rp-quota-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+}
+
+.rp-quota-bar {
+    width: 120px;
+    height: 5px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+}
+
+.rp-quota-fill {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #1A1D24 0%, #4B5563 100%);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+}
+
+.rp-quota-text {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.rp-quota-text em {
+    font-style: normal;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-left: 2px;
+}
+
+/* ==========================================================================
+   ② 主操作区：双卡片
+   ========================================================================== */
+.rp-action-row {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 14px;
+}
+
+.rp-card {
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.rp-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.rp-card-title-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.rp-card-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--text-primary);
+    stroke-width: 2;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.rp-card-title {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+}
+
+.rp-card-sub {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+    line-height: 1.3;
+}
+
+.rp-card-tag {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.4px;
+    background: var(--rp-manual-bg);
+    color: var(--rp-manual-color);
+}
+
+/* ----- 创建还原点卡片 ----- */
+.rp-create-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rp-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.rp-input-wrap:focus-within {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(26, 29, 36, 0.08);
+}
+
+.rp-input-icon {
+    width: 14px;
+    height: 14px;
+    color: var(--text-tertiary);
+    stroke-width: 2;
+    flex-shrink: 0;
+}
+
+.rp-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: 0.2px;
+    min-width: 0;
+}
+
+.rp-input::placeholder {
+    color: var(--text-tertiary);
+    font-weight: 400;
+}
+
+.rp-input-counter {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.rp-create-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 6px 0;
+}
+
+.rp-meta-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.rp-meta-cell b {
+    color: var(--text-primary);
+    font-weight: 700;
+    margin: 0 1px;
+}
+
+.rp-meta-cell .icon-xs {
+    width: 12px;
+    height: 12px;
+    stroke-width: 2;
+    color: var(--text-tertiary);
+}
+
+.rp-meta-divider {
+    width: 1px;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.rp-create-cta-row {
+    display: flex;
+    gap: 8px;
+}
+
+.rp-create-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    background: rgba(26, 29, 36, 0.04);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.rp-progress-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+}
+
+.rp-progress-fill {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #1A1D24 0%, #374151 100%);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.rp-progress-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%);
+    animation: rp-progress-shimmer 1.5s linear infinite;
+}
+
+@keyframes rp-progress-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.rp-progress-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.rp-progress-text {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.rp-progress-percent {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* ----- 系统保护卡片 ----- */
+.rp-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rp-link-btn:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-primary);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.rp-link-btn .icon-xs {
+    width: 11px;
+    height: 11px;
+    stroke-width: 2;
+}
+
+.rp-disk-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rp-disk-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.rp-disk-row:hover {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.rp-disk-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--text-secondary);
+    stroke-width: 2;
+    flex-shrink: 0;
+}
+
+.rp-disk-row[data-on="false"] .rp-disk-icon {
+    color: var(--text-tertiary);
+}
+
+.rp-disk-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.rp-disk-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.2px;
+}
+
+.rp-disk-meta {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+}
+
+.rp-disk-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.rp-disk-pill[data-on="true"] {
+    background: var(--rp-success-bg);
+    color: var(--rp-success-color);
+}
+
+.rp-disk-pill[data-on="false"] {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-tertiary);
+}
+
+.rp-disk-pill .icon-xs {
+    width: 11px;
+    height: 11px;
+    stroke-width: 2.5;
+}
+
+.rp-card-foot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: auto;
+}
+
+.rp-card-foot .icon-xs {
+    width: 12px;
+    height: 12px;
+    stroke-width: 2;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   通用按钮
+   ========================================================================== */
+.rp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.rp-btn-icon {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.2;
+}
+
+.rp-btn-primary {
+    background: var(--text-primary);
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.rp-btn-primary:hover {
+    background: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.rp-btn-primary:active {
+    transform: translateY(0);
+}
+
+.rp-btn-ghost {
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--text-primary);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.rp-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.rp-btn-danger {
+    background: var(--rp-danger-color);
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+}
+
+.rp-btn-danger:hover {
+    background: #B91C1C;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+}
+
+/* ==========================================================================
+   ③ 列表区：标题栏 + 时间线
+   ========================================================================== */
+.rp-list-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 18px 16px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.rp-list-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.rp-list-title-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.rp-list-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+}
+
+.rp-list-count {
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.rp-list-count b {
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-right: 1px;
+}
+
+.rp-list-tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rp-filter {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+}
+
+.rp-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.rp-filter-btn .icon-xs {
+    width: 12px;
+    height: 12px;
+    stroke-width: 2;
+}
+
+.rp-filter-btn:hover {
+    color: var(--text-primary);
+}
+
+.rp-filter-btn.is-active {
+    background: #FFFFFF;
+    color: var(--text-primary);
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.rp-tool-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.rp-tool-btn:hover {
+    background: #FFFFFF;
+    color: var(--text-primary);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+.rp-tool-btn .icon-sm {
+    width: 13px;
+    height: 13px;
+    stroke-width: 2;
+}
+
+/* ----- 时间线 ----- */
+.rp-timeline {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0 4px var(--rp-tl-axis-x);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+}
+
+/* 时间线竖轴 */
+.rp-timeline::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--rp-tl-axis-x) + var(--rp-tl-node-size) / 2 - 1px);
+    top: 12px;
+    bottom: 12px;
+    width: 2px;
+    background: linear-gradient(180deg,
+        rgba(0, 0, 0, 0.12) 0%,
+        rgba(0, 0, 0, 0.05) 100%);
+    border-radius: 1px;
+}
+
+.rp-tl-item {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+}
+
+.rp-tl-node {
+    width: var(--rp-tl-node-size);
+    height: var(--rp-tl-node-size);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    margin-top: 8px;
+    background: #FFFFFF;
+    border: 2px solid currentColor;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.7), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.rp-tl-node[data-type="manual"]  { color: var(--rp-manual-color); }
+.rp-tl-node[data-type="system"]  { color: var(--rp-system-color); }
+.rp-tl-node[data-type="install"] { color: var(--rp-install-color); }
+.rp-tl-node[data-type="update"]  { color: var(--rp-update-color); }
+
+.rp-tl-node-icon {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.4;
+}
+
+.rp-tl-card {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.rp-tl-card:hover {
+    background: #FFFFFF;
+    border-color: rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+}
+
+.rp-tl-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.rp-tl-time {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.rp-tl-time-rel {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.2px;
+}
+
+.rp-tl-time-abs {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+.rp-type-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    flex-shrink: 0;
+}
+
+.rp-type-pill[data-type="manual"]  { background: var(--rp-manual-bg);  color: var(--rp-manual-color); }
+.rp-type-pill[data-type="system"]  { background: var(--rp-system-bg);  color: var(--rp-system-color); }
+.rp-type-pill[data-type="install"] { background: var(--rp-install-bg); color: var(--rp-install-color); }
+.rp-type-pill[data-type="update"]  { background: var(--rp-update-bg);  color: var(--rp-update-color); }
+
+.rp-tl-desc {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.rp-tl-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.rp-tl-meta-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.rp-tl-meta-cell .icon-xs {
+    width: 11px;
+    height: 11px;
+    stroke-width: 2;
+    color: var(--text-tertiary);
+}
+
+.rp-tl-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.06);
+}
+
+.rp-row-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.rp-row-btn .icon-sm {
+    width: 12px;
+    height: 12px;
+    stroke-width: 2;
+}
+
+.rp-row-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-primary);
+}
+
+.rp-row-btn-restore {
+    background: var(--rp-manual-bg);
+    color: var(--rp-manual-color);
+    font-weight: 700;
+}
+
+.rp-row-btn-restore:hover {
+    background: var(--rp-manual-color);
+    color: #FFFFFF;
+}
+
+.rp-row-btn-danger {
+    color: var(--rp-danger-color);
+    background: transparent;
+}
+
+.rp-row-btn-danger:hover {
+    background: var(--rp-danger-bg);
+    color: var(--rp-danger-color);
+}
+
+.rp-row-btn-danger:hover .icon-sm {
+    color: var(--rp-danger-color);
+}
+
+/* 隐藏被筛选过滤掉的项 */
+.rp-tl-item[data-hidden="true"] {
+    display: none;
+}
+
+/* ==========================================================================
+   空状态
+   ========================================================================== */
+.rp-empty {
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+}
+
+.rp-empty-icon {
+    width: 56px;
+    height: 56px;
+    color: var(--text-tertiary);
+    stroke-width: 1.6;
+    margin-bottom: 4px;
+}
+
+.rp-empty-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: 0.3px;
+}
+
+.rp-empty-desc {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin: 0 0 8px;
+    line-height: 1.5;
+    max-width: 400px;
+}
+
+/* ==========================================================================
+   ④ 底部细信息条
+   ========================================================================== */
+.rp-footer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 9px 16px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    flex-wrap: wrap;
+}
+
+.rp-footer-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.rp-footer-icon {
+    width: 13px;
+    height: 13px;
+    color: var(--text-tertiary);
+    stroke-width: 2;
+}
+
+.rp-footer-divider {
+    width: 1px;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* ==========================================================================
+   ⑤ 还原确认弹窗
+   ========================================================================== */
+.rp-modal-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.rp-modal-mask.is-open {
+    opacity: 1;
+}
+
+.rp-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.94);
+    width: min(440px, 92vw);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    z-index: 999;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.rp-modal.is-open {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.rp-modal-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.rp-modal-icon-wrap {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.rp-modal-head[data-kind="restore"] .rp-modal-icon-wrap {
+    background: var(--rp-manual-bg);
+    color: var(--rp-manual-color);
+}
+
+.rp-modal-head[data-kind="delete"] .rp-modal-icon-wrap {
+    background: var(--rp-danger-bg);
+    color: var(--rp-danger-color);
+}
+
+.rp-modal-icon {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
+}
+
+.rp-modal-title-wrap {
+    flex: 1;
+    min-width: 0;
+}
+
+.rp-modal-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+    line-height: 1.3;
+}
+
+.rp-modal-sub {
+    margin: 3px 0 0;
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.rp-modal-body {
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.rp-modal-target {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.rp-modal-target-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--text-secondary);
+    stroke-width: 2;
+    flex-shrink: 0;
+}
+
+.rp-modal-target-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.2px;
+}
+
+.rp-modal-target-meta {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.rp-modal-warns {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rp-modal-warns li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.rp-modal-warns li b {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.rp-modal-warns li .icon-xs {
+    width: 12px;
+    height: 12px;
+    color: var(--rp-danger-color);
+    stroke-width: 2.2;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.rp-modal-warns li:nth-child(2) .icon-xs { color: var(--rp-update-color); }
+.rp-modal-warns li:nth-child(3) .icon-xs { color: var(--rp-success-color); }
+
+.rp-modal-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 20px 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+    background: rgba(0, 0, 0, 0.015);
+}
+
+/* ==========================================================================
+   响应式（最小宽度收敛）
+   ========================================================================== */
+@media (max-width: 1100px) {
+    .rp-action-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 880px) {
+    .rp-list-head {
+        align-items: flex-start;
+    }
+    .rp-tl-card-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    .rp-tl-actions {
+        flex-wrap: wrap;
+    }
+}
+
+/* ==========================================================================
+   icon-xs / icon-sm 兜底（如果 shell.css 未定义则起作用）
+   ========================================================================== */
+.rp-page .icon-xs { width: 12px; height: 12px; }
+.rp-page .icon-sm { width: 14px; height: 14px; }
