@@ -43,6 +43,9 @@ public partial class RestorePointPage : UserControl
         }
         catch (Exception ex)
         {
+            // Why: 初始化失败时不得保留已初始化标记，否则页面在后续 Loaded
+            // 中跳过初始化永远停在空状态。
+            _isInitialized = false;
             PageDiagnosticService.LogError("RestorePointPage", "OnLoaded error", ex);
         }
     }

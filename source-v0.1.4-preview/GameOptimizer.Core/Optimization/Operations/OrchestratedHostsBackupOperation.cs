@@ -134,7 +134,7 @@ public sealed class OrchestratedHostsBackupOperation : OrchestratedChangeOperati
         public Task<StateObservation?> ObserveAsync(string capabilityId, TargetScope scope, CancellationToken cancellationToken) =>
             Task.FromResult<StateObservation?>(null);
 
-        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken) =>
+        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken, bool registerPlan = true) =>
             Task.FromResult(new PreparationResult(ChangePreparationStatus.Blocked, null, "hosts-backup.not-orchestrated", "hosts 备份不经过变更协调器，直接委托中央 Owner。", null));
 
         public Task<BatchReceipt> ExecuteAsync(PreparedChangePlan plan, ConfirmationToken confirmation, CancellationToken cancellationToken) =>

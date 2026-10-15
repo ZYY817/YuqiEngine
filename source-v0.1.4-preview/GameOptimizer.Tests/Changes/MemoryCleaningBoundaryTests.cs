@@ -273,7 +273,8 @@ public sealed class MemoryCleaningBoundaryTests
 
         public Task<PreparationResult> PrepareAsync(
             ChangeRequest request,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            bool registerPlan = true)
         {
             cancellationToken.ThrowIfCancellationRequested();
             PrepareCalls++;

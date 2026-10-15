@@ -313,7 +313,14 @@ public partial class OptimizationToggleModel : ObservableObject
         {
             var loc = LocalizationService.Instance;
             var guidance = loc.Get($"Module.Capability.{CapabilityState}.Reason");
-            return GetPlainCapabilityReason(BlockedReason, guidance);
+            var reason = GetPlainCapabilityReason(BlockedReason, guidance);
+            if (CapabilityState == ModuleCapabilityState.AlternativeAvailable
+                && !string.IsNullOrWhiteSpace(CompatibilityAlternative))
+            {
+                return $"{reason} {CompatibilityAlternative}";
+            }
+
+            return reason;
         }
     }
 
@@ -327,10 +334,14 @@ public partial class OptimizationToggleModel : ObservableObject
     public bool HasCapabilityConstraint => CapabilityState != ModuleCapabilityState.Ready;
 
     // 行内只显示用户能采取行动的执行结果。能力探测的原始诊断保留在详情页，
-    // 避免把同一段技术原因重复显示两次。
-    public string? OperationFeedback => LastOperationReceipt;
+    // 避免把同一段技术原因重复显示两次。没有执行回执时，展示已本地化的能力状态原因。
+    public string? OperationFeedback => LastOperationReceipt ?? CapabilityStatusReason;
 
     public bool HasOperationFeedback => !string.IsNullOrWhiteSpace(OperationFeedback);
+
+    // 只有真实执行回执才允许显示为"执行回执"，能力状态原因走 capabilityReasonText 行，
+    // 避免把探测原因伪造成执行结果。
+    public bool HasLastOperationReceipt => !string.IsNullOrWhiteSpace(LastOperationReceipt);
     
     /// <summary>
     /// 是否显示"已应用"标签（只有用户手动应用过才显示）
@@ -858,5 +869,6 @@ public partial class OptimizationToggleModel : ObservableObject
     {
         OnPropertyChanged(nameof(OperationFeedback));
         OnPropertyChanged(nameof(HasOperationFeedback));
+        OnPropertyChanged(nameof(HasLastOperationReceipt));
     }
 }

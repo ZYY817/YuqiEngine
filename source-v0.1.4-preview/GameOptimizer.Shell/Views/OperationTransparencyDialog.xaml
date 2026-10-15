@@ -138,27 +138,27 @@
 
                         <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="10" Padding="12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="Windows 默认值" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
+                                <TextBlock Text="Windows 默认值" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11"/>
                                 <TextBlock x:Name="WindowsDefaultText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontFamily="Consolas" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Row="0" Grid.Column="2" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="10" Padding="12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="建议值" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
+                                <TextBlock Text="建议值" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11"/>
                                 <TextBlock x:Name="RecommendedValueText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontFamily="Consolas" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
 
                         <Border Grid.Row="1" Grid.Column="0" Margin="0,10,0,0" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="10" Padding="12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="改前值" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
+                                <TextBlock Text="改前值" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11"/>
                                 <TextBlock x:Name="BeforeValueText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontFamily="Consolas" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Row="1" Grid.Column="2" Margin="0,10,0,0" Background="{DynamicResource Theme.Brush.SurfaceMuted}" CornerRadius="10" Padding="12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1">
                             <StackPanel>
                                 <DockPanel LastChildFill="False">
-                                    <TextBlock Text="当前值（实时读取）" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11" DockPanel.Dock="Left"/>
+                                    <TextBlock Text="当前值（实时读取）" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11" DockPanel.Dock="Left"/>
                                     <Button Content="读取当前值"
                                             DockPanel.Dock="Right"
                                             FontSize="11"
@@ -177,7 +177,7 @@
                                FontWeight="SemiBold"
                                Margin="0,2,0,8"/>
                     <Border Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" CornerRadius="10" Padding="12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1" Margin="0,0,0,10">
-                        <TextBlock x:Name="ApplyActionText" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
+                        <TextBlock x:Name="ApplyActionText" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
                     </Border>
                     <Expander Header="技术详情（可选）" IsExpanded="False" Margin="0,0,0,12">
                     <Grid Margin="0,8,0,0">
@@ -218,18 +218,18 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" CornerRadius="10" Padding="12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="什么时候生效" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
-                                <TextBlock x:Name="EffectiveConditionText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
-                                <TextBlock Text="可能带来的变化" Margin="0,10,0,0" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
-                                <TextBlock x:Name="BenefitText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
+                                <TextBlock Text="什么时候生效" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11"/>
+                                <TextBlock x:Name="EffectiveConditionText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
+                                <TextBlock Text="可能带来的变化" Margin="0,10,0,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11"/>
+                                <TextBlock x:Name="BenefitText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="2" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" CornerRadius="10" Padding="12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="可能的不适合情况" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
-                                <TextBlock x:Name="SideEffectText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
-                                <TextBlock Text="需要注意" Margin="0,10,0,0" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
-                                <TextBlock x:Name="RiskReasonText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
+                                <TextBlock Text="可能的不适合情况" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11"/>
+                                <TextBlock x:Name="SideEffectText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
+                                <TextBlock Text="需要注意" Margin="0,10,0,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11"/>
+                                <TextBlock x:Name="RiskReasonText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -241,8 +241,8 @@
                                Margin="0,2,0,8"/>
                     <Border Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" CornerRadius="10" Padding="12" BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="软件内恢复" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
-                            <TextBlock x:Name="OneClickRollbackText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
+                            <TextBlock Text="软件内恢复" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11"/>
+                            <TextBlock x:Name="OneClickRollbackText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
                             <Button x:Name="OneClickRollbackButton"
                                     Content="立即回滚此项"
                                     Margin="0,8,0,0"
@@ -251,9 +251,9 @@
                                     Click="OneClickRollbackButton_Click"/>
                             <Expander Header="手动恢复方法（可选）" IsExpanded="False" Margin="0,10,0,0">
                                 <StackPanel Margin="0,8,0,0">
-                                    <TextBlock x:Name="ManualRollbackText" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20" FontFamily="Consolas"/>
-                                    <TextBlock Text="恢复遇到问题" Margin="0,10,0,0" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="11"/>
-                                    <TextBlock x:Name="RollbackTroubleshootText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
+                                    <TextBlock x:Name="ManualRollbackText" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20" FontFamily="Consolas"/>
+                                    <TextBlock Text="恢复遇到问题" Margin="0,10,0,0" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="11"/>
+                                    <TextBlock x:Name="RollbackTroubleshootText" Margin="0,6,0,0" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12.5" TextWrapping="Wrap" LineHeight="20"/>
                                 </StackPanel>
                             </Expander>
                         </StackPanel>

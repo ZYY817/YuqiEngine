@@ -111,6 +111,9 @@ public sealed class NavigationCatalog : INavigationCatalog
 
             Internal("cpu-affinity", "CpuAffinityPageHost", typeof(CpuAffinityPage)),
             Internal("core-accelerator", "CoreAcceleratorPageHost", typeof(CoreAcceleratorPage)),
+            // Why: 启动项管理页是已实现功能但此前无任何路由，DI 注册成为摆设；
+            // 以内部路由接入，不出现在侧栏导航。
+            Internal("startup-manager", "StartupManagerPageHost", typeof(StartupManagerPage)),
             Internal("module-detail", "ModulePageHost", typeof(ModulePage))
         };
 

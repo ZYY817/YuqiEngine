@@ -13,11 +13,11 @@ public sealed class LocalizationCoverageTests
         {
             localization.SetLanguage("zh-CN");
             Assert.Equal("确认", localization.Get("Common.Confirm"));
-            Assert.Equal("全局配置", localization.Get("Settings.Title"));
+            Assert.Equal("应用设置", localization.Get("Settings.Title"));
 
             localization.SetLanguage("en-US");
             Assert.Equal("Confirm", localization.Get("Common.Confirm"));
-            Assert.Equal("Settings", localization.Get("Settings.Title"));
+            Assert.Equal("App Settings", localization.Get("Settings.Title"));
         }
         finally
         {

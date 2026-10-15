@@ -5,13 +5,25 @@ namespace GameOptimizer.Core.Services.Changes;
 
 internal sealed class InMemoryChangePlanStore : IChangePlanStore
 {
-    private readonly ConcurrentDictionary<Guid, string> _issued = new();
+    private sealed record IssuedPlan(string PlanHash, DateTimeOffset ExpiresAtUtc);
+
+    private readonly ConcurrentDictionary<Guid, IssuedPlan> _issued = new();
     private readonly ConcurrentDictionary<Guid, byte> _claimed = new();
 
     public Task RegisterAsync(PreparedChangePlan plan, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (!_issued.TryAdd(plan.PlanId, plan.PlanHash))
+        // Why: _issued 随签发无界增长；计划自带过期时间，注册时顺手淘汰过期项。
+        var now = DateTimeOffset.UtcNow;
+        foreach (var stale in _issued)
+        {
+            if (now > stale.Value.ExpiresAtUtc)
+            {
+                _issued.TryRemove(stale.Key, out _);
+            }
+        }
+
+        if (!_issued.TryAdd(plan.PlanId, new IssuedPlan(plan.PlanHash, plan.ExpiresAtUtc)))
         {
             throw new InvalidOperationException("计划标识重复，拒绝覆盖已签发计划。");
         }
@@ -25,12 +37,12 @@ internal sealed class InMemoryChangePlanStore : IChangePlanStore
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (!_issued.TryGetValue(planId, out var issuedHash))
+        if (!_issued.TryGetValue(planId, out var issued))
         {
             return Task.FromResult(PlanClaimStatus.Missing);
         }
 
-        if (!string.Equals(issuedHash, planHash, StringComparison.Ordinal))
+        if (!string.Equals(issued.PlanHash, planHash, StringComparison.Ordinal))
         {
             return Task.FromResult(PlanClaimStatus.HashMismatch);
         }

@@ -109,8 +109,11 @@ internal sealed class BaselineOwnedFileDomainRestoreOwner
 					{
 						MovePath(target, item.RollbackPath, item.Mapping.IsDirectory);
 					}
-					MovePath(item.StagePath, target, item.Mapping.IsDirectory);
+					// Why: 原数据一旦移入 RollbackPath 就必须计入回滚集。
+					// 若下一步 MovePath 失败而 item 未提交，finally 会连同
+					// workRoot 把原始数据永久删除。
 					committed.Add(item);
+					MovePath(item.StagePath, target, item.Mapping.IsDirectory);
 				}
 
 				foreach (PreparedMapping item in committed)

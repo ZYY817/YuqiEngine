@@ -139,7 +139,7 @@ public sealed class FileShellRepairRoutingTests
         public Task<StateObservation?> ObserveAsync(string capabilityId, TargetScope scope, CancellationToken cancellationToken) =>
             throw new InvalidOperationException("Generic orchestrator must not run.");
 
-        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken) =>
+        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken, bool registerPlan = true) =>
             throw new InvalidOperationException("Generic orchestrator must not run.");
 
         public Task<BatchReceipt> ExecuteAsync(

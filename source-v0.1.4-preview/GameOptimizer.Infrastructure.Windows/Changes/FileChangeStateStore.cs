@@ -16,7 +16,7 @@ public sealed partial class FileChangeStateStore : IRecoveryRepository, IChangeJ
     private readonly string _rootPrefix;
 
     public FileChangeStateStore()
-        : this(Path.Combine(AppPaths.AppDataRoot, "Changes"))
+        : this(Path.Combine(AppPaths.StateDataRoot, "Changes"))
     {
     }
 

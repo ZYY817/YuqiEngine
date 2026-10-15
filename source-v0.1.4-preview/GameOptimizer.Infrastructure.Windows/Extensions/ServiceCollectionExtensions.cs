@@ -209,7 +209,8 @@ public static class ServiceCollectionExtensions
                 ChangeRisk.MediumRebootOrExperience,
                 RequiresExplicitConfirmation: true,
                 Hive: RegistryDwordHive.LocalMachine,
-                RequiresRestart: true),
+                RequiresRestart: true,
+                MergeBitmaskOr: true),
             provider.GetRequiredService<IRegistryDwordAccessor>(),
             provider.GetService<TimeProvider>()));
         services.AddSingleton<IChangeCapability>(provider => new RegistryDwordCapability(
@@ -258,16 +259,22 @@ public static class ServiceCollectionExtensions
                 RequiresExplicitConfirmation: true),
             provider.GetRequiredService<IRegistryDwordAccessor>(),
             provider.GetService<TimeProvider>()));
-        services.AddSingleton<IChangeCapability>(provider => new RegistryDwordCapability(
-            new RegistryDwordCapabilityDefinition(
+        // Why: Windows 游戏模式存在两个值名——新版 AutoGameModeEnabled 与旧版
+        // AllowAutoGameMode。只写其中一个时，另一值为 0 仍会实际关闭游戏模式，
+        // 造成"已应用但未生效"的假状态；必须双值同写。
+        services.AddSingleton<IChangeCapability>(provider => new RegistryValueSetCapability(
+            new RegistryValueSetCapabilityDefinition(
                 "gaming.mode.enable",
                 "1.0.0",
                 @"SOFTWARE\Microsoft\GameBar",
-                "AllowAutoGameMode",
-                1,
+                Array.AsReadOnly(new[]
+                {
+                    RegistryTypedTargetValue.DWord("AutoGameModeEnabled", 1),
+                    RegistryTypedTargetValue.DWord("AllowAutoGameMode", 1),
+                }),
                 ChangeRisk.LowReversible,
                 RequiresExplicitConfirmation: true),
-            provider.GetRequiredService<IRegistryDwordAccessor>(),
+            provider.GetRequiredService<IRegistryValueSetAccessor>(),
             provider.GetService<TimeProvider>()));
         services.AddSingleton<IChangeCapability>(provider => new RegistryDwordCapability(
             RepairRegistryCapabilityDefinitions.GameModeAutoEnable,
@@ -839,6 +846,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IChangeJournal>(provider => provider.GetRequiredService<FileChangeStateStore>());
         services.AddSingleton<IChangeAuditStore>(provider => provider.GetRequiredService<FileChangeStateStore>());
         services.AddSingleton<IChangePlanStore>(provider => provider.GetRequiredService<FileChangeStateStore>());
+        services.AddSingleton<IRecoveryIndexQuery>(provider => provider.GetRequiredService<FileChangeStateStore>());
         services.AddSingleton<IChangeResourceLockProvider, FileChangeResourceLockProvider>();
         return services;
     }

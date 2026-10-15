@@ -11,6 +11,16 @@ public sealed class WindowsScheduledTaskAccessor : IScheduledTaskAccessor
 {
     private static readonly TimeSpan CommandTimeout = TimeSpan.FromSeconds(15);
 
+    // Why: 控制台工具（schtasks/pnputil 等）按系统 OEM 代码页输出字节，
+    // 与区域无关的 ASCII 内容各代码页解码一致，本地化错误文本也按 OEM 解才正确。
+    private static readonly Encoding ConsoleEncoding = GetConsoleEncoding();
+
+    private static Encoding GetConsoleEncoding()
+    {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        return Encoding.GetEncoding(System.Globalization.CultureInfo.CurrentCulture.TextInfo.OEMCodePage);
+    }
+
     public async Task<ScheduledTaskPlatformAssessment> ProbeAsync(string taskPath, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -36,21 +46,38 @@ public sealed class WindowsScheduledTaskAccessor : IScheduledTaskAccessor
     {
         cancellationToken.ThrowIfCancellationRequested();
         ValidateTaskPath(taskPath);
+        // Why: schtasks 声明 encoding="UTF-16" 但实际按控制台代码页/UTF-8 吐字节；
+        // 用 UTF-16 解码会把每两个 ASCII 字节拼成一个汉字，ExtractXml 永远失败。
+        // UTF-8 优先（覆盖现代系统的实际输出），找不到 <?xml 再按 UTF-16 重试兼容旧行为。
         var result = await ProcessRunner.RunAsync(
             "schtasks.exe",
             $"/QUERY /TN \"{taskPath}\" /XML",
             CommandTimeout,
             cancellationToken,
-            Encoding.Unicode).ConfigureAwait(false);
+            ConsoleEncoding).ConfigureAwait(false);
 
         if (result.ExitCode != 0 || string.IsNullOrWhiteSpace(result.Output))
             return new ScheduledTaskStateSnapshot(taskPath, false, false, "Unknown", string.Empty);
 
         var xml = ExtractXml(result.Output);
         if (xml is null)
+        {
+            var utf16Result = await ProcessRunner.RunAsync(
+                "schtasks.exe",
+                $"/QUERY /TN \"{taskPath}\" /XML",
+                CommandTimeout,
+                cancellationToken,
+                Encoding.Unicode).ConfigureAwait(false);
+            if (utf16Result.ExitCode == 0 && !string.IsNullOrWhiteSpace(utf16Result.Output))
+            {
+                xml = ExtractXml(utf16Result.Output);
+                result = utf16Result;
+            }
+        }
+        if (xml is null)
             return new ScheduledTaskStateSnapshot(taskPath, false, false, "Unknown", result.Output);
 
-        var enabled = ParseEnabled(xml) ?? false;
+        var enabled = ParseEnabled(xml) ?? true;
         return new ScheduledTaskStateSnapshot(taskPath, true, enabled, enabled ? "Enabled" : "Disabled", xml);
     }
 
@@ -69,7 +96,7 @@ public sealed class WindowsScheduledTaskAccessor : IScheduledTaskAccessor
             $"/CHANGE /TN \"{taskPath}\" {verb}",
             CommandTimeout,
             cancellationToken,
-            Encoding.Unicode).ConfigureAwait(false);
+            ConsoleEncoding).ConfigureAwait(false);
         if (result.ExitCode != 0)
             return new ScheduledTaskMutationResult(false, false, "schtasks.failed", (result.Error ?? result.Output).Trim());
 
@@ -104,7 +131,7 @@ public sealed class WindowsScheduledTaskAccessor : IScheduledTaskAccessor
             $"/QUERY /TN \"{taskPath}\"",
             CommandTimeout,
             cancellationToken,
-            Encoding.Unicode).ConfigureAwait(false);
+            ConsoleEncoding).ConfigureAwait(false);
         return result.ExitCode == 0;
     }
 

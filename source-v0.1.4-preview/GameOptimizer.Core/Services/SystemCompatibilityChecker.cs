@@ -117,43 +117,6 @@ public class SystemCompatibilityChecker
     }
     
     /// <summary>
-    /// 检查 PowerShell 命令是否可用
-    /// </summary>
-    public static bool IsPowerShellCmdletAvailable(string cmdlet)
-    {
-        try
-        {
-            var psi = new ProcessStartInfo
-            {
-                FileName = "powershell.exe",
-                Arguments = $"-NoProfile -Command \"Get-Command {cmdlet} -ErrorAction SilentlyContinue\"",
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            };
-            
-            using var process = Process.Start(psi);
-            if (process == null) return false;
-            
-            // Why: 同步 ReadToEnd 在缓冲区满时死锁，改为异步读取后同步等待
-            var outputTask = process.StandardOutput.ReadToEndAsync();
-            if (!process.WaitForExit(5000))
-            {
-                try { process.Kill(entireProcessTree: true); } catch { /* best effort */ }
-                return false;
-            }
-            var output = outputTask.GetAwaiter().GetResult();
-            
-            return !string.IsNullOrWhiteSpace(output) && process.ExitCode == 0;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-    
-    /// <summary>
     /// 检查硬件特性是否支持（通过 WMI）
     /// </summary>
     public static bool IsHardwareFeatureSupported(string feature)
@@ -207,31 +170,7 @@ public class SystemCompatibilityChecker
         return health;
     }
     
-    /// <summary>
-    /// 检查网络适配器是否可用
-    /// </summary>
-    public static bool IsNetworkAdapterAvailable(string adapterName)
-    {
-        try
-        {
-            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapter WHERE NetEnabled=true");
-            searcher.Options.Timeout = TimeSpan.FromSeconds(3);
-            foreach (var obj in searcher.Get())
-            {
-                var name = obj["Name"]?.ToString() ?? string.Empty;
-                if (name.Contains(adapterName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-    
+
     /// <summary>
     /// 执行完整的兼容性检查
     /// </summary>

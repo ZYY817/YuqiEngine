@@ -24,6 +24,14 @@ public static class AppPaths
 
     public static string? DataRootFallbackReason => RootResolution.Value.FallbackReason;
 
+    /// <summary>
+    /// Why: 恢复材料（变更状态、回执、隔离区）必须落在系统盘——首选数据根
+    /// 可能是可移动盘/盘符漂移（如 F:\），一旦拔盘或换机所有恢复证据失联。
+    /// 该根永远指向用户配置目录（LocalApplicationData），与 AppDataRoot 解耦；
+    /// 历史 F:\ 状态由 MigrateStateStoresIfNeeded 复制迁移（不删除源）。
+    /// </summary>
+    public static string StateDataRoot => LegacyAppDataRoot;
+
     // 核心目录
     public static string SnapshotsDir => Path.Combine(AppDataRoot, "Snapshots");
     public static string DefaultLogsDir => Path.Combine(AppDataRoot, "Logs");
@@ -72,6 +80,7 @@ public static class AppPaths
     
     public static void EnsureDirectoriesExist()
     {
+        MigrateStateStoresIfNeeded();
         Directory.CreateDirectory(AppDataRoot);
         Directory.CreateDirectory(SnapshotsDir);
         Directory.CreateDirectory(LogsDir);
@@ -200,6 +209,38 @@ public static class AppPaths
         {
             error = ex.Message;
             return false;
+        }
+    }
+
+    /// <summary>
+    /// 把恢复关键状态（Changes/restore/CleanupQuarantine）从旧数据根复制到系统盘状态根。
+    /// 只复制缺失文件、绝不删除源——重复执行安全；隔离区清单内保存绝对 QuarantinePath，
+    /// 源文件保留在旧根时清单级恢复仍可正常工作。
+    /// </summary>
+    private static void MigrateStateStoresIfNeeded()
+    {
+        try
+        {
+            var stateRoot = Path.GetFullPath(StateDataRoot);
+            var dataRoot = Path.GetFullPath(AppDataRoot);
+            if (string.Equals(stateRoot, dataRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            foreach (var child in new[] { "Changes", "restore", "CleanupQuarantine" })
+            {
+                var legacy = Path.Combine(dataRoot, child);
+                var target = Path.Combine(stateRoot, child);
+                if (Directory.Exists(legacy))
+                {
+                    MigrateDirectoryIfExists(legacy, target);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AppPaths] State store migration failed: {ex.Message}");
         }
     }
 
@@ -410,11 +451,11 @@ public static class AppPaths
     
     private static void MigrateDirectoryIfExists(string sourceDir, string destDir)
     {
-        if (!Directory.Exists(sourceDir) || Directory.Exists(destDir))
+        if (!Directory.Exists(sourceDir))
         {
             return;
         }
-        
+
         try
         {
             Directory.CreateDirectory(destDir);
@@ -422,6 +463,10 @@ public static class AppPaths
             {
                 var relativePath = Path.GetRelativePath(sourceDir, file);
                 var destFile = Path.Combine(destDir, relativePath);
+                if (File.Exists(destFile))
+                {
+                    continue;
+                }
                 var destFileDir = Path.GetDirectoryName(destFile);
                 if (!string.IsNullOrEmpty(destFileDir))
                 {

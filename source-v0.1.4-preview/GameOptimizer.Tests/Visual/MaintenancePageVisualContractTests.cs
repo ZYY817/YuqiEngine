@@ -155,8 +155,8 @@ public sealed class MaintenancePageVisualContractTests
         Assert.Contains("未发现“{itemVm.LocalizedName}”对应的异常，未执行修复", viewModel, StringComparison.Ordinal);
         Assert.Contains("无法确认“{itemVm.LocalizedName}”当前是否异常，未执行修复", viewModel, StringComparison.Ordinal);
         Assert.Contains("OrchestratedRepairChangeExecutor.GetPlannedChangeSummaries", viewModel, StringComparison.Ordinal);
-        Assert.Contains("检测依据", dialogXaml, StringComparison.Ordinal);
-        Assert.Contains("将要修改", dialogXaml, StringComparison.Ordinal);
+        Assert.Contains("发现了什么", dialogXaml, StringComparison.Ordinal);
+        Assert.Contains("修复时会做什么", dialogXaml, StringComparison.Ordinal);
         Assert.Contains("RepairConfirmationContext", dialogCode, StringComparison.Ordinal);
         Assert.Contains("GetPlannedChangeSummaries", executor, StringComparison.Ordinal);
     }

@@ -190,14 +190,26 @@ public sealed class OrchestratedFileCleanupOperation : OrchestratedChangeOperati
             return new OperationInvokeResult(false, false, "中央隔离区管理器未接入，拒绝恢复。");
         }
 
+        var item = ResolveItem();
+        if (item is null)
+        {
+            return new OperationInvokeResult(false, false, "系统清理目录中不存在该项，未执行任何恢复。");
+        }
+
         try
         {
-            var preview = await _quarantineManager.CreateRestorePreviewAsync(cancellationToken).ConfigureAwait(false);
-            if (preview.Entries.Count == 0)
+            var fullPreview = await _quarantineManager.CreateRestorePreviewAsync(cancellationToken).ConfigureAwait(false);
+            // Why: 预览默认列出隔离区全部条目；恢复单项清理不能把
+            // 其他清理项隔离的文件一并拉回，必须按本项 TargetPaths 收窄。
+            var scopedEntries = fullPreview.Entries
+                .Where(entry => IsPathUnderItem(entry.Manifest.OriginalPath, item))
+                .ToArray();
+            if (scopedEntries.Length == 0)
             {
-                return new OperationInvokeResult(true, false, "隔离区中没有可恢复的历史文件。");
+                return new OperationInvokeResult(true, false, "隔离区中没有该清理项对应的可恢复文件。");
             }
 
+            var preview = new CleanupQuarantinePreview(fullPreview.Action, scopedEntries, fullPreview.CreatedAtUtc);
             var confirmation = CleanupQuarantineConfirmation.Create(preview, _timeProvider.GetUtcNow(), ConfirmationLifetime);
             var result = await _quarantineManager.RestoreAsync(preview, confirmation, cancellationToken).ConfigureAwait(false);
             if (result.Failed > 0)
@@ -223,6 +235,41 @@ public sealed class OrchestratedFileCleanupOperation : OrchestratedChangeOperati
         {
             return new OperationInvokeResult(false, false, $"恢复失败：{ex.Message}");
         }
+    }
+
+    private static bool IsPathUnderItem(string originalPath, CleanupItem item)
+    {
+        string canonical;
+        try
+        {
+            canonical = Path.GetFullPath(originalPath);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
+        foreach (var targetPath in item.TargetPaths)
+        {
+            string root;
+            try
+            {
+                root = Path.GetFullPath(targetPath);
+            }
+            catch (Exception)
+            {
+                continue;
+            }
+
+            var normalizedRoot = root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            if (canonical.Equals(normalizedRoot, StringComparison.OrdinalIgnoreCase)
+                || canonical.StartsWith(normalizedRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private CleanupItem? ResolveItem()

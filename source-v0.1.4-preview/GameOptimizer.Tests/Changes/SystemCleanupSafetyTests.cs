@@ -97,7 +97,7 @@ public sealed class SystemCleanupSafetyTests
         Assert.Single(preview.Entries);
         Assert.Equal(5, preview.TotalBytes);
         Assert.Equal(Path.GetFullPath(file), preview.Entries[0].CanonicalPath);
-        Assert.Equal(string.Empty, preview.Entries[0].ContentSha256);
+        Assert.True(CleanupResourceIdentity.IsSha256(preview.Entries[0].ContentSha256), "预览应包含内容哈希以支持授权前漂移检测。");
         Assert.Throws<NotSupportedException>(() => ((IList<CleanupPreviewEntry>)preview.Entries).Add(preview.Entries[0]));
     }
 

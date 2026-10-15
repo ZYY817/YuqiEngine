@@ -1,0 +1,8 @@
+<UserControl x:Class="GameOptimizer.Shell.Views.GameModeHubPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+    <Grid>
+        <Button Click="OpenBackupManager_Click" Content="备份与恢复" />
+    </Grid>
+</UserControl>

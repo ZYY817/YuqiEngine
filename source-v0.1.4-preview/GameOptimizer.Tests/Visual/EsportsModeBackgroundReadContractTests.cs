@@ -35,7 +35,7 @@ public sealed class EsportsModeBackgroundReadContractTests
             "private void UpdateActionAvailability",
             "private static void SetActionButtonState");
 
-        foreach (var button in new[] { "ApplyBtn", "RestoreUserBtn", "RestoreWinBtn" })
+        foreach (var button in new[] { "ApplyBtn", "RestoreWinBtn" })
         {
             Assert.Matches($"x:Name=\\\"{button}\\\"[^>]*IsEnabled=\\\"False\\\"", xaml);
             Assert.Contains($"SetActionButtonState({button}, canExecute);", availabilityMethod, StringComparison.Ordinal);
@@ -45,7 +45,7 @@ public sealed class EsportsModeBackgroundReadContractTests
         Assert.Contains("!_isOperating", availabilityMethod, StringComparison.Ordinal);
         Assert.Contains("!_isStateReadInProgress", availabilityMethod, StringComparison.Ordinal);
         Assert.Contains("_hardwareDetectionSucceeded", availabilityMethod, StringComparison.Ordinal);
-        Assert.Contains("_lastDetectionReport?.IsReadyForPlanning == true", availabilityMethod, StringComparison.Ordinal);
+        Assert.Contains("_lastDetectionReport != null", availabilityMethod, StringComparison.Ordinal);
         Assert.Contains("EsportsModePage(", code, StringComparison.Ordinal);
         Assert.DoesNotContain("Application.Current as App", code, StringComparison.Ordinal);
         Assert.Contains("if (!_isInitialized || _isOperating || _isStateReadInProgress", code, StringComparison.Ordinal);

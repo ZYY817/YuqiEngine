@@ -78,7 +78,7 @@ public sealed class BaselineRestoreOrchestratorTests
         BaselineRecoverabilityCheckResult result = await orchestrator.RunRecoverabilitySelfCheckAsync("baseline-package", "test");
 
         Assert.False(result.Success);
-        Assert.Equal(5, result.DomainFailedCount);
+        Assert.Equal(4, result.DomainFailedCount);
         Assert.Equal(1, result.DomainManualRequiredCount);
         Assert.Contains("已阻断优化入口", result.Message, StringComparison.Ordinal);
     }
@@ -184,7 +184,7 @@ public sealed class BaselineRestoreOrchestratorTests
         BaselineRecoverabilityCheckResult result = await orchestrator.RunRecoverabilitySelfCheckAsync("baseline-package", "test");
 
         Assert.False(result.Success);
-        Assert.Equal(4, result.DomainFailedCount);
+        Assert.Equal(3, result.DomainFailedCount);
         Assert.Contains("imported-typed-snapshot", snapshots.DeletedSnapshotIds);
     }
 

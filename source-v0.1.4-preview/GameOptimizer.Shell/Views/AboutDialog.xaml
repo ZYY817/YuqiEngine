@@ -49,7 +49,7 @@
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <Border Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1" CornerRadius="0" Padding="10,4" HorizontalAlignment="Left"><TextBlock Text="Yuqi Engine" Foreground="{DynamicResource Theme.Brush.ControlAccent}" FontWeight="SemiBold" FontSize="12"/></Border>
                             <TextBlock Text="智宇 / 宇奇" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" Margin="0,4,0,2"/>
-                            <TextBlock Text="v0.1.3-preview" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="VersionText" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,0,0,8"/>
                             <TextBlock Text="宇奇引擎的设计与开发者，持续打磨 Windows 游戏体验与高性能使用场景下的优化工具。" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextSecondary}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Grid>

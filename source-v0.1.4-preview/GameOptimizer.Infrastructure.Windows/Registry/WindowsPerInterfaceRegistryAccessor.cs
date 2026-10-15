@@ -17,8 +17,25 @@ public sealed class WindowsPerInterfaceRegistryAccessor : IPerInterfaceRegistryA
             return Task.FromResult<IReadOnlyList<string>>(Array.Empty<string>());
         }
 
+        // Why: 类键下的 Properties/Configuration 等非接口容器对管理员也可能拒绝读，
+        // 一个受限子键会炸掉整次枚举；无权限打开的条目本就不是可寻址接口，跳过。
+        var accessible = new List<string>();
+        foreach (var name in root.GetSubKeyNames())
+        {
+            try
+            {
+                using var probe = root.OpenSubKey(name, writable: false);
+                if (probe is not null)
+                {
+                    accessible.Add(name);
+                }
+            }
+            catch (System.Security.SecurityException) { }
+            catch (UnauthorizedAccessException) { }
+        }
+
         return Task.FromResult<IReadOnlyList<string>>(
-            root.GetSubKeyNames()
+            accessible
                 .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
                 .ToArray());
     }

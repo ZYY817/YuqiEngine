@@ -775,11 +775,11 @@ internal sealed class RuntimeWindowsCompatibilityEnvironmentProbe : IWindowsComp
                         ? int.Parse(match.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture)
                         : 0))
                 .ToArray();
-            var supportMatch = Regex.Match(text, @"DriverSupportState\s*:\s*(?<state>[A-Za-z]+)", RegexOptions.IgnoreCase);
-            bool? hagsSupported = supportMatch.Success
-                ? !supportMatch.Groups["state"].Value.Equals("Unsupported", StringComparison.OrdinalIgnoreCase)
-                    && !supportMatch.Groups["state"].Value.Equals("NotSupported", StringComparison.OrdinalIgnoreCase)
-                : null;
+            // Why: dxdiag 报告的字段名随系统语言本地化（中文为"驱动程序支持状态"），
+            // 英文 DriverSupportState 在非英文系统永不命中。HAGS 支持的真实信号是
+            // HKLM\...\GraphicsDrivers\HwSchMode——Windows 只在驱动支持 HAGS 时创建该值，
+            // 与系统语言无关。
+            bool? hagsSupported = ReadHagsSupportFromRegistry();
             return (versions.Length == 0 ? null : versions.Max(), hagsSupported);
         }
         catch
@@ -796,6 +796,21 @@ internal sealed class RuntimeWindowsCompatibilityEnvironmentProbe : IWindowsComp
             {
                 // A stale probe file is non-authoritative and never used as compatibility evidence.
             }
+        }
+    }
+
+    private static bool? ReadHagsSupportFromRegistry()
+    {
+        if (!OperatingSystem.IsWindows()) return null;
+        try
+        {
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(
+                @"SYSTEM\CurrentControlSet\Control\GraphicsDrivers", writable: false);
+            return key?.GetValue("HwSchMode") is int ? true : (bool?)null;
+        }
+        catch
+        {
+            return null;
         }
     }
 }

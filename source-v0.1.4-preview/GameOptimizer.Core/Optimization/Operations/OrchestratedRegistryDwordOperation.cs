@@ -66,7 +66,8 @@ public abstract class OrchestratedChangeOperation : IOptimizationOperation
     {
         var result = await _orchestrator.PrepareAsync(
             new ChangeRequest(Id, CreateScope(), CreateTargetPayload()),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken,
+            registerPlan: false).ConfigureAwait(false);
         return result.Status switch
         {
             ChangePreparationStatus.NoChange => new OperationStatus(true, result.Message),
@@ -178,7 +179,22 @@ public abstract class OrchestratedChangeOperation : IOptimizationOperation
         var pointer = await context.LoadSnapshotAsync<OptimizationRecoveryPointer>(Id, cancellationToken).ConfigureAwait(false);
         if (pointer is null)
         {
-            return new OperationInvokeResult(false, false, "缺少统一安全协调器的恢复回执。");
+            // Why: 指针在变更完成后才落盘，崩溃窗口内会丢失；
+            // 但底层恢复材料已由协调器在写入前持久化，按能力标识反查兜底。
+            var fallbackReceipt = await _orchestrator
+                .RestoreLatestByCapabilityAsync(Id, cancellationToken)
+                .ConfigureAwait(false);
+            if (fallbackReceipt is null)
+            {
+                return new OperationInvokeResult(false, false, "缺少统一安全协调器的恢复回执。");
+            }
+
+            return fallbackReceipt.Outcome switch
+            {
+                ChangeOutcome.RestoredVerified => new OperationInvokeResult(true, true, fallbackReceipt.Operation.Message),
+                ChangeOutcome.NoChange => new OperationInvokeResult(true, false, fallbackReceipt.Operation.Message),
+                _ => new OperationInvokeResult(false, fallbackReceipt.Operation.MutationOccurred, fallbackReceipt.Operation.Message)
+            };
         }
 
         var receipt = await _orchestrator.RestoreAsync(

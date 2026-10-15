@@ -31,8 +31,9 @@ public sealed class FileOperationRestoreStore : IOperationRestoreStore
 
     public FileOperationRestoreStore(bool enableIntegrityCheck = true)
     {
+        // Why: 恢复快照属恢复关键状态，必须落系统盘状态根而非可选数据根。
         var basePath = Path.Combine(
-            Constants.AppPaths.AppDataRoot,
+            Constants.AppPaths.StateDataRoot,
             "restore");
         
         string? dirError = null;
@@ -78,12 +79,9 @@ public sealed class FileOperationRestoreStore : IOperationRestoreStore
                 {
                     await SafeFileOperations.WriteTextWithRetryAsync(tempPath, contentToSave, cancellationToken).ConfigureAwait(false);
                 
-                    // 原子替换
-                    if (File.Exists(path))
-                    {
-                        File.Delete(path);
-                    }
-                    File.Move(tempPath, path);
+                    // Why: 必须单次原子覆写，先 Delete 再 Move 之间存在崩溃窗口，
+                    // 旧快照已删而新快照未落位会永久丢失唯一恢复材料。
+                    File.Move(tempPath, path, overwrite: true);
                 }
                 catch
                 {
@@ -164,16 +162,11 @@ public sealed class FileOperationRestoreStore : IOperationRestoreStore
         var (isValid, unwrappedContent) = SnapshotIntegrityValidator.UnwrapAndValidate(content);
         if (!isValid)
         {
-            // Why: 校验失败但 UnwrapAndValidate 现在仍返回数据内容（降级模式），
-            // 如果数据不为 null 说明 JSON 结构完整只是校验和不匹配，可以尝试使用
-            if (unwrappedContent is not null)
-            {
-                System.Diagnostics.Debug.WriteLine(
-                    $"[FileOperationRestoreStore][LoadSnapshot] 快照校验失败但数据可用，降级使用: {operationId}");
-                return unwrappedContent;
-            }
+            // Why: 校验失败必须 fail-closed 拒绝——降级使用会把被篡改/部分覆写的
+            // 快照当作恢复依据写回系统，等于伪造恢复。无 checksum 的旧格式快照
+            // 仍由 UnwrapAndValidate 按 IsValid=true 放行以保持兼容。
             System.Diagnostics.Debug.WriteLine(
-                $"[FileOperationRestoreStore][LoadSnapshot] 快照完整性验证失败且数据不可用: {operationId}");
+                $"[FileOperationRestoreStore][LoadSnapshot] 快照完整性验证失败，已拒绝恢复材料: {operationId}");
             return null;
         }
         return unwrappedContent;
@@ -198,10 +191,17 @@ public sealed class FileOperationRestoreStore : IOperationRestoreStore
         return Task.CompletedTask;
     }
 
-    public Task<bool> HasSnapshotAsync(string operationId, CancellationToken cancellationToken)
+    public async Task<bool> HasSnapshotAsync(string operationId, CancellationToken cancellationToken)
     {
+        // Why: 零字节/损坏/校验失败的快照文件不能被计为"有恢复材料"——
+        // 存在性判断必须与可读性一致，否则上层会把损坏快照当作可恢复证据
+        // 走 ambiguous 阻断分支或伪造恢复。
         var path = GetPath(operationId);
-        return Task.FromResult(File.Exists(path));
+        if (!File.Exists(path))
+        {
+            return false;
+        }
+        return await LoadSnapshotAsync(operationId, cancellationToken).ConfigureAwait(false) is not null;
     }
 
     private string GetPath(string operationId)

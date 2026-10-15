@@ -201,7 +201,7 @@ public sealed class SystemCleanupService : ISystemCleanupService
                 await CleanupQuarantineManifestStore.EnsureEntryStillMatchesAsync(
                     entry with { CanonicalPath = currentPath },
                     ct,
-                    requireContentHash: false).ConfigureAwait(false);
+                    requireContentHash: true).ConfigureAwait(false);
 
                 string operationId = preview.PreviewId.ToString("N") + "-" + entry.ResourceKey["cleanup.resource.".Length..][..16];
                 CleanupQuarantineMove move = await _quarantine.MoveWithReceiptAsync(
@@ -266,41 +266,6 @@ public sealed class SystemCleanupService : ISystemCleanupService
             }
         }
 
-        return result;
-    }
-
-    public async Task<CleanupResult> CleanAllAsync(
-        IEnumerable<CleanupItem> items,
-        IProgress<(int current, int total, string name)>? progress = null,
-        CancellationToken ct = default)
-    {
-        ArgumentNullException.ThrowIfNull(items);
-        var result = new CleanupResult();
-        List<CleanupItem> selected = items.Where(item => item.IsSelected).ToList();
-        for (int index = 0; index < selected.Count; index++)
-        {
-            if (ct.IsCancellationRequested)
-            {
-                result.FileResults.Add(new("", CleanupFileOutcome.Cancelled, 0, "cleanup.cancelled", "Batch cleanup cancelled."));
-                break;
-            }
-
-            CleanupItem item = selected[index];
-            progress?.Report((index + 1, selected.Count, item.Name));
-            item.State = CleanupState.Cleaning;
-            CleanupResult current = await CleanItemAsync(item, ct).ConfigureAwait(false);
-            result.TotalCleaned += current.TotalCleaned;
-            result.FilesDeleted += current.FilesDeleted;
-            result.FilesFailed += current.FilesFailed;
-            result.Errors.AddRange(current.Errors);
-            result.FileResults.AddRange(current.FileResults);
-            item.State = current.Errors.Count == 0 ? CleanupState.Done : CleanupState.Error;
-            if (current.Errors.Count == 0)
-            {
-                item.Size = 0;
-                item.FileCount = 0;
-            }
-        }
         return result;
     }
 

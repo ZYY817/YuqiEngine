@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Security.Principal;
 using System.ServiceProcess;
@@ -172,10 +173,19 @@ public sealed class WindowsServiceAccessor : IWindowsServiceAccessor
         if (action == ServiceChangeAction.EnsureStopped && !controller.CanStop)
             return new ServicePlatformMutationResult(false, false, "service.cannot-stop", "服务不允许停止。");
 
-        if (action == ServiceChangeAction.EnsureRunning)
-            controller.Start();
-        else
-            controller.Stop();
+        // Why: Start/Stop 的 Win32 失败（拒绝访问、服务被标记删除等）必须
+        // 收敛为结果而非异常外泄——上层语义检查依赖结构化 ReasonCode。
+        try
+        {
+            if (action == ServiceChangeAction.EnsureRunning)
+                controller.Start();
+            else
+                controller.Stop();
+        }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
+        {
+            return new ServicePlatformMutationResult(false, false, "service.state-change-failed", $"服务运行状态变更失败：{ex.Message}");
+        }
 
         try
         {

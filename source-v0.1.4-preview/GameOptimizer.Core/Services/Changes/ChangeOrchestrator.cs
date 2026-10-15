@@ -27,6 +27,7 @@ public sealed class ChangeOrchestrator : IChangeOrchestrator
 
     private readonly IChangeExecutionGate _executionGate;
     private readonly IChangeCompatibilityPolicy? _compatibilityPolicy;
+    private readonly IRecoveryIndexQuery? _recoveryIndexQuery;
 
     public ChangeOrchestrator(
         IEnumerable<IChangeCapability> capabilities,
@@ -40,7 +41,8 @@ public sealed class ChangeOrchestrator : IChangeOrchestrator
         IRecoveryClaimStore? recoveryClaimStore = null,
         ChangeExecutionPolicy? executionPolicy = null,
         IChangeExecutionGate? executionGate = null,
-        IChangeCompatibilityPolicy? compatibilityPolicy = null)
+        IChangeCompatibilityPolicy? compatibilityPolicy = null,
+        IRecoveryIndexQuery? recoveryIndexQuery = null)
     {
         _capabilities = capabilities.ToDictionary(
             capability => capability.Descriptor.CapabilityId,
@@ -56,6 +58,7 @@ public sealed class ChangeOrchestrator : IChangeOrchestrator
         _executionPolicy = executionPolicy ?? ChangeExecutionPolicy.Default;
         _executionGate = executionGate ?? throw new ArgumentNullException(nameof(executionGate), "A change execution gate is mandatory for centralized writes.");
         _compatibilityPolicy = compatibilityPolicy;
+        _recoveryIndexQuery = recoveryIndexQuery;
     }
 
     public async Task<StateObservation?> ObserveAsync(
@@ -71,7 +74,11 @@ public sealed class ChangeOrchestrator : IChangeOrchestrator
         return await capability.ReadAsync(scope, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken)
+    /// <param name="registerPlan">
+    /// Why: 状态探测（GetStatusAsync）语义上应为纯读；传入 false 时跳过
+    /// 计划注册与 journal 追加，避免每次 UI 刷新都产生计划/日志增长。
+    /// </param>
+    public async Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken, bool registerPlan = true)
     {
         cancellationToken.ThrowIfCancellationRequested();
         if (!_capabilities.TryGetValue(request.CapabilityId, out var capability))
@@ -134,18 +141,21 @@ public sealed class ChangeOrchestrator : IChangeOrchestrator
             descriptor.Risk,
             _executionPolicy.Version,
             _executionPolicy.Fingerprint);
-        try
+        if (registerPlan)
         {
-            await _planStore.RegisterAsync(plan, cancellationToken).ConfigureAwait(false);
-            await AppendJournalAsync(plan, "Prepared", "执行计划已签发并持久化。", cancellationToken).ConfigureAwait(false);
-        }
-        catch (OperationCanceledException)
-        {
-            return Blocked("plan.register-cancelled", "计划持久化期间取消，未生成可执行计划。");
-        }
-        catch (Exception ex)
-        {
-            return Blocked("plan.register-failed", Sanitize(ex.Message));
+            try
+            {
+                await _planStore.RegisterAsync(plan, cancellationToken).ConfigureAwait(false);
+                await AppendJournalAsync(plan, "Prepared", "执行计划已签发并持久化。", cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                return Blocked("plan.register-cancelled", "计划持久化期间取消，未生成可执行计划。");
+            }
+            catch (Exception ex)
+            {
+                return Blocked("plan.register-failed", Sanitize(ex.Message));
+            }
         }
 
         return new PreparationResult(ChangePreparationStatus.Ready, plan, "ready", "计划已准备，尚未执行写入。", current);
@@ -179,7 +189,7 @@ public sealed class ChangeOrchestrator : IChangeOrchestrator
             try
             {
                 resourceLease = await _resourceLockProvider.TryAcquireAsync(
-                    plan.Change.ResourceKey,
+                    plan.Change.LockKey ?? plan.Change.ResourceKey,
                     ResourceLockTimeout,
                     cancellationToken).ConfigureAwait(false);
             }
@@ -374,6 +384,30 @@ public sealed class ChangeOrchestrator : IChangeOrchestrator
         }
     }
 
+    public async Task<BatchReceipt?> RestoreLatestByCapabilityAsync(
+        string capabilityId,
+        CancellationToken cancellationToken)
+    {
+        if (_recoveryIndexQuery is null || string.IsNullOrWhiteSpace(capabilityId))
+        {
+            return null;
+        }
+
+        var entries = await _recoveryIndexQuery.ListAsync(cancellationToken).ConfigureAwait(false);
+        var entry = entries.FirstOrDefault(candidate =>
+            string.Equals(candidate.CapabilityId, capabilityId, StringComparison.OrdinalIgnoreCase)
+            && candidate.Status == RecoveryIndexStatus.Recoverable
+            && candidate.ReceiptId is not null);
+        if (entry is null)
+        {
+            return null;
+        }
+
+        return await RestoreAsync(
+            new RestoreRequest(entry.ReceiptId!.Value, entry.RecoveryId),
+            cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task<BatchReceipt> RestoreAsync(RestoreRequest request, CancellationToken cancellationToken)
     {
         var startedAt = _timeProvider.GetUtcNow();
@@ -504,7 +538,7 @@ public sealed class ChangeOrchestrator : IChangeOrchestrator
         try
         {
             resourceLease = await _resourceLockProvider.TryAcquireAsync(
-                material.ResourceKey,
+                material.LockKey ?? material.ResourceKey,
                 ResourceLockTimeout,
                 cancellationToken).ConfigureAwait(false);
         }
@@ -1068,7 +1102,8 @@ public sealed class ChangeOrchestrator : IChangeOrchestrator
             plan.Change.ResourceKey,
             createdAt,
             hash,
-            receiptId);
+            receiptId,
+            plan.Change.LockKey);
     }
 
     private static bool VerifyRecoveryHash(RecoveryMaterial material)

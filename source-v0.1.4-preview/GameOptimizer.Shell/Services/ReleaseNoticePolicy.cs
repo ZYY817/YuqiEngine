@@ -7,5 +7,5 @@ namespace GameOptimizer.Shell.Services;
 /// </summary>
 public static class ReleaseNoticePolicy
 {
-    public const string CurrentNoticeId = "v0.1.3-preview-scope-brief-2026-08";
+    public const string CurrentNoticeId = "v0.1.4-preview-scope-brief-2026-09";
 }

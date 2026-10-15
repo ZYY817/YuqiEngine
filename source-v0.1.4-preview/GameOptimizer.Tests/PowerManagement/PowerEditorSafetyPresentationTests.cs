@@ -9,9 +9,9 @@ public sealed class PowerEditorSafetyPresentationTests
         var xaml = Read("GameOptimizer.Shell", "Views", "PowerPlanEditorPage.xaml");
         Assert.Contains("PrepareUpdateAsync", source, StringComparison.Ordinal);
         Assert.Contains("_selectedManagedPlanId", source, StringComparison.Ordinal);
-        Assert.Contains("受管计划高级设置", xaml, StringComparison.Ordinal);
+        Assert.Contains("更多电源设置", xaml, StringComparison.Ordinal);
         Assert.Contains("SliderCpuMinimum", xaml, StringComparison.Ordinal);
-        Assert.Contains("Windows / OEM 原计划禁止写入", source, StringComparison.Ordinal);
+        Assert.Contains("系统和厂商原有方案仅供查看", source, StringComparison.Ordinal);
         Assert.DoesNotContain("ToggleAspm", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("LoadSavedConfiguration();", source, StringComparison.Ordinal);
     }
@@ -23,7 +23,7 @@ public sealed class PowerEditorSafetyPresentationTests
         var xaml = Read("GameOptimizer.Shell", "Views", "PowerPlanEditorPage.xaml");
         Assert.Contains("PrepareRestoreAsync", source, StringComparison.Ordinal);
         Assert.Contains("_managedOverview.Backups", source, StringComparison.Ordinal);
-        Assert.Contains("恢复最近一次已验证更改", xaml, StringComparison.Ordinal);
+        Assert.Contains("恢复上一次保存前的设置", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("Text=\"恢复 Windows 默认\"", xaml, StringComparison.Ordinal);
     }
 

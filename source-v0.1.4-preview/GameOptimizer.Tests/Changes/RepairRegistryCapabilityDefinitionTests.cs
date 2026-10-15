@@ -56,7 +56,14 @@ public sealed class RepairRegistryCapabilityDefinitionTests
             existing.Descriptor.ResourceKey,
             added.Descriptor.ResourceKey,
             StringComparison.OrdinalIgnoreCase));
-        Assert.EndsWith("/AllowAutoGameMode", existing.Descriptor.ResourceKey, StringComparison.OrdinalIgnoreCase);
+        // Why: gaming.mode.enable 现为多值能力（同时写 AutoGameModeEnabled 与
+        // AllowAutoGameMode 两个值名），其 ResourceKey 为键级；repair 侧仍为单值。
+        Assert.EndsWith("GameBar", existing.Descriptor.ResourceKey, StringComparison.OrdinalIgnoreCase);
         Assert.EndsWith("/AutoGameModeEnabled", added.Descriptor.ResourceKey, StringComparison.OrdinalIgnoreCase);
+        // 两能力必须共用同一锁键（键级），防止并发写同一物理值互相踏掉。
+        Assert.Equal(
+            added.Descriptor.LockKey ?? added.Descriptor.ResourceKey,
+            existing.Descriptor.LockKey ?? existing.Descriptor.ResourceKey,
+            ignoreCase: true);
     }
 }

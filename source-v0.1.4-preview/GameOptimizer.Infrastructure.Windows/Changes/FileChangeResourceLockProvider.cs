@@ -12,7 +12,7 @@ public sealed class FileChangeResourceLockProvider : IChangeResourceLockProvider
     private readonly string _lockDirectory;
 
     public FileChangeResourceLockProvider()
-        : this(Path.Combine(AppPaths.AppDataRoot, "Changes", "locks"))
+        : this(Path.Combine(AppPaths.StateDataRoot, "Changes", "locks"))
     {
     }
 

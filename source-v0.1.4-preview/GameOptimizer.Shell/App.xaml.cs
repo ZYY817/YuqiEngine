@@ -370,12 +370,14 @@ public partial class App : Application
                                     provider.GetRequiredService<IPowerPlanEditorService>(),
                                     provider.GetRequiredService<IPowerManagementOwner>(),
                                     provider.GetRequiredService<IManagedPowerPlanService>()));
+                            services.AddSingleton<IUpdateCheckService, UpdateCheckService>();
                             services.AddSingleton<SettingsPage>(provider =>
                                 new SettingsPage(
                                     provider.GetRequiredService<IAppSettingsStore>(),
                                     provider.GetRequiredService<IConfigurationExportService>(),
                                     provider.GetRequiredService<DiagnosticPackageService>(),
-                                    () => provider.GetRequiredService<IStartupEntryOwner>()));
+                                    () => provider.GetRequiredService<IStartupEntryOwner>(),
+                                    provider.GetRequiredService<IUpdateCheckService>()));
                             services.AddSingleton<StartupManagerPage>(provider =>
                                 new StartupManagerPage(
                                     provider.GetRequiredService<IStartupService>(),
@@ -651,7 +653,7 @@ public partial class App : Application
                     "App.FirstProtectionOnboarding",
                     "正在显示首次安全备份引导。",
                     $"Status={preference.Status}; Revision={preference.OnboardingRevision}");
-                dialog.ShowDialog();
+                dialog.Show();
             });
         }
         catch (Exception ex)
@@ -668,9 +670,13 @@ public partial class App : Application
     {
         try
         {
-            var settings = Models.AppSettings.Load();
+            // Why: 统一经 IAppSettingsStore 读写，避免绕过 store 的独立 Load/Save
+            // 与 store._current 互相覆盖导致确认标记丢失、弹窗反复出现。
+            var settingsStore = _host?.Services.GetService<IAppSettingsStore>();
+            var acknowledgedId = settingsStore?.Current.AcknowledgedReleaseNoticeId
+                ?? Models.AppSettings.Load().AcknowledgedReleaseNoticeId;
             if (string.Equals(
-                    settings.AcknowledgedReleaseNoticeId,
+                    acknowledgedId,
                     GameOptimizer.Shell.Services.ReleaseNoticePolicy.CurrentNoticeId,
                     StringComparison.Ordinal))
             {
@@ -682,8 +688,13 @@ public partial class App : Application
                 var dialog = new Views.ReleaseNoticeDialog { Owner = owner };
                 if (dialog.ShowDialog() == true)
                 {
-                    settings.AcknowledgedReleaseNoticeId = GameOptimizer.Shell.Services.ReleaseNoticePolicy.CurrentNoticeId;
-                    settings.Save();
+                    var noticeId = GameOptimizer.Shell.Services.ReleaseNoticePolicy.CurrentNoticeId;
+                    if (settingsStore is null || !settingsStore.TryUpdate(s => s.AcknowledgedReleaseNoticeId = noticeId))
+                    {
+                        var settings = Models.AppSettings.Load();
+                        settings.AcknowledgedReleaseNoticeId = noticeId;
+                        settings.Save();
+                    }
                 }
             });
         }

@@ -1774,10 +1774,12 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 
 	private void NavigateGameMode()
 	{
-		NavigationSectionModel navigationSectionModel = NavigationSections.FirstOrDefault((NavigationSectionModel section) => section.Key == "game-mode-hub");
+		// Why: 侧栏键为 esports-mode（旧别名 game-mode-hub 不存在于 NavigationSections）。
+		NavigationSectionModel navigationSectionModel = NavigationSections.FirstOrDefault((NavigationSectionModel section) => section.Key == "esports-mode");
 		if (navigationSectionModel != null)
 		{
 			SelectedNavigationSection = navigationSectionModel;
+			NavigateToPageRequested?.Invoke(navigationSectionModel.Key);
 		}
 	}
 
@@ -1787,6 +1789,7 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 		if (navigationSectionModel != null)
 		{
 			SelectedNavigationSection = navigationSectionModel;
+			NavigateToPageRequested?.Invoke(navigationSectionModel.Key);
 		}
 	}
 
@@ -1822,6 +1825,7 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 		if (navigationSectionModel != null)
 		{
 			SelectedNavigationSection = navigationSectionModel;
+			NavigateToPageRequested?.Invoke(navigationSectionModel.Key);
 		}
 	}
 
@@ -1831,6 +1835,9 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 		if (navigationSectionModel != null)
 		{
 			SelectedNavigationSection = navigationSectionModel;
+			// Why: 侧栏绑定的是主窗口的选中项而非 VM——仅设置 VM 状态不会切页；
+			// 页面切换必须走 NavigateToPageRequested 事件 → MainWindow → router。
+			NavigateToPageRequested?.Invoke(navigationSectionModel.Key);
 		}
 	}
 
@@ -1937,8 +1944,15 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 		{
 			AppendLog($"[ApplyGuard:ModulePage] 模块[{moduleTitle}] 检测到硬件不兼容项 {hardwareBlockedCount} 个，将自动跳过。");
 		}
+		// Why: 批量执行不得绕过单项能力门禁——不支持/回读不可用/策略管控的项
+		// 应在 UI 层跳过并提示，而不是发给引擎批量报错。
+		int capabilityBlockedCount = selectedToggles.Count((OptimizationToggleModel t) => !t.IsHardwareIncompatible && !t.CanApply);
+		if (capabilityBlockedCount > 0)
+		{
+			AppendLog($"[ApplyGuard:ModulePage] 模块[{moduleTitle}] 检测到能力受限项 {capabilityBlockedCount} 个，将自动跳过。");
+		}
 		List<string> selected = (from toggle in selectedToggles
-			where !toggle.IsHardwareIncompatible
+			where !toggle.IsHardwareIncompatible && toggle.CanApply
 			select toggle.OperationId).ToList();
 		if (selected.Count == 0)
 		{
@@ -2010,7 +2024,7 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 			return;
 		}
 		List<string> applied = (from toggle in SelectedOptimizationModule.Toggles
-			where toggle.IsApplied && !string.IsNullOrWhiteSpace(toggle.OperationId)
+			where toggle.IsApplied && toggle.CanRestore && !string.IsNullOrWhiteSpace(toggle.OperationId)
 			select toggle.OperationId).ToList();
 		if (applied.Count == 0)
 		{
@@ -2663,6 +2677,8 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 		NavigationSections.Add(new NavigationSectionModel("services-nav", instance.Get("Nav.SystemServices"), instance.Get("Nav.SystemServices.Subtitle"), "M5,5 H11 L13,7 H19 C20.1,7 21,7.9 21,9 V19 C21,20.1 20.1,21 19,21 H5 C3.9,21 3,20.1 3,19 V7 C3,5.9 3.9,5 5,5 Z M7,9 V17 H17 V9 Z M9,11 H11 V13 H9 Z M13,11 H15 V13 H13 Z", groupKey2, groupTitle2));
 		NavigationSections.Add(new NavigationSectionModel("system-cleanup", instance.Get("Nav.SystemCleanup"), instance.Get("Nav.SystemCleanup.Subtitle"), "M5,6 H19 V8 H17.5 L16.5,19 C16.4,20.1 15.5,21 14.4,21 H9.6 C8.5,21 7.6,20.1 7.5,19 L6.5,8 H5 Z M8.5,6 V5 C8.5,3.9 9.4,3 10.5,3 H13.5 C14.6,3 15.5,3.9 15.5,5 V6 Z", groupKey2, groupTitle2));
 		NavigationSections.Add(new NavigationSectionModel("peripheral-nav", instance.Get("Nav.PeripheralOptimization"), instance.Get("Nav.PeripheralOptimization.Subtitle"), "M6,7 H18 C19.1,7 20,7.9 20,9 V15 C20,16.1 19.1,17 18,17 H6 C4.9,17 4,16.1 4,15 V9 C4,7.9 4.9,7 6,7 Z M8,10 V14 H12 V10 Z M14,10 H18 V12 H14 Z M9,18 H15 V20 H9 Z", groupKey2, groupTitle2));
+		NavigationSections.Add(new NavigationSectionModel("appx-cleanup", instance.Get("Nav.AppxCleanup"), instance.Get("Nav.AppxCleanup.Subtitle"), "M5,5 H19 V7 H5 Z M7,9 V17 C7,18.1 7.9,19 9,19 H15 C16.1,19 17,18.1 17,17 V9 Z M9,9 H15 V17 H9 Z M10,11 V15 H12 V11 Z M12,11 V15 H14 V11 Z", groupKey2, groupTitle2));
+		NavigationSections.Add(new NavigationSectionModel("esports-mode", instance.Get("Nav.EsportsMode"), instance.Get("Nav.EsportsMode.Subtitle"), "M12,2 L15,8 L22,8.5 L17,13 L18.5,20 L12,16.5 L5.5,20 L7,13 L2,8.5 L9,8 Z", groupKey2, groupTitle2));
 		string groupKey3 = "tools";
 		string groupTitle3 = instance.Get("NavGroup.Tools");
 		NavigationSections.Add(new NavigationSectionModel("hardware-info", instance.Get("Nav.HardwareInfo"), instance.Get("Nav.HardwareInfo.Subtitle"), "M15,9 H9 V15 H15 V9 Z M13,13 H11 V11 H13 V13 Z M21,11 V13 H19 V15 C19,16.1 18.1,17 17,17 H15 V19 H13 V17 H11 V19 H9 V17 H7 C5.9,17 5,16.1 5,15 V13 H3 V11 H5 V9 H3 V7 H5 V5 C5,3.9 5.9,3 7,3 H9 V1 H11 V3 H13 V1 H15 V3 H17 C18.1,3 19,3.9 19,5 V7 H21 V9 H19 V11 H21 Z M17,5 H7 V15 H17 V5 Z", groupKey3, groupTitle3));
@@ -3015,6 +3031,12 @@ public partial class DashboardViewModel : ObservableObject, IOptimizationExecuto
 		List<GameOptimizer.Core.Optimization.OperationStatus> statuses = (await _optimizationEngine.GetStatusesAsync(module.Key).ConfigureAwait(continueOnCapturedContext: false)).ToList();
 		_dispatcher.InvokeAsync((Action)delegate
 		{
+			// Why: 状态与开关按索引配对依赖两侧同源同序（均来自 module.Operations）；
+			// 长度漂移会破坏配对，必须显式可见而不是静默截断。
+			if (statuses.Count != module.Toggles.Count)
+			{
+				Debug.WriteLine($"[SyncCore] 状态数与开关数不一致: {module.Key} statuses={statuses.Count} toggles={module.Toggles.Count}");
+			}
 			int num = module.Toggles.Count((OptimizationToggleModel t) => t.IsApplied);
 			_isBulkUpdating = true;
 			try

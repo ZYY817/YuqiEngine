@@ -1,5 +1,7 @@
 using System.ComponentModel;
+using System.Reflection;
 using System.Windows;
+using System.Windows.Input;
 
 namespace GameOptimizer.Shell.Views;
 
@@ -11,6 +13,18 @@ public partial class ReleaseNoticeDialog : Window
     public ReleaseNoticeDialog()
     {
         InitializeComponent();
+        var version = Assembly.GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        version = version?.Split('+')[0];
+        VersionText.Text = string.IsNullOrWhiteSpace(version) ? "预览版" : $"v{version}";
+    }
+
+    private void Header_Drag(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ButtonState == MouseButtonState.Pressed)
+        {
+            DragMove();
+        }
     }
 
     private void AcknowledgementCheckBox_Changed(object sender, RoutedEventArgs e)

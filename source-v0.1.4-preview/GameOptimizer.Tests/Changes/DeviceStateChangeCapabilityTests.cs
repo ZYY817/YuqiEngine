@@ -12,7 +12,8 @@ public sealed class DeviceStateChangeCapabilityTests
             new DeviceStateChangeCapabilityDefinition(
                 "device.disable_umbus",
                 "1.0.0",
-                "UMBus Root Bus Enumerator"),
+                "UMBus Root Bus Enumerator",
+                DeviceIdPrefix: @"UMB\UMB_BUS"),
             accessor);
 
     private static RecoveryMaterial CreateMaterial(DeviceStateChangeCapability capability, PreparedCapabilityChange change) =>
@@ -117,7 +118,7 @@ public sealed class DeviceStateChangeCapabilityTests
                 IsAdministrator ? "applicable" : "permission.administrator-required",
                 "fake"));
 
-        public Task<DeviceStateSnapshot> ReadAsync(string deviceNamePattern, CancellationToken cancellationToken) =>
+        public Task<DeviceStateSnapshot> ReadAsync(string deviceNamePattern, string? deviceIdPrefix, CancellationToken cancellationToken) =>
             Task.FromResult(HasDevice
                 ? Device
                 : new DeviceStateSnapshot(false, string.Empty, string.Empty, true));

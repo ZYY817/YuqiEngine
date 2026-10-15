@@ -159,7 +159,8 @@ public sealed class NetworkAdapterDhcpRepairEntryCompatibilityTests
 
         public Task<PreparationResult> PrepareAsync(
             ChangeRequest request,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken,
+            bool registerPlan = true) =>
             throw new InvalidOperationException("Generic change orchestrator must not run.");
 
         public Task<BatchReceipt> ExecuteAsync(

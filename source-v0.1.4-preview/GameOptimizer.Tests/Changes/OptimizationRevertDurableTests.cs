@@ -425,7 +425,7 @@ public sealed class OptimizationRevertDurableTests
         public OperationReceipt? Source { get; set; }
         public CancellationToken LastToken { get; private set; }
         public Task<StateObservation?> ObserveAsync(string capabilityId, TargetScope scope, CancellationToken cancellationToken) => throw new NotSupportedException();
-        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken) => throw new NotSupportedException();
+        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken, bool registerPlan = true) => throw new NotSupportedException();
         public Task<BatchReceipt> ExecuteAsync(PreparedChangePlan plan, ConfirmationToken confirmation, CancellationToken cancellationToken) => throw new NotSupportedException();
         public async Task<BatchReceipt> RestoreAsync(RestoreRequest request, CancellationToken cancellationToken)
         {

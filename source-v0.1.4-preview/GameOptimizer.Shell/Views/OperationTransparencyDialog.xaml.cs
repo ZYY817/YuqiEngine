@@ -551,14 +551,16 @@ public partial class OperationTransparencyDialog : Window
     {
         return canRollback
             ? $"一键回滚入口：点击“立即回滚此项”即可只回滚当前条目。模块：{moduleTitle}。"
-            : "当前值已符合目标，但本软件未持有可验证的应用前恢复回执。为避免覆盖用户或其他工具的配置，一键回滚已禁用；你仍可通过快捷入口查看和手工编辑该位置。";
+            : "本软件不提供一键回滚：未持有可验证的改前值，为避免覆盖你的配置不做猜测式恢复。"
+              + "你仍可随时自行调整——下方“系统入口”可打开注册表/命令行，“当前值”为实时状态，改回你需要的值即可。";
     }
 
     private static string BuildManualRollback(OptimizationToggleModel toggle, bool canRollback, string rollbackCommand)
     {
         if (!canRollback)
         {
-            return "未提供手工回滚命令：当前系统可能由用户、OEM 或其他工具设置为目标值，且未记录本软件写入前的原值。请先在“备份管理”建立可验证备份；如确需调整，请通过快捷入口检查并按你的系统配置手工编辑。";
+            return "未提供手工回滚命令：当前值可能由你、OEM 或其他工具设置，且未记录本软件写入前的原值。"
+                   + "想自己改回：点下方“打开注册表”或“打开入口”直接编辑该位置；建议先用“备份管理”建立可验证备份。";
         }
 
         var manual = Pick(toggle.ManualSteps, "未提供手工步骤。");

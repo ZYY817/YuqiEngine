@@ -16,6 +16,10 @@ public static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        // Why: .NET 8 默认不带 GBK/Big5 等非 UTF 代码页，GetEncoding(936) 未注册 provider 会
+        // 抛 ArgumentException——schtasks/powercfg/ipconfig 等 OEM 输出解码点散落多处，
+        // 统一在入口注册一次，避免"冷启动首个调用即炸/回退 UTF-8 乱码"。
+        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         ConfigureDataRootForProcess(args);
         if (args.Length == 5
             && string.Equals(args[0], "--system-restore-writer", StringComparison.Ordinal)

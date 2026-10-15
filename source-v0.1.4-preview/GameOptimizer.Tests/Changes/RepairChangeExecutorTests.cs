@@ -529,7 +529,7 @@ public sealed class RepairChangeExecutorTests
         public Task<StateObservation?> ObserveAsync(string capabilityId, TargetScope scope, CancellationToken cancellationToken) =>
             Task.FromResult<StateObservation?>(null);
 
-        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken)
+        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken, bool registerPlan = true)
         {
             cancellationToken.ThrowIfCancellationRequested();
             PreparedCapabilityIds.Add(request.CapabilityId);

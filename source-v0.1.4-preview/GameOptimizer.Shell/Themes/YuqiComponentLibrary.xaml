@@ -195,7 +195,82 @@
     <Style x:Key="Yuqi.SelectionCheckBox" TargetType="CheckBox">
         <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="CheckBox"><StackPanel Orientation="Horizontal"><Border x:Name="Box" Width="18" Height="18" Background="{DynamicResource Theme.Brush.InputBackground}" BorderBrush="{DynamicResource Theme.Brush.InputBorder}" BorderThickness="1" CornerRadius="0"><Path x:Name="Mark" Data="M 3 9 L 7 13 L 15 4" Stroke="{DynamicResource Theme.Brush.TextOnAccent}" StrokeThickness="2" Visibility="Collapsed"/></Border><ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"/></StackPanel><ControlTemplate.Triggers><Trigger Property="IsChecked" Value="True"><Setter TargetName="Box" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Mark" Property="Visibility" Value="Visible"/></Trigger><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="CheckBox"><StackPanel Orientation="Horizontal"><Border x:Name="Box" Width="18" Height="18" Background="{DynamicResource Theme.Brush.InputBackground}" BorderBrush="{DynamicResource Theme.Brush.InputBorder}" BorderThickness="1" CornerRadius="5"><Path x:Name="Mark" Data="M 3 9 L 7 13 L 15 4" Stroke="{DynamicResource Theme.Brush.TextOnAccent}" StrokeThickness="2" Visibility="Collapsed"/></Border><ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"/></StackPanel><ControlTemplate.Triggers><Trigger Property="IsChecked" Value="True"><Setter TargetName="Box" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/><Setter TargetName="Mark" Property="Visibility" Value="Visible"/></Trigger><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <!-- ═══ 对话框通用视觉组件（官方/Web 风） ═══ -->
+
+    <!-- 弹窗卡片:浮层面 + 边框 + 唯一允许的弹层阴影 -->
+    <Style x:Key="Yuqi.DialogCard" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.DialogBackground}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Effect" Value="{StaticResource Token.Shadow.Xl}"/>
+    </Style>
+
+    <!-- 图标片:语义浅底上的线形图标,仅承担状态语义 -->
+    <Style x:Key="Yuqi.IconChip" TargetType="Border">
+        <Setter Property="Width" Value="34"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="CornerRadius" Value="9"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+    <Style x:Key="Yuqi.IconChip.Info" TargetType="Border" BasedOn="{StaticResource Yuqi.IconChip}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.ControlAccentSelectedBg}"/>
+    </Style>
+    <Style x:Key="Yuqi.IconChip.Warning" TargetType="Border" BasedOn="{StaticResource Yuqi.IconChip}">
+        <Setter Property="Background" Value="#1FF2B84A"/>
+    </Style>
+    <Style x:Key="Yuqi.IconChip.Success" TargetType="Border" BasedOn="{StaticResource Yuqi.IconChip}">
+        <Setter Property="Background" Value="#1C3DBE72"/>
+    </Style>
+    <Style x:Key="Yuqi.IconChip.Neutral" TargetType="Border" BasedOn="{StaticResource Yuqi.IconChip}">
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundMuted}"/>
+    </Style>
+
+    <!-- 状态徽标:克制使用,每行最多一个 -->
+    <Style x:Key="Yuqi.Pill" TargetType="Border">
+        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="Padding" Value="10,2"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- 发丝分隔线 -->
+    <Style x:Key="Yuqi.Hairline" TargetType="Border">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- 幽灵按钮:弱行动,只有文字,悬停才出底 -->
+    <Style x:Key="Yuqi.GhostButton" TargetType="Button">
+        <Setter Property="MinHeight" Value="{DynamicResource Token.Size.MinInteractive}"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Surface" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Token.Radius.Button}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Surface" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter Property="Opacity" Value="0.7"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
     <Style x:Key="Yuqi.Progress" TargetType="ProgressBar">
         <Setter Property="Height" Value="6"/><Setter Property="Background" Value="{DynamicResource Theme.Brush.TrackBackground}"/><Setter Property="Foreground" Value="{DynamicResource Theme.Brush.ControlAccent}"/>

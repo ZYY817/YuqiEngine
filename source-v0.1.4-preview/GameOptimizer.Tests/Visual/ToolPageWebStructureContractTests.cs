@@ -5,12 +5,12 @@ public sealed class ToolPageWebStructureContractTests
     public static IEnumerable<object[]> Pages =>
     [
         ["GameOptimizer.Shell/Views/HardwareInfoPage.xaml", new[] { "整机摘要", "HardwareContent", "CopyInfoButton_Click", "RefreshButton_Click" }],
-        ["GameOptimizer.Shell/Views/NetworkTestPage.xaml", new[] { "Sonar Pulse", "SONAR", "NodeSelector_SelectionChanged", "RunTest_Click", "CancelTest_Click" }],
+        ["GameOptimizer.Shell/Views/NetworkTestPage.xaml", new[] { "网络测试", "开始测试", "NodeSelector_SelectionChanged", "RunTest_Click", "CancelTest_Click" }],
         ["GameOptimizer.Shell/Views/RestorePointPage.xaml", new[] { "还原点时间线", "CreateRestorePointCommand", "OpenSystemRestoreSettingsCommand" }],
         ["GameOptimizer.Shell/Views/RepairCenterPage.xaml", new[] { "让电脑回到健康状态", "FilterByCategoryCommand", "ExecuteQuickRepairActionCommand", "QuickRepairDetails_Click", "SelectedRepairCategory", "CategoryToggle" }],
-        ["GameOptimizer.Shell/Views/BackupManagerPage.xaml", new[] { "首次安全基线", "CreateSnapshotCommand", "PrepareRestoreSnapshotCommand" }],
+        ["GameOptimizer.Shell/Views/BackupManagerPage.xaml", new[] { "首次使用前的备份", "CreateSnapshotCommand", "PrepareRestoreSnapshotCommand" }],
         ["GameOptimizer.Shell/Views/CpuCoreManagementPage.xaml", new[] { "可配置进程", "CPU 核心分配", "ApplySingleProfileCommand" }],
-        ["GameOptimizer.Shell/Views/PowerPlanEditorPage.xaml", new[] { "当前激活计划", "电源计划", "已验证设置", "BtnApplyAll_Click", "BtnRefreshPlans_Click", "BtnRestoreDefault_Click" }]
+        ["GameOptimizer.Shell/Views/PowerPlanEditorPage.xaml", new[] { "当前激活计划", "电源计划", "ManagedPlanSelector", "BtnApplyAll_Click", "BtnRefreshPlans_Click", "BtnRestoreDefault_Click" }]
     ];
 
     [Theory]
@@ -64,7 +64,7 @@ public sealed class ToolPageWebStructureContractTests
         Assert.Contains("Property=\"IsKeyboardFocusWithin\" Value=\"True\"", repair, StringComparison.Ordinal);
         Assert.Contains("Style=\"{StaticResource RepairItemCard}\"", repair, StringComparison.Ordinal);
         Assert.Contains("尚未开始测试", network, StringComparison.Ordinal);
-        Assert.Contains("仅在完整测试成功后显示", network, StringComparison.Ordinal);
+        Assert.Contains("网络体检报告", network, StringComparison.Ordinal);
         Assert.Contains("ViewModel.ProtectionStatusText", restore, StringComparison.Ordinal);
         Assert.Contains("ViewModel.RestorePointCountText", restore, StringComparison.Ordinal);
         Assert.DoesNotContain("保护空间配额不可用", restore, StringComparison.Ordinal);
@@ -81,8 +81,8 @@ public sealed class ToolPageWebStructureContractTests
 
         Assert.Contains("PowerPlansList", power, StringComparison.Ordinal);
         Assert.DoesNotContain("MaxHeight=\"200\"", power, StringComparison.Ordinal);
-        Assert.Contains("Windows / OEM 计划保持只读", power, StringComparison.Ordinal);
-        Assert.Contains("受管计划高级设置", power, StringComparison.Ordinal);
+        Assert.Contains("Windows 和厂商自带计划不能直接编辑", power, StringComparison.Ordinal);
+        Assert.Contains("更多电源设置", power, StringComparison.Ordinal);
         Assert.Contains("SliderCpuMinimum", power, StringComparison.Ordinal);
         Assert.Contains("ManagedPlanSelector", power, StringComparison.Ordinal);
         Assert.Contains("BtnClonePlan_Click", power, StringComparison.Ordinal);
@@ -107,7 +107,7 @@ public sealed class ToolPageWebStructureContractTests
         var service = Read("GameOptimizer.Infrastructure.Windows/PowerManagement/ManagedPowerPlanService.cs");
 
         Assert.Contains("ExtremeModeCheckBox", dialog, StringComparison.Ordinal);
-        Assert.Contains("本次将写入的已验证参数", dialog, StringComparison.Ordinal);
+        Assert.Contains("本次将调整的设置", dialog, StringComparison.Ordinal);
         Assert.Contains("PlanNameTextBox", dialog, StringComparison.Ordinal);
         Assert.Contains("MaximumPerformance", codeBehind, StringComparison.Ordinal);
         Assert.Contains("_extremeProfile?.IsAvailable == true", codeBehind, StringComparison.Ordinal);

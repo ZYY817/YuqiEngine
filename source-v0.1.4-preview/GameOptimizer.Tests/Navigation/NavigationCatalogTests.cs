@@ -7,12 +7,12 @@ namespace GameOptimizer.Tests.Navigation;
 public sealed class NavigationCatalogTests
 {
     [Fact]
-    public void Catalog_contains_24_visible_routes_and_27_unique_hosts()
+    public void Catalog_contains_24_visible_routes_and_28_unique_hosts()
     {
         var catalog = new NavigationCatalog();
 
         Assert.Equal(24, catalog.VisibleRoutes.Count);
-        Assert.Equal(27, catalog.Routes.Count);
+        Assert.Equal(28, catalog.Routes.Count);
         Assert.Equal(
             catalog.VisibleRoutes.Count,
             catalog.VisibleRoutes.Select(route => route.Key).Distinct(StringComparer.OrdinalIgnoreCase).Count());

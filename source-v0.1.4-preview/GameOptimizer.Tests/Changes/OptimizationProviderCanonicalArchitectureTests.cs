@@ -117,7 +117,7 @@ public sealed class OptimizationProviderCanonicalArchitectureTests
         public Task<StateObservation?> ObserveAsync(string capabilityId, TargetScope scope, CancellationToken cancellationToken) =>
             Task.FromResult<StateObservation?>(null);
 
-        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken) =>
+        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken, bool registerPlan = true) =>
             Task.FromResult(new PreparationResult(ChangePreparationStatus.Blocked, null, "test.blocked", "Blocked for architecture test.", null));
 
         public Task<BatchReceipt> ExecuteAsync(PreparedChangePlan plan, ConfirmationToken confirmation, CancellationToken cancellationToken) =>

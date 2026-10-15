@@ -1,3 +1,4 @@
+using GameOptimizer.Core.Services;
 using GameOptimizer.Shell.Models;
 
 namespace GameOptimizer.Tests.Shell;
@@ -40,12 +41,23 @@ public sealed class OptimizationAvailabilityContractTests
     {
         var normal = OptimizationResultMessageFormatter.Format(
             "Administrator permission is required.", false, false, isAdministrator: false);
+
+        Assert.Contains("以管理员身份运行", normal, StringComparison.Ordinal);
+
         var elevated = OptimizationResultMessageFormatter.Format(
             "Access denied while writing the target value.", false, false, isAdministrator: true);
 
-        Assert.Contains("以管理员身份重新启动", normal, StringComparison.Ordinal);
-        Assert.Contains("已检测到管理员模式", elevated, StringComparison.Ordinal);
-        Assert.DoesNotContain("以管理员身份重新启动", elevated, StringComparison.Ordinal);
+        if (ElevationGate.IsElevated)
+        {
+            Assert.Contains("已在管理员模式下执行", elevated, StringComparison.Ordinal);
+            Assert.DoesNotContain("以管理员身份运行", elevated, StringComparison.Ordinal);
+        }
+        else
+        {
+            // 单元测试未实际提权时，拒绝访问同样归因于缺少提权，不应伪造“已提权”结论。
+            Assert.Contains("以管理员身份运行", elevated, StringComparison.Ordinal);
+            Assert.DoesNotContain("已在管理员模式下执行", elevated, StringComparison.Ordinal);
+        }
     }
 
     [Fact]

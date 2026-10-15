@@ -34,6 +34,7 @@ public partial class SettingsPage : UserControl
     private readonly IConfigurationExportService _configurationExportService;
     private readonly DiagnosticPackageService _diagnosticPackageService;
     private readonly Func<IStartupEntryOwner> _startupOwnerFactory;
+    private readonly IUpdateCheckService _updateCheckService;
     private readonly IAppSettingsStore _settingsStore;
     private IStartupEntryOwner? _startupOwner;
 
@@ -41,15 +42,21 @@ public partial class SettingsPage : UserControl
         IAppSettingsStore settingsStore,
         IConfigurationExportService configurationExportService,
         DiagnosticPackageService diagnosticPackageService,
-        Func<IStartupEntryOwner> startupOwnerFactory)
+        Func<IStartupEntryOwner> startupOwnerFactory,
+        IUpdateCheckService updateCheckService)
     {
         PageDiagnosticService.Log("SettingsPage", "Constructor called");
         InitializeComponent();
+        var version = System.Reflection.CustomAttributeExtensions
+            .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>(typeof(App).Assembly)
+            ?.InformationalVersion?.Split('+')[0];
+        SettingsVersionText.Text = string.IsNullOrWhiteSpace(version) ? "" : $"v{version}";
         _settingsStore = settingsStore ?? throw new ArgumentNullException(nameof(settingsStore));
         _settings = settingsStore.Current;
         _configurationExportService = configurationExportService ?? throw new ArgumentNullException(nameof(configurationExportService));
         _diagnosticPackageService = diagnosticPackageService ?? throw new ArgumentNullException(nameof(diagnosticPackageService));
         _startupOwnerFactory = startupOwnerFactory ?? throw new ArgumentNullException(nameof(startupOwnerFactory));
+        _updateCheckService = updateCheckService ?? throw new ArgumentNullException(nameof(updateCheckService));
         // The composition root supplies this factory from provider.GetRequiredService<IStartupEntryOwner>();
         // keeping resolution deferred prevents construction from touching the registry.
         // Keep the page construction path read-only and responsive.  Resolving the owner
@@ -269,7 +276,7 @@ public partial class SettingsPage : UserControl
         UpdateLogBackupDirectoryText();
     }
 
-    private void UpdateEntryButton_Click(object sender, RoutedEventArgs e)
+    private async void UpdateEntryButton_Click(object sender, RoutedEventArgs e)
     {
         const string fallbackRepository = "ZYY817/YuqiEngine";
         var configuredRepository = new AppSettings().GitHubRepo;
@@ -283,12 +290,71 @@ public partial class SettingsPage : UserControl
             return;
         }
 
-        var releaseUrl = $"https://github.com/{repository}/releases";
+        var isEnglish = LocalizationService.Instance.CurrentLanguage == "en-US";
+        var button = sender as Button;
+        if (button != null) button.IsEnabled = false;
+        try
+        {
+            var currentVersion = System.Reflection.CustomAttributeExtensions
+                .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>(typeof(App).Assembly)
+                ?.InformationalVersion ?? string.Empty;
+            var result = await _updateCheckService.CheckLatestReleaseAsync(
+                repository, currentVersion, CancellationToken.None);
+
+            if (!result.CheckSucceeded)
+            {
+                var reason = result.FailureReason switch
+                {
+                    "release.none" => isEnglish
+                        ? "No releases found on GitHub yet. Open the download page to check manually."
+                        : "GitHub 上还没有发布版本，可打开下载页手动查看。",
+                    "timeout" or "network" => isEnglish
+                        ? "Could not reach GitHub to check for updates. Check your network and retry."
+                        : "无法连接 GitHub 检查更新，请检查网络后重试。",
+                    _ => isEnglish
+                        ? "Could not determine the latest version. Open the download page to check manually."
+                        : "无法解析最新版本信息，可打开下载页手动查看。"
+                };
+                var openAnyway = ConfirmDialog.Show(Window.GetWindow(this),
+                    isEnglish ? "Update check" : "检查更新",
+                    $"{reason}\n\n{(isEnglish ? "Open the releases page now?" : "是否打开下载页？")}",
+                    IconGlyphs.Question);
+                if (openAnyway) OpenReleasesPage(repository);
+                return;
+            }
+
+            if (!result.UpdateAvailable)
+            {
+                InfoDialog.Show(Window.GetWindow(this),
+                    isEnglish ? "Update check" : "检查更新",
+                    isEnglish
+                        ? $"Yuqi Engine is up to date. (v{UpdateCheckService.ParseVersion(currentVersion)})"
+                        : $"当前已是最新版本。(v{UpdateCheckService.ParseVersion(currentVersion)})",
+                    IconGlyphs.Check);
+                return;
+            }
+
+            var openNow = ConfirmDialog.Show(Window.GetWindow(this),
+                isEnglish ? "Update available" : "发现新版本",
+                isEnglish
+                    ? $"A newer version is available: {result.LatestTag}\n\nOpen the download page now?"
+                    : $"发现新版本：{result.LatestTag}\n\n是否打开下载页？",
+                IconGlyphs.Download);
+            if (openNow) OpenReleasesPage(repository, result.LatestUrl);
+        }
+        finally
+        {
+            if (button != null) button.IsEnabled = true;
+        }
+    }
+
+    private void OpenReleasesPage(string repository, string? url = null)
+    {
         try
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = releaseUrl,
+                FileName = url ?? $"https://github.com/{repository}/releases",
                 UseShellExecute = true
             });
         }
@@ -357,8 +423,8 @@ public partial class SettingsPage : UserControl
 
     private void SetLanguage(string lang)
     {
-        if (!_isInitialized || _settings.Language == lang) return;
-        var previous = _settings.Language;
+        if (!_isInitialized || _settingsStore.Current.Language == lang) return;
+        var previous = _settingsStore.Current.Language;
         if (!_settingsStore.TryUpdate(settings => settings.Language = lang))
         {
             UpdateLanguageSelection(previous);

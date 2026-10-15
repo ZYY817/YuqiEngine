@@ -10,7 +10,12 @@ namespace GameOptimizer.Core.Services.Repair;
 public static class RepairHelper
 {
     private static LocalizationService Loc => LocalizationService.Instance;
-    public static async Task<string> RunCommandAsync(string fileName, string arguments, int timeoutMs = 60000)
+    /// <summary>
+    /// 运行命令并返回退出码与输出。Why: 只看 stdout 无法区分"命令拒绝/权限不足"与"成功"，
+    /// 历史路径因此把失败误报为成功——变更类调用方必须用退出码判定。
+    /// </summary>
+    public static async Task<(int ExitCode, string Output, string Error)> RunCommandResultAsync(
+        string fileName, string arguments, int timeoutMs = 60000)
     {
         // Why: sc/net/ipconfig 等系统命令输出使用 OEM 编码，.NET 8 默认 UTF-8 会导致中文乱码
         var oemEncoding = GetOemEncoding();
@@ -32,13 +37,14 @@ public static class RepairHelper
         try
         {
             process.Start();
-            
+
             using var cts = new CancellationTokenSource(timeoutMs);
             try
             {
-                var output = await process.StandardOutput.ReadToEndAsync(cts.Token);
+                var outputTask = process.StandardOutput.ReadToEndAsync(cts.Token);
+                var errorTask = process.StandardError.ReadToEndAsync(cts.Token);
                 await process.WaitForExitAsync(cts.Token);
-                return output;
+                return (process.ExitCode, await outputTask, await errorTask);
             }
             catch (OperationCanceledException)
             {
@@ -51,7 +57,7 @@ public static class RepairHelper
                     }
                 }
                 catch { /* 忽略终止失败 */ }
-                
+
                 throw new TimeoutException($"命令执行超时: {fileName} {arguments}");
             }
         }
@@ -61,70 +67,40 @@ public static class RepairHelper
             throw new InvalidOperationException($"无法执行命令 {fileName}: {ex.Message}", ex);
         }
     }
-    
-    /// <summary>
-    /// 运行PowerShell命令，带降级方案
-    /// </summary>
-    public static async Task<(bool Success, string Output, string Error)> RunPowerShellWithFallbackAsync(
-        string command, int timeoutMs = 10000)
+
+    public static async Task<string> RunCommandAsync(string fileName, string arguments, int timeoutMs = 60000)
     {
-        // 方案1: 尝试使用 -ExecutionPolicy Bypass
-        try
-        {
-            var output = await RunCommandAsync("powershell.exe", 
-                $"-ExecutionPolicy Bypass -NoProfile -Command \"{command}\"", timeoutMs);
-            return (true, output, string.Empty);
-        }
-        catch (Exception ex1)
-        {
-            Debug.WriteLine($"[RepairHelper] PowerShell with Bypass failed: {ex1.Message}");
-            
-            // 方案2: 尝试不带 ExecutionPolicy 参数
-            try
-            {
-                var output = await RunCommandAsync("powershell.exe", 
-                    $"-NoProfile -Command \"{command}\"", timeoutMs);
-                return (true, output, string.Empty);
-            }
-            catch (Exception ex2)
-            {
-                Debug.WriteLine($"[RepairHelper] PowerShell without Bypass failed: {ex2.Message}");
-                return (false, string.Empty, 
-                    Loc.Get("Repair.PowerShellRestricted", ex2.Message));
-            }
-        }
+        var (_, output, _) = await RunCommandResultAsync(fileName, arguments, timeoutMs).ConfigureAwait(false);
+        return output;
     }
-    
+
     /// <summary>
     /// 检查服务是否存在
     /// </summary>
-    public static async Task<bool> ServiceExistsAsync(string serviceName)
+    // Why: ServiceController 走 SCM API 而非解析 sc 文本——sc 输出随系统语言本地化，
+    // "指定的服务"/"RUNNING" 在非中英系统上不匹配会误判存在性/状态。
+    public static Task<bool> ServiceExistsAsync(string serviceName)
     {
         try
         {
-            var result = await RunCommandAsync("sc", $"query {serviceName}", 5000);
-            // 如果服务不存在，sc会返回错误信息包含"指定的服务"或"does not exist"
-            return !result.Contains("指定的服务") && 
-                   !result.Contains("does not exist") &&
-                   !result.Contains("FAILED");
+            using var controller = new System.ServiceProcess.ServiceController(serviceName);
+            _ = controller.Status;
+            return Task.FromResult(true);
         }
         catch
         {
-            return false;
+            return Task.FromResult(false);
         }
     }
 
-    public static async Task<bool> IsServiceRunningAsync(string serviceName)
+    public static Task<bool> IsServiceRunningAsync(string serviceName)
     {
         try
         {
-            if (!await ServiceExistsAsync(serviceName))
-                return false;
-                
-            var result = await RunCommandAsync("sc", $"query {serviceName}", 5000);
-            return result.Contains("RUNNING");
+            using var controller = new System.ServiceProcess.ServiceController(serviceName);
+            return Task.FromResult(controller.Status == System.ServiceProcess.ServiceControllerStatus.Running);
         }
-        catch { return false; }
+        catch { return Task.FromResult(false); }
     }
 
     public static async Task<RepairResult> RestartServiceAsync(string serviceName, string displayName, IProgress<RepairProgress>? progress)
@@ -134,13 +110,28 @@ public static class RepairHelper
         {
             return RepairResult.Succeeded(Loc.Get("Repair.ServiceNotFound", displayName));
         }
-        
+
         progress?.Report(new RepairProgress { Message = Loc.Get("Repair.RestartingService", displayName), PercentComplete = 10 });
         try
         {
-            await RunCommandAsync("net", $"stop {serviceName}", 10000);
-            await Task.Delay(500);
-            await RunCommandAsync("net", $"start {serviceName}", 10000);
+            // Why: ServiceController 直接报告 SCM 状态，避免解析 net stop/start 的本地化输出。
+            using var controller = new System.ServiceProcess.ServiceController(serviceName);
+            controller.Refresh();
+            if (controller.Status != System.ServiceProcess.ServiceControllerStatus.Stopped)
+            {
+                controller.Stop();
+                controller.WaitForStatus(System.ServiceProcess.ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+            }
+
+            controller.Refresh();
+            controller.Start();
+            controller.WaitForStatus(System.ServiceProcess.ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+            controller.Refresh();
+            if (controller.Status != System.ServiceProcess.ServiceControllerStatus.Running)
+            {
+                return RepairResult.Failed($"{displayName} 重启后状态为 {controller.Status}，未运行。");
+            }
+
             progress?.Report(new RepairProgress { Message = Loc.Get("Repair.Complete"), PercentComplete = 100 });
             return RepairResult.Succeeded(Loc.Get("Repair.ServiceRestarted", displayName));
         }
@@ -161,12 +152,23 @@ public static class RepairHelper
         {
             return RepairResult.Succeeded(Loc.Get("Repair.ServiceNotFound", displayName));
         }
-        
+
         progress?.Report(new RepairProgress { Message = Loc.Get("Repair.EnablingService", displayName), PercentComplete = 10 });
         try
         {
-            await RunCommandAsync("sc", $"config {serviceName} start= auto", 10000);
-            await RunCommandAsync("net", $"start {serviceName}", 10000);
+            var (configCode, _, configErr) = await RunCommandResultAsync("sc", $"config {serviceName} start= auto", 10000);
+            if (configCode != 0)
+                return RepairResult.Failed($"启用 {displayName} 启动类型失败（sc config 退出码 {configCode}）：{configErr.Trim()}");
+
+            using var controller = new System.ServiceProcess.ServiceController(serviceName);
+            controller.Start();
+            controller.WaitForStatus(System.ServiceProcess.ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+            controller.Refresh();
+            if (controller.Status != System.ServiceProcess.ServiceControllerStatus.Running)
+            {
+                return RepairResult.Failed($"{displayName} 启动后状态为 {controller.Status}，未运行。");
+            }
+
             progress?.Report(new RepairProgress { Message = Loc.Get("Repair.Complete"), PercentComplete = 100 });
             return RepairResult.Succeeded(Loc.Get("Repair.ServiceEnabled", displayName));
         }
@@ -189,12 +191,16 @@ public static class RepairHelper
         catch { return Task.FromResult(false); }
     }
 
+    // Why: nslookup 输出文本随系统语言本地化，英文 "Address"/"can't find"
+    // 在非英文系统永不命中/误命中——直接做真实 DNS 查询，与语言无关。
     public static async Task<bool> CheckDnsResolutionAsync()
     {
         try
         {
-            var result = await RunCommandAsync("nslookup", "www.microsoft.com", 5000);
-            return result.Contains("Address") && !result.Contains("can't find");
+            var addresses = await System.Net.Dns
+                .GetHostAddressesAsync("www.microsoft.com")
+                .WaitAsync(TimeSpan.FromSeconds(5));
+            return addresses.Length > 0;
         }
         catch { return false; }
     }
@@ -216,8 +222,22 @@ public static class RepairHelper
         return Task.FromResult(File.Exists(filePath));
     }
 
-    public static Task<bool> CheckUwpAppInstalledAsync(string appName) =>
-        Task.FromResult(false);
+    // Why: 历史实现硬编码 false，Store 健康检查永远假阴性。
+    // WinRT PackageManager.FindPackages 按包全名/前缀真实枚举，与语言无关。
+    public static Task<bool> CheckUwpAppInstalledAsync(string appName)
+    {
+        if (string.IsNullOrWhiteSpace(appName) || !OperatingSystem.IsWindows())
+            return Task.FromResult(false);
+        try
+        {
+            var packageManager = new Windows.Management.Deployment.PackageManager();
+            var matches = packageManager.FindPackages()
+                .Where(p => p.Id?.FullName?.Contains(appName, StringComparison.OrdinalIgnoreCase) == true
+                    || p.Id?.Name?.Contains(appName, StringComparison.OrdinalIgnoreCase) == true);
+            return Task.FromResult(matches.Any());
+        }
+        catch { return Task.FromResult(false); }
+    }
 
     public static Task<bool> CheckFileAssociationAsync(string extension, string expectedProgId)
     {

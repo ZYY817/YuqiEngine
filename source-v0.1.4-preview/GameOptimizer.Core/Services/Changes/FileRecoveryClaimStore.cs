@@ -22,7 +22,7 @@ public sealed class FileRecoveryClaimStore : IRecoveryClaimStore, IRecoveryClaim
     private readonly string _rootPrefix;
 
     public FileRecoveryClaimStore()
-        : this(Path.Combine(AppPaths.AppDataRoot, "Changes", "recovery-claims"))
+        : this(Path.Combine(AppPaths.StateDataRoot, "Changes", "recovery-claims"))
     {
     }
 
@@ -230,6 +230,10 @@ public sealed class FileRecoveryClaimStore : IRecoveryClaimStore, IRecoveryClaim
         Guid recoveryId,
         CancellationToken cancellationToken)
     {
+        const int SharingViolation = 32;
+        const int LockViolation = 33;
+        var timeout = TimeSpan.FromSeconds(30);
+        var deadline = DateTimeOffset.UtcNow + timeout;
         Directory.CreateDirectory(_rootDirectory);
         var lockPath = Path.Combine(_rootDirectory, $"{recoveryId:N}.lock");
         while (true)
@@ -245,8 +249,15 @@ public sealed class FileRecoveryClaimStore : IRecoveryClaimStore, IRecoveryClaim
                     1,
                     FileOptions.Asynchronous | FileOptions.WriteThrough);
             }
-            catch (IOException)
+            catch (IOException ex)
             {
+                // Why: 只有共享冲突/锁冲突值得重试，磁盘错误等非暂态 IOException
+                // 重试无意义；且必须设上限，否则锁泄漏时无限自旋。
+                var errorCode = ex.HResult & 0xFFFF;
+                if (errorCode is not (SharingViolation or LockViolation) || DateTimeOffset.UtcNow >= deadline)
+                {
+                    throw;
+                }
                 await Task.Delay(TimeSpan.FromMilliseconds(5), cancellationToken).ConfigureAwait(false);
             }
         }

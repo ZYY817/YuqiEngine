@@ -21,7 +21,10 @@ public sealed record RegistryDwordCapabilityDefinition(
     ChangeRisk Risk,
     bool RequiresExplicitConfirmation = false,
     RegistryDwordHive Hive = RegistryDwordHive.CurrentUser,
-    bool RequiresRestart = false);
+    bool RequiresRestart = false,
+    // Why: 位掩码值（如 DisabledComponents）整值覆盖会清掉用户已设的其他位；
+    // 开启后 apply 目标为 当前值 | TargetValue。
+    bool MergeBitmaskOr = false);
 
 public enum RegistryDwordTargetAction
 {
@@ -110,7 +113,11 @@ public class RegistryDwordCapability : IChangeCapability
             definition.RequiresExplicitConfirmation,
             RequiresRecoveryMaterial: true,
             definition.RequiresRestart,
-            ResourceKey: $"registry:{(isMachine ? "HKLM" : "HKCU")}/{definition.SubKeyPath}/{definition.ValueName}");
+            ResourceKey: $"registry:{(isMachine ? "HKLM" : "HKCU")}/{definition.SubKeyPath}/{definition.ValueName}",
+            // Why: 同一物理键下的 DWORD 单值能力与多值能力（value-set 锁键级）
+            // 写同一值时会互相踏掉；锁统一到键级，ResourceKey 保持值级身份
+            // 用于恢复材料匹配不变。
+            LockKey: $"registry:{(isMachine ? "HKLM" : "HKCU")}/{definition.SubKeyPath}");
     }
 
     public CapabilityDescriptor Descriptor { get; }
@@ -193,12 +200,15 @@ public class RegistryDwordCapability : IChangeCapability
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var request = string.Equals(targetPayload, "apply", StringComparison.OrdinalIgnoreCase)
-            ? RegistryDwordTargetRequest.Set(_definition.TargetValue)
-            : JsonSerializer.Deserialize<RegistryDwordTargetRequest>(targetPayload)
-              ?? throw new InvalidDataException("DWORD target request cannot be parsed.");
         var observed = JsonSerializer.Deserialize<RegistryDwordState>(current.Payload)
             ?? throw new InvalidDataException("当前 DWORD 注册表状态无法解析。");
+        var request = string.Equals(targetPayload, "apply", StringComparison.OrdinalIgnoreCase)
+            ? RegistryDwordTargetRequest.Set(
+                _definition.MergeBitmaskOr && observed is { ValueExists: true, Value: not null }
+                    ? observed.Value.Value | _definition.TargetValue
+                    : _definition.TargetValue)
+            : JsonSerializer.Deserialize<RegistryDwordTargetRequest>(targetPayload)
+              ?? throw new InvalidDataException("DWORD target request cannot be parsed.");
         ValidateObservedState(observed);
         ValidateTargetRequest(request);
         var canonicalTarget = JsonSerializer.Serialize(request.Action == RegistryDwordTargetAction.Delete
@@ -212,7 +222,8 @@ public class RegistryDwordCapability : IChangeCapability
             current.Fingerprint,
             canonicalTarget,
             Fingerprint(canonicalTarget),
-            Descriptor.ResourceKey));
+            Descriptor.ResourceKey,
+            Descriptor.LockKey));
     }
 
     public async Task<PlatformExecutionResult> ExecuteAsync(

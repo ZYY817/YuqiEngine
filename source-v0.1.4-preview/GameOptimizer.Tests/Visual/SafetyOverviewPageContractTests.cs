@@ -67,7 +67,7 @@ public sealed class SafetyOverviewPageContractTests
         Assert.Contains("IsEnabled=\"{Binding ViewModel.CanExecutePendingRestore", backup, StringComparison.Ordinal);
 
         var restore = Read("GameOptimizer.Shell/Views/RestorePointPage.xaml") + Read("GameOptimizer.Shell/ViewModels/RestorePointViewModel.cs");
-        Assert.Contains("执行与删除由 Windows 系统恢复界面管理", restore, StringComparison.Ordinal);
+        Assert.Contains("恢复时会打开 Windows 的恢复界面，由 Windows 完成确认。", restore, StringComparison.Ordinal);
         Assert.DoesNotContain("执行还原（阻断）", restore, StringComparison.Ordinal);
         Assert.DoesNotContain("IsEnabled=\"False\"", restore, StringComparison.Ordinal);
         Assert.Contains("需要重启", restore, StringComparison.Ordinal);
@@ -96,10 +96,10 @@ public sealed class SafetyOverviewPageContractTests
         Assert.Contains("AuthorStepPanel", xaml, StringComparison.Ordinal);
         Assert.Contains("RiskStepPanel", xaml, StringComparison.Ordinal);
         Assert.Contains("BackupStepPanel", xaml, StringComparison.Ordinal);
-        Assert.Contains("第 {_introStep} 步 / 共 5 步", code, StringComparison.Ordinal);
+        Assert.Contains("第 {_introStep} 步 / 共 4 步", code, StringComparison.Ordinal);
         Assert.Contains("Task.Delay(TimeSpan.FromSeconds(1))", code, StringComparison.Ordinal);
         Assert.Contains("请先完整阅读，{remaining}s 后可继续", code, StringComparison.Ordinal);
-        Assert.Contains("if (_introStep != 5 || !_riskAcknowledged || !StartBackupBtn.IsEnabled)", code, StringComparison.Ordinal);
+        Assert.Contains("if (_introStep != 4 || !_riskAcknowledged || !StartBackupBtn.IsEnabled)", code, StringComparison.Ordinal);
     }
 
     [Fact]

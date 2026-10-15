@@ -83,7 +83,10 @@ public sealed record CapabilityDescriptor(
     bool RequiresRecoveryMaterial,
     bool RequiresRestart,
     string ResourceKey,
-    string ExecutionPolicyVersion = "bounded-platform.v1");
+    string ExecutionPolicyVersion = "bounded-platform.v1",
+    // Why: ResourceKey 同时承担"能力身份+恢复材料匹配"职责，不能按锁粒度随意改动；
+    // LockKey 单独表达并发互斥粒度，缺省回落 ResourceKey 保持原语义。
+    string? LockKey = null);
 
 public sealed record ChangeExecutionPolicy(
     string Version,
@@ -128,7 +131,8 @@ public sealed record PreparedCapabilityChange(
     string BeforeFingerprint,
     string TargetPayload,
     string TargetFingerprint,
-    string ResourceKey);
+    string ResourceKey,
+    string? LockKey = null);
 
 public sealed record PreparedChangePlan(
     Guid PlanId,
@@ -204,7 +208,8 @@ public sealed record RecoveryMaterial(
     string ResourceKey,
     DateTimeOffset CreatedAtUtc,
     string IntegrityHash,
-    Guid ReceiptId = default);
+    Guid ReceiptId = default,
+    string? LockKey = null);
 
 public sealed record OperationReceipt(
     Guid ReceiptId,

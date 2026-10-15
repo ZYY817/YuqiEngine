@@ -37,14 +37,14 @@ public sealed class BackupRestoreVisualContractTests
         Assert.Contains("BackupBaselineCard", xaml, StringComparison.Ordinal);
         Assert.Contains("BackupContextCard", xaml, StringComparison.Ordinal);
         Assert.Contains("BackupRail", xaml, StringComparison.Ordinal);
-        Assert.Contains("恢复计划与中断处置", xaml, StringComparison.Ordinal);
+        Assert.Contains("恢复步骤", xaml, StringComparison.Ordinal);
         Assert.Contains("<Expander", xaml, StringComparison.Ordinal);
         Assert.Contains("SelectTimelineFilterCommand", xaml, StringComparison.Ordinal);
         Assert.Contains("IsSnapshotTimelineVisible", xaml, StringComparison.Ordinal);
         Assert.Contains("IsBaselineTimelineVisible", xaml, StringComparison.Ordinal);
         Assert.Contains("HasNoTimelineEntries", xaml, StringComparison.Ordinal);
         Assert.Contains("IsEnabled=\"{Binding ViewModel.CanExecutePendingRestore", xaml, StringComparison.Ordinal);
-        Assert.Contains("真实恢复覆盖", xaml, StringComparison.Ordinal);
+        Assert.Contains("这份备份能恢复什么", xaml, StringComparison.Ordinal);
         Assert.Contains("RestoreCoverage", xaml, StringComparison.Ordinal);
         Assert.Contains("BackupStoragePathText", xaml, StringComparison.Ordinal);
         Assert.Contains("StorageVolumeText", xaml, StringComparison.Ordinal);
@@ -73,7 +73,7 @@ public sealed class BackupRestoreVisualContractTests
         Assert.Contains("可自动恢复", viewModel, StringComparison.Ordinal);
         Assert.Contains("仅手动恢复", viewModel, StringComparison.Ordinal);
         Assert.Contains("不可用", viewModel, StringComparison.Ordinal);
-        Assert.Contains("不承诺完整系统恢复", xaml, StringComparison.Ordinal);
+        Assert.Contains("不能恢复整个 Windows 系统", xaml, StringComparison.Ordinal);
 
         var injectedConstructor = code[code.IndexOf("public BackupManagerPage(BackupManagerViewModel", StringComparison.Ordinal)..];
         Assert.True(
@@ -94,8 +94,8 @@ public sealed class BackupRestoreVisualContractTests
         Assert.Contains("还原点时间线", xaml, StringComparison.Ordinal);
         Assert.Contains("EmptyState", xaml, StringComparison.Ordinal);
         Assert.Contains("HasRestorePointStatus", xaml, StringComparison.Ordinal);
-        Assert.Contains("RestorePointStatus", xaml, StringComparison.Ordinal);
-        Assert.Contains("执行与删除由 Windows 系统恢复界面管理", xaml, StringComparison.Ordinal);
+        Assert.Contains("RestorePointStatusDisplay", xaml, StringComparison.Ordinal);
+        Assert.Contains("恢复时会打开 Windows 的恢复界面，由 Windows 完成确认。", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("执行还原（阻断）", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("删除（不支持）", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("IsEnabled=\"False\"", xaml, StringComparison.Ordinal);
@@ -106,7 +106,7 @@ public sealed class BackupRestoreVisualContractTests
         Assert.Contains("RestoreCreateCard", xaml, StringComparison.Ordinal);
         Assert.Contains("RestoreProtectionCard", xaml, StringComparison.Ordinal);
         Assert.Contains("RestoreRail", xaml, StringComparison.Ordinal);
-        Assert.Contains("执行与删除由 Windows 系统恢复界面管理", xaml, StringComparison.Ordinal);
+        Assert.Contains("恢复时会打开 Windows 的恢复界面，由 Windows 完成确认。", xaml, StringComparison.Ordinal);
         Assert.Contains("SelectTimelineFilterCommand", xaml, StringComparison.Ordinal);
         Assert.Contains("HasSystemTimelineEntries", xaml, StringComparison.Ordinal);
         Assert.Contains("HasSoftwareTimelineEntry", xaml, StringComparison.Ordinal);

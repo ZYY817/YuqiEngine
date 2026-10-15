@@ -588,9 +588,12 @@ public sealed class PowerSettingChangeCapability : IChangeCapability
                 throw new InvalidDataException("目标电源设置 GUID 与能力定义不一致。");
             }
 
-            if (state.AcValue is not >= 0 || state.DcValue is not >= 0)
+            // Why: null 通道语义为"保持不动"（WriteValueAsync 对 null 跳过），
+            // 台式机 PowerReadDCValueIndex 返回 FILE_NOT_FOUND 时 before.DcValue 即为 null，
+            // 若目标也声明仅 AC，则目标 DC 合法地为 null——只拒绝负值，不拒绝 null。
+            if (state.AcValue is < 0 || state.DcValue is < 0)
             {
-                throw new InvalidDataException("目标电源设置必须提供非负的 AC/DC 值。");
+                throw new InvalidDataException("目标电源设置的 AC/DC 值不得为负。");
             }
         }
     }

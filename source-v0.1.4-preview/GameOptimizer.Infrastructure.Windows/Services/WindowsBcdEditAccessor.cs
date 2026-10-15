@@ -121,6 +121,11 @@ public sealed class WindowsBcdEditAccessor : IBcdEditAccessor
 
     private async Task<bool?> IsSecureBootEnabledAsync(CancellationToken cancellationToken)
     {
+        // Why: 传统 BIOS/CSM 机器上 Confirm-SecureBootUEFI 必然抛终结错误，
+        // 但 Secure Boot 在该平台确定性为 false——用 GetFirmwareType 先判固件，
+        // 避免把"平台不支持 UEFI"误报成"状态未知"锁死全部 BCD 操作。
+        if (!IsUefiFirmware())
+            return false;
         try
         {
             var result = await ProcessRunner.RunPowerShellAsync(
@@ -143,6 +148,21 @@ public sealed class WindowsBcdEditAccessor : IBcdEditAccessor
             return null;
         }
     }
+
+    private static bool IsUefiFirmware()
+    {
+        try
+        {
+            return GetFirmwareType(out var type) && type == 2; // FirmwareTypeUefi
+        }
+        catch
+        {
+            return true; // 无法判定时按 UEFI 假设，走 PowerShell 探测兜底（fail-closed）。
+        }
+    }
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll", ExactSpelling = true)]
+    private static extern bool GetFirmwareType(out uint firmwareType);
 
     private static bool IsAdministrator() => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 

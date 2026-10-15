@@ -62,7 +62,7 @@ public sealed class GpuInventoryService : IGpuInventoryService
                 var pnpDeviceId = item["PNPDeviceID"]?.ToString()?.Trim() ?? string.Empty;
                 var compatibility = item["AdapterCompatibility"]?.ToString()?.Trim() ?? string.Empty;
                 var vendor = DetectVendor(pnpDeviceId, compatibility, name);
-                var isVirtualOrSoftware = IsVirtualOrSoftware(name, compatibility);
+                var isVirtualOrSoftware = IsVirtualOrSoftware(name, compatibility, pnpDeviceId);
                 var (kind, classificationSource) = Classify(name, vendor, isVirtualOrSoftware);
                 var stableKey = !string.IsNullOrWhiteSpace(pnpDeviceId)
                     ? pnpDeviceId
@@ -142,8 +142,18 @@ public sealed class GpuInventoryService : IGpuInventoryService
         return GpuAdapterVendor.Unknown;
     }
 
-    private static bool IsVirtualOrSoftware(string name, string compatibility)
+    private static bool IsVirtualOrSoftware(string name, string compatibility, string pnpDeviceId)
     {
+        // Why: Name/AdapterCompatibility 随系统语言本地化（中文为"Microsoft 基本显示适配器"），
+        // PNPDeviceID 是稳定协议标识符——SWD\/ROOT\ 总线或缺 PCI\VEN_ 即软件/虚拟设备，与语言无关。
+        var upperId = pnpDeviceId.ToUpperInvariant();
+        if (upperId.StartsWith("SWD\\", StringComparison.Ordinal)
+            || upperId.StartsWith("ROOT\\", StringComparison.Ordinal)
+            || (upperId.Length > 0 && !upperId.Contains("PCI\\VEN_", StringComparison.Ordinal)))
+        {
+            return true;
+        }
+
         var evidence = $"{name} {compatibility}".ToUpperInvariant();
         return evidence.Contains("MICROSOFT BASIC") || evidence.Contains("BASIC RENDER") ||
                evidence.Contains("REMOTE") || evidence.Contains("VIRTUAL") || evidence.Contains("HYPER-V");

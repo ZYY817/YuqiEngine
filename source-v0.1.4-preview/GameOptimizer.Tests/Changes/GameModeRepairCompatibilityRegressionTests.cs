@@ -34,13 +34,17 @@ public sealed class GameModeRepairCompatibilityRegressionTests
 
         Assert.True(applied.Success, applied.Message);
         Assert.False(applied.RequiresReboot);
+        // Why: gaming.mode.enable 现为多值能力，逐值写入 AutoGameModeEnabled 与
+        // AllowAutoGameMode 各一次；repair 侧 dword 随后见到目标已达成而不再写入。
         Assert.Equal(2, harness.Registry.CurrentUserWriteCount);
         Assert.Equal(1, harness.Registry.Value(
             "SOFTWARE\\Microsoft\\GameBar", "AllowAutoGameMode").Value);
         Assert.Equal(1, harness.Registry.Value(
             "SOFTWARE\\Microsoft\\GameBar", "AutoGameModeEnabled").Value);
         var receipt = Assert.IsType<RepairChangeReceipt>(applied.ChangeReceipt);
-        Assert.Equal(2, receipt.Operations.Count);
+        // Why: 多值能力一次覆盖两个值名后，repair 侧 dword 步骤无增量（NoChange）
+        // 被跳过不计入回执——只保留真正执行的一步。
+        Assert.Equal(1, receipt.Operations.Count);
 
         var repeated = await harness.Service.RepairAsync(harness.Item);
 
@@ -137,6 +141,7 @@ public sealed class GameModeRepairCompatibilityRegressionTests
             var services = new ServiceCollection();
             services.AddGameOptimizerWindowsInfrastructure();
             services.AddSingleton<IRegistryDwordAccessor>(registry);
+            services.AddSingleton<IRegistryValueSetAccessor>(registry);
             using var provider = services.BuildServiceProvider();
             var capabilities = provider.GetServices<IChangeCapability>().ToArray();
             var existingGameModeEnable = Assert.Single(
@@ -166,7 +171,7 @@ public sealed class GameModeRepairCompatibilityRegressionTests
         }
     }
 
-    internal sealed class FakeRegistryAccessor : IRegistryDwordAccessor
+    internal sealed class FakeRegistryAccessor : IRegistryDwordAccessor, IRegistryValueSetAccessor
     {
         private readonly Dictionary<string, RegistryDwordState> _states = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -214,6 +219,69 @@ public sealed class GameModeRepairCompatibilityRegressionTests
             _states[Key(subKeyPath, valueName)] = original;
             return Task.CompletedTask;
         }
+
+        public Task<IReadOnlyList<RegistryValueSetEntryState>> ReadCurrentUserAsync(
+            string subKeyPath,
+            IReadOnlyList<string> valueNames,
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            CurrentUserReadCount++;
+            return Task.FromResult<IReadOnlyList<RegistryValueSetEntryState>>(
+                valueNames
+                    .Select(name =>
+                    {
+                        var state = Value(subKeyPath, name);
+                        return new RegistryValueSetEntryState(
+                            name,
+                            state.KeyExists,
+                            state.ValueExists,
+                            "DWord",
+                            null,
+                            state.Value);
+                    })
+                    .ToArray());
+        }
+
+        public Task WriteCurrentUserValueAsync(
+            string subKeyPath,
+            RegistryTypedTargetValue target,
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            CurrentUserWriteCount++;
+            _states[Key(subKeyPath, target.ValueName)] = new RegistryDwordState(true, true, target.DwordValue ?? 0);
+            return Task.CompletedTask;
+        }
+
+        public Task RestoreCurrentUserValueAsync(
+            string subKeyPath,
+            RegistryValueSetEntryState original,
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            CurrentUserRestoreCount++;
+            _states[Key(subKeyPath, original.ValueName)] = new RegistryDwordState(
+                original.KeyExists,
+                original.ValueExists,
+                original.DwordValue ?? 0);
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyList<RegistryValueSetEntryState>> ReadLocalMachineAsync(
+            string subKeyPath,
+            IReadOnlyList<string> valueNames,
+            CancellationToken cancellationToken) => throw new NotSupportedException();
+
+        public Task WriteLocalMachineValueAsync(
+            string subKeyPath,
+            RegistryTypedTargetValue target,
+            CancellationToken cancellationToken) => throw new NotSupportedException();
+
+        public Task RestoreLocalMachineValueAsync(
+            string subKeyPath,
+            RegistryValueSetEntryState original,
+            CancellationToken cancellationToken) => throw new NotSupportedException();
 
         private static string Key(string subKeyPath, string valueName) => $"{subKeyPath}|{valueName}";
     }

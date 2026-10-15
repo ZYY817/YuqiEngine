@@ -138,8 +138,9 @@ public class PowerOperationDiagnostics
     {
         var lowerErr = stdErr.ToLowerInvariant();
         
-        // 访问被拒绝
-        if (lowerErr.Contains("access") && lowerErr.Contains("denied"))
+        // 访问被拒绝（中英双语匹配：Access denied / 拒绝访问）
+        if ((lowerErr.Contains("access") && lowerErr.Contains("denied"))
+            || stdErr.Contains("拒绝访问") || stdErr.Contains("权限不足"))
         {
             var elevated = WindowsElevation.IsElevated;
             var diagnostic = new DiagnosticResult
@@ -194,8 +195,9 @@ public class PowerOperationDiagnostics
                 diagnostic);
         }
         
-        // 电源计划不存在
-        if (lowerErr.Contains("scheme") || lowerErr.Contains("guid"))
+        // 电源计划不存在（scheme/guid / 电源方案）
+        if (lowerErr.Contains("scheme") || lowerErr.Contains("guid")
+            || stdErr.Contains("电源方案") || stdErr.Contains("电源计划"))
         {
             var diagnostic = new DiagnosticResult
             {
@@ -249,8 +251,9 @@ public class PowerOperationDiagnostics
                 repairOptions);
         }
         
-        // 参数无效
-        if (lowerErr.Contains("parameter") || lowerErr.Contains("invalid"))
+        // 参数无效（parameter/invalid / 无效参数）
+        if (lowerErr.Contains("parameter") || lowerErr.Contains("invalid")
+            || stdErr.Contains("无效参数") || stdErr.Contains("参数无效"))
         {
             var diagnostic = new DiagnosticResult
             {

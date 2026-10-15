@@ -21,7 +21,10 @@ using GameOptimizer.Shell.Views;
 
 namespace GameOptimizer.Shell;
 
-public partial class MainWindow : Window
+// Why: 侧栏 ListBox.SelectedItem 以 OneWay 绑定到 SelectedNavigationSection；
+// WPF 绑定只对 INotifyPropertyChanged 接口事件或 DependencyProperty 订阅更新，
+// 未实现接口时程序化导航的选中同步静默失效（侧栏不跟随页面切换）。
+public partial class MainWindow : Window, System.ComponentModel.INotifyPropertyChanged
 {
     private readonly TaskCompletionSource _initializationCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
     public Task InitializationCompleted => _initializationCompleted.Task;
@@ -75,6 +78,12 @@ public partial class MainWindow : Window
         IActiveOperationRegistry activeOperations)
     {
         InitializeComponent();
+        var version = System.Reflection.CustomAttributeExtensions
+            .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>(typeof(App).Assembly)
+            ?.InformationalVersion?.Split('+')[0];
+        var versionText = string.IsNullOrWhiteSpace(version) ? "" : $"v{version}";
+        TitleVersionText.Text = versionText;
+        StatusVersionText.Text = versionText;
         _viewModel = viewModel;
         _trayService = trayService;
         _navigationCatalog = navigationCatalog;
@@ -145,7 +154,8 @@ public partial class MainWindow : Window
             [nameof(PowerPlanEditorPageHost)] = PowerPlanEditorPageHost,
             [nameof(EsportsModePageHost)] = EsportsModePageHost,
             [nameof(SettingsPageHost)] = SettingsPageHost,
-            [nameof(ModulePageHost)] = ModulePageHost
+            [nameof(ModulePageHost)] = ModulePageHost,
+            [nameof(StartupManagerPageHost)] = StartupManagerPageHost
         };
 
         if (hosts.Count != _navigationCatalog.Routes.Count ||
@@ -215,15 +225,22 @@ public partial class MainWindow : Window
     // P2-005: 保存窗口位置和大小
     private void SaveWindowState()
     {
-        if (WindowState == WindowState.Normal)
+        // Why: _appSettings 是构造期缓存的引用，任何 TryUpdate 后都已脱节；
+        // 直接 Save 会用旧快照覆盖本次会话的所有设置修改，必须走 store 单写者通道。
+        var isNormal = WindowState == WindowState.Normal;
+        var (left, top, width, height, maximized) =
+            (Left, Top, Width, Height, WindowState == WindowState.Maximized);
+        _settingsStore.TryUpdate(settings =>
         {
-            _appSettings.WindowLeft = Left;
-            _appSettings.WindowTop = Top;
-            _appSettings.WindowWidth = Width;
-            _appSettings.WindowHeight = Height;
-        }
-        _appSettings.WindowMaximized = WindowState == WindowState.Maximized;
-        _appSettings.Save();
+            if (isNormal)
+            {
+                settings.WindowLeft = left;
+                settings.WindowTop = top;
+                settings.WindowWidth = width;
+                settings.WindowHeight = height;
+            }
+            settings.WindowMaximized = maximized;
+        });
     }
     
     private void OnLanguageChanged(object? sender, string e)

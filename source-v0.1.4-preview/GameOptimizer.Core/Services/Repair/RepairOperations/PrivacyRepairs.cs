@@ -2,6 +2,7 @@
 using GameOptimizer.Core.Localization;
 using GameOptimizer.Core.Services.ApplicationRepair;
 using GameOptimizer.Core.Services.MaintenanceDiagnostics;
+using Microsoft.Win32;
 
 namespace GameOptimizer.Core.Services.Repair.RepairOperations;
 
@@ -126,82 +127,78 @@ public static class PrivacyRepairs
         };
     }
 
-    private static async Task<bool> CheckTelemetryServiceHealthAsync()
-    {
-        try
-        {
-            var result = await RepairHelper.RunCommandAsync("sc", "query DiagTrack", 5000);
-            return result.Contains("RUNNING") || result.Contains("STOPPED");
-        }
-        catch { return false; }
-    }
+    // Why: ServiceController 走 SCM API，sc query 输出随系统语言本地化，文本匹配不可靠。
+    private static Task<bool> CheckTelemetryServiceHealthAsync() =>
+        RepairHelper.ServiceExistsAsync("DiagTrack");
 
     private static async Task<RepairResult> ResetTelemetryAsync(IProgress<RepairProgress>? progress)
     {
         progress?.Report(new RepairProgress { Message = Loc.Get("Repair.ResettingTelemetry"), PercentComplete = 10 });
         try
         {
-            await RepairHelper.RunCommandAsync("sc", "config DiagTrack start= auto");
-            await RepairHelper.RunCommandAsync("net", "start DiagTrack");
+            var result = await RepairHelper.EnableServiceAsync("DiagTrack", "DiagTrack", null);
+            if (!result.Success)
+                return RepairResult.Failed(Loc.Get("Repair.ResetTelemetryFailed"), detail: result.Message);
             progress?.Report(new RepairProgress { Message = Loc.Get("Repair.Complete"), PercentComplete = 100 });
             return RepairResult.Succeeded(Loc.Get("Repair.TelemetryReset"));
         }
         catch (Exception ex) { return RepairResult.Failed(Loc.Get("Repair.ResetTelemetryFailed"), ex); }
     }
 
-    private static async Task<RepairResult> ResetPrivacySettingsAsync(IProgress<RepairProgress>? progress)
+    // Why: PowerShell Set-ItemProperty 非终止错误退出码仍为 0，失败会假报成功；
+    // 注册表直接写入异常真实抛出，与语言无关。
+    private static Task<RepairResult> ResetPrivacySettingsAsync(IProgress<RepairProgress>? progress)
     {
         progress?.Report(new RepairProgress { Message = Loc.Get("Repair.ResettingPrivacySettings"), PercentComplete = 10 });
         try
         {
-            var script = @"
-                $privacyKeys = @(
-                    'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location',
-                    'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam',
-                    'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone'
-                )
-                foreach ($key in $privacyKeys) {
-                    if (Test-Path $key) {
-                        Set-ItemProperty -Path $key -Name 'Value' -Value 'Allow' -ErrorAction SilentlyContinue
-                    }
-                }
-            ";
-            await RepairHelper.RunCommandAsync("powershell.exe", $"-ExecutionPolicy Bypass -Command \"{script}\"");
+            var privacyKeys = new[]
+            {
+                @"Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location",
+                @"Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam",
+                @"Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone"
+            };
+            foreach (var path in privacyKeys)
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(path, writable: true);
+                key?.SetValue("Value", "Allow", RegistryValueKind.String);
+            }
+
             progress?.Report(new RepairProgress { Message = Loc.Get("Repair.Complete"), PercentComplete = 100 });
-            return RepairResult.Succeeded(Loc.Get("Repair.PrivacySettingsReset"));
+            return Task.FromResult(RepairResult.Succeeded(Loc.Get("Repair.PrivacySettingsReset")));
         }
-        catch (Exception ex) { return RepairResult.Failed(Loc.Get("Repair.ResetPrivacySettingsFailed"), ex); }
+        catch (Exception ex) { return Task.FromResult(RepairResult.Failed(Loc.Get("Repair.ResetPrivacySettingsFailed"), ex)); }
     }
 
-    private static async Task<RepairResult> ResetAdvertisingIdAsync(IProgress<RepairProgress>? progress)
+    private static Task<RepairResult> ResetAdvertisingIdAsync(IProgress<RepairProgress>? progress)
     {
         progress?.Report(new RepairProgress { Message = Loc.Get("Repair.ResettingAdvertisingId"), PercentComplete = 10 });
         try
         {
-            var script = @"
-                Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo' -Name 'Enabled' -Value 1 -Type DWord -Force
-                Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo' -Name 'Id' -ErrorAction SilentlyContinue
-            ";
-            await RepairHelper.RunCommandAsync("powershell.exe", $"-ExecutionPolicy Bypass -Command \"{script}\"");
+            using var key = Registry.CurrentUser.CreateSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo", writable: true);
+            key.SetValue("Enabled", 1, RegistryValueKind.DWord);
+            key.DeleteValue("Id", throwOnMissingValue: false);
+
             progress?.Report(new RepairProgress { Message = Loc.Get("Repair.Complete"), PercentComplete = 100 });
-            return RepairResult.Succeeded(Loc.Get("Repair.AdvertisingIdReset"));
+            return Task.FromResult(RepairResult.Succeeded(Loc.Get("Repair.AdvertisingIdReset")));
         }
-        catch (Exception ex) { return RepairResult.Failed(Loc.Get("Repair.ResetAdvertisingIdFailed"), ex); }
+        catch (Exception ex) { return Task.FromResult(RepairResult.Failed(Loc.Get("Repair.ResetAdvertisingIdFailed"), ex)); }
     }
 
-    private static async Task<RepairResult> ResetDiagnosticDataAsync(IProgress<RepairProgress>? progress)
+    private static Task<RepairResult> ResetDiagnosticDataAsync(IProgress<RepairProgress>? progress)
     {
         progress?.Report(new RepairProgress { Message = Loc.Get("Repair.ResettingDiagnosticData"), PercentComplete = 10 });
         try
         {
-            var script = @"
-                Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' -Name 'AllowTelemetry' -Value 3 -Type DWord -Force
-            ";
-            await RepairHelper.RunCommandAsync("powershell.exe", $"-ExecutionPolicy Bypass -Command \"{script}\"");
+            using var key = Registry.LocalMachine.CreateSubKey(
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection", writable: true);
+            key.SetValue("AllowTelemetry", 3, RegistryValueKind.DWord);
+
             progress?.Report(new RepairProgress { Message = Loc.Get("Repair.Complete"), PercentComplete = 100 });
-            return RepairResult.Succeeded(Loc.Get("Repair.DiagnosticDataReset"));
+            return Task.FromResult(RepairResult.Succeeded(Loc.Get("Repair.DiagnosticDataReset")));
         }
-        catch (Exception ex) { return RepairResult.Failed(Loc.Get("Repair.ResetDiagnosticDataFailed"), ex); }
+        catch (Exception ex) { return Task.FromResult(RepairResult.Failed(Loc.Get("Repair.ResetDiagnosticDataFailed"), ex)); }
     }
 
     private static async Task<RepairResult> ResetCortanaAsync(
@@ -216,18 +213,18 @@ public static class PrivacyRepairs
         return RepairResult.Failed(result.Message, detail: result.Status);
     }
 
-    private static async Task<RepairResult> ResetFeedbackAsync(IProgress<RepairProgress>? progress)
+    private static Task<RepairResult> ResetFeedbackAsync(IProgress<RepairProgress>? progress)
     {
         progress?.Report(new RepairProgress { Message = Loc.Get("Repair.ResettingFeedback"), PercentComplete = 10 });
         try
         {
-            var script = @"
-                Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Siuf\Rules' -Name 'NumberOfSIUFInPeriod' -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
-            ";
-            await RepairHelper.RunCommandAsync("powershell.exe", $"-ExecutionPolicy Bypass -Command \"{script}\"");
+            using var key = Registry.CurrentUser.CreateSubKey(
+                @"Software\Microsoft\Siuf\Rules", writable: true);
+            key.SetValue("NumberOfSIUFInPeriod", 0, RegistryValueKind.DWord);
+
             progress?.Report(new RepairProgress { Message = Loc.Get("Repair.Complete"), PercentComplete = 100 });
-            return RepairResult.Succeeded(Loc.Get("Repair.FeedbackReset"));
+            return Task.FromResult(RepairResult.Succeeded(Loc.Get("Repair.FeedbackReset")));
         }
-        catch (Exception ex) { return RepairResult.Failed(Loc.Get("Repair.ResetFeedbackFailed"), ex); }
+        catch (Exception ex) { return Task.FromResult(RepairResult.Failed(Loc.Get("Repair.ResetFeedbackFailed"), ex)); }
     }
 }

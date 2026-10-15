@@ -244,7 +244,7 @@ public sealed class SnapshotTypedRegistryRestoreTests
 
         public Task<StateObservation?> ObserveAsync(string capabilityId, TargetScope scope, CancellationToken cancellationToken) => throw new NotSupportedException();
 
-        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken)
+        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken, bool registerPlan = true)
         {
             PrepareCount++;
             Requests.Add(request);

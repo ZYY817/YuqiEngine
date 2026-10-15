@@ -49,34 +49,54 @@ public sealed class PerInterfaceRegistryCapability : IChangeCapability
 
     public CapabilityDescriptor Descriptor { get; }
 
-    public Task<CapabilityAssessment> ProbeAsync(TargetScope scope, CancellationToken cancellationToken)
+    public async Task<CapabilityAssessment> ProbeAsync(TargetScope scope, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19041))
         {
-            return Task.FromResult(new CapabilityAssessment(
+            return new CapabilityAssessment(
                 CapabilityApplicability.Unsupported,
                 false,
                 "os.unsupported",
-                "该功能要求 Windows 10 2004 或更高版本。"));
+                "该功能要求 Windows 10 2004 或更高版本。");
         }
 
         if (scope.Kind != TargetScopeKind.Machine
             || !string.Equals(scope.Identity, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
         {
-            return Task.FromResult(new CapabilityAssessment(
+            return new CapabilityAssessment(
                 CapabilityApplicability.NotApplicable,
                 false,
                 "scope.invalid",
-                "该每接口注册表能力只能应用到当前计算机作用域。"));
+                "该每接口注册表能力只能应用到当前计算机作用域。");
+        }
+
+        // Why: 厂商过滤的每接口能力在零匹配时仍会走到"无变更成功"，
+        // 被 UI 误报为"已应用"（如非 AMD 机器显示 anti-lag 已优化）。
+        // 无匹配设备时应明确不适用。
+        if (!string.IsNullOrWhiteSpace(_definition.VendorSelectorValueName)
+            && _definition.VendorSelectorContains is { Count: > 0 })
+        {
+            var subKeys = await _registry
+                .EnumerateSubKeysAsync(_definition.RootPath, cancellationToken)
+                .ConfigureAwait(false);
+            var matching = await FilterVendorSubKeysAsync(subKeys, cancellationToken).ConfigureAwait(false);
+            if (matching.Count == 0)
+            {
+                return new CapabilityAssessment(
+                    CapabilityApplicability.NotApplicable,
+                    false,
+                    "device.no-matching-interface",
+                    "本机没有匹配该厂商标识的接口/设备，该优化不适用。");
+            }
         }
 
         var isAdministrator = IsAdministrator();
-        return Task.FromResult(new CapabilityAssessment(
+        return new CapabilityAssessment(
             CapabilityApplicability.Applicable,
             isAdministrator,
             isAdministrator ? "applicable" : "permission.administrator-required",
-            isAdministrator ? "本机每接口注册表作用域可用。" : "修改 HKLM 需要已提升的管理员令牌。"));
+            isAdministrator ? "本机每接口注册表作用域可用。" : "修改 HKLM 需要已提升的管理员令牌。");
     }
 
     public async Task<StateObservation> ReadAsync(TargetScope scope, CancellationToken cancellationToken)

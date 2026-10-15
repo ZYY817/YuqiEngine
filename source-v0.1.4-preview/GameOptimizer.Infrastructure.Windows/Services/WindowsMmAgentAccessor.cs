@@ -7,20 +7,70 @@ namespace GameOptimizer.Infrastructure.Windows.Services;
 public sealed class WindowsMmAgentAccessor : IMmAgentAccessor
 {
     private static readonly TimeSpan CommandTimeout = TimeSpan.FromSeconds(20);
+    private static readonly object AvailabilityLock = new();
+    private static bool? _cmdletAvailable;
 
-    public Task<MmAgentPlatformAssessment> ProbeAsync(CancellationToken cancellationToken)
+    public async Task<MmAgentPlatformAssessment> ProbeAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19041))
-            return Task.FromResult(new MmAgentPlatformAssessment(false, "os.unsupported", "需要 Windows 10 2004 或更高版本。"));
+            return new MmAgentPlatformAssessment(false, "os.unsupported", "需要 Windows 10 2004 或更高版本。");
+
+        // Why: 部分 SKU（如 Home 版）没有 MMAgent cmdlet，仅按 OS 版本+权限
+        // 报"可用"会让 apply 在运行时才发现 cmdlet 不存在。
+        var available = await EnsureCmdletAvailableAsync(cancellationToken).ConfigureAwait(false);
+        if (!available)
+        {
+            return new MmAgentPlatformAssessment(
+                false,
+                "platform.mmagent-unavailable",
+                "当前系统不存在 MMAgent 管理接口（如 Windows Home 版），内存压缩能力不可用。");
+        }
 
         var administrator = IsAdministrator();
-        return Task.FromResult(new MmAgentPlatformAssessment(
+        return new MmAgentPlatformAssessment(
             administrator,
             administrator ? "applicable" : "permission.administrator-required",
             administrator
                 ? "当前进程已提升，可读写 MMAgent 内存压缩状态。"
-                : "修改内存压缩需要管理员权限。"));
+                : "修改内存压缩需要管理员权限。");
+    }
+
+    private static async Task<bool> EnsureCmdletAvailableAsync(CancellationToken cancellationToken)
+    {
+        lock (AvailabilityLock)
+        {
+            if (_cmdletAvailable.HasValue)
+            {
+                return _cmdletAvailable.Value;
+            }
+        }
+
+        bool available;
+        try
+        {
+            var result = await ProcessRunner.RunPowerShellAsync(
+                "Get-Command Get-MMAgent -ErrorAction SilentlyContinue",
+                CommandTimeout,
+                cancellationToken).ConfigureAwait(false);
+            available = result.ExitCode == 0
+                && result.Output.Contains("Get-MMAgent", StringComparison.OrdinalIgnoreCase);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch
+        {
+            // 探测自身失败时按不可用处理（fail-closed）。
+            available = false;
+        }
+
+        lock (AvailabilityLock)
+        {
+            _cmdletAvailable = available;
+        }
+        return available;
     }
 
     public async Task<MmAgentStateSnapshot> ReadAsync(CancellationToken cancellationToken)

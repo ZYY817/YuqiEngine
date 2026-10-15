@@ -280,12 +280,11 @@ internal static class CleanupPreviewBuilder
                 {
                     FileInfo info = new(candidate);
                     if (!info.Exists) continue;
-                    // Do not hash each file during preview. A complete content
-                    // hash is still required before quarantine and is captured
-                    // there, immediately before the atomic move and independent
-                    // verification. This keeps discovery responsive without
-                    // weakening the mutation boundary.
-                    entries.Add(new(candidate, root, info.Length, info.LastWriteTimeUtc));
+                    // Capture content hash during preview so that authorization-time
+                    // drift (same size / same timestamp but different bytes) can be
+                    // detected and blocked before quarantine.
+                    string hash = await CleanupQuarantineManifestStore.ComputeFileSha256Async(candidate, cancellationToken).ConfigureAwait(false);
+                    entries.Add(new(candidate, root, info.Length, info.LastWriteTimeUtc, hash));
                     budget.RecordFile();
                     ReportProgress(item, entries, metrics, budget, progress, force: false);
                 }

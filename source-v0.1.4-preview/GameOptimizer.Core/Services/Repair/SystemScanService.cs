@@ -108,11 +108,12 @@ public class SystemScanService : ISystemScanService
         var dnsResolved = false;
         try
         {
-            var result = await RepairHelper.RunCommandAsync("nslookup", "www.baidu.com", 5000);
-            dnsResolved = !string.IsNullOrWhiteSpace(result)
-                && !result.Contains("can't find", StringComparison.OrdinalIgnoreCase)
-                && !result.Contains("Non-existent", StringComparison.OrdinalIgnoreCase)
-                && !result.Contains("timed out", StringComparison.OrdinalIgnoreCase);
+            // Why: nslookup 失败文本随系统语言本地化（中文报"超时"/"找不到"），
+            // 英文 token 匹配在本地化系统上恒为假阴性——直接做真实 DNS 解析。
+            var addresses = await System.Net.Dns
+                .GetHostAddressesAsync("www.baidu.com")
+                .WaitAsync(TimeSpan.FromSeconds(5));
+            dnsResolved = addresses.Length > 0;
             if (!dnsResolved)
             {
                 issues.Add(new ScanIssue

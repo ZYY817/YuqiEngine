@@ -600,5 +600,66 @@
     <!-- Wizard Section Headers -->
     <SolidColorBrush x:Key="Theme.Brush.WizardSectionBackground" Color="{StaticResource Theme.Role.Surface}"/>
     <SolidColorBrush x:Key="Theme.Brush.WizardSectionBorder" Color="{StaticResource Theme.Role.Border}"/>
-    
+
+    <BooleanToVisibilityConverter x:Key="ExpanderVisibilityConverter"/>
+
+    <!-- Why: 框架默认 Expander 头是深色文字，在深色主题下不可见（技术详情/手动恢复等
+         可选区全灭）。统一样式：亮色箭头 + 主题前景色文本。 -->
+    <Style TargetType="Expander">
+        <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Expander">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <ToggleButton IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      Padding="2,3"
+                                      Cursor="Hand"
+                                      HorizontalContentAlignment="Left">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                                        <Border x:Name="ChevronBorder" Width="16" Height="16"
+                                                VerticalAlignment="Center"
+                                                RenderTransformOrigin="0.5,0.5">
+                                            <Border.RenderTransform>
+                                                <RotateTransform Angle="0"/>
+                                            </Border.RenderTransform>
+                                            <Path Data="M 3,5 L 8,10 L 13,5"
+                                                  Stroke="{DynamicResource Theme.Brush.TextSecondary}"
+                                                  StrokeThickness="1.6"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"/>
+                                        </Border>
+                                        <ContentPresenter VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="ChevronBorder" Property="RenderTransform">
+                                                <Setter.Value>
+                                                    <RotateTransform Angle="180"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.8"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter Grid.Row="1"
+                                          Visibility="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ExpanderVisibilityConverter}}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

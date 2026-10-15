@@ -609,7 +609,7 @@ internal static class CleanupQuarantineManifestStore
 {
     internal const int CurrentVersion = 2;
     private static readonly TimeSpan ResourceLeaseRetryDelay = TimeSpan.FromMilliseconds(25);
-    internal static string DefaultRoot => Path.Combine(AppPaths.AppDataRoot, "CleanupQuarantine");
+    internal static string DefaultRoot => Path.Combine(AppPaths.StateDataRoot, "CleanupQuarantine");
     private const int MaximumManifestBytes = 128 * 1024;
     private static readonly JsonSerializerOptions ReadOptions = new(JsonSerializerDefaults.Web) { UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow };
     private static readonly JsonSerializerOptions WriteOptions = new(ReadOptions) { WriteIndented = true };

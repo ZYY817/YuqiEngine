@@ -181,7 +181,10 @@ public class SystemMonitorService : IDisposable
                 searcher.Options.Timeout = TimeSpan.FromSeconds(3);
                 foreach (var obj in searcher.Get())
                 {
-                    var temp = Convert.ToInt32(obj["CurrentReading"] ?? 0);
+                    // Why: CurrentReading 单位是十分之一开尔文（与 MSAcpi_ThermalZoneTemperature 一致），
+                    // 直接当摄氏度比较会让有效读数 2732+ 被过滤——先换算成摄氏度再判范围。
+                    var raw = Convert.ToInt32(obj["CurrentReading"] ?? 0);
+                    var temp = (int)Math.Round(raw / 10.0 - 273.15);
                     if (temp > 0 && temp < 150)
                     {
                         _cachedCpuTemperature = temp;

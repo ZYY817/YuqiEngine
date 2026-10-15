@@ -12,5 +12,6 @@ public interface ISystemCleanupService
     Task<long> ScanItemAsync(CleanupItem item, CancellationToken ct = default);
     Task<CleanupResult> CleanPreviewAsync(CleanupItem item, CleanupPreview preview, CleanupPreviewConfirmation confirmation, CancellationToken ct = default);
     Task<CleanupResult> CleanItemAsync(CleanupItem item, CancellationToken ct = default);
-    Task<CleanupResult> CleanAllAsync(IEnumerable<CleanupItem> items, IProgress<(int current, int total, string name)>? progress = null, CancellationToken ct = default);
+    // Why: 已移除 CleanAllAsync——它依赖无确认的批量路径且无任何调用者；
+    // 批量清理必须走逐项 CreatePreviewAsync → 用户确认 → CleanPreviewAsync。
 }

@@ -272,7 +272,7 @@ public sealed class MasterOperationCapabilityContractTests
                 isAdministrator: true);
 
             Assert.DoesNotContain("Status check timed out", model.OperationFeedback, StringComparison.Ordinal);
-            Assert.Contains("操作", model.OperationFeedback, StringComparison.Ordinal);
+            Assert.Contains("状态", model.OperationFeedback, StringComparison.Ordinal);
 
             model.CompleteApplyFailure("RequiresRecovery: operation timed out and final state is pending confirmation.");
 
@@ -347,7 +347,7 @@ public sealed class MasterOperationCapabilityContractTests
         var root = FindRepositoryRoot();
         var master = File.ReadAllText(Path.Combine(root, "GameOptimizer.Shell", "Views", "MasterModuleTemplate.xaml.cs"));
 
-        Assert.Contains("nameof(OptimizationToggleModel.LastOperationReceipt)", master, StringComparison.Ordinal);
+        Assert.Contains("nameof(OptimizationToggleModel.OperationFeedback)", master, StringComparison.Ordinal);
         Assert.Contains("执行回执：{0}", master, StringComparison.Ordinal);
         Assert.Contains("PresentBatchReceipt(combinedResult)", master, StringComparison.Ordinal);
         Assert.Contains("terminal batch receipt", master, StringComparison.Ordinal);

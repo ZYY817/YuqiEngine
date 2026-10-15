@@ -67,7 +67,9 @@ public static class DeviceRepairCatalog
         yield return PnpClass("repair.usb_reset", "device.usb.rescan", "USB", "USB 控制器与设备拓扑重扫缺少逐设备恢复材料。");
         yield return Service("repair.hid_service", "device.hid.service", "hidserv", "HID 服务启停缺少依赖项、启动类型与恢复验证。");
         yield return PnpClass("repair.webcam", "device.camera.repair", "Camera", "摄像头设备和 FrameServer 组合修复缺少设备身份及服务恢复契约。");
-        yield return PnpName("repair.touchpad", "device.touchpad.repair", "touchpad", "触摸板设备差异大，缺少稳定设备身份和驱动恢复契约。");
+        // Why: PnpName 按显示名匹配在中文系统永不命中（"符合 HID 标准的触摸板"）；
+        // PNPClass 是 WMI 英文常量值，触摸板归属 Mouse 类，与语言无关。
+        yield return PnpClass("repair.touchpad", "device.touchpad.repair", "Mouse", "触摸板设备差异大，缺少稳定设备身份和驱动恢复契约。");
         yield return Service("repair.printer", "device.printer.spooler", "Spooler", "打印后台服务重启可能影响队列，缺少队列与服务完整恢复材料。");
     }
 
@@ -77,8 +79,6 @@ public static class DeviceRepairCatalog
     private static DeviceRepairDefinition PnpClass(string id, string capability, string deviceClass, string reason) =>
         new(id, capability, DeviceDiagnosticTargetKind.PnpClass, deviceClass, reason);
 
-    private static DeviceRepairDefinition PnpName(string id, string capability, string name, string reason) =>
-        new(id, capability, DeviceDiagnosticTargetKind.PnpName, name, reason);
 }
 
 public sealed class DeviceRepairOwner : IDeviceRepairOwner

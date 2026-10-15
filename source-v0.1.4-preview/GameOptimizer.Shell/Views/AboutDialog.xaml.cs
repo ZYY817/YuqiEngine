@@ -23,6 +23,10 @@ public partial class AboutDialog : Window
     {
         _focusSupportSection = focusSupportSection;
         InitializeComponent();
+        var version = System.Reflection.CustomAttributeExtensions
+            .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>(typeof(App).Assembly)
+            ?.InformationalVersion?.Split('+')[0];
+        VersionText.Text = string.IsNullOrWhiteSpace(version) ? "" : $"v{version}";
         UpdateLocalizedTexts();
         Loaded += OnLoaded;
         LocalizationService.Instance.LanguageChanged += OnLanguageChanged;

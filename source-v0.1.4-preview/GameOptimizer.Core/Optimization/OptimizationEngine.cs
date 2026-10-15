@@ -595,7 +595,24 @@ public sealed class OptimizationEngine : IOptimizationEngine
                 }
             }
 
-            var summary = await trackedTask.ConfigureAwait(false);
+            OperationExecutionSummary summary;
+            try
+            {
+                summary = await trackedTask.ConfigureAwait(false);
+            }
+            catch (Exception trackedFault) when (trackedFault is not OperationCanceledException)
+            {
+                // Why: 宽限期后 await 一个已 fault 的任务会把底层异常透出批次，
+                // 拖垮整个 WhenAll；收敛为单项失败摘要。
+                var loc = LocalizationService.Instance;
+                _logger.LogError(trackedFault, "[OptimizationEngine][Apply] Tracked task faulted for {OperationId}", operation.Id);
+                summary = new OperationExecutionSummary(
+                    operation.Id, operation.Title, Success: false, Changed: false,
+                    Message: trackedFault.Message,
+                    Before: new OperationStatus(false, loc.Get("Engine.Unknown"), false),
+                    After: new OperationStatus(false, loc.Get("Engine.Unknown"), false),
+                    Exception: trackedFault);
+            }
             return new OperationExecutionAttempt(
                 RecordTerminalExecution(operation, moduleKey, "APPLY", summary, lifecycle.TransactionId),
                 TransactionId: lifecycle.TransactionId);
@@ -944,7 +961,22 @@ public sealed class OptimizationEngine : IOptimizationEngine
                 }
             }
 
-            var summary = await trackedTask.ConfigureAwait(false);
+            OperationExecutionSummary summary;
+            try
+            {
+                summary = await trackedTask.ConfigureAwait(false);
+            }
+            catch (Exception trackedFault) when (trackedFault is not OperationCanceledException)
+            {
+                var loc = LocalizationService.Instance;
+                _logger.LogError(trackedFault, "[OptimizationEngine][Restore] Tracked task faulted for {OperationId}", operation.Id);
+                summary = new OperationExecutionSummary(
+                    operation.Id, operation.Title, Success: false, Changed: false,
+                    Message: trackedFault.Message,
+                    Before: new OperationStatus(false, loc.Get("Engine.Unknown"), false),
+                    After: new OperationStatus(false, loc.Get("Engine.Unknown"), false),
+                    Exception: trackedFault);
+            }
             return new OperationExecutionAttempt(
                 RecordTerminalExecution(operation, moduleKey, "RESTORE", summary, lifecycle.TransactionId),
                 TransactionId: lifecycle.TransactionId);
@@ -980,6 +1012,21 @@ public sealed class OptimizationEngine : IOptimizationEngine
                 Message: deniedMessage, Before: defaultStatus, After: defaultStatus);
         }
 
+        // Why: 与 Apply 对称——需要管理员的恢复在非提权进程里直接给出指引，
+        // 而不是深入到 op 内部写失败才暴露。
+        if (operation.RequiresAdmin && !SystemGuard.IsAdministrator)
+        {
+            _logger.LogWarning("Restore for {OperationId} requires admin but running as normal user", operation.Id);
+            var elevationGate = PermissionChecker.EvaluateElevationGate(
+                operation.Id,
+                SystemGuard.IsAdministrator,
+                SystemGuard.IsAdministratorAccount);
+            return new OperationExecutionSummary(
+                operation.Id, operation.Title, Success: false, Changed: false,
+                Message: elevationGate.Message,
+                Before: defaultStatus, After: defaultStatus);
+        }
+
         if (!_transactionLog.TryLogStart(operation.Id, moduleKey, "RESTORE", lifecycle.TransactionId))
         {
             var logUnavailableMessage = loc.Get("Engine.TransactionUnavailableRestore");
@@ -1011,6 +1058,14 @@ public sealed class OptimizationEngine : IOptimizationEngine
             {
                 _logger.LogWarning(ex, "[OptimizationEngine][Restore] Pre-restore GetStatusAsync failed for {OperationId}, will force restore attempt", operation.Id);
                 before = defaultStatus;
+                statusReliable = false;
+            }
+
+            // Why: op 内部吞异常返回的"失败详情"也是不可靠读——
+            // IsCompliant=false+IsKnown=true 会被误当可靠不合规，
+            // 无快照时会被错判为 NoRestoreNeeded 假成功。
+            if (statusReliable && !IsStatusEvidenceReliable(before))
+            {
                 statusReliable = false;
             }
 
@@ -1064,8 +1119,9 @@ public sealed class OptimizationEngine : IOptimizationEngine
             var result = await operation.RestoreAsync(context, timeoutCts.Token).ConfigureAwait(false);
 
             OperationStatus after;
-            var afterStatusReliable = !result.Changed;
-            if (result.Changed)
+            // Why: Changed=false 不能再免回读——契约上任何 op 都可以无验证地宣称
+            // 恢复成功；统一由引擎侧回读验证，读失败则不算验证通过。
+            var afterStatusReliable = false;
             {
                 using var afterStatusCts = new CancellationTokenSource();
                 afterStatusCts.CancelAfter(_statusCheckTimeout);
@@ -1077,12 +1133,10 @@ public sealed class OptimizationEngine : IOptimizationEngine
                 catch (OperationCanceledException) when (!callerCancellationToken.IsCancellationRequested)
                 {
                     _logger.LogWarning("[OptimizationEngine][Restore] Post-restore GetStatusAsync timed out for {OperationId}", operation.Id);
-                        after = new OperationStatus(false, loc.Get("Engine.StatusCheckTimeout"));
+                        after = result.Changed
+                            ? new OperationStatus(false, loc.Get("Engine.StatusCheckTimeout"))
+                            : before;
                 }
-            }
-            else
-            {
-                after = before;
             }
 
             var restoreVerifiedSuccess = result.Success && afterStatusReliable;
@@ -1385,6 +1439,27 @@ public sealed class OptimizationEngine : IOptimizationEngine
                 if (string.Equals(pending.Intent, "APPLY", StringComparison.OrdinalIgnoreCase)
                     || string.Equals(pending.Intent, "RESTORE", StringComparison.OrdinalIgnoreCase))
                 {
+                    // Why: 非合规 ≠ 原始态。多值/多步操作崩溃后可能处于中间态，
+                    // 布尔合规读无法区分；存在恢复材料时必须 fail-closed 保留为需恢复，
+                    // 而不是把部分写入静默标为"已恢复原始态"。
+                    var recoveryMaterialExists = await _restoreStore
+                        .HasSnapshotAsync(pending.OperationId, cancellationToken)
+                        .ConfigureAwait(false);
+                    if (recoveryMaterialExists)
+                    {
+                        var ambiguousMessage = $"Startup reconciliation read a non-target state for pending {pending.Intent} operation {pending.OperationId} while recovery material exists; partial writes cannot be distinguished from the original state. Recovery is required; the pending record was retained.";
+                        _logger.LogWarning(
+                            "[OptimizationEngine][Reconcile] Ambiguous pending state retained: {Message}",
+                            ambiguousMessage);
+                        _transactionLog.MarkRecoveryRequired(
+                            pending.OperationId,
+                            ambiguousMessage,
+                            module.Key,
+                            pending.Intent,
+                            pending.EffectiveTransactionId);
+                        continue;
+                    }
+
                     _transactionLog.MarkReconciled(
                         pending.OperationId,
                         targetConfirmed: false,

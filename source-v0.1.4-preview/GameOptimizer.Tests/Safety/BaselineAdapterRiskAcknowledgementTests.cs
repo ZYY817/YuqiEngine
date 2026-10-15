@@ -109,7 +109,7 @@ public sealed class BaselineAdapterRiskAcknowledgementTests
         var onboardingStart = app.IndexOf(
             "private async Task ShowFirstProtectionOnboardingIfNeededAsync",
             StringComparison.Ordinal);
-        var onboardingEnd = app.IndexOf("private static string GetAcceptanceSessionId", onboardingStart, StringComparison.Ordinal);
+        var onboardingEnd = app.IndexOf("private async Task ShowReleaseNoticeIfNeededAsync", onboardingStart, StringComparison.Ordinal);
         var onboarding = app[onboardingStart..onboardingEnd];
 
         Assert.Contains("IBaselineRiskAcknowledgementPrompt, WpfBaselineRiskAcknowledgementPrompt", app, StringComparison.Ordinal);

@@ -217,7 +217,8 @@ public sealed class RepairResultMappingTests
 
         public Task<PreparationResult> PrepareAsync(
             ChangeRequest request,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            bool registerPlan = true)
         {
             cancellationToken.ThrowIfCancellationRequested();
             PrepareCount++;

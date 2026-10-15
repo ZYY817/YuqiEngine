@@ -115,8 +115,17 @@ public partial class GuardServicePanel : UserControl
             : (loc.Get("Guard.Action.Enable") ?? "启用守护");
         
         // 更新保护项数量
-        var protectedOps = await _guardService.GetProtectedOperationsAsync();
-        ProtectedCountText.Text = protectedOps.Count.ToString();
+        // Why: async void 的异常会直达 UI 线程崩溃进程，必须就地捕获。
+        try
+        {
+            var protectedOps = await _guardService.GetProtectedOperationsAsync();
+            ProtectedCountText.Text = protectedOps.Count.ToString();
+        }
+        catch (Exception ex)
+        {
+            Services.PageDiagnosticService.LogError("GuardServicePanel", "读取守护保护项失败", ex);
+            ProtectedCountText.Text = "-";
+        }
         
         // 更新最后检查时间
         if (_guardService.IsEnabled && _guardService.LastCheckTime != default)

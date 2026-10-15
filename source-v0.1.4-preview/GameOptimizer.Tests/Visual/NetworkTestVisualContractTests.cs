@@ -26,7 +26,7 @@ public sealed class NetworkTestVisualContractTests
             Assert.Contains($"x:Name=\"{name}\"", xaml, StringComparison.Ordinal);
         }
 
-        Assert.Contains("测速节点 / 档位", xaml, StringComparison.Ordinal);
+        Assert.Contains("选择测速节点与档位", xaml, StringComparison.Ordinal);
         Assert.Contains("StatusText=\"正在读取连接\"", xaml, StringComparison.Ordinal);
         Assert.Contains("StatusDetail=\"节点未测试\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Text=\"{Binding", xaml, StringComparison.Ordinal) ;

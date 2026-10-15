@@ -991,17 +991,17 @@ public partial class MasterModuleTemplate : UserControl
         };
         ApplyTypographyTokens(receiptText, "Token.FontSize.ModuleStatus");
         receiptText.SetResourceReference(TextBlock.ForegroundProperty, "Theme.Brush.TextSecondary");
-        receiptText.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding(nameof(OptimizationToggleModel.LastOperationReceipt))
+        receiptText.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding(nameof(OptimizationToggleModel.OperationFeedback))
         {
             Source = toggle,
             Mode = System.Windows.Data.BindingMode.OneWay,
             StringFormat = isEnglish ? "Execution receipt: {0}" : "执行回执：{0}"
         });
-        receiptText.SetBinding(VisibilityProperty, new System.Windows.Data.Binding(nameof(OptimizationToggleModel.LastOperationReceipt))
+        receiptText.SetBinding(VisibilityProperty, new System.Windows.Data.Binding(nameof(OptimizationToggleModel.HasLastOperationReceipt))
         {
             Source = toggle,
             Mode = System.Windows.Data.BindingMode.OneWay,
-            Converter = (System.Windows.Data.IValueConverter)FindResource("StringToVisibility")
+            Converter = new BooleanToVisibilityConverter()
         });
         AutomationProperties.SetName(receiptText, isEnglish ? "Per-operation execution and readback receipt" : "逐项执行与回读回执");
         textPanel.Children.Add(receiptText);

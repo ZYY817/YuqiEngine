@@ -32,21 +32,24 @@ public static class RepairRegistryCapabilityDefinitions
         ChangeRisk.LowReversible,
         RequiresExplicitConfirmation: true);
 
+    // Why: 该修复能力的语义是"启用 Game DVR"，默认 apply 目标必须与名称一致为 1；
+    // 设为 0 会让默认目标反向（修复=禁用）。
     public static RegistryDwordCapabilityDefinition GameDvrEnabled { get; } = new(
         RepairChangeCapabilityIds.GameDvrEnabled,
         "1.0.0",
         @"System\GameConfigStore",
         "GameDVR_Enabled",
-        0,
+        1,
         ChangeRisk.MediumRebootOrExperience,
         RequiresExplicitConfirmation: true);
 
+    // 同上：修复语义为"启用游戏捕获"，默认 apply 目标为 1。
     public static RegistryDwordCapabilityDefinition GameDvrAppCapture { get; } = new(
         RepairChangeCapabilityIds.GameDvrAppCapture,
         "1.0.0",
         @"SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR",
         "AppCaptureEnabled",
-        0,
+        1,
         ChangeRisk.MediumRebootOrExperience,
         RequiresExplicitConfirmation: true);
 

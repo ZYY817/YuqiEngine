@@ -115,7 +115,10 @@ public sealed class ScheduledTaskChangeCapability : IChangeCapability
             return new PlatformExecutionResult(false, mutation.MutationOccurred, mutation.ReasonCode, mutation.Message);
 
         var after = await ReadAsync(change.Scope, cancellationToken).ConfigureAwait(false);
-        return string.Equals(after.Fingerprint, change.TargetFingerprint, StringComparison.Ordinal)
+        var afterSnapshot = DeserializeSnapshot(after.Payload);
+        // Why: 指纹涵盖任务 XML 与 State，而 /CHANGE 会同时改写二者，
+        // 全负载哈希比对恒为 mismatch；验证只比对语义字段。
+        return afterSnapshot.Exists && afterSnapshot.Enabled == _definition.TargetEnabled
             ? new PlatformExecutionResult(true, mutation.MutationOccurred, "execution.verified", "计划任务状态已变更并回读确认。")
             : new PlatformExecutionResult(false, true, "verification.mismatch", "计划任务写入后的状态与冻结目标不一致。");
     }
@@ -136,7 +139,8 @@ public sealed class ScheduledTaskChangeCapability : IChangeCapability
             return new PlatformExecutionResult(false, mutation.MutationOccurred, mutation.ReasonCode, mutation.Message);
 
         var after = await ReadAsync(material.Scope, cancellationToken).ConfigureAwait(false);
-        return string.Equals(after.Fingerprint, material.BeforeFingerprint, StringComparison.Ordinal)
+        var afterSnapshot = DeserializeSnapshot(after.Payload);
+        return afterSnapshot.Exists == original.Exists && afterSnapshot.Enabled == original.Enabled
             ? new PlatformExecutionResult(true, mutation.MutationOccurred, "restore.verified", "原计划任务状态已恢复并回读确认。")
             : new PlatformExecutionResult(false, true, "restore.verification-mismatch", "恢复后的计划任务状态与原快照不一致。");
     }

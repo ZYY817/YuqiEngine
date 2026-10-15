@@ -11,28 +11,35 @@ public sealed record DeviceStateChangeCapabilityDefinition(
     string DeviceNamePattern,
     bool TargetEnabled = false,
     ChangeRisk Risk = ChangeRisk.HighSystem,
-    bool RequiresRestart = false);
+    bool RequiresRestart = false,
+    string? DeviceIdPrefix = null);
 
 public static class DeviceStateCapabilityDefinitions
 {
+    // Why: Win32_PnPEntity.Name 随系统语言本地化，英文模式在非英文系统永不命中；
+    // DeviceIdPrefix 使用语言无关的 PnP 硬件 ID 前缀。
     public static IReadOnlyList<DeviceStateChangeCapabilityDefinition> All { get; } =
     [
         new(
             "device.disable_system_timer",
             "1.0.0",
-            "System timer"),
+            "System timer",
+            DeviceIdPrefix: @"ACPI\PNP0100"),
         new(
             "device.disable_umbus",
             "1.0.0",
-            "UMBus Root Bus Enumerator"),
+            "UMBus Root Bus Enumerator",
+            DeviceIdPrefix: @"UMB\UMB_BUS"),
         new(
             "device.disable_composite_bus",
             "1.0.0",
-            "Composite Bus Enumerator"),
+            "Composite Bus Enumerator",
+            DeviceIdPrefix: @"ROOT\COMPOSITEBUS"),
         new(
             "device.disable_hpet_device",
             "1.0.0",
-            "High precision event timer")
+            "High precision event timer",
+            DeviceIdPrefix: @"ACPI\PNP0103")
     ];
 }
 
@@ -86,7 +93,7 @@ public sealed class DeviceStateChangeCapability : IChangeCapability
                 assessment.Details);
         }
 
-        var snapshot = await _accessor.ReadAsync(_definition.DeviceNamePattern, cancellationToken).ConfigureAwait(false);
+        var snapshot = await _accessor.ReadAsync(_definition.DeviceNamePattern, _definition.DeviceIdPrefix, cancellationToken).ConfigureAwait(false);
         return snapshot.Found
             ? new CapabilityAssessment(
                 CapabilityApplicability.Applicable,
@@ -103,7 +110,7 @@ public sealed class DeviceStateChangeCapability : IChangeCapability
     public async Task<StateObservation> ReadAsync(TargetScope scope, CancellationToken cancellationToken)
     {
         ValidateScope(scope);
-        var snapshot = await _accessor.ReadAsync(_definition.DeviceNamePattern, cancellationToken).ConfigureAwait(false);
+        var snapshot = await _accessor.ReadAsync(_definition.DeviceNamePattern, _definition.DeviceIdPrefix, cancellationToken).ConfigureAwait(false);
         ValidateFoundSnapshot(snapshot);
         var payload = JsonSerializer.Serialize(snapshot);
         return new StateObservation(
@@ -196,8 +203,11 @@ public sealed class DeviceStateChangeCapability : IChangeCapability
     {
         if (!snapshot.Found || string.IsNullOrWhiteSpace(snapshot.DeviceId))
             throw new InvalidDataException("设备不存在或身份缺失，不能创建可恢复计划。");
-        if (!string.Equals(snapshot.Name, _definition.DeviceNamePattern, StringComparison.OrdinalIgnoreCase)
-            && !snapshot.Name.Contains(_definition.DeviceNamePattern, StringComparison.OrdinalIgnoreCase))
+        var nameMatches = string.Equals(snapshot.Name, _definition.DeviceNamePattern, StringComparison.OrdinalIgnoreCase)
+            || snapshot.Name.Contains(_definition.DeviceNamePattern, StringComparison.OrdinalIgnoreCase);
+        var idMatches = !string.IsNullOrWhiteSpace(_definition.DeviceIdPrefix)
+            && snapshot.DeviceId.StartsWith(_definition.DeviceIdPrefix, StringComparison.OrdinalIgnoreCase);
+        if (!nameMatches && !idMatches)
             throw new InvalidDataException("设备快照与能力固定设备模式不一致，已阻断变更。");
     }
 
@@ -213,6 +223,9 @@ public sealed class DeviceStateChangeCapability : IChangeCapability
         ArgumentException.ThrowIfNullOrWhiteSpace(definition.CapabilityId);
         ArgumentException.ThrowIfNullOrWhiteSpace(definition.DefinitionVersion);
         ArgumentException.ThrowIfNullOrWhiteSpace(definition.DeviceNamePattern);
+        // Why: Name LIKE 匹配在本地化系统永不命中——无 DeviceIdPrefix 的定义等于
+        // 在非英文系统上必然假死，强制要求语言无关的硬件 ID 前缀。
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition.DeviceIdPrefix);
     }
 
     private static string Fingerprint(string payload) =>

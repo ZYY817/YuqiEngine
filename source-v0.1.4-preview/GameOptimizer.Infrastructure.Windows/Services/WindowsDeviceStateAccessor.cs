@@ -11,6 +11,12 @@ public sealed class WindowsDeviceStateAccessor : IDeviceStateAccessor
     private static readonly TimeSpan CommandTimeout = TimeSpan.FromSeconds(20);
     private static readonly TimeSpan QueryTimeout = TimeSpan.FromSeconds(8);
 
+    private static Encoding GetConsoleEncoding()
+    {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        return Encoding.GetEncoding(System.Globalization.CultureInfo.CurrentCulture.TextInfo.OEMCodePage);
+    }
+
     public Task<DevicePlatformAssessment> ProbeAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -26,10 +32,10 @@ public sealed class WindowsDeviceStateAccessor : IDeviceStateAccessor
                 : "禁用/启用设备需要管理员权限。"));
     }
 
-    public async Task<DeviceStateSnapshot> ReadAsync(string deviceNamePattern, CancellationToken cancellationToken)
+    public async Task<DeviceStateSnapshot> ReadAsync(string deviceNamePattern, string? deviceIdPrefix, CancellationToken cancellationToken)
     {
         ValidatePattern(deviceNamePattern);
-        var found = await Task.Run(() => QueryDevice(deviceNamePattern), cancellationToken).ConfigureAwait(false);
+        var found = await Task.Run(() => QueryDevice(deviceNamePattern, deviceIdPrefix), cancellationToken).ConfigureAwait(false);
         return found ?? new DeviceStateSnapshot(Found: false, string.Empty, string.Empty, true);
     }
 
@@ -45,7 +51,7 @@ public sealed class WindowsDeviceStateAccessor : IDeviceStateAccessor
             $"{verb} \"{deviceId}\"",
             CommandTimeout,
             cancellationToken,
-            Encoding.Unicode).ConfigureAwait(false);
+            GetConsoleEncoding()).ConfigureAwait(false);
         if (result.ExitCode != 0)
         {
             var error = (result.Error ?? result.Output).Trim();
@@ -64,7 +70,7 @@ public sealed class WindowsDeviceStateAccessor : IDeviceStateAccessor
         if (!original.Found || string.IsNullOrWhiteSpace(original.DeviceId))
             return new DeviceMutationResult(false, false, "restore.material-invalid", "原始设备快照缺失身份，拒绝盲目恢复。");
 
-        var current = await ReadAsync(original.Name, cancellationToken).ConfigureAwait(false);
+        var current = await ReadAsync(original.Name, original.DeviceId, cancellationToken).ConfigureAwait(false);
         if (!current.Found)
             return new DeviceMutationResult(false, false, "device.not-found", "目标设备已不存在，拒绝操作。");
         if (current.IsEnabled == original.IsEnabled && current.DeviceId == original.DeviceId)
@@ -73,13 +79,17 @@ public sealed class WindowsDeviceStateAccessor : IDeviceStateAccessor
         return await ApplyAsync(original.DeviceId, original.IsEnabled, cancellationToken).ConfigureAwait(false);
     }
 
-    private static DeviceStateSnapshot? QueryDevice(string deviceNamePattern)
+    private static DeviceStateSnapshot? QueryDevice(string deviceNamePattern, string? deviceIdPrefix)
     {
         try
         {
-            var escaped = deviceNamePattern.Replace(@"\", @"\\").Replace("%", "[%]").Replace("_", "[_]").Replace("'", "''");
-            using var searcher = new ManagementObjectSearcher(
-                $"SELECT DeviceID, Name, ConfigManagerErrorCode FROM Win32_PnPEntity WHERE Name LIKE '%{escaped}%'")
+            var escaped = EscapeLike(deviceNamePattern);
+            var wql = $"SELECT DeviceID, Name, ConfigManagerErrorCode FROM Win32_PnPEntity WHERE Name LIKE '%{escaped}%'";
+            if (!string.IsNullOrWhiteSpace(deviceIdPrefix))
+            {
+                wql += $" OR DeviceID LIKE '{EscapeLike(deviceIdPrefix)}%'";
+            }
+            using var searcher = new ManagementObjectSearcher(wql)
             {
                 Options = new System.Management.EnumerationOptions { Timeout = QueryTimeout }
             };
@@ -87,7 +97,7 @@ public sealed class WindowsDeviceStateAccessor : IDeviceStateAccessor
             {
                 var deviceId = item["DeviceID"]?.ToString();
                 var name = item["Name"]?.ToString();
-                var errorCode = Convert.ToInt32(item["ConfigManagerErrorCode"] ?? 0);
+                var errorCode = TryGetErrorCode(item["ConfigManagerErrorCode"]);
                 if (!string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(name))
                     return new DeviceStateSnapshot(true, deviceId, name, IsEnabled: errorCode != 22);
             }
@@ -99,6 +109,22 @@ public sealed class WindowsDeviceStateAccessor : IDeviceStateAccessor
 
         return null;
     }
+
+    private static int TryGetErrorCode(object? value)
+    {
+        try
+        {
+            return Convert.ToInt32(value ?? 0);
+        }
+        catch (Exception)
+        {
+            // ConfigManagerErrorCode 类型异常时按"无错误"处理，由状态语义兜底。
+            return 0;
+        }
+    }
+
+    private static string EscapeLike(string value) =>
+        value.Replace(@"\", @"\\").Replace("%", "[%]").Replace("_", "[_]").Replace("'", "''");
 
     private static bool IsAdministrator() => GameOptimizer.Core.Services.WindowsElevation.IsElevated;
 

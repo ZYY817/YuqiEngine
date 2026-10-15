@@ -49,6 +49,16 @@ public sealed class ChangeConfirmationAuthority : IChangeConfirmationAuthority
             return null;
         }
 
+        // Why: _issued 只在 TryConsume 时移除，过期未消费的令牌会无界累积；
+        // 签发新令牌前顺手清掉已过期的条目。
+        foreach (var stale in _issued)
+        {
+            if (now > stale.Value.ExpiresAtUtc)
+            {
+                _issued.TryRemove(stale.Key, out _);
+            }
+        }
+
         var tokenId = Guid.NewGuid();
         var token = new ConfirmationToken(
             tokenId,

@@ -103,7 +103,25 @@ public sealed class BaselineIntegrityService : IBaselineIntegrityService
 			{
 				return (Success: false, ErrorMessage: "checksum.txt missing.");
 			}
-			await Task.CompletedTask;
+			// Why: checksum.txt 是独立于 manifest 的第二完整性锚，仅检查文件存在
+			// 会让 manifest 被篡改后校验形同虚设。逐行比对 DomainId|Sha256|Size。
+			var checksumLines = (await File.ReadAllLinesAsync(checksumPath, ct).ConfigureAwait(false))
+				.Where(line => !string.IsNullOrWhiteSpace(line))
+				.Select(line => line.Split('|'))
+				.Where(parts => parts.Length >= 3)
+				.ToDictionary(parts => parts[0], StringComparer.OrdinalIgnoreCase);
+			foreach (BaselineDomainArtifact domain in manifest.Domains)
+			{
+				if (string.IsNullOrWhiteSpace(domain.Sha256))
+				{
+					continue;
+				}
+				if (!checksumLines.TryGetValue(domain.DomainId, out var parts)
+					|| !string.Equals(parts[1], domain.Sha256, StringComparison.OrdinalIgnoreCase))
+				{
+					return (Success: false, ErrorMessage: "Domain " + domain.DomainId + " checksum.txt record mismatch.");
+				}
+			}
 			return (Success: true, ErrorMessage: string.Empty);
 		}
 		catch (Exception ex)

@@ -301,7 +301,7 @@ public sealed class CommandResultPresentationTests
         Assert.DoesNotContain("ExecuteRestoreAsync", masterEntry, StringComparison.Ordinal);
 
         var gameMode = File.ReadAllText(FindRepositoryFile("GameOptimizer.Shell", "Views", "GameModeHubPage.xaml.cs"));
-        var gameModeEntry = SliceMethod(gameMode, "private void OpenBackupManager_Click", "private void SyncToViewModel");
+        var gameModeEntry = SliceMethod(gameMode, "private void OpenBackupManager_Click", "游戏模式入口保持安全阻断");
         Assert.Contains("mainWindow.NavigateToPage(\"backup-manager\")", gameModeEntry, StringComparison.Ordinal);
         Assert.DoesNotContain("RestoreWindowsDefaultCommand", gameModeEntry, StringComparison.Ordinal);
         Assert.DoesNotContain("恢复完成", gameModeEntry, StringComparison.Ordinal);

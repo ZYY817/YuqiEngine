@@ -136,7 +136,10 @@ public static class OptimizationRevertRepairs
             () => Task.FromResult(File.Exists(hiberfilPath)),
             async (p) => {
                 p?.Report(new RepairProgress { Message = Loc.Get("Repair.Revert.EnablingHibernation"), PercentComplete = 50 });
-                await RepairHelper.RunCommandAsync("powercfg", "/hibernate on");
+                var (code, _, err) = await RepairHelper.RunCommandResultAsync("powercfg", "/hibernate on");
+                if (code != 0)
+                    return RepairResult.Failed(Loc.Get("Repair.Revert.HibernationEnableFailed"),
+                        detail: $"powercfg /hibernate on 退出码 {code}：{err.Trim()}");
                 return RepairResult.Succeeded(Loc.Get("Repair.Revert.HibernationEnabled"));
             });
 
@@ -187,7 +190,10 @@ public static class OptimizationRevertRepairs
             () => Task.FromResult(true),
             async (p) => {
                 p?.Report(new RepairProgress { Message = Loc.Get("Repair.Revert.RestoringTcpAutoTuning"), PercentComplete = 50 });
-                await RepairHelper.RunCommandAsync("netsh", "int tcp set global autotuninglevel=normal");
+                var (code, _, err) = await RepairHelper.RunCommandResultAsync("netsh", "int tcp set global autotuninglevel=normal");
+                if (code != 0)
+                    return RepairResult.Failed(Loc.Get("Repair.Revert.TcpAutoTuningRestoreFailed"),
+                        detail: $"netsh int tcp set global 退出码 {code}：{err.Trim()}");
                 return RepairResult.Succeeded(Loc.Get("Repair.Revert.TcpAutoTuningRestored"));
             });
     }

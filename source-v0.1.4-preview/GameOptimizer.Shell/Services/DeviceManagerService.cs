@@ -87,11 +87,31 @@ public class DeviceManagerService : IDeviceManagerService
         return devices;
     }
 
+    // Why: Win32_PnPEntity.Name 随系统语言本地化（中文为"系统定时器"），
+    // 仅按 Name LIKE 在非英文系统永不命中——已知设备名同时映射到语言无关的
+    // DeviceID 前缀（与 DeviceStateCapabilityDefinitions 相同的硬件 ID）。
+    private static readonly IReadOnlyDictionary<string, string> KnownDeviceIdPrefixes =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            [KnownDevices.HighPrecisionEventTimer] = "ACPI\\PNP0103",
+            [KnownDevices.SystemTimer] = "ACPI\\PNP0100",
+            [KnownDevices.UMBusRootBusEnumerator] = "UMB\\UMB_BUS",
+            [KnownDevices.CompositeBusEnumerator] = "ROOT\\COMPOSITEBUS",
+        };
+
     public DeviceInfo? FindDevice(string deviceName)
     {
         try
         {
-            var query = $"SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%{EscapeWmiString(deviceName)}%'";
+            var escaped = EscapeWmiString(deviceName);
+            var predicate = $"Name LIKE '%{escaped}%'";
+            if (KnownDeviceIdPrefixes.TryGetValue(deviceName, out var idPrefix))
+            {
+                var escapedPrefix = EscapeWmiString(idPrefix);
+                predicate = $"({predicate}) OR DeviceID LIKE '{escapedPrefix}%'";
+            }
+
+            var query = $"SELECT * FROM Win32_PnPEntity WHERE {predicate}";
             using var searcher = new ManagementObjectSearcher(query);
             searcher.Options.Timeout = TimeSpan.FromSeconds(5);
             foreach (var obj in searcher.Get())

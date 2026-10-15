@@ -236,8 +236,33 @@ public sealed class FileManagedAutostartStore : IManagedAutostartStore, IManaged
     private static StartupEntrySnapshot RequireStartup(object value) => value as StartupEntrySnapshot ?? throw new InvalidDataException("Only application StartupEntry snapshots are currently durable.");
     public byte[] GetConfirmationSecret()
     {
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        return HMACSHA256.HashData(SecretAsync(cts.Token).GetAwaiter().GetResult(), Encoding.UTF8.GetBytes("GameOptimizer.ManagedAutostart/confirmation"));
+        // Why: 同步接口不得 sync-over-async——UI 上下文上 GetAwaiter().GetResult()
+        // 与异步文件 I/O 会死锁；这里走纯同步实现，与 SecretAsync 逻辑一致。
+        return HMACSHA256.HashData(SecretSync(), Encoding.UTF8.GetBytes("GameOptimizer.ManagedAutostart/confirmation"));
+    }
+    private byte[] SecretSync()
+    {
+        if (_secret is not null) return _secret;
+        Directory.CreateDirectory(_root);
+        var path = Path.Combine(_root, ".autostart-secret.dpapi");
+        if (File.Exists(path)) _secret = _protector.Unprotect(File.ReadAllBytes(path));
+        else
+        {
+            _secret = RandomNumberGenerator.GetBytes(32);
+            try
+            {
+                using var stream = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough);
+                var bytes = _protector.Protect(_secret);
+                stream.Write(bytes, 0, bytes.Length);
+                stream.Flush(true);
+            }
+            catch (IOException) when (File.Exists(path))
+            {
+                _secret = _protector.Unprotect(File.ReadAllBytes(path));
+            }
+        }
+        if (_secret.Length != 32) throw new InvalidDataException("Autostart HMAC secret is invalid.");
+        return _secret;
     }
     private static bool Fixed(string left, string right) { try { return CryptographicOperations.FixedTimeEquals(Convert.FromHexString(left), Convert.FromHexString(right)); } catch { return false; } }
     private string PathFor(string type, Guid id) => Path.Combine(_root, $"{type}-{id:D}.json");

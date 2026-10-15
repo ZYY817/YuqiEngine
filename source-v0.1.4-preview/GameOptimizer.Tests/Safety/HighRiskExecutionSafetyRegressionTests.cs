@@ -46,7 +46,7 @@ public sealed class HighRiskExecutionSafetyRegressionTests
 
         Assert.Contains("x:Name=\"CopyRollbackButton\"", xaml, StringComparison.Ordinal);
         Assert.Contains("<Grid Margin=\"0,10,0,0\">", xaml, StringComparison.Ordinal);
-        Assert.Contains("<Expander Header=\"高级字段\"\n                              IsExpanded=\"True\">", xaml, StringComparison.Ordinal);
+        Assert.Contains("<Expander Header=\"技术详情（可选）\" IsExpanded=\"False\"", xaml, StringComparison.Ordinal);
     }
 
     [Fact]

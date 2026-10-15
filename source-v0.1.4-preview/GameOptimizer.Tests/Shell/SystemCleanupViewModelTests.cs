@@ -64,7 +64,6 @@ public sealed class SystemCleanupViewModelTests
         public Task<long> ScanItemAsync(CleanupItem item, CancellationToken ct = default) => throw new NotSupportedException();
         public Task<CleanupResult> CleanPreviewAsync(CleanupItem item, CleanupPreview preview, CleanupPreviewConfirmation confirmation, CancellationToken ct = default) => throw new NotSupportedException();
         public Task<CleanupResult> CleanItemAsync(CleanupItem item, CancellationToken ct = default) => throw new NotSupportedException();
-        public Task<CleanupResult> CleanAllAsync(IEnumerable<CleanupItem> items, IProgress<(int current, int total, string name)>? progress = null, CancellationToken ct = default) => throw new NotSupportedException();
     }
 
     private sealed class CancellableQuarantineManager : ICleanupQuarantineManager

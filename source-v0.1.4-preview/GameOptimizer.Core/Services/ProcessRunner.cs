@@ -141,11 +141,20 @@ public sealed class ProcessRunner
         
         var bytes = Encoding.Unicode.GetBytes(command);
         var encodedCommand = Convert.ToBase64String(bytes);
+        // Why: powershell.exe 5.1 按控制台 OEM 代码页输出，UTF-8 解码会让
+        // 本地化错误文本变成乱码；ASCII 内容两种解码等价，不影响现有解析。
         return await RunAsync(
             "powershell",
             $"-NoProfile -ExecutionPolicy Bypass -EncodedCommand {encodedCommand}",
             timeout,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken,
+            ConsoleEncoding()).ConfigureAwait(false);
+    }
+
+    private static Encoding ConsoleEncoding()
+    {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        return Encoding.GetEncoding(System.Globalization.CultureInfo.CurrentCulture.TextInfo.OEMCodePage);
     }
 
     public static async Task<ProcessResult> RunCmdAsync(

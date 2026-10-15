@@ -4,31 +4,45 @@
              xmlns:constants="clr-namespace:GameOptimizer.Shell.Constants"
              Background="Transparent">
     <UserControl.Resources>
-        <SolidColorBrush x:Key="Settings.AppearanceAccent" Color="#A78BFA"/>
-        <SolidColorBrush x:Key="Settings.SafetyAccent" Color="#34D399"/>
-        <SolidColorBrush x:Key="Settings.GeneralAccent" Color="#FBBF24"/>
-        <SolidColorBrush x:Key="Settings.LogAccent" Color="#38BDF8"/>
-        <Style x:Key="GlassCard" TargetType="Border">
+        <!-- 与测试版弹窗同一套文档式语言：中性卡片 + 发丝线 + 无彩色装饰 -->
+        <Style x:Key="SettingsCard" TargetType="Border">
             <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="18"/>
-            <Setter Property="Margin" Value="0,0,0,12"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="{DynamicResource Theme.Brush.GlassCardBackground}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.GlassCardBorder}"/>
-        </Style>
-        <Style x:Key="ToggleRowStyle" TargetType="Border">
+            <Setter Property="Margin" Value="0,0,0,20"/>
             <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="16,14"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="SettingsRow" TargetType="Grid">
+            <Setter Property="Margin" Value="18,14"/>
+        </Style>
+        <Style x:Key="Hairline" TargetType="Border">
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Margin" Value="18,0"/>
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBorderSubtle}"/>
+        </Style>
+        <Style x:Key="RowTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+        <Style x:Key="RowDesc" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextMuted}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style x:Key="SectionLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="4,0,0,10"/>
         </Style>
         <Style x:Key="LanguageSegmentStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Padding" Value="16,8"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
         <Style x:Key="GhostButtonStyle" TargetType="Button">
@@ -36,7 +50,8 @@
             <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -47,7 +62,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundHover}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorderHover}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -56,10 +71,11 @@
         </Style>
         <Style x:Key="DangerGhostButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#EF4444"/>
-            <Setter Property="BorderBrush" Value="#30EF4444"/>
+            <Setter Property="Foreground" Value="#E05C5C"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.CardBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -69,8 +85,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#15EF4444"/>
-                                <Setter Property="BorderBrush" Value="#50EF4444"/>
+                                <Setter Property="Background" Value="#14E05C5C"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -79,420 +94,340 @@
         </Style>
     </UserControl.Resources>
     <ScrollViewer x:Name="ToolPageContentScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" PanningMode="VerticalOnly">
-        <StackPanel Margin="24,16,24,24">
-            <!-- Hero Header -->
-            <Border CornerRadius="12" Padding="18,14" Margin="0,0,0,12" Background="{DynamicResource Theme.Brush.CardBackgroundAlt}" BorderBrush="{DynamicResource Theme.Brush.CardBorder}" BorderThickness="1">
-                <StackPanel Orientation="Horizontal">
-                    <Border Width="42" Height="42" CornerRadius="10" Margin="0,0,14,0"
-                            Background="{DynamicResource Theme.Brush.ControlAccent}">
-                        <Image Source="/Assets/yuqi-engine-mark.png" Margin="7" Stretch="Uniform"/>
-                    </Border>
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock x:Name="TitleText" Text="应用设置" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="22" FontWeight="SemiBold"/>
-                        <TextBlock x:Name="SubtitleText" Text="日常常用的选项在这里；高级工具在下方。" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="14" Margin="0,4,0,0"/>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-            <!-- Section 1: Appearance & Language -->
-            <Border Style="{StaticResource GlassCard}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <Border Width="4" Height="20" CornerRadius="2" Background="{StaticResource Settings.AppearanceAccent}" Margin="0,0,12,0"/>
-                        <TextBlock Text="" FontSize="18" Foreground="{StaticResource Settings.AppearanceAccent}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock x:Name="AppearanceSectionTitle" Text="外观与语言" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock x:Name="LanguageLabel" Text="语言" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" Margin="0,0,0,10"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Border x:Name="ChineseLanguageBtn" Style="{StaticResource LanguageSegmentStyle}" Margin="0,0,8,0" MouseLeftButtonUp="ChineseLanguage_Click" Background="#153B82F6" BorderBrush="#303B82F6">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="中" FontSize="14" FontWeight="Bold" Foreground="#3B82F6" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock x:Name="ChineseLangText" Text="简体中文" Foreground="#3B82F6" FontSize="13" FontWeight="Medium" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                        <Border x:Name="EnglishLanguageBtn" Style="{StaticResource LanguageSegmentStyle}" MouseLeftButtonUp="EnglishLanguage_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="En" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Theme.Brush.TextSecondary}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock x:Name="EnglishLangText" Text="English" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" FontWeight="Medium" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-            <!-- Section 2: Safety Settings -->
-            <Border Style="{StaticResource GlassCard}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <Border Width="4" Height="20" CornerRadius="2" Background="{StaticResource Settings.SafetyAccent}" Margin="0,0,12,0"/>
-                        <TextBlock Text="" FontSize="18" Foreground="{StaticResource Settings.SafetyAccent}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock x:Name="SafetySectionTitle" Text="安全设置" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/><RowDefinition Height="10"/><RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource ToggleRowStyle}">
-                            <Grid>
-                                <StackPanel>
-                                    <TextBlock x:Name="RiskWarningTitle" Text="操作前再确认" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="15" FontWeight="Medium"/>
-                                    <TextBlock x:Name="RiskWarningDesc" Text="修改可能影响系统的项目时，会再次问你是否继续。" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
+        <StackPanel Margin="24,18,24,24">
+            <!-- 页面标题 -->
+            <TextBlock x:Name="TitleText" Text="应用设置" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="20" FontWeight="SemiBold"/>
+            <TextBlock x:Name="SubtitleText" Text="日常常用的选项在这里；高级工具在下方。" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12" Margin="0,6,0,24"/>
+
+            <!-- 外观与语言 -->
+            <TextBlock x:Name="AppearanceSectionTitle" Text="外观与语言" Style="{StaticResource SectionLabel}"/>
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid Margin="18,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="LanguageLabel" Text="语言" Style="{StaticResource RowTitle}" VerticalAlignment="Center"/>
+                    <Border Grid.Column="1" CornerRadius="10" Padding="2"
+                            Background="{DynamicResource Theme.Brush.CardBackground}"
+                            BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="ChineseLanguageBtn" Style="{StaticResource LanguageSegmentStyle}" Margin="0,0,2,0" MouseLeftButtonUp="ChineseLanguage_Click" Background="{DynamicResource Theme.Brush.CardBackgroundHover}" BorderBrush="{DynamicResource Theme.Brush.CardBorder}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="中" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock x:Name="ChineseLangText" Text="简体中文" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="12" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <CheckBox x:Name="RiskWarningToggle" HorizontalAlignment="Right" VerticalAlignment="Center" Click="RiskWarningToggle_Click"/>
-                            </Grid>
-                        </Border>
-                        <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource ToggleRowStyle}">
-                            <Grid>
-                                <StackPanel>
-                                    <TextBlock x:Name="SoundTitle" Text="完成提示音" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="15" FontWeight="Medium"/>
-                                    <TextBlock x:Name="SoundDesc" Text="优化完成后播放一声提示。" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                            </Border>
+                            <Border x:Name="EnglishLanguageBtn" Style="{StaticResource LanguageSegmentStyle}" MouseLeftButtonUp="EnglishLanguage_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="En" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextMuted}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock x:Name="EnglishLangText" Text="English" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <CheckBox x:Name="SoundToggle" HorizontalAlignment="Right" VerticalAlignment="Center" Click="SoundToggle_Click"/>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </StackPanel>
-            </Border>
-            <!-- Section 3: General Settings -->
-            <Border Style="{StaticResource GlassCard}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <Border Width="4" Height="20" CornerRadius="2" Background="{StaticResource Settings.GeneralAccent}" Margin="0,0,12,0"/>
-                        <TextBlock Text="⚡" FontSize="18" Foreground="{StaticResource Settings.GeneralAccent}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock x:Name="GeneralSectionTitle" Text="常规设置" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/><RowDefinition Height="10"/><RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource ToggleRowStyle}">
-                            <Grid>
-                                <StackPanel>
-                                    <TextBlock x:Name="StartupTitle" Text="开机自动打开" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="15" FontWeight="Medium"/>
-                                    <TextBlock x:Name="StartupDesc" Text="登录 Windows 后自动打开宇奇引擎。" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
-                                </StackPanel>
-                                <CheckBox x:Name="StartupToggle" HorizontalAlignment="Right" VerticalAlignment="Center" Click="StartupToggle_Click"/>
-                            </Grid>
-                        </Border>
-                        <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource ToggleRowStyle}">
-                            <Grid>
-                                <StackPanel>
-                                    <TextBlock x:Name="TrayTitle" Text="关闭后仍在后台运行" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="15" FontWeight="Medium"/>
-                                    <TextBlock x:Name="TrayDesc" Text="关闭窗口后，软件会留在右下角继续运行。" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
-                                </StackPanel>
-                                <CheckBox x:Name="TrayToggle" HorizontalAlignment="Right" VerticalAlignment="Center" Click="TrayToggle_Click"/>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </StackPanel>
-            </Border>
-            <!-- Section 4: Log Management -->
-            <Expander Header="日志与问题反馈（不常用）" IsExpanded="False" Margin="0,0,0,16"
-                      Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="16" FontWeight="SemiBold">
-            <Border Style="{StaticResource GlassCard}" Margin="0,10,0,0">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <Border Width="4" Height="20" CornerRadius="2" Background="{StaticResource Settings.LogAccent}" Margin="0,0,12,0"/>
-                        <TextBlock Text="{x:Static constants:IconGlyphs.Log}" 
-                                   FontFamily="Segoe MDL2 Assets" FontSize="18" 
-                                   Foreground="{StaticResource Settings.LogAccent}"
-                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock x:Name="LogSectionTitle" Text="日志管理" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <Border Style="{StaticResource ToggleRowStyle}">
-                        <Grid>
-                            <StackPanel>
-                                <Grid Margin="0,0,0,12">
-                                    <TextBlock x:Name="LogRetentionTitle" Text="日志保留时间" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="13" FontWeight="Medium"/>
-                                    <TextBlock x:Name="LogRetentionValueText" Text="14 天" Foreground="{DynamicResource Theme.Brush.ControlAccent}" FontSize="14" FontWeight="SemiBold" FontFamily="Consolas" HorizontalAlignment="Right"/>
-                                </Grid>
-                                <Slider x:Name="LogRetentionSlider" Minimum="0" Maximum="3" Value="1" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="LogRetentionSlider_ValueChanged"/>
-                                 <Grid Margin="0,8,0,0">
-                                    <TextBlock x:Name="Days7Label" Text="7天" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10" HorizontalAlignment="Left"/>
-                                    <TextBlock x:Name="Days14Label" Text="14天" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10" HorizontalAlignment="Center" Margin="-40,0,0,0"/>
-                                    <TextBlock x:Name="Days30Label" Text="30天" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10" HorizontalAlignment="Center" Margin="40,0,0,0"/>
-                                    <TextBlock x:Name="ForeverLabel" Text="永久" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10" HorizontalAlignment="Right"/>
-                                 </Grid>
-                                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                     <TextBox x:Name="CustomLogRetentionTextBox"
-                                              Width="120" Height="36" Padding="10,6"
-                                              VerticalContentAlignment="Center"
-                                              MaxLength="4"
-                                              ToolTip="输入 1 到 3650 天"
-                                              AutomationProperties.Name="自定义日志保留天数"/>
-                                     <Button x:Name="ApplyCustomLogRetentionButton"
-                                             Style="{StaticResource GhostButtonStyle}"
-                                             Click="ApplyCustomLogRetentionButton_Click"
-                                             Margin="8,0,0,0" Height="36" Padding="14,6"
-                                             Content="应用自定义天数"
-                                             AutomationProperties.Name="应用自定义日志保留天数"/>
-                                     <TextBlock x:Name="CustomLogRetentionHintText"
-                                                Text="可输入 1–3650 天；选择“永久”则不自动清理。"
-                                                Foreground="{DynamicResource Theme.Brush.TextMuted}"
-                                                FontSize="10" Margin="10,0,0,0"
-                                                VerticalAlignment="Center"/>
-                                 </StackPanel>
-                                 <TextBlock x:Name="LogRetentionApplyHintText"
-                                           Text="设置立即保存，清理策略将在下次启动时应用。"
-                                           Foreground="{DynamicResource Theme.Brush.TextMuted}"
-                                           FontSize="10" Margin="0,8,0,0" TextWrapping="Wrap"/>
-                                <Border Margin="0,14,0,0" Padding="14" CornerRadius="10"
-                                        Background="{DynamicResource Theme.Brush.CardBackground}"
-                                        BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
-                                    <StackPanel>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel>
-                                                 <TextBlock x:Name="LogBackupDirectoryTitle" Text="日志保存目录"
-                                                           Foreground="{DynamicResource Theme.Brush.TextPrimary}"
-                                                           FontSize="13" FontWeight="SemiBold"/>
-                                                <TextBlock x:Name="LogBackupDirectoryHintText"
-                                                            Text="诊断日志和诊断包使用同一目录；更改将在下次启动后对实时日志生效。"
-                                                           Foreground="{DynamicResource Theme.Brush.TextMuted}"
-                                                           FontSize="11" Margin="0,4,0,0"/>
-                                            </StackPanel>
-                                            <Border Grid.Column="1" x:Name="LogBackupDirectoryModeBadge"
-                                                     Padding="8,2" CornerRadius="10"
-                                                    Background="#153B82F6" BorderBrush="#303B82F6" BorderThickness="1"
-                                                    VerticalAlignment="Top">
-                                                <TextBlock x:Name="LogBackupDirectoryModeBadgeText" Text="默认"
-                                                           Foreground="#60A5FA" FontSize="10" FontWeight="SemiBold"/>
-                                            </Border>
-                                        </Grid>
-                                        <Grid Margin="0,12,0,0">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Border Padding="12,9" CornerRadius="8"
-                                                    Background="{DynamicResource Theme.Brush.CardBackgroundAlt}"
-                                                    BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1"
-                                                    MinHeight="40">
-                                                <TextBlock x:Name="LogBackupDirectoryValueText"
-                                                           Text="(未设置)"
-                                                           Foreground="{DynamicResource Theme.Brush.TextSecondary}"
-                                                           FontFamily="Consolas"
-                                                           VerticalAlignment="Center"
-                                                           TextTrimming="CharacterEllipsis"/>
-                                            </Border>
-                                            <Button Grid.Column="1" Style="{StaticResource GhostButtonStyle}" Click="ChooseLogBackupDirectoryButton_Click" Margin="10,0,0,0" MinWidth="92" Height="40">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{x:Static constants:IconGlyphs.Folder}" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                                    <TextBlock x:Name="ChooseLogBackupDirectoryLabel" Text="选择目录" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
-                                                </StackPanel>
-                                            </Button>
-                                            <Button Grid.Column="2" Style="{StaticResource GhostButtonStyle}" Click="OpenLogBackupDirectoryButton_Click" Margin="8,0,0,0" MinWidth="88" Height="40">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{x:Static constants:IconGlyphs.Log}" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                                    <TextBlock x:Name="OpenLogBackupDirectoryLabel" Text="打开目录" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
-                                                </StackPanel>
-                                            </Button>
-                                            <Button Grid.Column="3" Style="{StaticResource GhostButtonStyle}" Click="UseDefaultLogBackupDirectoryButton_Click" Margin="8,0,0,0" MinWidth="88" Height="40">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{x:Static constants:IconGlyphs.Refresh}" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                                    <TextBlock x:Name="UseDefaultLogBackupDirectoryLabel" Text="恢复默认" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="12"/>
-                                                </StackPanel>
-                                            </Button>
-                                        </Grid>
-                                        <Grid Margin="0,10,0,0">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock x:Name="LogBackupDirectoryHealthText"
-                                                       Text="目录可写"
-                                                       Foreground="#10B981"
-                                                       FontSize="11"
-                                                       FontWeight="SemiBold"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock x:Name="LogBackupDirectoryFallbackHintText"
-                                                       Grid.Column="1"
-                                                        Text="若自定义目录不可用，下次启动将安全回退到应用数据目录。"
-                                                       Foreground="{DynamicResource Theme.Brush.TextMuted}"
-                                                       FontSize="11"
-                                                       Margin="10,4,0,0"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                        </Grid>
-                                    </StackPanel>
-                                </Border>
-                                <Border Margin="0,12,0,0" Padding="14" CornerRadius="10"
-                                        Background="{DynamicResource Theme.Brush.CardBackground}"
-                                        BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}"
-                                        BorderThickness="1">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Margin="0,0,20,0">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{x:Static constants:IconGlyphs.Package}"
-                                                           FontFamily="Segoe MDL2 Assets"
-                                                           FontSize="15"
-                                                           Foreground="{DynamicResource Theme.Brush.ControlAccent}"
-                                                           VerticalAlignment="Center"
-                                                           Margin="0,0,8,0"/>
-                                                <TextBlock x:Name="ProblemPackageTitleText"
-                                                           Text="生成问题包"
-                                                           Foreground="{DynamicResource Theme.Brush.TextPrimary}"
-                                                           FontSize="13"
-                                                           FontWeight="SemiBold"/>
-                                            </StackPanel>
-                                            <TextBlock x:Name="ProblemPackageDescriptionText"
-                                                       Text="打包宇奇引擎运行日志和最小版本信息，便于发给作者排查问题。"
-                                                       Foreground="{DynamicResource Theme.Brush.TextSecondary}"
-                                                       FontSize="11"
-                                                       Margin="23,5,0,0"
-                                                       TextWrapping="Wrap"/>
-                                            <TextBlock x:Name="ProblemPackagePrivacyText"
-                                                       Text="不包含设置、备份、密钥或用户文档；不会自动上传。"
-                                                       Foreground="{DynamicResource Theme.Brush.TextMuted}"
-                                                       FontSize="10"
-                                                       Margin="23,4,0,0"
-                                                       TextWrapping="Wrap"/>
-                                            <TextBlock x:Name="ProblemPackageStatusText"
-                                                       Text="正在检查可收集的运行日志…"
-                                                       Foreground="{DynamicResource Theme.Brush.ControlAccent}"
-                                                       FontSize="10"
-                                                       FontWeight="Medium"
-                                                       Margin="23,7,0,0"
-                                                       TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                        <Button x:Name="GenerateProblemPackageButton"
-                                                Grid.Column="1"
-                                                Style="{StaticResource PrimaryButtonStyle}"
-                                                Click="GenerateProblemPackageButton_Click"
-                                                MinWidth="126"
-                                                Height="40"
-                                                VerticalAlignment="Center"
-                                                AutomationProperties.AutomationId="GenerateProblemPackageBtn"
-                                                AutomationProperties.Name="生成问题包">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{x:Static constants:IconGlyphs.Package}"
-                                                           FontFamily="Segoe MDL2 Assets"
-                                                           FontSize="13"
-                                                           VerticalAlignment="Center"
-                                                           Margin="0,0,7,0"/>
-                                                <TextBlock x:Name="GenerateProblemPackageLabel"
-                                                           Text="生成问题包"
-                                                           FontSize="12"/>
-                                            </StackPanel>
-                                        </Button>
-                                    </Grid>
-                                </Border>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </StackPanel>
-            </Border>
-            </Expander>
-            <!-- Section 5: Data Management -->
-            <Border CornerRadius="14" Padding="20" Margin="0,0,0,16" BorderThickness="1">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#08EF4444" Offset="0"/><GradientStop Color="#03FFFFFF" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.Background>
-                <Border.BorderBrush>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                        <GradientStop Color="#25EF4444" Offset="0"/><GradientStop Color="#10FFFFFF" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.BorderBrush>
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <Border Width="4" Height="20" CornerRadius="2" Background="#EF4444" Margin="0,0,12,0"/>
-                        <TextBlock Text="{x:Static constants:IconGlyphs.Folder}" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#EF4444" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock x:Name="DataSectionTitle" Text="数据管理" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock x:Name="ConfigurationPortabilityHintText"
-                                Text="这里导入导出的是已应用优化方案，不是日志备份或完整应用设置；导入会在确认后重新应用优化项。"
-                               Foreground="{DynamicResource Theme.Brush.TextMuted}"
-                               FontSize="11" Margin="0,0,0,10" TextWrapping="Wrap"/>
-                                        <StackPanel Orientation="Horizontal">
-                        <Button Style="{StaticResource GhostButtonStyle}" Click="ExportConfigButton_Click" Margin="0,0,10,0">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{x:Static constants:IconGlyphs.Upload}" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock x:Name="ExportConfigLabel" Text="导出优化方案" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource GhostButtonStyle}" Click="ImportConfigButton_Click" Margin="0,0,10,0">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{x:Static constants:IconGlyphs.Download}" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock x:Name="ImportConfigLabel" Text="导入优化方案" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource GhostButtonStyle}" Click="OpenLogFolderButton_Click" Margin="0,0,10,0">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{x:Static constants:IconGlyphs.Log}" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock x:Name="OpenLogLabel" Text="打开日志" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13"/>
-                            </StackPanel>
-                        </Button>
-                        <Button AutomationProperties.AutomationId="ResetSettingsBtn" Style="{StaticResource DangerGhostButtonStyle}" Click="ResetSettingsButton_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{x:Static constants:IconGlyphs.Refresh}" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#EF4444" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock x:Name="ResetSettingsLabel" Text="重置所有设置" Foreground="#EF4444" FontSize="13"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-            <!-- Section 6: About -->
-            <Border Style="{StaticResource GlassCard}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <Border Width="4" Height="20" CornerRadius="2" Background="#8B5CF6" Margin="0,0,12,0"/>
-                        <TextBlock Text="ℹ️" FontSize="18" Foreground="#8B5CF6" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock x:Name="AboutSectionTitle" Text="关于" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="64" Height="64" CornerRadius="16" Margin="0,0,20,0">
-                            <Border.Background>
-                                <ImageBrush ImageSource="/Assets/yuqi-engine-mark.png" Stretch="UniformToFill"/>
-                            </Border.Background>
-                        </Border>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="宇奇引擎 Yuqi Engine" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="18" FontWeight="Bold"/>
-                            <TextBlock Text="v0.1.3-preview" Foreground="#3B82F6" FontSize="13" FontWeight="Medium" Margin="0,4,0,0"/>
-                            <TextBlock x:Name="AppDescriptionText" Text="游戏性能优化工具" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12" Margin="0,4,0,0"/>
+                            </Border>
                         </StackPanel>
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Style="{StaticResource GhostButtonStyle}" Click="AboutButton_Click" Margin="0,0,8,0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock x:Name="AboutButtonLabel" Text="关于" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource GhostButtonStyle}" Click="AuthorButton_Click" Margin="0,0,8,0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock x:Name="AuthorButtonLabel" Text="作者: 宇奇" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource GhostButtonStyle}" Click="UpdateEntryButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{x:Static constants:IconGlyphs.Refresh}" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock x:Name="UpdateEntryButtonLabel" Text="更新" Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13"/>
-                                </StackPanel>
-                            </Button>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- 安全设置 -->
+            <TextBlock x:Name="SafetySectionTitle" Text="安全设置" Style="{StaticResource SectionLabel}"/>
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <Grid Style="{StaticResource SettingsRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock x:Name="RiskWarningTitle" Text="操作前再确认" Style="{StaticResource RowTitle}"/>
+                            <TextBlock x:Name="RiskWarningDesc" Text="修改可能影响系统的项目时，会再次问你是否继续。" Style="{StaticResource RowDesc}"/>
                         </StackPanel>
+                        <CheckBox x:Name="RiskWarningToggle" Grid.Column="1" VerticalAlignment="Center" Click="RiskWarningToggle_Click"/>
+                    </Grid>
+                    <Border Style="{StaticResource Hairline}"/>
+                    <Grid Style="{StaticResource SettingsRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock x:Name="SoundTitle" Text="完成提示音" Style="{StaticResource RowTitle}"/>
+                            <TextBlock x:Name="SoundDesc" Text="优化完成后播放一声提示。" Style="{StaticResource RowDesc}"/>
+                        </StackPanel>
+                        <CheckBox x:Name="SoundToggle" Grid.Column="1" VerticalAlignment="Center" Click="SoundToggle_Click"/>
                     </Grid>
                 </StackPanel>
             </Border>
 
+            <!-- 常规设置 -->
+            <TextBlock x:Name="GeneralSectionTitle" Text="常规设置" Style="{StaticResource SectionLabel}"/>
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <Grid Style="{StaticResource SettingsRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock x:Name="StartupTitle" Text="开机自动打开" Style="{StaticResource RowTitle}"/>
+                            <TextBlock x:Name="StartupDesc" Text="登录 Windows 后自动打开宇奇引擎。" Style="{StaticResource RowDesc}"/>
+                        </StackPanel>
+                        <CheckBox x:Name="StartupToggle" Grid.Column="1" VerticalAlignment="Center" Click="StartupToggle_Click"/>
+                    </Grid>
+                    <Border Style="{StaticResource Hairline}"/>
+                    <Grid Style="{StaticResource SettingsRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock x:Name="TrayTitle" Text="关闭后仍在后台运行" Style="{StaticResource RowTitle}"/>
+                            <TextBlock x:Name="TrayDesc" Text="关闭窗口后，软件会留在右下角继续运行。" Style="{StaticResource RowDesc}"/>
+                        </StackPanel>
+                        <CheckBox x:Name="TrayToggle" Grid.Column="1" VerticalAlignment="Center" Click="TrayToggle_Click"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- 日志与问题反馈 -->
+            <Expander Header="日志与问题反馈（不常用）" IsExpanded="False" Margin="4,0,0,20"
+                      Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="13" FontWeight="SemiBold">
+                <Border Style="{StaticResource SettingsCard}" Margin="-4,10,0,0">
+                    <StackPanel>
+                        <Grid Margin="18,14">
+                            <StackPanel>
+                                <TextBlock x:Name="LogSectionTitle" Text="日志管理" Style="{StaticResource RowTitle}" Visibility="Collapsed"/>
+                                <Grid Margin="0,0,0,10">
+                                    <TextBlock x:Name="LogRetentionTitle" Text="日志保留时间" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock x:Name="LogRetentionValueText" Text="14 天" Foreground="{DynamicResource Theme.Brush.ControlAccent}" FontSize="13" FontWeight="SemiBold" FontFamily="Consolas" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Slider x:Name="LogRetentionSlider" Minimum="0" Maximum="3" Value="1" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="LogRetentionSlider_ValueChanged"/>
+                                <Grid Margin="0,6,0,0">
+                                    <TextBlock x:Name="Days7Label" Text="7天" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10" HorizontalAlignment="Left"/>
+                                    <TextBlock x:Name="Days14Label" Text="14天" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10" HorizontalAlignment="Center" Margin="-40,0,0,0"/>
+                                    <TextBlock x:Name="Days30Label" Text="30天" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10" HorizontalAlignment="Center" Margin="40,0,0,0"/>
+                                    <TextBlock x:Name="ForeverLabel" Text="永久" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="10" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                    <TextBox x:Name="CustomLogRetentionTextBox"
+                                             Width="120" Height="34" Padding="10,6"
+                                             VerticalContentAlignment="Center"
+                                             MaxLength="4"
+                                             ToolTip="输入 1 到 3650 天"
+                                             AutomationProperties.Name="自定义日志保留天数"/>
+                                    <Button x:Name="ApplyCustomLogRetentionButton"
+                                            Style="{StaticResource GhostButtonStyle}"
+                                            Click="ApplyCustomLogRetentionButton_Click"
+                                            Margin="8,0,0,0" Height="34" Padding="14,6"
+                                            Content="应用自定义天数"
+                                            AutomationProperties.Name="应用自定义日志保留天数"/>
+                                    <TextBlock x:Name="CustomLogRetentionHintText"
+                                               Text="可输入 1–3650 天；选择“永久”则不自动清理。"
+                                               Foreground="{DynamicResource Theme.Brush.TextMuted}"
+                                               FontSize="10" Margin="12,0,0,0"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock x:Name="LogRetentionApplyHintText"
+                                           Text="设置立即保存，清理策略将在下次启动时应用。"
+                                           Foreground="{DynamicResource Theme.Brush.TextMuted}"
+                                           FontSize="10" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+                        <Border Style="{StaticResource Hairline}"/>
+                        <StackPanel Margin="18,14">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="LogBackupDirectoryTitle" Text="日志保存目录"
+                                           Style="{StaticResource RowTitle}"/>
+                                <Border Grid.Column="1" x:Name="LogBackupDirectoryModeBadge"
+                                        Padding="8,2" CornerRadius="9"
+                                        Background="{DynamicResource Theme.Brush.CardBackgroundHover}"
+                                        BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
+                                    <TextBlock x:Name="LogBackupDirectoryModeBadgeText" Text="默认"
+                                               Foreground="{DynamicResource Theme.Brush.TextSecondary}" FontSize="10"/>
+                                </Border>
+                            </Grid>
+                            <TextBlock x:Name="LogBackupDirectoryHintText"
+                                       Text="诊断日志和诊断包使用同一目录；更改将在下次启动后对实时日志生效。"
+                                       Foreground="{DynamicResource Theme.Brush.TextMuted}"
+                                       FontSize="11" Margin="0,4,0,0"/>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Padding="12,8" CornerRadius="8"
+                                        Background="{DynamicResource Theme.Brush.CardBackground}"
+                                        BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1"
+                                        MinHeight="36">
+                                    <TextBlock x:Name="LogBackupDirectoryValueText"
+                                               Text="(未设置)"
+                                               Foreground="{DynamicResource Theme.Brush.TextSecondary}"
+                                               FontFamily="Consolas"
+                                               FontSize="11"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </Border>
+                                <Button Grid.Column="1" Style="{StaticResource GhostButtonStyle}" Click="ChooseLogBackupDirectoryButton_Click" Margin="10,0,0,0" MinWidth="80" Height="36">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{x:Static constants:IconGlyphs.Folder}" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock x:Name="ChooseLogBackupDirectoryLabel" Text="选择目录" FontSize="12"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Grid.Column="2" Style="{StaticResource GhostButtonStyle}" Click="OpenLogBackupDirectoryButton_Click" Margin="8,0,0,0" MinWidth="80" Height="36">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{x:Static constants:IconGlyphs.Log}" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock x:Name="OpenLogBackupDirectoryLabel" Text="打开目录" FontSize="12"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Grid.Column="3" Style="{StaticResource GhostButtonStyle}" Click="UseDefaultLogBackupDirectoryButton_Click" Margin="8,0,0,0" MinWidth="80" Height="36">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{x:Static constants:IconGlyphs.Refresh}" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock x:Name="UseDefaultLogBackupDirectoryLabel" Text="恢复默认" FontSize="12"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="LogBackupDirectoryHealthText"
+                                           Text="目录可写"
+                                           Foreground="#34D399"
+                                           FontSize="11"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock x:Name="LogBackupDirectoryFallbackHintText"
+                                           Grid.Column="1"
+                                           Text="若自定义目录不可用，下次启动将安全回退到应用数据目录。"
+                                           Foreground="{DynamicResource Theme.Brush.TextMuted}"
+                                           FontSize="11"
+                                           Margin="10,2,0,0"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </Grid>
+                        </StackPanel>
+                        <Border Style="{StaticResource Hairline}"/>
+                        <Grid Margin="18,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Margin="0,0,20,0">
+                                <TextBlock x:Name="ProblemPackageTitleText"
+                                           Text="生成问题包"
+                                           Style="{StaticResource RowTitle}"/>
+                                <TextBlock x:Name="ProblemPackageDescriptionText"
+                                           Text="打包宇奇引擎运行日志和最小版本信息，便于发给作者排查问题。"
+                                           Foreground="{DynamicResource Theme.Brush.TextMuted}"
+                                           FontSize="11"
+                                           Margin="0,4,0,0"
+                                           TextWrapping="Wrap"/>
+                                <TextBlock x:Name="ProblemPackagePrivacyText"
+                                           Text="不包含设置、备份、密钥或用户文档；不会自动上传。"
+                                           Foreground="{DynamicResource Theme.Brush.TextMuted}"
+                                           FontSize="10"
+                                           Margin="0,4,0,0"
+                                           TextWrapping="Wrap"/>
+                                <TextBlock x:Name="ProblemPackageStatusText"
+                                           Text="正在检查可收集的运行日志…"
+                                           Foreground="{DynamicResource Theme.Brush.ControlAccent}"
+                                           FontSize="10"
+                                           Margin="0,6,0,0"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button x:Name="GenerateProblemPackageButton"
+                                    Grid.Column="1"
+                                    Style="{StaticResource GhostButtonStyle}"
+                                    Click="GenerateProblemPackageButton_Click"
+                                    MinWidth="120"
+                                    Height="36"
+                                    VerticalAlignment="Center"
+                                    AutomationProperties.AutomationId="GenerateProblemPackageBtn"
+                                    AutomationProperties.Name="生成问题包">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{x:Static constants:IconGlyphs.Package}"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource Theme.Brush.IconSecondary}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,7,0"/>
+                                    <TextBlock x:Name="GenerateProblemPackageLabel"
+                                               Text="生成问题包"
+                                               FontSize="12"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Expander>
+
+            <!-- 数据管理 -->
+            <TextBlock x:Name="DataSectionTitle" Text="数据管理" Style="{StaticResource SectionLabel}"/>
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel Margin="18,14">
+                    <TextBlock x:Name="ConfigurationPortabilityHintText"
+                               Text="这里导入导出的是已应用优化方案，不是日志备份或完整应用设置；导入会在确认后重新应用优化项。"
+                               Foreground="{DynamicResource Theme.Brush.TextMuted}"
+                               FontSize="11" Margin="0,0,12,0" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource GhostButtonStyle}" Click="ExportConfigButton_Click" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{x:Static constants:IconGlyphs.Upload}" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                <TextBlock x:Name="ExportConfigLabel" Text="导出优化方案" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource GhostButtonStyle}" Click="ImportConfigButton_Click" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{x:Static constants:IconGlyphs.Download}" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                <TextBlock x:Name="ImportConfigLabel" Text="导入优化方案" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource GhostButtonStyle}" Click="OpenLogFolderButton_Click" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{x:Static constants:IconGlyphs.Log}" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource Theme.Brush.IconSecondary}" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                <TextBlock x:Name="OpenLogLabel" Text="打开日志" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                        <Button AutomationProperties.AutomationId="ResetSettingsBtn" Style="{StaticResource DangerGhostButtonStyle}" Click="ResetSettingsButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{x:Static constants:IconGlyphs.Refresh}" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#E05C5C" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                <TextBlock x:Name="ResetSettingsLabel" Text="重置所有设置" Foreground="#E05C5C" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- 关于 -->
+            <TextBlock x:Name="AboutSectionTitle" Text="关于" Style="{StaticResource SectionLabel}"/>
+            <Border Style="{StaticResource SettingsCard}" Margin="0,0,0,8">
+                <Grid Margin="18,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Image Grid.Column="0" Source="/Assets/yuqi-engine-mark.png" Width="40" Height="40" Margin="0,0,14,0" Stretch="Uniform"/>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="宇奇引擎 Yuqi Engine" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontSize="15" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <TextBlock x:Name="SettingsVersionText" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12"/>
+                            <TextBlock x:Name="AppDescriptionText" Text="· 游戏性能优化工具" Foreground="{DynamicResource Theme.Brush.TextMuted}" FontSize="12"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource GhostButtonStyle}" Click="AboutButton_Click" Margin="0,0,8,0">
+                            <TextBlock x:Name="AboutButtonLabel" Text="关于" FontSize="12"/>
+                        </Button>
+                        <Button Style="{StaticResource GhostButtonStyle}" Click="AuthorButton_Click" Margin="0,0,8,0">
+                            <TextBlock x:Name="AuthorButtonLabel" Text="作者信息" FontSize="12"/>
+                        </Button>
+                        <Button Style="{StaticResource GhostButtonStyle}" Click="UpdateEntryButton_Click">
+                            <TextBlock x:Name="UpdateEntryButtonLabel" Text="检查更新" FontSize="12"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

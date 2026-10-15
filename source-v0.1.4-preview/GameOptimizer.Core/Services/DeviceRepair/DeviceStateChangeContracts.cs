@@ -21,7 +21,7 @@ public interface IDeviceStateAccessor
 {
     Task<DevicePlatformAssessment> ProbeAsync(CancellationToken cancellationToken);
 
-    Task<DeviceStateSnapshot> ReadAsync(string deviceNamePattern, CancellationToken cancellationToken);
+    Task<DeviceStateSnapshot> ReadAsync(string deviceNamePattern, string? deviceIdPrefix, CancellationToken cancellationToken);
 
     Task<DeviceMutationResult> ApplyAsync(string deviceId, bool enabled, CancellationToken cancellationToken);
 

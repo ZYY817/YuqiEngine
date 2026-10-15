@@ -183,7 +183,7 @@ public sealed class OrchestratedFileCleanupOperationTests
         public Task<StateObservation?> ObserveAsync(string capabilityId, TargetScope scope, CancellationToken cancellationToken) =>
             Task.FromResult<StateObservation?>(null);
 
-        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken) =>
+        public Task<PreparationResult> PrepareAsync(ChangeRequest request, CancellationToken cancellationToken, bool registerPlan = true) =>
             Task.FromResult(new PreparationResult(ChangePreparationStatus.Blocked, null, "test.blocked", "Blocked in unit test.", null));
 
         public Task<BatchReceipt> ExecuteAsync(PreparedChangePlan plan, ConfirmationToken confirmation, CancellationToken cancellationToken) =>
@@ -251,9 +251,6 @@ public sealed class OrchestratedFileCleanupOperationTests
 
         public Task<CleanupResult> CleanItemAsync(CleanupItem item, CancellationToken ct = default) =>
             throw new NotSupportedException("编排操作必须走预览+确认路径。");
-
-        public Task<CleanupResult> CleanAllAsync(IEnumerable<CleanupItem> items, IProgress<(int current, int total, string name)>? progress = null, CancellationToken ct = default) =>
-            throw new NotSupportedException("编排操作必须逐项执行。");
 
         private static CleanupResult SuccessfulStaticResult() => new()
         {
@@ -332,13 +329,15 @@ public sealed class OrchestratedFileCleanupOperationTests
         public Task<CleanupQuarantineReconciliationResult> ReconcileAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(new CleanupQuarantineReconciliationResult());
 
+        // Why: 恢复按所选清理项的 TargetPaths 收窄范围，清单的原始路径
+        // 必须位于该项的目标根之内才会被恢复。
         private static CleanupQuarantineManifest MakeManifest(int index) => new(
             2,
             $"op-{index}",
             Guid.NewGuid(),
             "gpu_cache",
-            $@"C:\fake\origin\file{index}.bin",
-            @"C:\fake\origin",
+            Path.Combine(Path.GetTempPath(), "dxcache", $"file{index}.bin"),
+            Path.Combine(Path.GetTempPath(), "dxcache"),
             $@"C:\fake\quarantine\q{index}.bin",
             256,
             DateTime.UtcNow.AddDays(-1),
