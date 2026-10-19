@@ -24,8 +24,12 @@ public sealed class ComprehensiveBackupServiceTests
             var service = new ComprehensiveBackupService(snapshot, backend, root);
             var package = await service.CreatePackageAsync("测试完整备份");
 
-            Assert.False(package.Manifest.IsComplete);
-            Assert.Contains("typed 恢复契约", package.Manifest.IncompleteReason);
+            // typed 覆盖缺口是设计边界而非采集失败：其余操作由 HKCU 导出、声明式
+            // 注册表状态和恢复材料承载。采集全部成功时包应标记为完整。
+            Assert.True(package.Manifest.IsComplete);
+            Assert.Null(package.Manifest.IncompleteReason);
+            Assert.False(package.Manifest.TypedCoverage.IsComplete);
+            Assert.Equal(1, package.Manifest.TypedCoverage.CapturedOperationCount);
             Assert.Contains(package.Manifest.Artifacts, item => item.Kind == ComprehensiveBackupArtifactKind.UserRegistry
                 && item.Status == ComprehensiveBackupArtifactStatus.ManualOnly
                 && !item.AutomaticRestoreSupported);

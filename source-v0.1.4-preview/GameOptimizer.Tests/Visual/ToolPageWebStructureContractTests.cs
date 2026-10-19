@@ -8,7 +8,7 @@ public sealed class ToolPageWebStructureContractTests
         ["GameOptimizer.Shell/Views/NetworkTestPage.xaml", new[] { "网络测试", "开始测试", "NodeSelector_SelectionChanged", "RunTest_Click", "CancelTest_Click" }],
         ["GameOptimizer.Shell/Views/RestorePointPage.xaml", new[] { "还原点时间线", "CreateRestorePointCommand", "OpenSystemRestoreSettingsCommand" }],
         ["GameOptimizer.Shell/Views/RepairCenterPage.xaml", new[] { "让电脑回到健康状态", "FilterByCategoryCommand", "ExecuteQuickRepairActionCommand", "QuickRepairDetails_Click", "SelectedRepairCategory", "CategoryToggle" }],
-        ["GameOptimizer.Shell/Views/BackupManagerPage.xaml", new[] { "首次使用前的备份", "CreateSnapshotCommand", "PrepareRestoreSnapshotCommand" }],
+        ["GameOptimizer.Shell/Views/BackupManagerPage.xaml", new[] { "TimelineEntries", "SelectTimelineEntryCommand", "CreateSnapshotCommand", "PrepareRestoreSnapshotCommand" }],
         ["GameOptimizer.Shell/Views/CpuCoreManagementPage.xaml", new[] { "可配置进程", "CPU 核心分配", "ApplySingleProfileCommand" }],
         ["GameOptimizer.Shell/Views/PowerPlanEditorPage.xaml", new[] { "当前激活计划", "电源计划", "ManagedPlanSelector", "BtnApplyAll_Click", "BtnRefreshPlans_Click", "BtnRestoreDefault_Click" }]
     ];

@@ -1,0 +1,367 @@
+<UserControl x:Class="GameOptimizer.Shell.Views.AiAssistantPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:vm="clr-namespace:GameOptimizer.Shell.ViewModels"
+      xmlns:ai="clr-namespace:GameOptimizer.Shell.Services.AiAssistant"
+      d:DataContext="{d:DesignInstance Type=vm:AiAssistantViewModel}"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Background="Transparent"
+      Foreground="{DynamicResource Theme.Brush.TextPrimary}">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+
+        <!-- 幽灵按钮：不透明底 + 明确描边 + 悬停反馈（Web 稿 btn 规范 radius 10） -->
+        <Style x:Key="AiGhostBtn" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardAlt}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="10"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.Surface}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 主按钮：强调色填充（Web 稿 accent） -->
+        <Style x:Key="AiAccentBtn" TargetType="Button" BasedOn="{StaticResource AiGhostBtn}">
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.Accent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.Brush.Accent}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource Theme.Brush.AccentBlueLight}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 建议气泡卡（空状态） -->
+        <Style x:Key="AiSuggestionBtn" TargetType="Button" BasedOn="{StaticResource AiGhostBtn}">
+            <Setter Property="Padding" Value="14,11"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="12"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.Surface}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Theme.Brush.Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="24,16,24,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ 顶部工具条 ══ -->
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Path Width="16" Height="16" Stretch="Uniform" Margin="0,0,8,0" VerticalAlignment="Center"
+                      Fill="{DynamicResource Theme.Brush.Accent}"
+                      Data="M12,3 L13.8,8.6 L19.5,10.4 L13.8,12.2 L12,17.8 L10.2,12.2 L4.5,10.4 L10.2,8.6 Z M19,15 L19.7,17 L21.7,17.7 L19.7,18.4 L19,20.4 L18.3,18.4 L16.3,17.7 L18.3,17 Z"/>
+                <TextBlock Text="AI 助手" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"
+                           Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                <Button Content="＋ 新对话" Margin="16,0,0,0" Style="{StaticResource AiGhostBtn}"
+                        Command="{Binding NewChatCommand}"/>
+                <ComboBox x:Name="HistoryBox" Width="210" Margin="8,0,0,0" VerticalAlignment="Center"
+                          ItemsSource="{Binding Sessions}"
+                          SelectedItem="{Binding SelectedSession}"
+                          AutomationProperties.Name="历史对话">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type ai:AiConversationSummary}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Title}" FontSize="12" MaxWidth="140" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding UpdatedAt, StringFormat='  {0:MM-dd HH:mm}'}" FontSize="10.5"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                    <ComboBox.Style>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="ToolTip" Value="历史对话"/>
+                            <Style.Triggers>
+                                <Trigger Property="HasItems" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ComboBox.Style>
+                </ComboBox>
+                <Button Content="删除该对话" Style="{StaticResource AiGhostBtn}" Margin="6,0,0,0"
+                        Padding="10,5" FontSize="11.5"
+                        Command="{Binding DeleteSessionCommand}"
+                        CommandParameter="{Binding SelectedSession}"
+                        Visibility="{Binding SelectedSession, Converter={StaticResource NullToVisibilityConverter}}"/>
+            </StackPanel>
+
+            <Button Content="⚙ AI 设置" Style="{StaticResource AiAccentBtn}" HorizontalAlignment="Right"
+                    Command="{Binding OpenSettingsCommand}"/>
+        </Grid>
+
+        <!-- ══ 对话区 ══ -->
+        <ScrollViewer Grid.Row="1" x:Name="ChatScroll" VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <!-- 未配置引导态 -->
+                <Border HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="540" Margin="0,50,0,0"
+                        Padding="36,30" CornerRadius="16"
+                        Background="{DynamicResource Theme.Brush.Card}"
+                        BorderBrush="{DynamicResource Theme.Brush.Border}" BorderThickness="1"
+                        Visibility="{Binding IsConfigured, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                    <StackPanel>
+                        <Path Width="36" Height="36" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,14"
+                              Fill="{DynamicResource Theme.Brush.Accent}"
+                              Data="M12,3 L13.8,8.6 L19.5,10.4 L13.8,12.2 L12,17.8 L10.2,12.2 L4.5,10.4 L10.2,8.6 Z M19,15 L19.7,17 L21.7,17.7 L19.7,18.4 L19,20.4 L18.3,18.4 L16.3,17.7 L18.3,17 Z"/>
+                        <TextBlock Text="首次使用，先接入你的 AI" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                        <TextBlock FontSize="12" TextWrapping="Wrap" TextAlignment="Center" Margin="0,10,0,20" LineHeight="20"
+                                   Foreground="{DynamicResource Theme.Brush.TextSecondary}">
+                            <Run Text="三步开始：① 打开 AI 设置，选一个服务商（推荐 "/><Run Text="智谱 GLM-4-Flash" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"/><Run Text="，免费、国内直连）② 到服务商官网注册并复制 API Key 填进去 ③ 保存后开始对话"/>
+                        </TextBlock>
+                        <Button Content="打开 AI 设置" Style="{StaticResource AiAccentBtn}" Padding="24,8"
+                                FontSize="12.5" HorizontalAlignment="Center"
+                                Command="{Binding OpenSettingsCommand}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 空状态（已配置）：品牌欢迎 + 建议气泡 -->
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="640" Margin="0,56,0,0">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsConfigured}" Value="True"/>
+                                        <Condition Binding="{Binding HasMessages}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <Path Width="40" Height="40" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,16"
+                          Fill="{DynamicResource Theme.Brush.Accent}"
+                          Data="M12,3 L13.8,8.6 L19.5,10.4 L13.8,12.2 L12,17.8 L10.2,12.2 L4.5,10.4 L10.2,8.6 Z M19,15 L19.7,17 L21.7,17.7 L19.7,18.4 L19,20.4 L18.3,18.4 L16.3,17.7 L18.3,17 Z"/>
+                    <TextBlock Text="宇奇 AI 助手" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                    <TextBlock Text="先只读诊断你的电脑，再给出分级方案——任何写操作都会先经过你确认。"
+                               FontSize="12.5" TextWrapping="Wrap" TextAlignment="Center" Margin="0,8,0,26" LineHeight="19"
+                               Foreground="{DynamicResource Theme.Brush.TextSecondary}"/>
+                    <ItemsControl ItemsSource="{Binding Suggestions}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Margin="5" Style="{StaticResource AiSuggestionBtn}"
+                                        Command="{Binding DataContext.UseSuggestionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
+                                    <TextBlock Text="{Binding}" FontSize="12" TextWrapping="Wrap"/>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- 消息流 -->
+                <ItemsControl ItemsSource="{Binding ChatEntries}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel MaxWidth="860" HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border x:Name="Bubble" Padding="12,10" CornerRadius="12" Margin="140,0,0,10"
+                                    HorizontalAlignment="Right"
+                                    Background="{DynamicResource Theme.Brush.Surface}"
+                                    BorderBrush="{DynamicResource Theme.Brush.BorderLight}"
+                                    BorderThickness="1">
+                                <TextBlock Text="{Binding Text}" FontSize="13" TextWrapping="Wrap" LineHeight="20"
+                                           Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                            </Border>
+                            <DataTemplate.Triggers>
+                                <!-- 助手消息：通栏文本 -->
+                                <DataTrigger Binding="{Binding IsAssistant}" Value="True">
+                                    <Setter TargetName="Bubble" Property="HorizontalAlignment" Value="Stretch"/>
+                                    <Setter TargetName="Bubble" Property="Margin" Value="0,0,0,12"/>
+                                    <Setter TargetName="Bubble" Property="Background" Value="Transparent"/>
+                                    <Setter TargetName="Bubble" Property="BorderThickness" Value="0"/>
+                                    <Setter TargetName="Bubble" Property="Padding" Value="4,2"/>
+                                </DataTrigger>
+                                <!-- 工具调用：紧凑卡片 -->
+                                <DataTrigger Binding="{Binding IsTool}" Value="True">
+                                    <Setter TargetName="Bubble" Property="HorizontalAlignment" Value="Stretch"/>
+                                    <Setter TargetName="Bubble" Property="Margin" Value="28,0,0,8"/>
+                                    <Setter TargetName="Bubble" Property="Background" Value="{DynamicResource Theme.Brush.Card}"/>
+                                    <Setter TargetName="Bubble" Property="BorderBrush" Value="{DynamicResource Theme.Brush.BorderSubtle}"/>
+                                    <Setter TargetName="Bubble" Property="Padding" Value="10,7"/>
+                                    <Setter TargetName="Bubble" Property="CornerRadius" Value="8"/>
+                                </DataTrigger>
+                                <!-- 系统提示：居中弱提示 -->
+                                <DataTrigger Binding="{Binding IsSystem}" Value="True">
+                                    <Setter TargetName="Bubble" Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter TargetName="Bubble" Property="Margin" Value="0,0,0,8"/>
+                                    <Setter TargetName="Bubble" Property="Background" Value="Transparent"/>
+                                    <Setter TargetName="Bubble" Property="BorderThickness" Value="0"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- ══ 待确认写操作卡片 ══ -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource Theme.Brush.Card}"
+                BorderBrush="{DynamicResource Theme.Brush.Warning}"
+                BorderThickness="1" CornerRadius="12" Padding="16,12" Margin="0,10,0,8"
+                Visibility="{Binding HasPendingAction, Converter={StaticResource BoolToVisibility}}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="{Binding PendingActionDescription}"
+                           FontSize="12.5" FontWeight="SemiBold" TextWrapping="Wrap"
+                           Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding PendingItems}" Margin="0,8,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:AiPendingItem}">
+                            <Button HorizontalContentAlignment="Left" Padding="0" Margin="0,2,0,2"
+                                    Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                    Foreground="{DynamicResource Theme.Brush.TextPrimary}"
+                                    Command="{Binding DataContext.JumpToModuleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}"
+                                    ToolTip="点击查看所在优化页面">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="●" FontSize="9" VerticalAlignment="Center" Margin="0,0,6,0"
+                                               Foreground="{DynamicResource Theme.Brush.Warning}"/>
+                                    <TextBlock Text="{Binding Title}" FontSize="12"
+                                               Foreground="{DynamicResource Theme.Brush.TextPrimary}"/>
+                                    <TextBlock Text="{Binding RiskLevel, StringFormat='  [{0}]'}" FontSize="11"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource Theme.Brush.TextMuted}"/>
+                                    <TextBlock Text="{Binding ModuleKey, StringFormat='  → {0}'}" FontSize="11"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource Theme.Brush.Accent}"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                    <Button Content="确认执行" Style="{StaticResource AiAccentBtn}" Margin="0,0,8,0"
+                            Command="{Binding ApprovePendingCommand}"/>
+                    <Button Content="拒绝" Style="{StaticResource AiGhostBtn}"
+                            Command="{Binding DeclinePendingCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══ 输入区 ══ -->
+        <Border Grid.Row="3" MaxWidth="860" HorizontalAlignment="Stretch"
+                Background="{DynamicResource Theme.Brush.InputBackground}"
+                BorderBrush="{DynamicResource Theme.Brush.InputBorder}"
+                BorderThickness="1" CornerRadius="14" Padding="14,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBox x:Name="InputBox" Grid.ColumnSpan="2"
+                         Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}"
+                         AcceptsReturn="True" MinHeight="24" MaxHeight="140"
+                         VerticalScrollBarVisibility="Auto"
+                         Background="Transparent" BorderThickness="0" FontSize="13" Padding="0,4"
+                         Foreground="{DynamicResource Theme.Brush.TextPrimary}"
+                         CaretBrush="{DynamicResource Theme.Brush.TextPrimary}"
+                         KeyDown="InputBox_KeyDown"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" FontSize="10.5" VerticalAlignment="Center" Margin="0,6,0,0"
+                           Text="Enter 发送 · Shift+Enter 换行 · 写操作需你确认才会执行"
+                           Foreground="{DynamicResource Theme.Brush.TextMuted}"
+                           Visibility="{Binding IsBusy, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" FontSize="10.5" VerticalAlignment="Center" Margin="0,6,0,0"
+                           Text="正在思考 / 执行工具…"
+                           Foreground="{DynamicResource Theme.Brush.Accent}"
+                           Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}"/>
+                <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                        Width="36" Height="36" VerticalAlignment="Bottom" Margin="12,0,0,0"
+                        Command="{Binding SendCommand}"
+                        IsEnabled="{Binding CanSend}"
+                        Cursor="Hand" ToolTip="发送（Enter）">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" CornerRadius="10"
+                                    Background="{DynamicResource Theme.Brush.Accent}">
+                                <Path Width="16" Height="16" Stretch="Uniform"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                                      Fill="#FFFFFF"
+                                      Data="M12,4 L12,19 M12,4 L5.5,10.5 M12,4 L18.5,10.5"
+                                      Stroke="#FFFFFF" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.AccentBlueLight}"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.SurfaceMuted}"/>
+                                    <Setter TargetName="Bd" Property="Opacity" Value="0.6"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

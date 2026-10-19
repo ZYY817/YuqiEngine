@@ -7,12 +7,12 @@ namespace GameOptimizer.Tests.Navigation;
 public sealed class NavigationCatalogTests
 {
     [Fact]
-    public void Catalog_contains_24_visible_routes_and_28_unique_hosts()
+    public void Catalog_contains_24_visible_routes_and_29_unique_hosts()
     {
         var catalog = new NavigationCatalog();
 
         Assert.Equal(24, catalog.VisibleRoutes.Count);
-        Assert.Equal(28, catalog.Routes.Count);
+        Assert.Equal(29, catalog.Routes.Count);
         Assert.Equal(
             catalog.VisibleRoutes.Count,
             catalog.VisibleRoutes.Select(route => route.Key).Distinct(StringComparer.OrdinalIgnoreCase).Count());
@@ -66,6 +66,18 @@ public sealed class NavigationCatalogTests
     }
 
     [Fact]
+    public void Every_route_page_type_is_a_usercontrol_hostable_in_contentcontrol()
+    {
+        // Why: 页面宿主是 ContentControl，Page 只能挂在 Window/Frame 下——
+        // 曾因此点击 AI 助手后整页空白（InvalidOperationException 于 Measure 阶段）。
+        var catalog = new NavigationCatalog();
+        Assert.All(catalog.Routes, route =>
+            Assert.True(
+                typeof(System.Windows.Controls.UserControl).IsAssignableFrom(route.PageType),
+                $"{route.Key} 的页面类型 {route.PageType.Name} 必须继承 UserControl"));
+    }
+
+    [Fact]
     public void Offline_help_route_is_removed()
     {
         var catalog = new NavigationCatalog();
@@ -104,8 +116,10 @@ public sealed class NavigationCatalogTests
             .Select(field => (string)field.GetRawConstantValue()!)
             .ToArray();
 
+        // Why: 图标常量表同时服务侧栏与顶栏（如 AI 助手），只要求可见路由使用的图标
+        // 全部来自常量表且互不重复，不要求常量全被可见路由用掉。
         Assert.Equal(catalog.VisibleRoutes.Count, routeIcons.Distinct(StringComparer.Ordinal).Count());
-        Assert.Equal(canonicalIcons.OrderBy(value => value), routeIcons.OrderBy(value => value));
+        Assert.All(routeIcons, icon => Assert.Contains(icon, canonicalIcons));
         Assert.All(routeIcons, iconData =>
         {
             var geometry = Geometry.Parse(iconData);

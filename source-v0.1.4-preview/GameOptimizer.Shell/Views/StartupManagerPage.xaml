@@ -133,7 +133,7 @@
             </Border>
 
             <!-- 启动项列表 -->
-            <Border Grid.Row="2" Style="{StaticResource SectionCardStyle}">
+            <Border Grid.Row="1" Style="{StaticResource SectionCardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

@@ -283,7 +283,10 @@ public sealed class OrchestratedFileCleanupOperationTests
         public int RestoreCalls { get; private set; }
         public CleanupQuarantineConfirmation? LastConfirmation { get; private set; }
 
-        public Task<CleanupQuarantinePreview> CreateRestorePreviewAsync(CancellationToken cancellationToken = default)
+        public Task<CleanupQuarantinePreview> CreateRestorePreviewAsync(CancellationToken cancellationToken = default) =>
+            CreateRestorePreviewAsync(_ => true, cancellationToken);
+
+        public Task<CleanupQuarantinePreview> CreateRestorePreviewAsync(Func<CleanupQuarantineEntry, bool> scope, CancellationToken cancellationToken = default)
         {
             var entries = new List<CleanupQuarantineEntry>();
             for (var index = 0; index < RestoredCount + FailedCount; index++)
@@ -293,7 +296,7 @@ public sealed class OrchestratedFileCleanupOperationTests
                     MakeManifest(index)));
             }
 
-            return Task.FromResult(new CleanupQuarantinePreview("restore", entries, Now));
+            return Task.FromResult(new CleanupQuarantinePreview("restore", entries.Where(scope), Now));
         }
 
         public Task<CleanupQuarantineResult> RestoreAsync(

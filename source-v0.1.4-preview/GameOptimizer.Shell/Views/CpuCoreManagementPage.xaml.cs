@@ -43,7 +43,6 @@ public partial class CpuCoreManagementPage : UserControl
 
             UpdateLocalizedTexts();
             ConfigureProcessListView();
-            ShowLiveWorkspace();
             UpdateWorkspaceLayout();
 
             if (!_isInitialized)
@@ -127,33 +126,6 @@ public partial class CpuCoreManagementPage : UserControl
         Grid.SetColumn(rightPane, 2);
     }
 
-    private void ProfilesButton_Click(object sender, RoutedEventArgs e) => ShowProfileWorkspace();
-
-    private void BackToLiveButton_Click(object sender, RoutedEventArgs e) => ShowLiveWorkspace();
-
-    private void ShowLiveWorkspace()
-    {
-        if (DataContext is CpuCoreManagementViewModel vm)
-            vm.ActiveTab = 0;
-
-        LiveWorkspace.Visibility = Visibility.Visible;
-        ProfileWorkspace.Visibility = Visibility.Collapsed;
-        LiveCommandBar.Visibility = Visibility.Visible;
-        ProfileCommandBar.Visibility = Visibility.Collapsed;
-    }
-
-    private void ShowProfileWorkspace()
-    {
-        if (DataContext is CpuCoreManagementViewModel vm)
-            vm.ActiveTab = 1;
-
-        LiveWorkspace.Visibility = Visibility.Collapsed;
-        ProfileWorkspace.Visibility = Visibility.Visible;
-        LiveCommandBar.Visibility = Visibility.Collapsed;
-        ProfileCommandBar.Visibility = Visibility.Visible;
-        UpdateProfilePreviewState();
-    }
-
     private void OnLanguageChanged(object? sender, string e) => _ = Dispatcher.InvokeAsync(UpdateLocalizedTexts);
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -168,7 +140,8 @@ public partial class CpuCoreManagementPage : UserControl
         }
 
         if (e.PropertyName == nameof(CpuCoreManagementViewModel.SelectedProfile) ||
-            e.PropertyName == nameof(CpuCoreManagementViewModel.HasUsableTopology))
+            e.PropertyName == nameof(CpuCoreManagementViewModel.HasUsableTopology) ||
+            e.PropertyName == nameof(CpuCoreManagementViewModel.ActiveTab))
         {
             _ = Dispatcher.InvokeAsync(UpdateProfilePreviewState);
         }

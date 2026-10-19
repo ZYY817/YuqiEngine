@@ -4,7 +4,7 @@
     <!-- Canonical semantic roles: the only theme-owned color literals. -->
     <Color x:Key="Theme.Role.Background">#050508</Color>
     <Color x:Key="Theme.Role.Surface">#0F1525</Color>
-    <Color x:Key="Theme.Role.SurfaceRaised">#151C2F</Color>
+    <Color x:Key="Theme.Role.SurfaceRaised">#131316</Color>
     <Color x:Key="Theme.Role.TextPrimary">#F8FAFC</Color>
     <Color x:Key="Theme.Role.TextSecondary">#CBD5E1</Color>
     <!-- Accent blue is intentionally bright; use deep ink for a verified readable contrast. -->
@@ -113,30 +113,31 @@
     <Color x:Key="Theme.Card.Border">#15FFFFFF</Color>
     <Color x:Key="Theme.Card.BorderSubtle">#12FFFFFF</Color>
     <Color x:Key="Theme.Card.BorderHover">#20FFFFFF</Color>
+    <Color x:Key="Theme.Card.RaisedBorder">#2E2E33</Color>
     <Color x:Key="Theme.Track.Background">#141C2B</Color>
     <Color x:Key="Theme.Input.Background">#141C2B</Color>
     <Color x:Key="Theme.Input.Border">#334155</Color>
     <Color x:Key="Theme.Dialog.Background">#1D2A3A</Color>
     <Color x:Key="Theme.Dialog.Header">#1D2A3A</Color>
     <Color x:Key="Theme.Panel.Background">#1D2A3A</Color>
-    <Color x:Key="Theme.Row.Background">#141C2B</Color>
-    <Color x:Key="Theme.Row.Border">#334155</Color>
-    <Color x:Key="Theme.Row.BackgroundHover">#141C2B</Color>
-    <Color x:Key="Theme.Row.BorderHover">#334155</Color>
-    <Color x:Key="Theme.Icon.Background">#141C2B</Color>
-    <Color x:Key="Theme.Icon.Border">#334155</Color>
+    <Color x:Key="Theme.Row.Background">#151619</Color>
+    <Color x:Key="Theme.Row.Border">#2C2C31</Color>
+    <Color x:Key="Theme.Row.BackgroundHover">#1D1E22</Color>
+    <Color x:Key="Theme.Row.BorderHover">#3D3D45</Color>
+    <Color x:Key="Theme.Icon.Background">#17181C</Color>
+    <Color x:Key="Theme.Icon.Border">#2E2E34</Color>
     <Color x:Key="Theme.Scrollbar.Track">#2A3850</Color>
     <Color x:Key="Theme.Scrollbar.TrackInteractive">#3A4B68</Color>
     <Color x:Key="Theme.Scrollbar.Thumb">#52647D</Color>
     <Color x:Key="Theme.Scrollbar.ThumbHover">#7890AE</Color>
     <Color x:Key="Theme.Scrollbar.ThumbDragging">#8DA8CC</Color>
     <!-- StaticResource lookup is declaration-order sensitive in standalone dictionaries. -->
-    <Color x:Key="Theme.Row.BackgroundExtreme">#26F87171</Color>
-    <Color x:Key="Theme.Row.BorderExtreme">#66F87171</Color>
-    <Color x:Key="Theme.Row.BackgroundHoverExtreme">#30F87171</Color>
-    <Color x:Key="Theme.Row.BorderHoverExtreme">#88F87171</Color>
-    <Color x:Key="Theme.Icon.BackgroundExtreme">#2EF87171</Color>
-    <Color x:Key="Theme.Icon.BorderExtreme">#80F87171</Color>
+    <Color x:Key="Theme.Row.BackgroundExtreme">#0FF87171</Color>
+    <Color x:Key="Theme.Row.BorderExtreme">#36F87171</Color>
+    <Color x:Key="Theme.Row.BackgroundHoverExtreme">#16F87171</Color>
+    <Color x:Key="Theme.Row.BorderHoverExtreme">#59F87171</Color>
+    <Color x:Key="Theme.Icon.BackgroundExtreme">#1FF87171</Color>
+    <Color x:Key="Theme.Icon.BorderExtreme">#4DF87171</Color>
     <Color x:Key="Theme.Button.Background">#141C2B</Color>
     <Color x:Key="Theme.Button.BackgroundHover">#141C2B</Color>
     <Color x:Key="Theme.Button.Border">#334155</Color>
@@ -202,6 +203,9 @@
         <GradientStop Color="#070E21" Offset="1"/>
     </LinearGradientBrush>
     
+    <!-- 侧栏分隔线：蓝调发丝线，与同族深色底协调（替代中性灰 GlassBorder 在蓝底上发脏）。 -->
+    <SolidColorBrush x:Key="Theme.Brush.SidebarSeparator" Color="#1A2942"/>
+    
     <LinearGradientBrush x:Key="Theme.Brush.CardGradient" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="{StaticResource Theme.Role.SurfaceRaised}" Offset="0"/>
         <GradientStop Color="{StaticResource Theme.Role.Surface}" Offset="0.42"/>
@@ -215,9 +219,29 @@
     <SolidColorBrush x:Key="Theme.Brush.CardBackgroundAlt" Color="{StaticResource Theme.Card.BackgroundAlt}"/>
     <SolidColorBrush x:Key="Theme.Brush.CardBackgroundHover" Color="{StaticResource Theme.Card.BackgroundHover}"/>
     <SolidColorBrush x:Key="Theme.Brush.CardBackgroundMuted" Color="{StaticResource Theme.Card.BackgroundMuted}"/>
+    <!-- Swiss editorial backup page tokens: neutral black/white with a single signal green. -->
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.Background" Color="#000000"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.Accent" Color="#00E5A0"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.AccentDim" Color="#8C00E5A0"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.Line" Color="#14FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.LineStrong" Color="#29FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.Gray1" Color="#A3FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.Gray2" Color="#6BFFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.Gray3" Color="#42FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.RowHover" Color="#06FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.Input" Color="#05FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.Dock" Color="#F00A101E"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.DockIcon" Color="#1400E5A0"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.PrimaryText" Color="#02110B"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.AccentHover" Color="#3BFFB9"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.AccentPressed" Color="#00D392"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.White" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.Transparent" Color="#00000000"/>
+    <SolidColorBrush x:Key="Theme.Brush.BackupEditorial.OverlayScrim" Color="#C0050508"/>
     <SolidColorBrush x:Key="Theme.Brush.CardBorder" Color="{StaticResource Theme.Card.Border}"/>
     <SolidColorBrush x:Key="Theme.Brush.CardBorderSubtle" Color="{StaticResource Theme.Card.BorderSubtle}"/>
     <SolidColorBrush x:Key="Theme.Brush.CardBorderHover" Color="{StaticResource Theme.Card.BorderHover}"/>
+    <SolidColorBrush x:Key="Theme.Brush.CardRaisedBorder" Color="{StaticResource Theme.Card.RaisedBorder}"/>
     <SolidColorBrush x:Key="Theme.Brush.TrackBackground" Color="{StaticResource Theme.Track.Background}"/>
     <SolidColorBrush x:Key="Theme.Brush.InputBackground" Color="{StaticResource Theme.Input.Background}"/>
     <SolidColorBrush x:Key="Theme.Brush.InputBorder" Color="{StaticResource Theme.Input.Border}"/>
@@ -250,8 +274,8 @@
     
     <!-- 导航选中状态：深色模式保持抬起表面与克制的蓝色层级。 -->
     <LinearGradientBrush x:Key="Theme.Brush.NavItemSelected" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Color="#243B82F6" Offset="0"/>
-        <GradientStop Color="#123B82F6" Offset="1"/>
+        <GradientStop Color="#2B3B82F6" Offset="0"/>
+        <GradientStop Color="#163B82F6" Offset="1"/>
     </LinearGradientBrush>
     
     <LinearGradientBrush x:Key="Theme.Brush.NavItemSelectedBorder" StartPoint="0,0" EndPoint="0,1">
@@ -617,6 +641,8 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <ToggleButton IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Content="{TemplateBinding Header}"
+                                      ContentTemplate="{TemplateBinding HeaderTemplate}"
                                       Background="Transparent"
                                       BorderThickness="0"
                                       Padding="2,3"

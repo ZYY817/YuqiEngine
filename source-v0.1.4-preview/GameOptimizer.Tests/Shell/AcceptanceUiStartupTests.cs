@@ -85,7 +85,7 @@ public sealed class AcceptanceUiStartupTests
         Assert.Contains("&& !string.IsNullOrWhiteSpace(acceptanceScreenshotPath)", app, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(acceptancePageKey, \"repair-center\"", app, StringComparison.Ordinal);
         Assert.Contains("RunScannerActionAsync()", app, StringComparison.Ordinal);
-        Assert.Contains("CaptureAcceptanceDialog(mainWindow, acceptanceDialogKey, acceptanceScreenshotPath)", app, StringComparison.Ordinal);
+        Assert.Contains("CaptureAcceptanceDialog(mainWindow, acceptanceDialogKey, acceptanceScreenshotPath, _host.Services, acceptanceScreengrab)", app, StringComparison.Ordinal);
         Assert.Contains("acceptanceLanguage ?? settings.Language", app, StringComparison.Ordinal);
         Assert.Contains("GetRequiredService<IAppSettingsStore>()", app, StringComparison.Ordinal);
         Assert.Contains("视觉验收实例 · 隔离配置", app, StringComparison.Ordinal);

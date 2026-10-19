@@ -711,6 +711,7 @@ public sealed partial class LocalizationService
         // Navigation Items - Titles
         ["Nav.Overview"] = "Overview",
         ["Nav.EsportsMode"] = "Game Modes",
+        ["Nav.AiAssistant"] = "AI Assistant",
         ["Nav.MemoryOptimization"] = "Memory",
         ["Nav.AudioOptimization"] = "Sound",
         ["Nav.PerformanceBoost"] = "Performance",
@@ -738,6 +739,7 @@ public sealed partial class LocalizationService
         // Navigation Items - Subtitles
         ["Nav.Overview.Subtitle"] = "See how your computer is running",
         ["Nav.EsportsMode.Subtitle"] = "Choose an optimization style for your game",
+        ["Nav.AiAssistant.Subtitle"] = "Chat with your own AI service to optimize",
         ["Nav.AudioOptimization.Subtitle"] = "Reduce sound delays and interruptions",
         ["Nav.CpuOptimization.Subtitle"] = "Help the CPU respond faster",
         ["Nav.GraphicsOptimization.Subtitle"] = "Adjust graphics and display options",

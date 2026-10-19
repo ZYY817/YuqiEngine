@@ -100,6 +100,8 @@ public sealed class NavigationCatalog : INavigationCatalog
             Visible("appx-cleanup", "AppxCleanupPageHost", typeof(AppxCleanupPage), modules, "Nav.AppxCleanup", NavigationIconData.Apps, aliases: new[] { "appx", "uninstall" }),
             Visible("peripheral-nav", "PeripheralModulePageHost", typeof(PeripheralOptimizationPage), modules, "Nav.PeripheralOptimization", NavigationIconData.Peripheral, aliases: new[] { "peripheral" }),
             Visible("esports-mode", "EsportsModePageHost", typeof(EsportsModePage), modules, "Nav.EsportsMode", NavigationIconData.Esports, aliases: new[] { "game-mode-hub" }),
+            // Why: AI 助手入口在顶部标题栏（高频全局功能不占侧栏），路由保留供程序化导航/深链接。
+            Internal("ai-assistant", "AiAssistantPageHost", typeof(AiAssistantPage), "ai", "chat"),
             Visible("hardware-info", "HardwareInfoPageHost", typeof(HardwareInfoPage), tools, "Nav.HardwareInfo", NavigationIconData.Hardware, aliases: new[] { "hardware" }),
             Visible("network-test", "NetworkTestPageHost", typeof(NetworkTestPage), tools, "Nav.NetworkTest", NavigationIconData.NetworkTest, aliases: new[] { "nettest" }),
             Visible("restore-point", "RestorePointPageHost", typeof(RestorePointPage), tools, "Nav.RestorePoint", NavigationIconData.RestorePoint, aliases: new[] { "restore" }),
@@ -130,7 +132,7 @@ public sealed class NavigationCatalog : INavigationCatalog
                 _ => throw new ArgumentOutOfRangeException(nameof(groupKey), groupKey, "未知导航分组")
             };
 
-        static NavigationRoute Internal(string key, string host, Type pageType)
-            => new(key, host, pageType, false);
+        static NavigationRoute Internal(string key, string host, Type pageType, params string[] aliases)
+            => new(key, host, pageType, false, aliases: aliases);
     }
 }

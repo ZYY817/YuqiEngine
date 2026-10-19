@@ -86,9 +86,10 @@ public sealed class OrchestratedFileCleanupOperation : OrchestratedChangeOperati
         try
         {
             var preview = await _cleanupService.CreatePreviewAsync(item, cancellationToken).ConfigureAwait(false);
+            var partialNote = preview.IsPartial ? "（扫描达到安全预算上限，仅统计部分内容）" : "";
             return preview.Entries.Count == 0
-                ? new OperationStatus(true, "当前没有可清理的文件。")
-                : new OperationStatus(false, $"发现 {preview.Entries.Count} 个可清理文件（{FormatBytes(preview.TotalBytes)}），需显式确认后执行。");
+                ? new OperationStatus(true, $"当前没有可清理的文件。{partialNote}")
+                : new OperationStatus(false, $"发现 {preview.Entries.Count} 个可清理文件（{FormatBytes(preview.TotalBytes)}），需显式确认后执行。{partialNote}");
         }
         catch (OperationCanceledException)
         {
@@ -198,18 +199,19 @@ public sealed class OrchestratedFileCleanupOperation : OrchestratedChangeOperati
 
         try
         {
-            var fullPreview = await _quarantineManager.CreateRestorePreviewAsync(cancellationToken).ConfigureAwait(false);
             // Why: 预览默认列出隔离区全部条目；恢复单项清理不能把
             // 其他清理项隔离的文件一并拉回，必须按本项 TargetPaths 收窄。
-            var scopedEntries = fullPreview.Entries
-                .Where(entry => IsPathUnderItem(entry.Manifest.OriginalPath, item))
-                .ToArray();
-            if (scopedEntries.Length == 0)
+            // 收窄必须发生在管理器内部并作为已签发预览返回——调用方自行
+            // new 一个 CleanupQuarantinePreview 会得到未签发 PreviewId，
+            // 被执行端的签发校验直接拒绝。
+            var preview = await _quarantineManager.CreateRestorePreviewAsync(
+                entry => IsPathUnderItem(entry.Manifest.OriginalPath, item),
+                cancellationToken).ConfigureAwait(false);
+            if (preview.Entries.Count == 0)
             {
                 return new OperationInvokeResult(true, false, "隔离区中没有该清理项对应的可恢复文件。");
             }
 
-            var preview = new CleanupQuarantinePreview(fullPreview.Action, scopedEntries, fullPreview.CreatedAtUtc);
             var confirmation = CleanupQuarantineConfirmation.Create(preview, _timeProvider.GetUtcNow(), ConfirmationLifetime);
             var result = await _quarantineManager.RestoreAsync(preview, confirmation, cancellationToken).ConfigureAwait(false);
             if (result.Failed > 0)

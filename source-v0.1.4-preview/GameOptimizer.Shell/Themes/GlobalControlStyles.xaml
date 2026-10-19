@@ -127,31 +127,7 @@
         <Setter Property="CaretBrush" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
         <Setter Property="SelectionBrush" Value="{DynamicResource Theme.Brush.ControlAccentBorder}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="TextBox">
-                    <Border x:Name="Border" Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0">
-                        <ScrollViewer x:Name="PART_ContentHost" Margin="0"
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Border" Property="BorderBrush" 
-                                    Value="{DynamicResource Theme.Brush.ControlAccent}"/>
-                        </Trigger>
-                        <Trigger Property="IsFocused" Value="True">
-                            <Setter TargetName="Border" Property="BorderBrush" 
-                                    Value="{DynamicResource Theme.Brush.ControlAccent}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <!-- 自定义模板会使 TextBox 文本层不渲染，见 YuqiComponentLibrary.xaml 同注。 -->
     </Style>
 
     <!-- PasswordBox 密码框样式 -->
@@ -165,30 +141,7 @@
             <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}"/>
         <Setter Property="CaretBrush" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
         <Setter Property="SelectionBrush" Value="{DynamicResource Theme.Brush.ControlAccentBorder}"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="PasswordBox">
-                    <Border x:Name="Border" Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0">
-                        <ScrollViewer x:Name="PART_ContentHost" Margin="0" VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Border" Property="BorderBrush" 
-                                    Value="{DynamicResource Theme.Brush.ControlAccent}"/>
-                        </Trigger>
-                        <Trigger Property="IsFocused" Value="True">
-                            <Setter TargetName="Border" Property="BorderBrush" 
-                                    Value="{DynamicResource Theme.Brush.ControlAccent}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="{DynamicResource Token.Opacity.Disabled}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <!-- 自定义模板会使密码圆点层不渲染，同 TextBox 原因。 -->
     </Style>
 
     <!-- Slider 滑块样式 -->

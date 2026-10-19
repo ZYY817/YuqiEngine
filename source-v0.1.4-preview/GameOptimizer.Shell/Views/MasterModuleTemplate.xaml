@@ -32,7 +32,9 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.Border}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.NavItemSelected}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Theme.Brush.NavItemSelectedBorder}"/>
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
                             </Trigger>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
@@ -420,9 +422,10 @@
         <!-- 底部浮动岛屿 -->
         <Border x:Name="FooterActionIsland" Grid.Row="3" Panel.ZIndex="20"
                 VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                CornerRadius="28" Margin="0,0,0,12" Padding="24,12">
+                CornerRadius="28" Margin="0,0,0,12" Padding="24,12"
+                BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
             <Border.Background>
-                <SolidColorBrush Color="{DynamicResource Theme.Background.Primary}" Opacity="0.88"/>
+                <SolidColorBrush Color="{DynamicResource Theme.Background.Primary}" Opacity="0.92"/>
             </Border.Background>
             <Border.Effect>
                 <DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.42" Color="#000"/>

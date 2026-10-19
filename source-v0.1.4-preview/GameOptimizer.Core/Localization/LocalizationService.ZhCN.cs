@@ -681,6 +681,7 @@ public sealed partial class LocalizationService
             // 导航项 - 标题
             ["Nav.Overview"] = "系统概览",
             ["Nav.EsportsMode"] = "游戏场景",
+            ["Nav.AiAssistant"] = "AI 助手",
             ["Nav.MemoryOptimization"] = "内存优化",
             ["Nav.AudioOptimization"] = "声音优化",
             ["Nav.PerformanceBoost"] = "性能加速",
@@ -709,6 +710,7 @@ public sealed partial class LocalizationService
             // 导航项 - 副标题
             ["Nav.Overview.Subtitle"] = "查看电脑现在的运行状态",
             ["Nav.EsportsMode.Subtitle"] = "按游戏场景选择优化方式",
+            ["Nav.AiAssistant.Subtitle"] = "连接你的 AI 服务，对话式优化",
             ["Nav.AudioOptimization.Subtitle"] = "减少声音延迟和中断",
             ["Nav.CpuOptimization.Subtitle"] = "让处理器更快响应",
             ["Nav.GraphicsOptimization.Subtitle"] = "调整显卡和显示相关选项",

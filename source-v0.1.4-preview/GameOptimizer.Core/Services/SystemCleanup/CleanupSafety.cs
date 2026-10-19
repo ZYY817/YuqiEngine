@@ -148,7 +148,11 @@ public sealed class FileSystemCleanupQuarantine : ICleanupQuarantine
 
     public FileSystemCleanupQuarantine(string? root = null)
     {
-        _root = Path.GetFullPath(root ?? Path.Combine(AppPaths.AppDataRoot, "CleanupQuarantine"));
+        // Why: 隔离区属于恢复关键状态，必须与 CleanupQuarantineManifestStore.DefaultRoot
+        // 同根（StateDataRoot/系统盘）。此前默认落在 AppDataRoot（可选数据根，如 F:\），
+        // 当两根植不一致时，写入端隔离的文件对恢复端不可见——恢复预览永远为空、
+        // 文件被困在旧根里。统一指向 StateDataRoot 后，写入与恢复同根互见。
+        _root = Path.GetFullPath(root ?? Path.Combine(AppPaths.StateDataRoot, "CleanupQuarantine"));
     }
 
     public async Task<string> MoveAsync(CleanupPreviewEntry entry, string itemId, CancellationToken cancellationToken)

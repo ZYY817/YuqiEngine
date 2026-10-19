@@ -96,7 +96,7 @@ public sealed class WindowsAppxRemovalOwner : IAppxRemovalOwner
             string.IsNullOrWhiteSpace(package.DisplayName) ? name : package.DisplayName,
             familyName,
             id?.FullName ?? string.Empty,
-            id?.Version.ToString() ?? string.Empty,
+            id is null ? string.Empty : $"{id.Version.Major}.{id.Version.Minor}.{id.Version.Build}.{id.Version.Revision}",
             package.PublisherDisplayName ?? string.Empty,
             recoveryClass,
             Removable: notRemovable is null,

@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [ValidatePattern('^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$')]
     [string]$Version = '0.1.3-preview',
@@ -73,23 +73,29 @@ if ($missingFiles) {
     throw "发布目录缺少必要文件：$($missingFiles -join ', ')"
 }
 
-Copy-Item (Join-Path $repositoryRoot 'README.md') (Join-Path $publishDirectory 'README.md')
-Copy-Item (Join-Path $repositoryRoot 'README_EN.md') (Join-Path $publishDirectory 'README_EN.md')
-Copy-Item (Join-Path $repositoryRoot 'LICENSE') (Join-Path $publishDirectory 'LICENSE')
+# README / LICENSE live at the repository root, one level above the source dir.
+$publicFaceRoot = Split-Path -Parent $repositoryRoot
+Copy-Item (Join-Path $publicFaceRoot 'README.md') (Join-Path $publishDirectory 'README.md')
+Copy-Item (Join-Path $publicFaceRoot 'README_EN.md') (Join-Path $publishDirectory 'README_EN.md')
+Copy-Item (Join-Path $publicFaceRoot 'LICENSE') (Join-Path $publishDirectory 'LICENSE')
 
 # 便携版不需要调试符号；移除它们，使解压目录与 ZIP 的发布内容一致。
 Get-ChildItem -LiteralPath $publishDirectory -Filter '*.pdb' -File -Recurse |
     ForEach-Object { [System.IO.File]::Delete($_.FullName) }
 
+Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $archive = [System.IO.Compression.ZipFile]::Open(
     $archivePath,
     [System.IO.Compression.ZipArchiveMode]::Create)
 try {
+    $publishPrefix = $publishDirectory.TrimEnd('\') + '\'
     Get-ChildItem -LiteralPath $publishDirectory -Recurse -File |
         Where-Object { $_.Extension -ne '.pdb' } |
         ForEach-Object {
-            $entryName = [System.IO.Path]::GetRelativePath($publishDirectory, $_.FullName).Replace('\', '/')
+            # PS 5.1 (.NET Framework) lacks [Path]::GetRelativePath; the publish
+            # root is a prefix of every file path by construction.
+            $entryName = $_.FullName.Substring($publishPrefix.Length).Replace('\', '/')
             $entryName = "$archiveRootName/$entryName"
             [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
                 $archive,

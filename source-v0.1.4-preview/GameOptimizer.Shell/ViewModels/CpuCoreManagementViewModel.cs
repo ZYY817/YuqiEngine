@@ -38,7 +38,20 @@ public partial class CpuCoreManagementViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string _loadingText = "";
     [ObservableProperty] private string _statusText = "";
-    [ObservableProperty] private int _activeTab; // 0=实时加速, 1=配置文件
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsLiveTabActive))]
+    [NotifyPropertyChangedFor(nameof(IsProfileTabActive))]
+    private int _activeTab; // 0=实时加速, 1=配置文件
+
+    public bool IsLiveTabActive => ActiveTab == 0;
+    public bool IsProfileTabActive => ActiveTab == 1;
+
+    [RelayCommand]
+    private void SelectTab(string? tab)
+    {
+        if (int.TryParse(tab, out var index) && index is 0 or 1)
+            ActiveTab = index;
+    }
 
     // === Tab 切换时的核心矩阵状态隔离 ===
     private List<int> _accelerationCoreSelection = new();

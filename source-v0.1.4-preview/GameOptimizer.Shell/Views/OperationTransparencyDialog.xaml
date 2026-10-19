@@ -15,7 +15,7 @@
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
         TextOptions.TextFormattingMode="Display"
-        TextOptions.TextRenderingMode="ClearType">
+        TextOptions.TextRenderingMode="Auto">
     <Border Background="{DynamicResource Theme.Brush.DialogBackground}"
             BorderBrush="{DynamicResource Theme.Brush.CardBorder}"
             BorderThickness="1"

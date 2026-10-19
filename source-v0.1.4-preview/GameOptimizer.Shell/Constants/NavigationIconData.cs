@@ -31,4 +31,6 @@ public static class NavigationIconData
     public const string CoreManagement = "M6,5 H18 V19 H6 Z M9,8 H12 V11 H9 Z M13,8 H16 V11 H13 Z M9,13 H12 V16 H9 Z M13,13 H16 V16 H13 Z M9,2 V5 M15,2 V5 M9,19 V22 M15,19 V22 M3,9 H6 M3,15 H6 M18,9 H21 M18,15 H21";
     public const string Power = "M6,6 H17 C18.7,6 20,7.3 20,9 V17 C20,18.7 18.7,20 17,20 H6 C4.3,20 3,18.7 3,17 V9 C3,7.3 4.3,6 6,6 Z M20,11 H22 V15 H20 M12,8 L9,14 H12 L11,18 L16,12 H13 L14,8 Z";
     public const string Settings = "M12,8 A4,4 0 1 1 12,16 A4,4 0 1 1 12,8 M12,3 V5 M12,19 V21 M3,12 H5 M19,12 H21 M5.6,5.6 L7,7 M17,17 L18.4,18.4 M18.4,5.6 L17,7 M7,17 L5.6,18.4";
+    // 四角星芒（AI/智能语义），无第三方品牌元素
+    public const string AiAssistant = "M12,3 L13.8,8.6 L19.5,10.4 L13.8,12.2 L12,17.8 L10.2,12.2 L4.5,10.4 L10.2,8.6 Z M19,15 L19.7,17 L21.7,17.7 L19.7,18.4 L19,20.4 L18.3,18.4 L16.3,17.7 L18.3,17 Z";
 }

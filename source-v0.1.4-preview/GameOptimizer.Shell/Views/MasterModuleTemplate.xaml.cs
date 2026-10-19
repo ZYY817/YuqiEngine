@@ -350,7 +350,7 @@ public partial class MasterModuleTemplate : UserControl
         ModuleSpecChipText.Foreground = accentBrush;
         ControlBarCard.Margin = new Thickness(0, 12, 0, 0);
         ControlBarCard.Padding = new Thickness(16, 12, 16, 12);
-        ControlBarCard.CornerRadius = new CornerRadius(16);
+        ControlBarCard.CornerRadius = new CornerRadius(4);
         ControlBarCard.BorderThickness = new Thickness(1);
         ControlBarCard.SetResourceReference(Border.BackgroundProperty, "Theme.Brush.CardBackground");
         ControlBarCard.SetResourceReference(Border.BorderBrushProperty, "Theme.Brush.CardBorder");
@@ -369,7 +369,7 @@ public partial class MasterModuleTemplate : UserControl
         FilterSurface.Padding = new Thickness(4);
 
         HealthCard.Padding = new Thickness(18, 14, 18, 14);
-        HealthCard.CornerRadius = new CornerRadius(16);
+        HealthCard.CornerRadius = new CornerRadius(4);
 
         FilterAllCountText.Visibility = Visibility.Visible;
         FilterExtremeCountText.Visibility = Visibility.Visible;
@@ -880,16 +880,15 @@ public partial class MasterModuleTemplate : UserControl
         var borderKey = isExtreme ? "Theme.Brush.RowBorderExtreme" : "Theme.Brush.RowBorder";
         var hoverBgKey = isExtreme ? "Theme.Brush.RowBackgroundHoverExtreme" : "Theme.Brush.RowBackgroundHover";
         var hoverBorderKey = isExtreme ? "Theme.Brush.RowBorderHoverExtreme" : "Theme.Brush.RowBorderHover";
-        var iconBgKey = isExtreme ? "Theme.Brush.IconBackgroundExtreme" : "Theme.Brush.IconBackground";
         var iconBorderKey = isExtreme ? "Theme.Brush.IconBorderExtreme" : "Theme.Brush.IconBorder";
         
         var row = new Border
         {
-            Padding = new Thickness(16, 10, 16, 10),
+            Padding = new Thickness(16, 12, 16, 12),
             Margin = new Thickness(0, 0, 0, 6),
             CornerRadius = new CornerRadius(10),
             BorderThickness = new Thickness(1),
-            MinHeight = 64,
+            MinHeight = 68,
             Height = double.NaN
         };
         row.SetResourceReference(Border.BackgroundProperty, bgKey);
@@ -904,9 +903,9 @@ public partial class MasterModuleTemplate : UserControl
         var iconBorder = new Border
         {
             Width = 32, Height = 32, CornerRadius = new CornerRadius(8),
-            BorderThickness = new Thickness(1), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left
+            BorderThickness = new Thickness(1), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left,
+            Background = CreateIconChipBrush(isExtreme)
         };
-        iconBorder.SetResourceReference(Border.BackgroundProperty, iconBgKey);
         iconBorder.SetResourceReference(Border.BorderBrushProperty, iconBorderKey);
         var iconText = new TextBlock { Text = GetSemanticIcon(toggle.Title), FontSize = 14, FontFamily = new FontFamily("Segoe MDL2 Assets"), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         iconText.SetResourceReference(TextBlock.ForegroundProperty, "Theme.Brush.TextPrimaryAlt");
@@ -929,48 +928,31 @@ public partial class MasterModuleTemplate : UserControl
         var loc = LocalizationService.Instance;
         if (toggle.ShowAppliedTag)
         {
-            titleRow.Children.Add(new Border
-            {
-                Background = ThemeColors.SuccessLightAlpha33Brush,
-                CornerRadius = new CornerRadius(4), Padding = new Thickness(8, 3, 8, 3), Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center,
-                Child = CreateModuleText(loc.Get("Module.AppliedTag"), "Token.FontSize.ModuleStatus", ThemeColors.SuccessLightBrush, FontWeights.Medium)
-            });
+            titleRow.Children.Add(CreateOutlinedBadge(loc.Get("Module.AppliedTag"), ThemeColors.SuccessLight, marginLeft: 10));
         }
-        
+
         // 需要重启标记
         if (toggle.RequiresReboot)
         {
-            titleRow.Children.Add(new Border
-            {
-                Background = ThemeColors.WarningLightAlpha33Brush,
-                CornerRadius = new CornerRadius(4), Padding = new Thickness(6, 2, 6, 2), Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center,
-                Child = CreateModuleText(loc.Get("Module.RequiresReboot"), "Token.FontSize.ModuleStatus", ThemeColors.WarningLightBrush)
-            });
+            titleRow.Children.Add(CreateOutlinedBadge(loc.Get("Module.RequiresReboot"), ThemeColors.WarningLight, marginLeft: 6));
         }
-        
-        var (riskBg, riskFg) = GetRiskColors(toggle.RiskLevel);
-        titleRow.Children.Add(new Border
-        {
-            Background = riskBg, CornerRadius = new CornerRadius(4), Padding = new Thickness(6, 2, 6, 2), Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center,
-            Child = CreateModuleText(GetRiskText(toggle.RiskLevel), "Token.FontSize.ModuleStatus", riskFg, familyToken: "Token.FontFamily.Mono")
-        });
 
-        var (capabilityBg, capabilityFg) = GetCapabilityColors(toggle.CapabilityState);
-        var capabilityLabel = CreateModuleText(toggle.CapabilityStateLabel, "Token.FontSize.ModuleStatus", capabilityFg, FontWeights.Medium);
-        capabilityLabel.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding(nameof(OptimizationToggleModel.CapabilityStateLabel))
+        titleRow.Children.Add(CreateOutlinedBadge(GetRiskText(toggle.RiskLevel), GetRiskColor(toggle.RiskLevel), marginLeft: 8, familyToken: "Token.FontFamily.Mono"));
+
+        // Ready 态不铺徽章——"可修改"是正常状态，异常态才值得占位。
+        if (toggle.CapabilityState != ModuleCapabilityState.Ready)
         {
-            Source = toggle,
-            Mode = System.Windows.Data.BindingMode.OneWay
-        });
-        titleRow.Children.Add(new Border
-        {
-            Background = capabilityBg,
-            CornerRadius = new CornerRadius(4),
-            Padding = new Thickness(6, 2, 6, 2),
-            Margin = new Thickness(8, 0, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-            Child = capabilityLabel
-        });
+            var capabilityBadge = CreateBadgeShell(GetCapabilityColor(toggle.CapabilityState), marginLeft: 8);
+            var capabilityLabel = CreateModuleText(toggle.CapabilityStateLabel, "Token.FontSize.ModuleStatus",
+                ThemeColors.BrushFromColor(GetCapabilityColor(toggle.CapabilityState)), FontWeights.Medium);
+            capabilityLabel.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding(nameof(OptimizationToggleModel.CapabilityStateLabel))
+            {
+                Source = toggle,
+                Mode = System.Windows.Data.BindingMode.OneWay
+            });
+            capabilityBadge.Child = capabilityLabel;
+            titleRow.Children.Add(capabilityBadge);
+        }
         
         textPanel.Children.Add(titleRow);
         
@@ -978,9 +960,9 @@ public partial class MasterModuleTemplate : UserControl
         var description = !string.IsNullOrEmpty(toggle.OperationId) 
             ? OptimizationTranslations.Instance.GetDescription(toggle.OperationId, GetHumanizedDescription(toggle.Title, toggle.Description), isEnglish) 
             : GetHumanizedDescription(toggle.Title, toggle.Description);
-        var descText = new TextBlock { Text = description, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0) };
+        var descText = new TextBlock { Text = description, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 5, 0, 0) };
         ApplyTypographyTokens(descText, "Token.FontSize.ModuleDescription");
-        descText.SetResourceReference(TextBlock.ForegroundProperty, "Theme.Brush.TextSecondary");
+        descText.SetResourceReference(TextBlock.ForegroundProperty, "Theme.Brush.TextMuted");
         textPanel.Children.Add(descText);
 
         // 能力状态和执行回执回答不同的问题。能力状态使用简明说明；原始诊断只在详情页保留。
@@ -1191,7 +1173,7 @@ public partial class MasterModuleTemplate : UserControl
     {
         var cardContent = new StackPanel();
         var header = CreateWebParityGroupHeader(category, toggles);
-        header.SetResourceReference(Border.BackgroundProperty, "Theme.Brush.SurfaceMuted");
+        header.SetResourceReference(Border.BorderBrushProperty, "Theme.Brush.CardBorderSubtle");
         cardContent.Children.Add(header);
 
         for (var index = 0; index < toggles.Count; index++)
@@ -1202,27 +1184,20 @@ public partial class MasterModuleTemplate : UserControl
             row.BorderThickness = index == toggles.Count - 1
                 ? new Thickness(0)
                 : new Thickness(0, 0, 0, 1);
-            row.Padding = new Thickness(18, 11, 18, 11);
+            row.Padding = new Thickness(18, 13, 18, 13);
             cardContent.Children.Add(row);
         }
 
         var card = new Border
         {
-            CornerRadius = new CornerRadius(16),
+            CornerRadius = new CornerRadius(4),
             BorderThickness = new Thickness(1),
-            Margin = new Thickness(0, 0, 0, 12),
+            Margin = new Thickness(0, 0, 0, 14),
             ClipToBounds = true,
             Child = cardContent
         };
-        card.SetResourceReference(Border.BackgroundProperty, "Theme.Brush.CardBackground");
-        card.SetResourceReference(Border.BorderBrushProperty, "Theme.Brush.CardBorder");
-        card.Effect = new DropShadowEffect
-        {
-            BlurRadius = 16,
-            ShadowDepth = 3,
-            Opacity = 0.12,
-            Color = Colors.Black
-        };
+        card.SetResourceReference(Border.BackgroundProperty, "Theme.Brush.SurfaceRaised");
+        card.SetResourceReference(Border.BorderBrushProperty, "Theme.Brush.CardRaisedBorder");
         return card;
     }
 
@@ -1231,7 +1206,6 @@ public partial class MasterModuleTemplate : UserControl
         var isEnglish = LocalizationService.Instance.CurrentLanguage == "en-US";
         var translatedCategory = OptimizationTranslations.Instance.GetCategory(category, isEnglish);
         var applied = toggles.Count(toggle => toggle.IsApplied);
-        var accent = GetModuleAccentColor();
 
         var title = new TextBlock { Text = translatedCategory, FontWeight = FontWeights.SemiBold };
         ApplyTypographyTokens(title, "Token.FontSize.ModuleItemTitle");
@@ -1255,24 +1229,13 @@ public partial class MasterModuleTemplate : UserControl
         meta.SetResourceReference(TextBlock.ForegroundProperty, "Theme.Brush.TextMuted");
 
         var heading = new Grid();
-        heading.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         heading.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         heading.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-        var marker = new Border
-        {
-            Width = 2,
-            CornerRadius = new CornerRadius(1),
-            Margin = new Thickness(0, 2, 12, 2),
-            Background = new SolidColorBrush(accent)
-        };
-        Grid.SetColumn(marker, 0);
-        heading.Children.Add(marker);
-
         var text = new StackPanel { Children = { title, subtitle } };
-        Grid.SetColumn(text, 1);
+        Grid.SetColumn(text, 0);
         heading.Children.Add(text);
-        Grid.SetColumn(meta, 2);
+        Grid.SetColumn(meta, 1);
         heading.Children.Add(meta);
 
         return new Border
@@ -1426,6 +1389,66 @@ public partial class MasterModuleTemplate : UserControl
         OperationRiskLevel.Balanced => (ThemeColors.RiskBalancedBgBrush, ThemeColors.RiskBalancedFgBrush),
         _ => (ThemeColors.RiskSafeBgBrush, ThemeColors.RiskSafeFgBrush)
     };
+
+    private static Color GetRiskColor(OperationRiskLevel risk) => risk switch
+    {
+        OperationRiskLevel.Extreme => ThemeColors.RiskExtremeFg,
+        OperationRiskLevel.Balanced => ThemeColors.RiskBalancedFg,
+        _ => ThemeColors.RiskSafeFg
+    };
+
+    private static Color GetCapabilityColor(ModuleCapabilityState state) => state switch
+    {
+        ModuleCapabilityState.Executing => ThemeColors.Info,
+        ModuleCapabilityState.AdminRequired or ModuleCapabilityState.RecoveryUnavailable => ThemeColors.WarningLight,
+        ModuleCapabilityState.Unsupported or ModuleCapabilityState.NotApplicable or ModuleCapabilityState.ReadOnly => ThemeColors.TextSecondary,
+        _ => ThemeColors.Danger
+    };
+
+    // 描边款徽章：6%~9% 的彩色微底 + 35% 彩色描边，比实色块轻一档。
+    private static Border CreateBadgeShell(Color accent, double marginLeft)
+    {
+        return new Border
+        {
+            Background = ThemeColors.BrushFromColor(Color.FromArgb(0x16, accent.R, accent.G, accent.B)),
+            BorderBrush = ThemeColors.BrushFromColor(Color.FromArgb(0x59, accent.R, accent.G, accent.B)),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(5),
+            Padding = new Thickness(7, 2, 7, 2),
+            Margin = new Thickness(marginLeft, 0, 0, 0),
+            VerticalAlignment = VerticalAlignment.Center
+        };
+    }
+
+    private static Border CreateOutlinedBadge(string text, Color accent, double marginLeft, string? familyToken = null)
+    {
+        var badge = CreateBadgeShell(accent, marginLeft);
+        badge.Child = CreateModuleText(text, "Token.FontSize.ModuleStatus",
+            ThemeColors.BrushFromColor(accent), FontWeights.Medium, familyToken ?? "Token.FontFamily.Body");
+        return badge;
+    }
+
+    // 图标芯片：顶部微亮的纵向渐变，深色面上的"抛光键帽"感。
+    private static LinearGradientBrush CreateIconChipBrush(bool isExtreme)
+    {
+        var brush = new LinearGradientBrush
+        {
+            StartPoint = new System.Windows.Point(0, 0),
+            EndPoint = new System.Windows.Point(0, 1)
+        };
+        if (isExtreme)
+        {
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0x42, 0x1E, 0x28), 0));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0x2C, 0x15, 0x1C), 1));
+        }
+        else
+        {
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0x22, 0x22, 0x26), 0));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0x17, 0x17, 0x1B), 1));
+        }
+        brush.Freeze();
+        return brush;
+    }
     
     private string GetRiskText(OperationRiskLevel risk)
     {
@@ -2113,6 +2136,63 @@ public partial class MasterModuleTemplate : UserControl
         e.Handled = true;
         await ExecutePendingChangesAsync();
     }
+
+    /// <summary>
+    /// 验收钩子（--acceptance-action=module-toggle-on/off）：以与点击相同的路径
+    /// 表达指定操作项的开关意图并触发应用链。不跳过确认框、能力门禁与回执；
+    /// 返回 false 表示项未就绪（探测未完成/被门禁拒绝），调用方应稍后重试。
+    /// </summary>
+    internal bool AcceptanceSetToggleAndApply(string operationId, bool enabled)
+    {
+        var toggle = _allToggles.FirstOrDefault(t =>
+            string.Equals(t.OperationId, operationId, StringComparison.OrdinalIgnoreCase));
+        if (toggle is null)
+        {
+            PageDiagnosticService.Log("MasterModuleTemplate",
+                $"[{ModuleKey}] acceptance probe: op={operationId} NOT FOUND (loaded={_allToggles.Count})");
+            return false;
+        }
+
+        if (toggle.IsEnabled == enabled)
+        {
+            PageDiagnosticService.Log("MasterModuleTemplate",
+                $"[{ModuleKey}] acceptance probe: op={operationId} already at intent={enabled}");
+            return false;
+        }
+
+        if (!toggle.OnUserToggled(enabled))
+        {
+            PageDiagnosticService.Log("MasterModuleTemplate",
+                $"[{ModuleKey}] acceptance probe: op={operationId} OnUserToggled refused " +
+                $"CanApply={toggle.CanApply} CanRestore={toggle.CanRestore} IsApplied={toggle.IsApplied}");
+            return false;
+        }
+
+        if (!string.IsNullOrEmpty(toggle.OperationId))
+        {
+            _stateManager.UpdateState(ModuleKey, toggle.OperationId, new OptimizationItemState
+            {
+                IsSelected = toggle.IsEnabled,
+                IsApplied = toggle.IsApplied,
+                LastModified = DateTime.UtcNow
+            });
+        }
+
+        UpdateAllCounts();
+        _ = ExecutePendingChangesAsync();
+        return true;
+    }
+
+    /// <summary>验收钩子：查询指定操作项当前的 (已应用, 有挂起意图, 可应用, 可恢复)。</summary>
+    internal (bool Applied, bool Pending, bool CanApply, bool CanRestore)? AcceptanceQueryState(string operationId)
+    {
+        var toggle = _allToggles.FirstOrDefault(t =>
+            string.Equals(t.OperationId, operationId, StringComparison.OrdinalIgnoreCase));
+        return toggle is null ? null : (toggle.IsApplied, toggle.IsPending, toggle.CanApply, toggle.CanRestore);
+    }
+
+    /// <summary>验收钩子：页面级执行门禁是否仍持有（汇总框未关时也为 true）。</summary>
+    internal bool AcceptanceIsOperating => _isOperating;
 
     private async Task ExecutePendingChangesAsync()
     {

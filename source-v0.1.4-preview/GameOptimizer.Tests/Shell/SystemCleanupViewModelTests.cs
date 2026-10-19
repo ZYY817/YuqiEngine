@@ -70,7 +70,10 @@ public sealed class SystemCleanupViewModelTests
     {
         internal TaskCompletionSource RestoreStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        public Task<CleanupQuarantinePreview> CreateRestorePreviewAsync(CancellationToken cancellationToken = default)
+        public Task<CleanupQuarantinePreview> CreateRestorePreviewAsync(CancellationToken cancellationToken = default) =>
+            CreateRestorePreviewAsync(_ => true, cancellationToken);
+
+        public Task<CleanupQuarantinePreview> CreateRestorePreviewAsync(Func<CleanupQuarantineEntry, bool> scope, CancellationToken cancellationToken = default)
         {
             var manifest = new CleanupQuarantineManifest(
                 1, "op", Guid.NewGuid(), "item", "C:\\source", "C:\\", "C:\\quarantine",

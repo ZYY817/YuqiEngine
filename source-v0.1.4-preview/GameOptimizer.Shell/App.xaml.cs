@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -39,6 +40,7 @@ using GameOptimizer.Modules.PerformanceHealth;
 using GameOptimizer.ModuleContracts.Abstractions;
 using GameOptimizer.Shell.ViewModels;
 using GameOptimizer.Shell.Services;
+using GameOptimizer.Shell.Services.AiAssistant;
 using GameOptimizer.Shell.Services.Baseline;
 using GameOptimizer.Shell.Services.PowerManagement;
 using GameOptimizer.Shell.Extensions;
@@ -118,8 +120,19 @@ public partial class App : Application
         var acceptanceAction = e.Args
             .FirstOrDefault(argument => argument.StartsWith("--acceptance-action=", StringComparison.OrdinalIgnoreCase))
             ?.Split('=', 2)[1];
+        var acceptanceOpId = e.Args
+            .FirstOrDefault(argument => argument.StartsWith("--acceptance-op=", StringComparison.OrdinalIgnoreCase))
+            ?.Split('=', 2)[1];
         var acceptanceWidth = GetAcceptanceDimension(e.Args, "--acceptance-width=", 1200, 3840);
         var acceptanceHeight = GetAcceptanceDimension(e.Args, "--acceptance-height=", 700, 2160);
+        // 离屏验收：窗口摆到屏幕坐标系之外，RenderTargetBitmap 照常渲染，
+        // 不弹窗、不抢焦点、不动鼠标键盘 —— 零打扰的后台视觉验收。
+        var acceptanceOffscreen = isAcceptanceUiInstance && e.Args.Any(argument =>
+            argument.Equals("--acceptance-offscreen", StringComparison.OrdinalIgnoreCase));
+        // 屏幕像素验收：不改窗口位置，临时置顶后从屏幕 DC 抓真实像素 ——
+        // RenderTargetBitmap 不绘制 TextBox 的文本宿主层，屏幕抓取才能反映用户实际所见。
+        var acceptanceScreengrab = isAcceptanceUiInstance && e.Args.Any(argument =>
+            argument.Equals("--acceptance-screengrab", StringComparison.OrdinalIgnoreCase));
         // This opt-in probe is deliberately limited to the named tool-page content scroller.
         // It exists only to capture lower visual regions; it cannot invoke page commands or change state.
         var acceptanceScrollOffset = GetAcceptanceDimension(e.Args, "--acceptance-scroll-y=", 0, 100000);
@@ -382,6 +395,17 @@ public partial class App : Application
                                 new StartupManagerPage(
                                     provider.GetRequiredService<IStartupService>(),
                                     provider.GetRequiredService<IStartupEntryOwner>()));
+                            services.AddSingleton<IAiOptimizationGateway>(provider =>
+                                new DashboardAiGateway(
+                                    provider.GetRequiredService<DashboardViewModel>(),
+                                    provider.GetService<IHardwareDetectionService>()));
+                            services.AddSingleton<AiSkillStore>();
+                            services.AddSingleton<AiConversationStore>();
+                            services.AddSingleton<IAiDiagnosticsRunner>(provider =>
+                                new PowerShellDiagnosticsRunner(provider.GetRequiredService<AiSkillStore>()));
+                            services.AddSingleton<AiAssistantViewModel>();
+                            services.AddSingleton<AiAssistantPage>(provider =>
+                                new AiAssistantPage(provider.GetRequiredService<AiAssistantViewModel>()));
                             services.AddSingleton<ModulePage>();
                             // system/explorer/tasks/services 四个路由共用此模板页；
                             // 必须 transient：PageFactory 按路由缓存独立实例并设置各自 ModuleKey，
@@ -446,6 +470,12 @@ public partial class App : Application
                     current.Language = settings.Language;
                 });
             }
+            if (acceptanceOffscreen)
+            {
+                mainWindow.WindowStartupLocation = WindowStartupLocation.Manual;
+                mainWindow.Left = -32000;
+                mainWindow.Top = -32000;
+            }
             // 深色主题是唯一主题，旧配置和验收参数均不能改变它。
             ApplyDarkTheme();
             LocalizationService.Instance.SetLanguage(isAcceptanceUiInstance ? acceptanceLanguage ?? settings.Language : settings.Language);
@@ -486,12 +516,19 @@ public partial class App : Application
             }
             bool isSystemCleanupScanProbe = isAcceptanceUiInstance
                 && string.Equals(acceptanceAction, "system-cleanup-scan", StringComparison.OrdinalIgnoreCase);
+            var isModuleToggleProbe = isAcceptanceUiInstance
+                && (string.Equals(acceptanceAction, "module-toggle-on", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(acceptanceAction, "module-toggle-off", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(acceptanceAction, "module-toggle-cycle", StringComparison.OrdinalIgnoreCase));
             // A screenshot probe is bounded and isolated.  It must not wait for the
             // dashboard's unrelated telemetry/health scan before it can navigate to
             // its requested page: those probes may be slow or unavailable on a test
             // machine, while the target page can still render its own explicit state.
-            // Commands that write system state are never invoked by this condition.
+            // Commands that write system state are never invoked by this condition —
+            // the module-toggle probe only reuses the fast-navigation shortcut; its
+            // writes still go through the page's normal confirmation and engine path.
             bool isReadOnlyAcceptancePageProbe = isSystemCleanupScanProbe
+                || isModuleToggleProbe
                 || (isAcceptanceUiInstance
                     && !string.IsNullOrWhiteSpace(acceptanceScreenshotPath));
             if (isAcceptanceUiInstance && !string.IsNullOrWhiteSpace(acceptancePageKey))
@@ -518,6 +555,17 @@ public partial class App : Application
                 await Dispatcher.InvokeAsync(() =>
                     _host.Services.GetRequiredService<NetworkTestPage>().BeginAcceptanceNetworkTest());
             }
+            if (isAcceptanceUiInstance
+                && string.Equals(acceptanceAction, "ai-settings-combo", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(acceptanceScreenshotPath))
+            {
+                // 下拉框结构探针：展开弹窗里每个 ComboBox，把 Popup 子树单独渲成 PNG，
+                // 并把下拉项数量写成 .probe.txt —— 不需要屏幕显示就能验证下拉真的可用。
+                await Dispatcher.InvokeAsync(() =>
+                    ProbeAiSettingsCombos(mainWindow, acceptanceScreenshotPath, _host.Services, acceptanceScreengrab));
+                // 探针是一次性验收：写盘后立即结束进程，避免按正常启动路径常驻。
+                Environment.Exit(0);
+            }
             if (isSystemCleanupScanProbe)
             {
                 // Acceptance-only read probe: it invokes the same page view-model scan command,
@@ -526,7 +574,149 @@ public partial class App : Application
                     _host.Services.GetRequiredService<SystemCleanupViewModel>().RunScannerActionAsync());
                 await scanTask;
             }
-            if (isAcceptanceUiInstance && !string.IsNullOrWhiteSpace(acceptanceScreenshotPath))
+            // 模块页应用链路验收探针：等页面探测完成后，用与真实点击相同的路径
+            // （OnUserToggled -> ExecutePendingChangesAsync -> 确认框 -> 引擎）驱动一次
+            // 真实写入。确认框照常弹出，由外部验收脚本负责确认或取消。
+            if (isModuleToggleProbe)
+            {
+                var enable = string.Equals(acceptanceAction, "module-toggle-on", StringComparison.OrdinalIgnoreCase);
+                var opId = acceptanceOpId ?? "explorer.hidden_files";
+                PageDiagnosticService.Log("App.Acceptance",
+                    $"module-toggle probe starting: op={opId} enable={enable}");
+
+                // 真实确认框照常以 ShowDialog 弹出，会嵌套占用调度器消息循环。
+                // 因此确认动作必须在独立的 watcher 里发：等真实 ConfirmDialog 可见后，
+                // 对其真实 ConfirmBtn 触发真实 Click 路由事件（Confirm_Click 处理器照走），
+                // 与鼠标点击的唯一差别是没有物理输入事件。不跳过任何安全门禁。
+                _ = Task.Run(async () =>
+                {
+                    // 批确认框之外，编排器还可能按计划再弹一道 per-plan 确认（与真实用户路径一致）。
+                    // watcher 持续 150s，点击所有依次出现的真实 ConfirmDialog，而不是点一次就退出。
+                    var deadline = DateTime.UtcNow.AddSeconds(300);
+                    var confirmedCount = 0;
+                    while (DateTime.UtcNow < deadline)
+                    {
+                        try
+                        {
+                            var clicked = await Dispatcher.InvokeAsync(() =>
+                            {
+                                // 批列表确认框
+                                var batchDlg = Application.Current.Windows
+                                    .OfType<Views.ConfirmDialog>()
+                                    .FirstOrDefault(w => w.IsVisible);
+                                if (batchDlg is not null)
+                                {
+                                    batchDlg.ConfirmBtn.RaiseEvent(
+                                        new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                                    return "batch";
+                                }
+                                // 编排器按计划的二次确认框（危险操作框，带倒计时门禁，
+                                // 必须等 ConfirmBtn.IsEnabled 由倒计时放行后才点击）
+                                var dangerDlg = Application.Current.Windows
+                                    .OfType<Views.DangerousOperationDialog>()
+                                    .FirstOrDefault(w => w.IsVisible);
+                                if (dangerDlg is not null && dangerDlg.ConfirmBtn.IsEnabled)
+                                {
+                                    dangerDlg.ConfirmBtn.RaiseEvent(
+                                        new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                                    return "danger";
+                                }
+                                // 执行完成汇总框——模态占位期间 _isOperating 仍为 true，
+                                // 不关掉它下一阶段操作会被门禁挡住；真实用户也要点掉它。
+                                var summaryDlg = Application.Current.Windows
+                                    .OfType<Views.CompletionSummaryDialog>()
+                                    .FirstOrDefault(w => w.IsVisible);
+                                if (summaryDlg is not null)
+                                {
+                                    summaryDlg.CloseBtn.RaiseEvent(
+                                        new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                                    return "summary";
+                                }
+                                var infoDlg = Application.Current.Windows
+                                    .OfType<Views.InfoDialog>()
+                                    .FirstOrDefault(w => w.IsVisible);
+                                if (infoDlg is not null)
+                                {
+                                    infoDlg.OkBtn.RaiseEvent(
+                                        new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                                    return "info";
+                                }
+                                return null;
+                            });
+                            if (clicked is not null)
+                            {
+                                confirmedCount++;
+                                PageDiagnosticService.Log("App.Acceptance",
+                                    $"module-toggle watcher: real {clicked} dialog confirmed #{confirmedCount} (op={opId})");
+                                await Task.Delay(400).ConfigureAwait(false);
+                            }
+                        }
+                        catch { /* dispatcher may be shutting down */ }
+                        await Task.Delay(300).ConfigureAwait(false);
+                    }
+                });
+
+                var isCycle = string.Equals(acceptanceAction, "module-toggle-cycle", StringComparison.OrdinalIgnoreCase);
+                var phases = isCycle ? new[] { true, false } : new[] { enable };
+                var triggered = false;
+                var pageFound = false;
+                foreach (var phaseEnable in phases)
+                {
+                    triggered = false;
+                    for (var i = 0; i < 240 && !triggered; i++)
+                    {
+                        var page = await Dispatcher.InvokeAsync(() =>
+                            FindVisualChildren<Views.MasterModuleTemplate>(mainWindow).FirstOrDefault());
+                        if (page is not null)
+                        {
+                            pageFound = true;
+                            // 注意：一旦意图成立，本调用会同步阻塞在真实确认框上，
+                            // 直到 watcher 点击确认后才返回 true。
+                            triggered = await Dispatcher.InvokeAsync(
+                                () => page.AcceptanceSetToggleAndApply(opId, phaseEnable));
+                        }
+                        if (!triggered)
+                        {
+                            await Task.Delay(500).ConfigureAwait(false);
+                        }
+                    }
+                    PageDiagnosticService.Log("App.Acceptance",
+                        $"module-toggle probe phase: op={opId} enable={phaseEnable} pageFound={pageFound} triggered={triggered}");
+                    if (!triggered)
+                    {
+                        break;
+                    }
+
+                    // 循环模式下等第一阶段真正落地（回执写完、读回已应用）再发起恢复阶段，
+                    // 这与真实用户「应用后再取消勾选」的会话内流程一致。
+                    if (isCycle && phaseEnable)
+                    {
+                        var settled = false;
+                        for (var i = 0; i < 120 && !settled; i++)
+                        {
+                            settled = await Dispatcher.InvokeAsync(() =>
+                            {
+                                var page = FindVisualChildren<Views.MasterModuleTemplate>(mainWindow).FirstOrDefault();
+                                if (page is null || page.AcceptanceIsOperating) return false;
+                                var state = page.AcceptanceQueryState(opId);
+                                // 必须等到执行链完全收尾（汇总框关闭、_isOperating 释放、
+                                // 恢复回执登记使 CanRestore=true），否则下一阶段会被门禁挡回。
+                                return state is { Applied: true, Pending: false, CanRestore: true };
+                            });
+                            if (!settled)
+                            {
+                                await Task.Delay(500).ConfigureAwait(false);
+                            }
+                        }
+                        PageDiagnosticService.Log("App.Acceptance",
+                            $"module-toggle probe apply settled: op={opId} settled={settled}");
+                    }
+                }
+                PageDiagnosticService.Log("App.Acceptance",
+                    $"module-toggle probe finished: op={opId} pageFound={pageFound} lastTriggered={triggered}");
+            }
+            if (isAcceptanceUiInstance && !string.IsNullOrWhiteSpace(acceptanceScreenshotPath)
+                && !string.Equals(acceptanceAction, "ai-settings-combo", StringComparison.OrdinalIgnoreCase))
             {
                 // Capture inside the acceptance process so elevated windows can be verified even
                 // while another full-screen application covers the desktop. This path is opt-in
@@ -542,7 +732,12 @@ public partial class App : Application
                 }
                 if (!string.IsNullOrWhiteSpace(acceptanceDialogKey))
                 {
-                    await Dispatcher.InvokeAsync(() => CaptureAcceptanceDialog(mainWindow, acceptanceDialogKey, acceptanceScreenshotPath));
+                    await Dispatcher.InvokeAsync(() => CaptureAcceptanceDialog(mainWindow, acceptanceDialogKey, acceptanceScreenshotPath, _host.Services, acceptanceScreengrab));
+                }
+                else if (acceptanceScreengrab)
+                {
+                    await Task.Delay(600).ConfigureAwait(false);
+                    await Dispatcher.InvokeAsync(() => CaptureAcceptanceWindowScreenGrab(mainWindow, acceptanceScreenshotPath));
                 }
                 else
                 {
@@ -788,7 +983,38 @@ public partial class App : Application
         encoder.Save(stream);
     }
 
-    private static void CaptureAcceptanceDialog(Window owner, string dialogKey, string requestedPath)
+    /// <summary>
+    /// 屏幕真实像素抓取：窗口临时置顶，等 DWM 合成后 CopyFromScreen。
+    /// 与 RenderTargetBitmap 的区别是能拍到 TextBox 文本宿主等真实输出层。
+    /// 只读取本窗口矩形区域，不抓取窗口之外的屏幕内容。
+    /// </summary>
+    private static void CaptureAcceptanceWindowScreenGrab(Window window, string requestedPath)
+    {
+        var outputPath = Path.GetFullPath(requestedPath);
+        if (!string.Equals(Path.GetExtension(outputPath), ".png", StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Acceptance screenshots must use the .png extension.", nameof(requestedPath));
+
+        window.Topmost = true;
+        window.UpdateLayout();
+        // 由调用方在抓图前自行等待合成（Sleep / 退出 Dispatcher 回调），此处不得再 Invoke ——
+        // 探针在 UI 线程上同步执行，Invoke(Render) 会形成自等待死锁。
+
+        var origin = window.PointToScreen(new Point(0, 0));
+        var dpi = VisualTreeHelper.GetDpi(window);
+        var w = (int)Math.Max(1, Math.Round(window.ActualWidth * dpi.DpiScaleX));
+        var h = (int)Math.Max(1, Math.Round(window.ActualHeight * dpi.DpiScaleY));
+
+        using var bmp = new System.Drawing.Bitmap(w, h);
+        using (var g = System.Drawing.Graphics.FromImage(bmp))
+            g.CopyFromScreen((int)origin.X, (int)origin.Y, 0, 0, new System.Drawing.Size(w, h));
+
+        Directory.CreateDirectory(Path.GetDirectoryName(outputPath)
+            ?? throw new InvalidOperationException("Acceptance screenshot directory is unavailable."));
+        bmp.Save(outputPath, System.Drawing.Imaging.ImageFormat.Png);
+        window.Topmost = false;
+    }
+
+    private static void CaptureAcceptanceDialog(Window owner, string dialogKey, string requestedPath, IServiceProvider? services = null, bool screenGrab = false)
     {
         Window dialog = dialogKey.Trim().ToLowerInvariant() switch
         {
@@ -797,6 +1023,11 @@ public partial class App : Application
             "about" => new Views.AboutDialog(),
             "about-support" => new Views.AboutDialog(focusSupportSection: true),
             "peripheral-advanced" => new Views.PeripheralAdvancedDialog(),
+            "ai-settings" => new Views.AiSettingsDialog(
+                services?.GetService<ViewModels.AiAssistantViewModel>()
+                ?? throw new InvalidOperationException("AI 助手视图模型不可用")),
+            // 首启引导第 3 步（风险确认）：验收时直接推进到该步截取风险提示区。
+            "first-run-risk" => OpenFirstRunRiskStep(services),
             _ => throw new ArgumentOutOfRangeException(nameof(dialogKey), dialogKey, "Unknown acceptance dialog key.")
         };
         dialog.Owner = owner;
@@ -811,8 +1042,146 @@ public partial class App : Application
                 System.Windows.Threading.DispatcherPriority.ContextIdle);
             dialog.UpdateLayout();
         }
-        CaptureAcceptanceWindow(dialog, requestedPath);
+        if (screenGrab)
+        {
+            // 弹窗已在屏幕上；短暂等待 DWM 合成后直接抓该窗口矩形。
+            System.Threading.Thread.Sleep(400);
+            CaptureAcceptanceWindowScreenGrab(dialog, requestedPath);
+        }
+        else
+        {
+            CaptureAcceptanceWindow(dialog, requestedPath);
+        }
         dialog.Close();
+    }
+
+    /// <summary>
+    /// 验收探针：打开 AI 设置弹窗，逐个展开其中的 ComboBox，把每个 Popup 子树
+    /// 渲染为独立 PNG（screenshot 路径同名 + 序号），并写 &lt;screenshot&gt;.probe.txt
+    /// 记录每个下拉框的项数 —— 验证 IsDropDownOpen/PART_Popup 链路真实可用。
+    /// </summary>
+    private static void ProbeAiSettingsCombos(Window owner, string screenshotPath, IServiceProvider services, bool screenGrab = false)
+    {
+        var vm = services.GetService<ViewModels.AiAssistantViewModel>()
+            ?? throw new InvalidOperationException("AI 助手视图模型不可用");
+        var dialog = new Views.AiSettingsDialog(vm)
+        {
+            Owner = owner,
+            WindowStartupLocation = WindowStartupLocation.Manual,
+            Left = owner.Left + 40,
+            Top = owner.Top + 40
+        };
+        dialog.Show();
+        dialog.UpdateLayout();
+
+        // 屏幕真抓：在展开任何下拉之前先抓一次干净的弹窗（Popup 是独立窗口，关闭有淡出残留）。
+        if (screenGrab)
+        {
+            System.Threading.Thread.Sleep(700);
+            CaptureAcceptanceWindowScreenGrab(dialog, screenshotPath);
+            File.AppendAllText(Path.ChangeExtension(screenshotPath, ".probe.txt"), "mark:clean-grab\n");
+        }
+
+        var report = new System.Text.StringBuilder();
+        report.AppendLine($"vm.provider={vm.SelectedProvider?.Key} endpoint='{vm.Endpoint}' model='{vm.Model}' configured={vm.IsConfigured}");
+        var combos = FindVisualChildren<System.Windows.Controls.ComboBox>(dialog).ToList();
+        var popups = FindVisualChildren<System.Windows.Controls.Primitives.Popup>(dialog).ToList();
+        report.AppendLine($"comboCount={combos.Count}");
+        for (var i = 0; i < combos.Count; i++)
+        {
+            var combo = combos[i];
+            combo.IsDropDownOpen = true;
+            dialog.UpdateLayout();
+            combo.UpdateLayout();
+
+            var popup = FindVisualChildren<System.Windows.Controls.Primitives.Popup>(combo).FirstOrDefault();
+            var child = popup?.Child as Visual;
+            var itemCount = combo.Items.Count;
+            report.AppendLine($"combo[{i}]: items={itemCount} popupChild={(child == null ? "null" : child.GetType().Name)}");
+
+            if (child is FrameworkElement childElement
+                && childElement.ActualWidth > 1 && childElement.ActualHeight > 1)
+            {
+                var width = (int)Math.Ceiling(childElement.ActualWidth);
+                var height = (int)Math.Ceiling(childElement.ActualHeight);
+                var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+                bitmap.Render(childElement);
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                var popupPath = Path.Combine(
+                    Path.GetDirectoryName(screenshotPath)!,
+                    $"{Path.GetFileNameWithoutExtension(screenshotPath)}_combo{i}.png");
+                using var stream = File.Create(popupPath);
+                encoder.Save(stream);
+            }
+            combo.IsDropDownOpen = false;
+        }
+
+        // 探针追加：列出所有输入框的当前值和前景色 —— 诊断"有值但看不见"这类渲染问题。
+        var edits = FindVisualChildren<System.Windows.Controls.TextBox>(dialog).ToList();
+        foreach (var tb in edits)
+        {
+            var fg = tb.Foreground is SolidColorBrush scb ? scb.Color.ToString() : tb.Foreground?.ToString() ?? "null";
+            report.AppendLine($"textbox name={tb.Name} len={tb.Text?.Length ?? 0} fg={fg} opacity={tb.Opacity} visible={tb.Visibility} width={tb.ActualWidth:F0} height={tb.ActualHeight:F0} padding={tb.Padding} fontsize={tb.FontSize} valign={tb.VerticalContentAlignment}");
+        }
+
+        // 探针追加：把 EndpointBox 单独渲染成 PNG —— 排查输入框可见性回归时可直接看单控件输出。
+        var ep = edits.FirstOrDefault(t => t.Name == "EndpointBox");
+        if (ep != null && ep.ActualWidth > 0)
+        {
+            var rtbTb = new RenderTargetBitmap((int)ep.ActualWidth + 1, (int)ep.ActualHeight + 1, 96, 96, PixelFormats.Pbgra32);
+            rtbTb.Render(ep);
+            var e = new PngBitmapEncoder();
+            e.Frames.Add(BitmapFrame.Create(rtbTb));
+            using var fs = new FileStream(Path.ChangeExtension(screenshotPath, ".endpoint.png"), FileMode.Create);
+            e.Save(fs);
+        }
+
+        File.AppendAllText(Path.ChangeExtension(screenshotPath, ".probe.txt"), report.ToString());
+        dialog.Close();
+    }
+
+    /// <summary>
+    /// 验收专用：构造真实的首启保护引导框并推进到第 3 步（风险确认步），
+    /// 用于截取精简/魔改系统警告的实际渲染效果。
+    /// </summary>
+    private static Window OpenFirstRunRiskStep(IServiceProvider? services)
+    {
+        var dialog = new Views.FirstRunBaselineDialog(
+            services?.GetService<IFirstRunBaselineOrchestrator>()
+                ?? throw new InvalidOperationException("首启基线编排器不可用"),
+            services?.GetService<IBaselineGateService>()
+                ?? throw new InvalidOperationException("基线门服务不可用"),
+            services?.GetService<IBaselineManualGuideService>()
+                ?? throw new InvalidOperationException("基线指引服务不可用"),
+            services?.GetService<FirstProtectionPreferenceStore>()
+                ?? throw new InvalidOperationException("首启偏好存储不可用"),
+            services?.GetService<IDiagnosticLogService>());
+
+        var stepField = typeof(Views.FirstRunBaselineDialog)
+            .GetField("_introStep", BindingFlags.Instance | BindingFlags.NonPublic);
+        var showStep = typeof(Views.FirstRunBaselineDialog)
+            .GetMethod("ShowIntroStep", BindingFlags.Instance | BindingFlags.NonPublic);
+        if (stepField is null || showStep is null)
+        {
+            throw new InvalidOperationException("首启引导步进结构已变化，验收键 first-run-risk 需要同步更新。");
+        }
+
+        stepField.SetValue(dialog, 3);
+        showStep.Invoke(dialog, null);
+        return dialog;
+    }
+
+    private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (var i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(root); i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(root, i);
+            if (child is T match)
+                yield return match;
+            foreach (var nested in FindVisualChildren<T>(child))
+                yield return nested;
+        }
     }
 
     private async Task RunSystemRestoreStartupReconciliationAsync()

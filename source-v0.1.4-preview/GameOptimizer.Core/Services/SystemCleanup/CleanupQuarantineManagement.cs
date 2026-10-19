@@ -135,6 +135,7 @@ public sealed class CleanupQuarantineReconciliationResult
 public interface ICleanupQuarantineManager
 {
     Task<CleanupQuarantinePreview> CreateRestorePreviewAsync(CancellationToken cancellationToken = default);
+    Task<CleanupQuarantinePreview> CreateRestorePreviewAsync(Func<CleanupQuarantineEntry, bool> scope, CancellationToken cancellationToken = default);
     Task<CleanupQuarantineResult> RestoreAsync(CleanupQuarantinePreview preview, CleanupQuarantineConfirmation confirmation, CancellationToken cancellationToken = default);
     Task<CleanupQuarantinePreview> CreateRetentionPreviewAsync(TimeSpan minimumAge, CancellationToken cancellationToken = default);
     Task<CleanupQuarantineResult> StageRetentionAsync(CleanupQuarantinePreview preview, CleanupQuarantineConfirmation confirmation, CancellationToken cancellationToken = default);
@@ -168,7 +169,23 @@ public sealed class CleanupQuarantineManager : ICleanupQuarantineManager
     }
 
     public Task<CleanupQuarantinePreview> CreateRestorePreviewAsync(CancellationToken cancellationToken = default) =>
-        CreatePreviewAsync(RestoreAction, manifest => manifest.State is CleanupQuarantineState.QuarantinedVerified or CleanupQuarantineState.RetentionStaged, includeRetention: true, cancellationToken);
+        CreatePreviewAsync(RestoreAction, manifest => manifest.State is CleanupQuarantineState.QuarantinedVerified or CleanupQuarantineState.RetentionStaged, includeRetention: true, entryScope: null, cancellationToken);
+
+    public Task<CleanupQuarantinePreview> CreateRestorePreviewAsync(
+        Func<CleanupQuarantineEntry, bool> scope,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        // Why: narrowing the issued preview inside the manager keeps the
+        // preview identity in _issued; building a new preview object in the
+        // caller would mint a foreign PreviewId that ExecuteAsync rejects.
+        return CreatePreviewAsync(
+            RestoreAction,
+            manifest => manifest.State is CleanupQuarantineState.QuarantinedVerified or CleanupQuarantineState.RetentionStaged,
+            includeRetention: true,
+            entryScope: scope,
+            cancellationToken);
+    }
 
     public Task<CleanupQuarantinePreview> CreateRetentionPreviewAsync(TimeSpan minimumAge, CancellationToken cancellationToken = default)
     {
@@ -178,6 +195,7 @@ public sealed class CleanupQuarantineManager : ICleanupQuarantineManager
             RetentionAction,
             manifest => manifest.State == CleanupQuarantineState.QuarantinedVerified && manifest.CreatedAtUtc <= cutoff,
             includeRetention: false,
+            entryScope: null,
             cancellationToken);
     }
 
@@ -213,6 +231,7 @@ public sealed class CleanupQuarantineManager : ICleanupQuarantineManager
         string action,
         Func<CleanupQuarantineManifest, bool> predicate,
         bool includeRetention,
+        Func<CleanupQuarantineEntry, bool>? entryScope,
         CancellationToken cancellationToken)
     {
         await ReconcileAsync(cancellationToken).ConfigureAwait(false);
@@ -226,7 +245,7 @@ public sealed class CleanupQuarantineManager : ICleanupQuarantineManager
         {
             cancellationToken.ThrowIfCancellationRequested();
             CleanupQuarantineEntry? entry = await CleanupQuarantineManifestStore.TryReadVerifiedAsync(_root, manifestPath, cancellationToken).ConfigureAwait(false);
-            if (entry is not null && predicate(entry.Manifest) && File.Exists(entry.Manifest.QuarantinePath)) entries.Add(entry);
+            if (entry is not null && predicate(entry.Manifest) && (entryScope is null || entryScope(entry)) && File.Exists(entry.Manifest.QuarantinePath)) entries.Add(entry);
         }
         return Issue(new CleanupQuarantinePreview(action, entries, _timeProvider.GetUtcNow()));
     }

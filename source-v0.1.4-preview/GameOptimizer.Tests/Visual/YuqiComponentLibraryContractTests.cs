@@ -65,8 +65,10 @@ public sealed class YuqiComponentLibraryContractTests
     {
         var xaml = Read("GameOptimizer.Shell/Views/CpuCoreManagementPage.xaml");
 
-        Assert.Contains("BasedOn=\"{StaticResource Yuqi.Card}\"", xaml, StringComparison.Ordinal);
-        Assert.Contains("BasedOn=\"{StaticResource Yuqi.ToolButton}\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("x:Key=\"SwissTab\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("x:Key=\"CoreCell\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("x:Key=\"EditorialRow\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("SelectTabCommand", xaml, StringComparison.Ordinal);
         Assert.Contains("ItemsSource=\"{Binding Profiles}\"", xaml, StringComparison.Ordinal);
         Assert.Contains("RefreshProcessesCommand", xaml, StringComparison.Ordinal);
         Assert.Contains("ApplySingleProfileCommand", xaml, StringComparison.Ordinal);
@@ -74,8 +76,7 @@ public sealed class YuqiComponentLibraryContractTests
         Assert.Contains("StartAccelerateCommand", xaml, StringComparison.Ordinal);
         Assert.Contains("controls:EmptyState", xaml, StringComparison.Ordinal);
         Assert.Contains("ActionCommand=\"{Binding AddProcessCommand}\"", xaml, StringComparison.Ordinal);
-        Assert.Contains("Style=\"{StaticResource ProcessCard}\"", xaml, StringComparison.Ordinal);
-        Assert.Contains("Style=\"{StaticResource TopologyCard}\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("ItemContainerStyle=\"{StaticResource EditorialRow}\"", xaml, StringComparison.Ordinal);
         Assert.Contains("x:Name=\"LiveWorkspace\"", xaml, StringComparison.Ordinal);
         Assert.Contains("x:Name=\"ProfileWorkspace\"", xaml, StringComparison.Ordinal);
         Assert.Contains("x:Name=\"LiveCommandBar\"", xaml, StringComparison.Ordinal);
@@ -113,9 +114,8 @@ public sealed class YuqiComponentLibraryContractTests
         Assert.Contains("Padding=\"10,7,10,7\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Text=\"当前目标：\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Text=\"可配置进程\"", xaml, StringComparison.Ordinal);
-        Assert.Contains("TextOnAccent", xaml, StringComparison.Ordinal);
-        Assert.Contains("ProfilesButton_Click", view, StringComparison.Ordinal);
-        Assert.Contains("BackToLiveButton_Click", view, StringComparison.Ordinal);
+        Assert.Contains("SelectTabCommand", xaml, StringComparison.Ordinal);
+        Assert.Contains("ActiveTab", view, StringComparison.Ordinal);
         Assert.Contains("UpdateProfilePreviewState", view, StringComparison.Ordinal);
         Assert.DoesNotContain("ActionCard", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("Panel.ZIndex", xaml, StringComparison.Ordinal);

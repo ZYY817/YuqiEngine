@@ -98,12 +98,17 @@ public sealed class ComprehensiveBackupService : IComprehensiveBackupService
             if (recoveryMaterial is not null)
                 artifacts.Add(recoveryMaterial);
             var incomplete = artifacts.Where(item => item.Status is ComprehensiveBackupArtifactStatus.Failed or ComprehensiveBackupArtifactStatus.Partial).ToArray();
-            var operationFailures = operationStates.Count(item => item.IsCompliant is null);
+            // typed 覆盖缺口是设计边界（仅部分操作有 typed 恢复契约），不是采集失败；
+            // 未覆盖操作仍由 HKCU 导出、声明式注册表状态和恢复材料承载，不计入未完成。
+            var failedProbeIds = operationStates
+                .Where(item => item.IsCompliant is null)
+                .Select(item => item.OperationId)
+                .OrderBy(item => item, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
             var registryCaptureFailures = operationStates.Count(item =>
                 item.CaptureStatus is "PermissionDenied" or "UnsupportedHive" or "ReadFailed");
             var complete = incomplete.Length == 0
-                && coverage.IsComplete
-                && operationFailures == 0
+                && failedProbeIds.Length == 0
                 && registryCaptureFailures == 0;
             var manifest = new ComprehensiveBackupManifest(
                 FormatVersion: 1,
@@ -124,8 +129,7 @@ public sealed class ComprehensiveBackupService : IComprehensiveBackupService
                     : string.Join("；", new[]
                     {
                         incomplete.Length == 0 ? null : $"{incomplete.Length} 个备份资产未能完成采集",
-                        coverage.IsComplete ? null : $"typed 恢复契约仅覆盖 {coverage.CapturedOperationCount}/{coverage.CatalogOperationCount} 个操作",
-                        operationFailures == 0 ? null : $"{operationFailures} 个操作状态探测失败",
+                        failedProbeIds.Length == 0 ? null : $"{failedProbeIds.Length} 个操作状态探测失败（{string.Join("、", failedProbeIds.Take(3))}{(failedProbeIds.Length > 3 ? " 等" : "")}）",
                         registryCaptureFailures == 0 ? null : $"{registryCaptureFailures} 个声明式注册表目标读取失败"
                     }.Where(item => item != null)) + "。");
 
@@ -297,12 +301,15 @@ public sealed class ComprehensiveBackupService : IComprehensiveBackupService
             await gate.WaitAsync(ct).ConfigureAwait(false);
             try
             {
+                // 注册表捕获独立于状态探测：探测超时/失败不应连带丢弃可恢复值。
+                var registry = CaptureDeclaredRegistryState(item.Operation);
                 using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                timeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
+                // 探测上限需高于清理预览内部 4s 扫描预算（含逐文件哈希），
+                // 并容忍并发探测与大文件导出时的 I/O 争抢。
+                timeoutCts.CancelAfter(TimeSpan.FromSeconds(25));
                 try
                 {
                     var status = await item.Operation.GetStatusAsync(timeoutCts.Token).ConfigureAwait(false);
-                    var registry = CaptureDeclaredRegistryState(item.Operation);
                     results.Add(new ComprehensiveBackupOperationState(
                         item.Key,
                         item.Operation.Id,
@@ -319,11 +326,17 @@ public sealed class ComprehensiveBackupService : IComprehensiveBackupService
                 }
                 catch (OperationCanceledException)
                 {
-                    results.Add(new ComprehensiveBackupOperationState(item.Key, item.Operation.Id, null, "Unknown", "backup.probe-timeout", "操作状态探测超时。", false, "探测超时"));
+                    results.Add(new ComprehensiveBackupOperationState(
+                        item.Key, item.Operation.Id, null, "Unknown", "backup.probe-timeout", "操作状态探测超时。", false, "探测超时",
+                        RegistryHive: registry.Hive, RegistryPath: registry.Path, RegistryValueName: registry.ValueName,
+                        CapturedValueJson: registry.ValueJson, CaptureStatus: registry.Status));
                 }
                 catch (Exception)
                 {
-                    results.Add(new ComprehensiveBackupOperationState(item.Key, item.Operation.Id, null, "Unknown", "backup.probe-failed", "操作状态探测失败。", false, "探测失败"));
+                    results.Add(new ComprehensiveBackupOperationState(
+                        item.Key, item.Operation.Id, null, "Unknown", "backup.probe-failed", "操作状态探测失败。", false, "探测失败",
+                        RegistryHive: registry.Hive, RegistryPath: registry.Path, RegistryValueName: registry.ValueName,
+                        CapturedValueJson: registry.ValueJson, CaptureStatus: registry.Status));
                 }
             }
             finally

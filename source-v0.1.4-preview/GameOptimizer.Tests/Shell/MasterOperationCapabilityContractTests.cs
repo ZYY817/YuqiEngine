@@ -432,7 +432,7 @@ public sealed class MasterOperationCapabilityContractTests
 
         Assert.Contains("x:Name=\"FooterActionIsland\" Grid.Row=\"3\" Panel.ZIndex=\"20\"", xaml, StringComparison.Ordinal);
         Assert.Contains("x:Name=\"GroupedItemsControl\" Margin=\"0,0,0,112\"", xaml, StringComparison.Ordinal);
-        Assert.Contains("Opacity=\"0.88\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Opacity=\"0.92\"", xaml, StringComparison.Ordinal);
         Assert.Contains("unavailableReadbackCount", codeBehind, StringComparison.Ordinal);
         Assert.Contains("Module.PartialStateUnavailable", codeBehind, StringComparison.Ordinal);
     }

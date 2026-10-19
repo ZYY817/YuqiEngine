@@ -419,18 +419,11 @@ public sealed class ShellVisualContractTests
         Assert.Contains("x:Key=\"Theme.Card.Background\">#0CFFFFFF", darkTheme, StringComparison.Ordinal);
 
         var shellText = Read("GameOptimizer.Shell/MainWindow.xaml");
-        Assert.Contains("Background=\"{DynamicResource Theme.Brush.NavItemSelected}\"", shellText, StringComparison.Ordinal);
+        Assert.Contains("Property=\"Background\" Value=\"{DynamicResource Theme.Brush.NavItemSelected}\"", shellText, StringComparison.Ordinal);
         Assert.Contains("TargetName=\"Pill\" Property=\"BorderBrush\" Value=\"{DynamicResource Theme.Brush.NavItemSelectedBorder}\"", shellText, StringComparison.Ordinal);
-        var selectionIndicator = shell.Descendants(presentation + "Border")
-            .Single(element => element.Attribute(xNamespace + "Name")?.Value == "NavigationSelectionIndicator");
-        Assert.Equal("0", selectionIndicator.Attribute("BorderThickness")?.Value);
-        Assert.Null(selectionIndicator.Attribute("BorderBrush"));
-        Assert.Equal("Collapsed", selectionIndicator.Attribute("Visibility")?.Value);
-
-        var selectionShadow = shell.Descendants(presentation + "Border")
-            .Single(element => element.Attribute(xNamespace + "Name")?.Value == "NavigationSelectionShadow");
-        Assert.Equal("{DynamicResource Visual.Shadow.Card}", selectionShadow.Attribute("Effect")?.Value);
-        Assert.Equal("Collapsed", selectionShadow.Attribute("Visibility")?.Value);
+        Assert.DoesNotContain("NavigationSelectionIndicator", shellText, StringComparison.Ordinal);
+        Assert.DoesNotContain("NavigationSelectionShadow", shellText, StringComparison.Ordinal);
+        Assert.DoesNotContain("AccentBar", shellText, StringComparison.Ordinal);
         Assert.DoesNotContain("Value=\"#3B82F6\"", shellText, StringComparison.Ordinal);
 
         var logo = shell.Descendants(presentation + "Rectangle")
@@ -508,12 +501,12 @@ public sealed class ShellVisualContractTests
 
         Assert.Contains("x:Key=\"SidebarScrollBar\"", shell, StringComparison.Ordinal);
         Assert.DoesNotContain("Opacity=\"0.28\"", shell, StringComparison.Ordinal);
-        Assert.Contains("<Setter Property=\"Opacity\" Value=\"0\"/>", components, StringComparison.Ordinal);
+        Assert.Contains("<Setter Property=\"Opacity\" Value=\"0.3\"/>", components, StringComparison.Ordinal);
         Assert.Contains("<Trigger Property=\"IsMouseOver\" Value=\"True\">", components, StringComparison.Ordinal);
         Assert.Contains("<Trigger Property=\"IsMouseCaptureWithin\" Value=\"True\">", components, StringComparison.Ordinal);
         Assert.Contains("AncestorType={x:Type ScrollViewer}", components, StringComparison.Ordinal);
-        Assert.Contains("Margin=\"10,0,12,0\"", shell, StringComparison.Ordinal);
-        Assert.Contains("Width=\"2\" Height=\"20\"", shell, StringComparison.Ordinal);
+        Assert.Contains("x:Key=\"GlassPillNavItem\"", shell, StringComparison.Ordinal);
+        Assert.Contains("CornerRadius=\"10\"", shell, StringComparison.Ordinal);
         Assert.Contains("Theme.Brush.NavItemSelected", shell, StringComparison.Ordinal);
         Assert.Contains("Theme.Brush.NavItemSelectedBorder", shell, StringComparison.Ordinal);
         Assert.Contains("DropShadowEffect Color=\"#000000\" BlurRadius=\"8\"", shell, StringComparison.Ordinal);

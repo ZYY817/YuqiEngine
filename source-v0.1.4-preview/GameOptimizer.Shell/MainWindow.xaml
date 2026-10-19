@@ -6,6 +6,7 @@
         xmlns:viewModels="clr-namespace:GameOptimizer.Shell.ViewModels"
         xmlns:models="clr-namespace:GameOptimizer.Shell.Models"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:icons="clr-namespace:GameOptimizer.Shell.Constants"
         mc:Ignorable="d"
         x:Name="RootWindow"
         Title="宇奇引擎 Yuqi Engine" Width="1360" Height="860" MinWidth="1200" MinHeight="700"
@@ -82,7 +83,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
-                        <Border x:Name="Pill" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" CornerRadius="8" Padding="10,6">
+                        <Border x:Name="Pill" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" CornerRadius="10" Padding="10,6">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -104,6 +105,7 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}"/>
                                 <Setter TargetName="Pill" Property="Background" Value="{DynamicResource Theme.Brush.NavItemHover}"/>
+                                <Setter TargetName="IconBg" Property="Background" Value="{DynamicResource Theme.Brush.NavItemHover}"/>
                             </Trigger>
                             <!-- ListBoxItem has no ButtonBase.IsPressed; mouse capture is its pressed visual state. -->
                             <Trigger Property="IsMouseCaptureWithin" Value="True">
@@ -121,7 +123,8 @@
                                         <DropShadowEffect Color="#000000" BlurRadius="8" ShadowDepth="2" Opacity="0.15"/>
                                     </Setter.Value>
                                 </Setter>
-                                <Setter TargetName="IconBg" Property="Background" Value="#203B82F6"/>
+                                <Setter TargetName="IconBg" Property="Background" Value="{DynamicResource Theme.Brush.NavItemSelectedIconBackground}"/>
+                                <Setter TargetName="IconBg" Property="CornerRadius" Value="8"/>
                                 <Setter TargetName="IconPath" Property="Stroke" Value="{DynamicResource Theme.Brush.ControlAccent}"/>
                             </Trigger>
                             <MultiTrigger>
@@ -171,12 +174,13 @@
             </Grid>
         </DataTemplate>
         
-        <!-- Group Header - Larger, More Visible -->
+        <!-- Group Header - quiet section label; hierarchy comes from restraint. -->
         <Style x:Key="GroupHeader" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="10.5"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}"/>
-            <Setter Property="Margin" Value="18,24,18,10"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextMuted}"/>
+            <Setter Property="Opacity" Value="0.85"/>
+            <Setter Property="Margin" Value="18,20,18,9"/>
         </Style>
         
         <!-- Invisible Scrollbar - Fully transparent but functional -->
@@ -246,7 +250,61 @@
         </Style>
         
         <!-- Sidebar and content scrollbars share the same accessible hit target and thumb states. -->
-        <Style x:Key="SidebarScrollBar" TargetType="ScrollBar" BasedOn="{StaticResource Yuqi.ScrollBar.Base}"/>
+        <!-- Sidebar：极细常驻（3px 滑块、30% 不透明度），悬停/键盘聚焦/拖拽时增强。 -->
+        <Style x:Key="SidebarScrollThumb" TargetType="Thumb">
+            <Setter Property="Background" Value="{DynamicResource Theme.Brush.ScrollbarThumb}"/>
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border x:Name="ThumbSurface" Background="{TemplateBinding Background}"
+                                CornerRadius="1" Width="2" HorizontalAlignment="Right" MinHeight="28"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ThumbSurface" Property="Background" Value="{DynamicResource Theme.Brush.ScrollbarThumbHover}"/></Trigger>
+                            <Trigger Property="IsDragging" Value="True"><Setter TargetName="ThumbSurface" Property="Background" Value="{DynamicResource Theme.Brush.ScrollbarThumbDragging}"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SidebarScrollBar" TargetType="ScrollBar">
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Opacity" Value="0.15"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid x:Name="Root" Background="{TemplateBinding Background}">
+                            <!-- Full-height 1px rail: reads as a subtle edge hairline instead of a floating bar. -->
+                            <Border x:Name="RailLine" Width="1" HorizontalAlignment="Right" Background="{DynamicResource Theme.Brush.ScrollbarThumb}" Opacity="0.7"/>
+                            <Track x:Name="PART_Track" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}" Orientation="{TemplateBinding Orientation}" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource Yuqi.ScrollPage}"/></Track.DecreaseRepeatButton>
+                                <Track.Thumb><Thumb x:Name="PART_Thumb" Style="{StaticResource SidebarScrollThumb}"/></Track.Thumb>
+                                <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource Yuqi.ScrollPage}"/></Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Orientation" Value="Horizontal">
+                                <Setter Property="Width" Value="Auto"/>
+                                <Setter Property="Height" Value="8"/>
+                                <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
+                                <Setter TargetName="RailLine" Property="Width" Value="Auto"/>
+                                <Setter TargetName="RailLine" Property="Height" Value="1"/>
+                                <Setter TargetName="RailLine" Property="HorizontalAlignment" Value="Stretch"/>
+                                <Setter TargetName="RailLine" Property="VerticalAlignment" Value="Bottom"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter Property="Opacity" Value="0.9"/></Trigger>
+                <Trigger Property="IsMouseCaptureWithin" Value="True"><Setter Property="Opacity" Value="0.9"/></Trigger>
+                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ScrollViewer}}" Value="True"><Setter Property="Opacity" Value="0.45"/></DataTrigger>
+                <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType=ScrollViewer}}" Value="True"><Setter Property="Opacity" Value="0.45"/></DataTrigger>
+            </Style.Triggers>
+        </Style>
         
         <Style x:Key="SidebarScrollViewer" TargetType="ScrollViewer">
             <Setter Property="Template">
@@ -265,6 +323,18 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="PART_VerticalScrollBar" Property="Opacity" Value="1"/></Trigger>
+                            <!-- Flash the rail while wheel/touch scrolling, then fade back to the resting hairline. -->
+                            <EventTrigger RoutedEvent="ScrollViewer.ScrollChanged">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PART_VerticalScrollBar" Storyboard.TargetProperty="Opacity" FillBehavior="Stop">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0.85"/>
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="0.85"/>
+                                            <EasingDoubleKeyFrame KeyTime="0:0:1.4" Value="0.15"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -273,7 +343,7 @@
         
         <!-- Overlay viewers retain their reveal behavior while reusing the common scrollbar. -->
         <Style x:Key="OverlayScrollBar" TargetType="ScrollBar" BasedOn="{StaticResource Yuqi.ScrollBar.Base}">
-            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="Opacity" Value="0.3"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Opacity" Value="1"/>
@@ -353,6 +423,22 @@
                     <!-- Right: Custom Window Controls -->
                     <Border Grid.Column="1" Background="Transparent" Margin="0,0,0,0">
                         <StackPanel Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                            <Button x:Name="AiAssistantButton" Width="92"
+                                    AutomationProperties.AutomationId="AiAssistantButton"
+                                    AutomationProperties.Name="AI 助手"
+                                    Style="{StaticResource WinControlBtn}"
+                                    FocusVisualStyle="{StaticResource Token.FocusVisualStyle}"
+                                    Click="AiAssistantButton_Click"
+                                    ToolTip="AI 助手：对话式系统优化"
+                                    shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Path Width="13" Height="13" Margin="0,0,5,0" Stretch="Uniform"
+                                          Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                          Data="M12,3 L13.8,8.6 L19.5,10.4 L13.8,12.2 L12,17.8 L10.2,12.2 L4.5,10.4 L10.2,8.6 Z M19,15 L19.7,17 L21.7,17.7 L19.7,18.4 L19,20.4 L18.3,18.4 L16.3,17.7 L18.3,17 Z"/>
+                                    <TextBlock x:Name="AiAssistantButtonText" Text="AI 助手" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"
+                                               Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"/>
+                                </StackPanel>
+                            </Button>
                             <Button x:Name="GitHubProjectButton" Width="92"
                                     AutomationProperties.AutomationId="GitHubProjectButton"
                                     AutomationProperties.Name="GitHub 项目"
@@ -432,7 +518,9 @@
                 </Grid.ColumnDefinitions>
                 
                 <!-- Sidebar：与右侧工作区形成稳定的全局层级。 -->
-                <Border Grid.Column="0" Background="{DynamicResource Theme.Brush.SidebarBackground}" PreviewMouseWheel="SidebarScrollViewer_PreviewMouseWheel">
+                <Border Grid.Column="0" Background="{DynamicResource Theme.Brush.SidebarBackground}"
+                        BorderBrush="{DynamicResource Theme.Brush.SidebarSeparator}" BorderThickness="0,0,1,0"
+                        PreviewMouseWheel="SidebarScrollViewer_PreviewMouseWheel">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -445,35 +533,6 @@
                                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                                       Margin="0,8,0,0" CanContentScroll="False" PanningMode="VerticalOnly">
                             <Grid x:Name="NavigationIndicatorHost" ClipToBounds="True">
-                                <!-- A single low-contrast surface emerges from the sidebar instead of reading as a button. -->
-                                <Border x:Name="NavigationSelectionShadow"
-                                        Margin="10,0,12,0" Height="36" VerticalAlignment="Top"
-                                        Background="#01000000" BorderThickness="0"
-                                        CornerRadius="12" IsHitTestVisible="False" Opacity="0" Visibility="Collapsed"
-                                        Effect="{DynamicResource Visual.Shadow.Card}">
-                                    <Border.RenderTransform>
-                                        <TranslateTransform x:Name="NavigationSelectionShadowTransform"/>
-                                    </Border.RenderTransform>
-                                </Border>
-                                <Border x:Name="NavigationSelectionIndicator"
-                                        Margin="10,0,12,0" Height="36" VerticalAlignment="Top"
-                                        Background="{DynamicResource Theme.Brush.NavItemSelected}"
-                                        BorderThickness="0" CornerRadius="12"
-                                        IsHitTestVisible="False" Opacity="0" Visibility="Collapsed">
-                                    <Border.RenderTransform>
-                                        <TranslateTransform x:Name="NavigationSelectionTransform"/>
-                                    </Border.RenderTransform>
-                                    <Grid>
-                                        <!-- Local reflection: deliberately incomplete so no enclosing box is perceived. -->
-                                        <Border Height="1" Width="88" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                                Margin="12,0,0,0" Background="{DynamicResource Theme.Brush.NavItemSelectedBorder}" Opacity="0.62"/>
-                                        <!-- A hairline, short state marker; hierarchy comes from tone rather than glow. -->
-                                        <Border Width="2" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                                Background="{DynamicResource Theme.Brush.ControlAccent}" Opacity="0.95"/>
-                                        <Border Height="1" VerticalAlignment="Bottom" Margin="12,0,14,0"
-                                                Background="#10000000" Opacity="0.45"/>
-                                    </Grid>
-                                </Border>
                                 <ListBox x:Name="PrimaryNavigationList"
                                      AutomationProperties.Name="主导航"
                                      ItemsSource="{Binding Source={StaticResource GroupedNavItems}}"
@@ -502,10 +561,10 @@
                         </ScrollViewer>
                         
                         <!-- Footer - Deep Glass Card -->
-                        <Border Grid.Row="1" BorderBrush="{DynamicResource Theme.Brush.GlassBorder}" BorderThickness="0,1,0,0" Padding="12,10">
-                            <Border CornerRadius="0" Padding="10,8" BorderBrush="{DynamicResource Theme.Brush.GlassBorder}" BorderThickness="1">
+                        <Border Grid.Row="1" BorderBrush="{DynamicResource Theme.Brush.SidebarSeparator}" BorderThickness="0,1,0,0" Padding="12,10">
+                            <Border CornerRadius="8" Padding="10,8" BorderBrush="{DynamicResource Theme.Brush.CardBorderSubtle}" BorderThickness="1">
                                 <Border.Background>
-                                    <SolidColorBrush Color="{DynamicResource Theme.Background.Overlay}" Opacity="0.4"/>
+                                    <SolidColorBrush Color="{StaticResource Theme.Role.SurfaceRaised}" Opacity="0.55"/>
                                 </Border.Background>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -517,9 +576,9 @@
                                     
                                     <!-- Left: Shield Icon with Status Dot -->
                                     <Grid Width="32" Height="32" Margin="0,0,10,0">
-                                        <Border Background="{DynamicResource Theme.Brush.CardGradient}" CornerRadius="0">
+                                        <Border Background="{DynamicResource Theme.Brush.CardBackground}" CornerRadius="8">
                                             <Path Data="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" 
-                                                  Fill="{DynamicResource Theme.Brush.IconDisabled}" Width="16" Height="16" Stretch="Uniform" 
+                                                  Fill="{DynamicResource Theme.Brush.IconSecondary}" Width="16" Height="16" Stretch="Uniform" 
                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
                                         <Ellipse x:Name="AdminStatusDot" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-2,-2">
@@ -535,7 +594,7 @@
                                     <!-- Middle: Text -->
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock x:Name="AdminModeText" Text="普通模式运行中" FontSize="12" Foreground="{DynamicResource Theme.Brush.TextPrimary}" FontWeight="SemiBold"/>
-                                        <TextBlock x:Name="StatusVersionText" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextDisabled}" Margin="0,1,0,0"/>
+                                        <TextBlock x:Name="StatusVersionText" FontSize="10" Foreground="{DynamicResource Theme.Brush.TextMuted}" Margin="0,1,0,0"/>
                                     </StackPanel>
                                     
                                     <!-- Right: Support Author Heart Button -->
@@ -550,11 +609,11 @@
                                                     </Grid.RenderTransform>
                                                     <Path x:Name="HeartPath"
                                                           Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                                                          Fill="#80EC4899" Width="16" Height="16" Stretch="Uniform"/>
+                                                          Fill="#F472B6" Width="16" Height="16" Stretch="Uniform"/>
                                                 </Grid>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="HeartPath" Property="Fill" Value="#EF4444"/>
+                                                        <Setter TargetName="HeartPath" Property="Fill" Value="#F43F5E"/>
                                                     </Trigger>
                                                     <EventTrigger RoutedEvent="MouseEnter">
                                                         <BeginStoryboard>
@@ -670,6 +729,7 @@
                     <ContentControl x:Name="MemoryOptimizationPageHost"/>
                     <ContentControl x:Name="PowerPlanEditorPageHost"/>
                     <ContentControl x:Name="EsportsModePageHost"/>
+                    <ContentControl x:Name="AiAssistantPageHost"/>
                     <ContentControl x:Name="SettingsPageHost"/>
                     <ContentControl x:Name="ModulePageHost"/>
                     <ContentControl x:Name="StartupManagerPageHost"/>

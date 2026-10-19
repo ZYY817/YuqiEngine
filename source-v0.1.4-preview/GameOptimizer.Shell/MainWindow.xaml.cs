@@ -153,6 +153,7 @@ public partial class MainWindow : Window, System.ComponentModel.INotifyPropertyC
             [nameof(MemoryOptimizationPageHost)] = MemoryOptimizationPageHost,
             [nameof(PowerPlanEditorPageHost)] = PowerPlanEditorPageHost,
             [nameof(EsportsModePageHost)] = EsportsModePageHost,
+            [nameof(AiAssistantPageHost)] = AiAssistantPageHost,
             [nameof(SettingsPageHost)] = SettingsPageHost,
             [nameof(ModulePageHost)] = ModulePageHost,
             [nameof(StartupManagerPageHost)] = StartupManagerPageHost
@@ -565,6 +566,9 @@ public partial class MainWindow : Window, System.ComponentModel.INotifyPropertyC
         NavigateToPage("settings");
     }
 
+    private void AiAssistantButton_Click(object sender, RoutedEventArgs e)
+        => NavigateToPage("ai-assistant");
+
     private void GitHubProjectButton_Click(object sender, RoutedEventArgs e)
         => OpenOfficialGitHubPage();
 
@@ -685,12 +689,24 @@ public partial class MainWindow : Window, System.ComponentModel.INotifyPropertyC
                 {
                     SelectedNavigationSection = section;
                     PrimaryNavigationList.ScrollIntoView(section);
-                    _ = Dispatcher.InvokeAsync(UpdateNavigationSelectionIndicator, DispatcherPriority.Loaded);
                 }
                 finally
                 {
                     _suppressNavigationSelection = false;
                 }
+            }
+        }
+        else
+        {
+            // 内部路由（如 AI 助手从顶栏进入）不在侧栏中 —— 清掉残留选中态。
+            _suppressNavigationSelection = true;
+            try
+            {
+                SelectedNavigationSection = null;
+            }
+            finally
+            {
+                _suppressNavigationSelection = false;
             }
         }
 
@@ -725,9 +741,6 @@ public partial class MainWindow : Window, System.ComponentModel.INotifyPropertyC
         {
             NavigateToPage(section.Key);
         }
-
-        // The selected row owns its complete visual state. Keep the retired shared overlay hidden.
-        _ = Dispatcher.InvokeAsync(UpdateNavigationSelectionIndicator, DispatcherPriority.Loaded);
     }
 
     private void PrimaryNavigationList_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -750,16 +763,6 @@ public partial class MainWindow : Window, System.ComponentModel.INotifyPropertyC
         // Route the concrete row as a fallback so pointer navigation is never dependent on SelectionChanged alone.
         NavigateToPage(section.Key);
     }
-
-    private void UpdateNavigationSelectionIndicator()
-    {
-        NavigationSelectionIndicator.Visibility = Visibility.Collapsed;
-        NavigationSelectionShadow.Visibility = Visibility.Collapsed;
-        NavigationSelectionIndicator.Opacity = 0;
-        NavigationSelectionShadow.Opacity = 0;
-    }
-    
-
 
     private void SidebarScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {

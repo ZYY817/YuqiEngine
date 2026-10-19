@@ -41,14 +41,51 @@ namespace GameOptimizer.Shell.ViewModels
     }
 
     /// <summary>
-    /// Timeline choices map only to data this page actually owns: ordinary snapshots and
-    /// the verified first-run baseline. They are not cosmetic filters.
+    /// Timeline choices map only to data this page actually owns: ordinary snapshots,
+    /// the verified first-run baseline, and comprehensive backup packages.
     /// </summary>
     public enum BackupTimelineFilter
     {
         All,
         OrdinarySnapshots,
-        FirstRunBaseline
+        FirstRunBaseline,
+        ComprehensivePackages
+    }
+
+    public enum BackupTimelineEntryKind
+    {
+        Baseline,
+        Snapshot,
+        Package
+    }
+
+    /// <summary>
+    /// One row in the unified backup timeline. Wraps the first-run baseline, an ordinary
+    /// snapshot, or a comprehensive backup package so all three record types can share
+    /// a single editorial list.
+    /// </summary>
+    public sealed class BackupTimelineEntryView : ObservableObject
+    {
+        public BackupTimelineEntryKind Kind { get; init; }
+        public string Index { get; set; } = string.Empty;
+        public string Name { get; init; } = string.Empty;
+        public string TagText { get; init; } = string.Empty;
+        public string MetaText { get; init; } = string.Empty;
+        public string GroupLabel { get; set; } = string.Empty;
+        public bool ShowGroupLabel { get; set; }
+        public SnapshotInfo? Snapshot { get; init; }
+        public ComprehensiveBackupPackageInfo? Package { get; init; }
+
+        public bool IsBaseline => Kind == BackupTimelineEntryKind.Baseline;
+        public bool IsSnapshot => Kind == BackupTimelineEntryKind.Snapshot;
+        public bool IsPackage => Kind == BackupTimelineEntryKind.Package;
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
+        }
     }
 
     public sealed class BackupRestoreReceiptView
@@ -90,12 +127,14 @@ namespace GameOptimizer.Shell.ViewModels
         private CancellationTokenSource? _restoreExecutionCts;
         private int _operationsSinceLastBackup;
         private string _activeBaselinePackageId = string.Empty;
+        private DateTime? _baselineCreatedAtLocal;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(CanPrepareRestore))]
         [NotifyPropertyChangedFor(nameof(CanExecutePendingRestore))]
         [NotifyPropertyChangedFor(nameof(RestoreExecutionSafetyText))]
         [NotifyCanExecuteChangedFor(nameof(PrepareComprehensiveRestoreCommand))]
+        [NotifyCanExecuteChangedFor(nameof(PrepareRestoreSnapshotCommand))]
         private bool _isLoading;
         [ObservableProperty] private string _statusText = string.Empty;
         [ObservableProperty] private string _newSnapshotName = string.Empty;
@@ -136,6 +175,8 @@ namespace GameOptimizer.Shell.ViewModels
         [NotifyPropertyChangedFor(nameof(IsAllTimelineSelected))]
         [NotifyPropertyChangedFor(nameof(IsOrdinaryTimelineSelected))]
         [NotifyPropertyChangedFor(nameof(IsBaselineTimelineSelected))]
+        [NotifyPropertyChangedFor(nameof(IsPackageTimelineSelected))]
+        [NotifyPropertyChangedFor(nameof(TimelineCountText))]
         [NotifyPropertyChangedFor(nameof(IsSnapshotTimelineVisible))]
         [NotifyPropertyChangedFor(nameof(IsBaselineTimelineVisible))]
         [NotifyPropertyChangedFor(nameof(HasNoTimelineEntries))]
@@ -167,6 +208,7 @@ namespace GameOptimizer.Shell.ViewModels
         [NotifyPropertyChangedFor(nameof(CanExecutePendingRestore))]
         [NotifyPropertyChangedFor(nameof(CanReconcilePendingRestore))]
         [NotifyCanExecuteChangedFor(nameof(PrepareComprehensiveRestoreCommand))]
+        [NotifyCanExecuteChangedFor(nameof(PrepareRestoreSnapshotCommand))]
         [NotifyCanExecuteChangedFor(nameof(ReconcilePendingRestoreCommand))]
         private bool _isPreparingRestore;
         [ObservableProperty]
@@ -176,6 +218,7 @@ namespace GameOptimizer.Shell.ViewModels
         [NotifyPropertyChangedFor(nameof(CanReconcilePendingRestore))]
         [NotifyPropertyChangedFor(nameof(CanResolveInterruptedRestore))]
         [NotifyCanExecuteChangedFor(nameof(PrepareComprehensiveRestoreCommand))]
+        [NotifyCanExecuteChangedFor(nameof(PrepareRestoreSnapshotCommand))]
         [NotifyCanExecuteChangedFor(nameof(CancelRestoreCommand))]
         [NotifyCanExecuteChangedFor(nameof(ReconcilePendingRestoreCommand))]
         [NotifyCanExecuteChangedFor(nameof(KeepInterruptedRestoreBlockedCommand))]
@@ -205,6 +248,7 @@ namespace GameOptimizer.Shell.ViewModels
         public ObservableCollection<BackupRestoreReceiptView> RestoreReceipts { get; } = new();
         public ObservableCollection<BackupCoverageStatusItem> RestoreCoverage { get; } = new();
         public ObservableCollection<ComprehensiveBackupPackageInfo> ComprehensiveBackups { get; } = new();
+        public ObservableCollection<BackupTimelineEntryView> TimelineEntries { get; } = new();
 
         public string PageStateText => PageState switch
         {
@@ -222,8 +266,15 @@ namespace GameOptimizer.Shell.ViewModels
         };
 
         public bool CanPrepareRestore => SelectedSnapshot is not null && !IsLoading && !IsPreparingRestore && !IsExecutingRestore;
-        public bool CanPrepareComprehensiveRestore => SelectedComprehensiveBackup is not null
-            && SelectedComprehensiveBackup.IntegrityVerified
+        private bool CanPrepareRestoreForSnapshot(SnapshotInfo? snapshot) => snapshot is not null
+            && !IsLoading
+            && !IsPreparingRestore
+            && !IsExecutingRestore;
+        public bool CanPrepareComprehensiveRestore => CanPrepareComprehensiveRestoreForPackage(SelectedComprehensiveBackup);
+        // 列表行按钮把包实例作为命令参数传入；选中属性只在命令执行后才赋值，
+        // CanExecute 必须看参数本身，否则行内按钮永远禁用。
+        private bool CanPrepareComprehensiveRestoreForPackage(ComprehensiveBackupPackageInfo? package) => package is not null
+            && package.IntegrityVerified
             && !IsLoading
             && !IsPreparingRestore
             && !IsExecutingRestore;
@@ -247,37 +298,46 @@ namespace GameOptimizer.Shell.ViewModels
         public bool IsAllTimelineSelected => TimelineFilter == BackupTimelineFilter.All;
         public bool IsOrdinaryTimelineSelected => TimelineFilter == BackupTimelineFilter.OrdinarySnapshots;
         public bool IsBaselineTimelineSelected => TimelineFilter == BackupTimelineFilter.FirstRunBaseline;
+        public bool IsPackageTimelineSelected => TimelineFilter == BackupTimelineFilter.ComprehensivePackages;
         public bool IsSnapshotTimelineVisible => HasSnapshots && TimelineFilter != BackupTimelineFilter.FirstRunBaseline;
         public bool IsBaselineTimelineVisible => HasFirstRunBaseline && TimelineFilter != BackupTimelineFilter.OrdinarySnapshots;
-        public bool HasNoTimelineEntries => !IsLoading && !IsSnapshotTimelineVisible && !IsBaselineTimelineVisible;
+        public bool HasNoTimelineEntries => !IsLoading && TimelineEntries.Count == 0;
+        public string TimelineCountText => $"{TimelineEntries.Count} 份";
+        public int TimelineEntryCount => TimelineEntries.Count;
         public string TimelineTitle => TimelineFilter switch
         {
             BackupTimelineFilter.OrdinarySnapshots => "普通快照时间线",
             BackupTimelineFilter.FirstRunBaseline => "首次安全基线",
-            _ => "恢复时间线"
+            BackupTimelineFilter.ComprehensivePackages => "完整备份包",
+            _ => "备份记录"
         };
         public string TimelineDescription => TimelineFilter switch
         {
             BackupTimelineFilter.OrdinarySnapshots => "仅显示本机真实读取到的普通快照；选择一项后才能准备恢复。",
             BackupTimelineFilter.FirstRunBaseline => "仅显示经完整性状态确认的首次安全基线；恢复前会再次准备并核验。",
-            _ => "普通快照与首次安全基线均按真实读取状态展示；选择普通快照后才能准备恢复。"
+            BackupTimelineFilter.ComprehensivePackages => "仅显示完整用户配置备份包；自动恢复仅限明确契约资产。",
+            _ => "普通快照、首次安全基线与完整备份包按时间统一展示；选中记录后可准备恢复。"
         };
         public string TimelineEmptyTitle => TimelineFilter switch
         {
             BackupTimelineFilter.OrdinarySnapshots => "暂无普通快照",
             BackupTimelineFilter.FirstRunBaseline => "暂无首次安全基线",
+            BackupTimelineFilter.ComprehensivePackages => "暂无完整备份包",
             _ => "暂无可用恢复记录"
         };
         public string TimelineEmptyDescription => TimelineFilter switch
         {
             BackupTimelineFilter.OrdinarySnapshots => "当前没有普通快照；可以从上方创建一份备份。",
             BackupTimelineFilter.FirstRunBaseline => "当前没有已接入并可核验的首次安全基线。",
+            BackupTimelineFilter.ComprehensivePackages => "可在下方高级选项中创建完整用户配置备份包。",
             _ => "当前没有普通快照或已接入的首次安全基线；可以从上方创建一份备份。"
         };
         public string RestorePlanHashText => PendingRestorePlan?.PlanSha256 ?? "未生成";
         public string RestorePlanStepsText => PendingRestorePlan is null
             ? "步骤数：未生成"
-            : $"步骤数：{PendingRestorePlan.Steps.Count}；支持：{PendingRestorePlan.Steps.Count(step => step.Supported)}；阻断：{PendingRestorePlan.Steps.Count(step => !step.Supported)}";
+            : $"自动恢复步骤：{PendingRestorePlan.Steps.Count(step => step.Supported)} 项" +
+              (PendingRestorePlan.Steps.Any(step => !step.Supported) ? $"；阻断：{PendingRestorePlan.Steps.Count(step => !step.Supported)} 项" : "") +
+              " · 快照中其余记录仅保存状态，不自动写回";
         public string RestorePlanExpiryText => PendingRestorePlan is null
             ? "计划有效期：未生成"
             : $"计划有效期至：{PendingRestorePlan.ExpiresAtUtc.ToLocalTime():yyyy-MM-dd HH:mm:ss}";
@@ -383,6 +443,11 @@ namespace GameOptimizer.Shell.ViewModels
 
         partial void OnSelectedSnapshotChanged(SnapshotInfo? value)
         {
+            if (value is not null && SelectedComprehensiveBackup is not null)
+            {
+                SelectedComprehensiveBackup = null;
+            }
+
             PendingRestorePlan = null;
             RestoreReceipts.Clear();
             RestorePlanStatusText = "尚未准备恢复计划。";
@@ -390,6 +455,17 @@ namespace GameOptimizer.Shell.ViewModels
                 ? "请选择一个快照后检查其恢复兼容性。"
                 : "正在读取快照版本和类型化清单…";
             OnPropertyChanged(nameof(CanPrepareRestore));
+            SyncTimelineSelection();
+        }
+
+        partial void OnSelectedComprehensiveBackupChanged(ComprehensiveBackupPackageInfo? value)
+        {
+            if (value is not null && SelectedSnapshot is not null)
+            {
+                SelectedSnapshot = null;
+            }
+
+            SyncTimelineSelection();
         }
 
         partial void OnPendingRestorePlanChanged(SnapshotRestorePlan? value)
@@ -406,9 +482,13 @@ namespace GameOptimizer.Shell.ViewModels
 
         partial void OnTimelineFilterChanged(BackupTimelineFilter value)
         {
-            if (value == BackupTimelineFilter.FirstRunBaseline)
+            if (value is BackupTimelineFilter.FirstRunBaseline or BackupTimelineFilter.ComprehensivePackages)
             {
                 SelectedSnapshot = null;
+            }
+            if (value is BackupTimelineFilter.OrdinarySnapshots or BackupTimelineFilter.FirstRunBaseline)
+            {
+                SelectedComprehensiveBackup = null;
             }
 
             RefreshTimelinePresentation();
@@ -422,6 +502,7 @@ namespace GameOptimizer.Shell.ViewModels
 
         private void RefreshTimelinePresentation()
         {
+            RebuildTimelineEntries();
             OnPropertyChanged(nameof(IsSnapshotTimelineVisible));
             OnPropertyChanged(nameof(IsBaselineTimelineVisible));
             OnPropertyChanged(nameof(HasNoTimelineEntries));
@@ -429,6 +510,150 @@ namespace GameOptimizer.Shell.ViewModels
             OnPropertyChanged(nameof(TimelineDescription));
             OnPropertyChanged(nameof(TimelineEmptyTitle));
             OnPropertyChanged(nameof(TimelineEmptyDescription));
+            OnPropertyChanged(nameof(TimelineCountText));
+            OnPropertyChanged(nameof(TimelineEntryCount));
+        }
+
+        /// <summary>
+        /// Merge baseline, ordinary snapshots and comprehensive packages into one
+        /// timeline ordered by recency. The baseline stays pinned at the top.
+        /// </summary>
+        private void RebuildTimelineEntries()
+        {
+            var items = new List<(BackupTimelineEntryView Entry, DateTime SortKey)>();
+
+            var showBaseline = HasFirstRunBaseline
+                && TimelineFilter != BackupTimelineFilter.OrdinarySnapshots
+                && TimelineFilter != BackupTimelineFilter.ComprehensivePackages;
+            if (showBaseline)
+            {
+                var metaDate = _baselineCreatedAtLocal?.ToString("yyyy-MM-dd");
+                items.Add((
+                    new BackupTimelineEntryView
+                    {
+                        Kind = BackupTimelineEntryKind.Baseline,
+                        Name = "首次使用前的备份",
+                        TagText = "安全基线",
+                        MetaText = string.IsNullOrEmpty(metaDate)
+                            ? "兜底恢复点"
+                            : $"{metaDate} · 兜底恢复点"
+                    },
+                    DateTime.MaxValue));
+            }
+
+            var showSnapshots = TimelineFilter != BackupTimelineFilter.FirstRunBaseline
+                && TimelineFilter != BackupTimelineFilter.ComprehensivePackages;
+            if (showSnapshots)
+            {
+                foreach (var snapshot in Snapshots)
+                {
+                    items.Add((
+                        new BackupTimelineEntryView
+                        {
+                            Kind = BackupTimelineEntryKind.Snapshot,
+                            Name = snapshot.Name,
+                            TagText = "快照",
+                            MetaText = $"{FormatEntryTime(snapshot.CreatedAt)} · {snapshot.SettingsCount} 项可核验设置 · 操作级回滚仅限已保存有效恢复材料的操作",
+                            Snapshot = snapshot
+                        },
+                        snapshot.CreatedAt));
+                }
+            }
+
+            var showPackages = TimelineFilter == BackupTimelineFilter.All
+                || TimelineFilter == BackupTimelineFilter.ComprehensivePackages;
+            if (showPackages)
+            {
+                foreach (var package in ComprehensiveBackups)
+                {
+                    var created = package.Manifest.CreatedUtc.LocalDateTime;
+                    var assetCount = package.Manifest.Artifacts.Count;
+                    var packageState = !package.Manifest.IsComplete
+                        ? "备份不完整"
+                        : package.IntegrityVerified
+                            ? "完整性已验证"
+                            : "完整性待验证";
+                    items.Add((
+                        new BackupTimelineEntryView
+                        {
+                            Kind = BackupTimelineEntryKind.Package,
+                            Name = $"完整配置备份 {created:MM-dd HH:mm}",
+                            TagText = package.Manifest.IsComplete ? "完整包" : "备份不完整",
+                            MetaText = $"{FormatEntryTime(created)} · {packageState} · {assetCount} 个资产 · typed 快照 + 恢复材料 + HKCU 导出 + 应用配置",
+                            Package = package
+                        },
+                        created));
+                }
+            }
+
+            var ordered = items
+                .OrderByDescending(item => item.Entry.IsBaseline)
+                .ThenByDescending(item => item.SortKey)
+                .ToList();
+
+            TimelineEntries.Clear();
+            string? lastGroup = null;
+            var index = 0;
+            foreach (var item in ordered)
+            {
+                index++;
+                var group = item.Entry.IsBaseline ? "已固定" : DateGroupLabel(item.SortKey);
+                item.Entry.GroupLabel = group;
+                item.Entry.ShowGroupLabel = !string.Equals(group, lastGroup, StringComparison.Ordinal);
+                lastGroup = group;
+                item.Entry.Index = index.ToString("D2");
+                item.Entry.IsSelected = item.Entry.Snapshot is not null
+                    ? ReferenceEquals(item.Entry.Snapshot, SelectedSnapshot)
+                    : item.Entry.Package is not null
+                        && ReferenceEquals(item.Entry.Package, SelectedComprehensiveBackup);
+                TimelineEntries.Add(item.Entry);
+            }
+        }
+
+        private static string DateGroupLabel(DateTime date)
+        {
+            var today = DateTime.Today;
+            if (date.Date == today) return "今天";
+            if (date.Date == today.AddDays(-1)) return "昨天";
+            return "更早";
+        }
+
+        private static string FormatEntryTime(DateTime date)
+        {
+            var today = DateTime.Today;
+            if (date.Date == today) return $"今天 {date:HH:mm}";
+            if (date.Date == today.AddDays(-1)) return $"昨天 {date:HH:mm}";
+            return date.ToString("yyyy-MM-dd HH:mm");
+        }
+
+        private void SyncTimelineSelection()
+        {
+            foreach (var entry in TimelineEntries)
+            {
+                entry.IsSelected = entry.Snapshot is not null
+                    ? ReferenceEquals(entry.Snapshot, SelectedSnapshot)
+                    : entry.Package is not null
+                        && ReferenceEquals(entry.Package, SelectedComprehensiveBackup);
+            }
+        }
+
+        [RelayCommand]
+        private void SelectTimelineEntry(BackupTimelineEntryView? entry)
+        {
+            if (entry is null) return;
+            switch (entry.Kind)
+            {
+                case BackupTimelineEntryKind.Snapshot:
+                    SelectedSnapshot = entry.Snapshot;
+                    break;
+                case BackupTimelineEntryKind.Package:
+                    SelectedComprehensiveBackup = entry.Package;
+                    break;
+                case BackupTimelineEntryKind.Baseline:
+                    SelectedSnapshot = null;
+                    SelectedComprehensiveBackup = null;
+                    break;
+            }
         }
 
         [RelayCommand]
@@ -436,8 +661,9 @@ namespace GameOptimizer.Shell.ViewModels
         {
             TimelineFilter = filter switch
             {
-                "Ordinary" => BackupTimelineFilter.OrdinarySnapshots,
-                "Baseline" => BackupTimelineFilter.FirstRunBaseline,
+                "Ordinary" or "OrdinarySnapshots" => BackupTimelineFilter.OrdinarySnapshots,
+                "Baseline" or "FirstRunBaseline" => BackupTimelineFilter.FirstRunBaseline,
+                "Packages" or "ComprehensivePackages" => BackupTimelineFilter.ComprehensivePackages,
                 _ => BackupTimelineFilter.All
             };
         }
@@ -465,7 +691,10 @@ namespace GameOptimizer.Shell.ViewModels
                 TotalSizeText = FormatFileSize(totalBytes);
                 RefreshStorageVolumeSummary();
                 var coverage = await _snapshotService.GetCoverageReportAsync();
-                OrdinarySnapshotCoverageText = $"普通快照：{coverage.Summary}；{coverage.CapturedScalarValueCount} 个标量值。";
+                OrdinarySnapshotCoverageText = coverage.IsComplete
+                    ? $"普通快照：{coverage.Summary}；{coverage.CapturedScalarValueCount} 个标量值。"
+                    : $"普通快照：可自动核验恢复 {coverage.CapturedOperationCount}/{coverage.CatalogOperationCount} 项（typed 契约）；" +
+                      $"其余 {coverage.UncapturedOperationIds.Count} 项未纳入 typed 自动恢复；逐操作回滚仅对已成功保存有效恢复材料的操作可用。";
 
                 ComprehensiveBackups.Clear();
                 if (_comprehensiveBackupService != null)
@@ -632,6 +861,7 @@ namespace GameOptimizer.Shell.ViewModels
             HasFirstRunBaseline = false;
             CanRestoreFirstRunBaseline = false;
             _activeBaselinePackageId = string.Empty;
+            _baselineCreatedAtLocal = null;
             RestoreCoverage.Clear();
             RestoreCoverageSummary = "尚未读取到首次基线覆盖范围";
             BaselinePackageSizeText = "首次基线包：未找到";
@@ -663,6 +893,7 @@ namespace GameOptimizer.Shell.ViewModels
                     string.Equals(latestBaseline.IntegrityState, "Verified", StringComparison.OrdinalIgnoreCase);
 
                 var baselineCreatedLocal = latestBaseline.CreatedUtc.ToLocalTime();
+                _baselineCreatedAtLocal = baselineCreatedLocal;
                 FirstRunBaselineStatusTitle = CanRestoreFirstRunBaseline
                     ? "首次安全基线已建立"
                     : "首次安全基线存在，但状态待确认";
@@ -1163,7 +1394,7 @@ namespace GameOptimizer.Shell.ViewModels
             }
         }
 
-        [RelayCommand(CanExecute = nameof(CanPrepareComprehensiveRestore))]
+        [RelayCommand(CanExecute = nameof(CanPrepareComprehensiveRestoreForPackage))]
         private async Task PrepareComprehensiveRestoreAsync(ComprehensiveBackupPackageInfo? package)
         {
             package ??= SelectedComprehensiveBackup;
@@ -1253,7 +1484,7 @@ namespace GameOptimizer.Shell.ViewModels
             }
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanPrepareRestoreForSnapshot))]
         private async Task PrepareRestoreSnapshotAsync(SnapshotInfo? info)
         {
             info ??= SelectedSnapshot;
@@ -1326,7 +1557,8 @@ namespace GameOptimizer.Shell.ViewModels
             var confirmed = Views.ConfirmDialog.Show(
                 Application.Current.MainWindow,
                 "确认执行恢复",
-                $"将只恢复“{RestorePlanSourceText}”中已准备且受支持的 {plan.Steps.Count} 项设置。\n\n"
+                $"将自动恢复“{RestorePlanSourceText}”中已准备且受支持的 {plan.Steps.Count} 项设置。\n\n"
+                + "注意：这只是快照内带自动恢复契约的子集——快照还记录了更多状态项，它们仅作记录或手动恢复材料，本次不会写入。\n\n"
                 + "恢复会再次验证快照身份和当前状态；发生漂移、权限不足或任一步失败时会停止并生成回执。是否继续？",
                 Constants.IconGlyphs.Warning);
             if (!confirmed)
@@ -1789,6 +2021,27 @@ namespace GameOptimizer.Shell.ViewModels
                     Loc.Get("Common.Error"),
                     Loc.Get("Backup.CannotOpenFolder", processError ?? ""),
                     Constants.IconGlyphs.Warning);
+            }
+        }
+
+        [RelayCommand]
+        private void OpenPackageFolder(ComprehensiveBackupPackageInfo? package)
+        {
+            if (package is null || string.IsNullOrWhiteSpace(package.DirectoryPath)
+                || !Directory.Exists(package.DirectoryPath))
+            {
+                StatusText = "备份包目录不可用。";
+                return;
+            }
+
+            var (process, processError) = SafeProcessHelper.StartProcess(
+                new ProcessStartInfo("explorer.exe", $"\"{package.DirectoryPath}\"")
+                {
+                    UseShellExecute = true
+                });
+            if (process == null)
+            {
+                StatusText = $"无法打开备份包目录：{processError ?? "未知错误"}";
             }
         }
 

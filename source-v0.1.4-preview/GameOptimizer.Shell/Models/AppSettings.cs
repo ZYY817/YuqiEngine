@@ -256,6 +256,27 @@ public class AppSettings
 
     public string? BaselineMirrorDirectory { get; set; }
 
+    /// <summary>AI 助手：服务商预设键（deepseek/zhipu/openai/custom 等）。</summary>
+    public string AiProviderKey { get; set; } = "custom";
+
+    /// <summary>AI 助手：OpenAI 兼容接口地址（base URL 或完整 chat/completions）。</summary>
+    public string AiEndpoint { get; set; } = string.Empty;
+
+    /// <summary>AI 助手：模型名。</summary>
+    public string AiModel { get; set; } = string.Empty;
+
+    /// <summary>AI 助手：API 密钥的 DPAPI 保护值（Base64），不明文落盘。</summary>
+    public string AiApiKeyProtected { get; set; } = string.Empty;
+
+    /// <summary>AI 助手交互节奏："guided"（问诊分轮，默认）或 "full"（一次给全方案）。</summary>
+    public string AiInteractionMode { get; set; } = "guided";
+
+    /// <summary>AI 助手：是否注入角色提示词（system-prompt.md 人设与问诊铁律）。</summary>
+    public bool AiUseSystemPrompt { get; set; } = true;
+
+    /// <summary>AI 助手：是否注入 Skill 优化知识库（SKILL/ITEMS/SAFETY）。</summary>
+    public bool AiUseSkill { get; set; } = true;
+
     private static readonly object _loadLock = new();
     private static bool _lastLoadWasRecovered;
     private static string? _lastLoadError;

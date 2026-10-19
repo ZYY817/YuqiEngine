@@ -9,86 +9,194 @@
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
     <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
 
-    <Style x:Key="ProcessCard" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
-      <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}" />
+    <!-- Swiss Editorial 设计系统：与备份页同语言 -->
+    <Style TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}" />
+      <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+      <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
     </Style>
-    <Style x:Key="TopologyCard" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
-      <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}" />
+    <Style x:Key="SwissLabel" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="10.5" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{StaticResource Theme.Brush.BackupEditorial.Gray2}" />
     </Style>
-    <Style x:Key="ConsoleCard" TargetType="Border" BasedOn="{StaticResource Yuqi.Card}">
-      <Setter Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}" />
+    <Style x:Key="SwissMeta" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="{StaticResource Theme.Brush.BackupEditorial.Gray2}" />
     </Style>
-
-    <Style x:Key="ColHead" TargetType="TextBlock">
+    <!-- 实心信号绿胶囊主按钮 -->
+    <Style x:Key="SwissPrimaryPill" TargetType="Button">
+      <Setter Property="Padding" Value="18,0" />
+      <Setter Property="Height" Value="40" />
       <Setter Property="FontSize" Value="13" />
       <Setter Property="FontWeight" Value="SemiBold" />
-      <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}" />
-      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Foreground" Value="{StaticResource Theme.Brush.BackupEditorial.PrimaryText}" />
+      <Setter Property="Background" Value="{StaticResource Theme.Brush.BackupEditorial.Accent}" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="19" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{StaticResource Theme.Brush.BackupEditorial.AccentHover}" /></Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="{StaticResource Theme.Brush.BackupEditorial.AccentPressed}" /></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45" /></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
     </Style>
-    <Style x:Key="ColAside" TargetType="TextBlock">
+    <Style x:Key="SwissPrimaryPillSmall" TargetType="Button" BasedOn="{StaticResource SwissPrimaryPill}">
+      <Setter Property="Height" Value="28" />
+      <Setter Property="Padding" Value="14,0" />
       <Setter Property="FontSize" Value="12" />
-      <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextMuted}" />
-      <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
-    <Style x:Key="CompactButton" TargetType="Button" BasedOn="{StaticResource Yuqi.ToolButton}">
-      <Setter Property="Padding" Value="10,7" />
-      <Setter Property="VerticalContentAlignment" Value="Center" />
-    </Style>
-    <Style x:Key="QuietButton" TargetType="Button" BasedOn="{StaticResource CompactButton}">
+    <!-- 描边幽灵胶囊 -->
+    <Style x:Key="SwissGhostPill" TargetType="Button">
+      <Setter Property="Padding" Value="16,0" />
+      <Setter Property="Height" Value="40" />
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="Foreground" Value="{StaticResource Theme.Brush.BackupEditorial.Gray1}" />
       <Setter Property="Background" Value="Transparent" />
-      <Setter Property="BorderThickness" Value="0" />
-      <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextSecondary}" />
-      <Setter Property="Padding" Value="8,6" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{StaticResource Theme.Brush.BackupEditorial.LineStrong}" BorderThickness="1" CornerRadius="19" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{StaticResource Theme.Brush.BackupEditorial.White}" TargetName="Bd" />
+                <Setter Property="Foreground" Value="{StaticResource Theme.Brush.BackupEditorial.White}" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45" /></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="SwissGhostPillSmall" TargetType="Button" BasedOn="{StaticResource SwissGhostPill}">
+      <Setter Property="Height" Value="28" />
+      <Setter Property="Padding" Value="13,0" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+    <!-- 纯文字按钮 -->
+    <Style x:Key="SwissTextButton" TargetType="Button">
+      <Setter Property="Padding" Value="8,0" />
+      <Setter Property="Height" Value="28" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="{StaticResource Theme.Brush.BackupEditorial.Gray2}" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="{StaticResource Theme.Brush.BackupEditorial.White}" /></Trigger>
+      </Style.Triggers>
+    </Style>
+    <!-- 文本页签：选中时底部一根信号绿细线 -->
+    <Style x:Key="SwissTab" TargetType="ToggleButton">
+      <Setter Property="Padding" Value="0,6" />
+      <Setter Property="Margin" Value="0,0,26,0" />
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="Foreground" Value="{StaticResource Theme.Brush.BackupEditorial.Gray2}" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ToggleButton">
+            <StackPanel>
+              <ContentPresenter />
+              <Border x:Name="Und" Height="1" Margin="0,3,0,0" Background="{StaticResource Theme.Brush.BackupEditorial.Transparent}" />
+            </StackPanel>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="{StaticResource Theme.Brush.BackupEditorial.Gray1}" /></Trigger>
+              <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextPrimary}" />
+                <Setter Property="Background" Value="{StaticResource Theme.Brush.BackupEditorial.Accent}" TargetName="Und" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
     </Style>
 
-    <!-- 核心格：更大、更清晰；圆角走 Token，避免字面量 CornerRadius 契约冲突 -->
-    <Style x:Key="CoreToggle" TargetType="ToggleButton">
-      <Setter Property="Width" Value="56" />
-      <Setter Property="Height" Value="56" />
+    <!-- 核心格：方形发丝线，选中整块信号绿 -->
+    <Style x:Key="CoreCell" TargetType="ToggleButton">
+      <Setter Property="Width" Value="52" />
+      <Setter Property="Height" Value="52" />
       <Setter Property="Margin" Value="0,0,8,8" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="ToggleButton">
             <Border x:Name="Cell"
-                    Background="{DynamicResource Theme.Brush.CardBackground}"
-                    BorderBrush="{DynamicResource Theme.Brush.GlassCardBorder}"
+                    Background="{StaticResource Theme.Brush.BackupEditorial.Input}"
+                    BorderBrush="{StaticResource Theme.Brush.BackupEditorial.Line}"
                     BorderThickness="1"
-                    CornerRadius="{DynamicResource Token.Radius.Card}">
+                    CornerRadius="2">
               <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock x:Name="CellText"
                            Text="{Binding Index}"
-                           FontSize="16"
+                           FontSize="15"
                            FontWeight="SemiBold"
-                           Foreground="{DynamicResource Theme.Brush.TextSecondary}"
+                           Foreground="{StaticResource Theme.Brush.BackupEditorial.Gray1}"
                            HorizontalAlignment="Center" />
-                <TextBlock x:Name="ThreadText"
-                           Text="T0"
-                           FontSize="10"
-                           FontFamily="Consolas"
-                           Foreground="{DynamicResource Theme.Brush.TextMuted}"
-                           HorizontalAlignment="Center"
-                           Margin="0,2,0,0" />
               </StackPanel>
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="Cell" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}" />
-                <Setter TargetName="Cell" Property="Background" Value="{DynamicResource Theme.Brush.CardBackgroundAlt}" />
-              </Trigger>
-              <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter TargetName="Cell" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}" />
-                <Setter TargetName="Cell" Property="BorderThickness" Value="2" />
+                <Setter TargetName="Cell" Property="BorderBrush" Value="{StaticResource Theme.Brush.BackupEditorial.AccentDim}" />
               </Trigger>
               <Trigger Property="IsChecked" Value="True">
-                <Setter TargetName="Cell" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccent}" />
-                <Setter TargetName="Cell" Property="BorderBrush" Value="{DynamicResource Theme.Brush.ControlAccent}" />
-                <Setter TargetName="CellText" Property="Foreground" Value="{DynamicResource Theme.Brush.TextOnAccent}" />
-                <Setter TargetName="CellText" Property="FontSize" Value="17" />
-                <Setter TargetName="ThreadText" Property="Foreground" Value="{DynamicResource Theme.Brush.TextOnAccent}" />
-                <Setter TargetName="ThreadText" Property="Opacity" Value="0.75" />
+                <Setter TargetName="Cell" Property="Background" Value="{StaticResource Theme.Brush.BackupEditorial.Accent}" />
+                <Setter TargetName="Cell" Property="BorderBrush" Value="{StaticResource Theme.Brush.BackupEditorial.Accent}" />
+                <Setter TargetName="CellText" Property="Foreground" Value="{StaticResource Theme.Brush.BackupEditorial.PrimaryText}" />
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Opacity" Value="0.55" />
+                <Setter Property="Opacity" Value="0.4" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- 编辑式行：发丝线分隔 + 选中左侧信号绿条 -->
+    <Style x:Key="EditorialRow" TargetType="ListBoxItem">
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Padding" Value="10,11" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{StaticResource Token.FocusVisualStyle}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ListBoxItem">
+            <Grid>
+              <Border x:Name="SelBar" Width="2" HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                      Background="{StaticResource Theme.Brush.BackupEditorial.Accent}" Visibility="Collapsed" />
+              <Border x:Name="Bd" Background="Transparent" Padding="{TemplateBinding Padding}">
+                <ContentPresenter />
+              </Border>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{StaticResource Theme.Brush.BackupEditorial.RowHover}" />
+              </Trigger>
+              <Trigger Property="IsSelected" Value="True">
+                <Setter TargetName="SelBar" Property="Visibility" Value="Visible" />
+                <Setter TargetName="Bd" Property="Background" Value="{StaticResource Theme.Brush.BackupEditorial.Input}" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -97,427 +205,444 @@
     </Style>
   </UserControl.Resources>
 
-  <Grid Background="{DynamicResource Theme.Brush.AppBackground}" Margin="16,12,16,10" ClipToBounds="True">
+  <Grid Background="{DynamicResource Theme.Brush.AppBackground}" Margin="28,18,28,14" ClipToBounds="True">
     <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
-    <!-- 顶栏 -->
-    <Grid Grid.Row="0" Margin="4,0,4,10">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="Auto" />
-      </Grid.ColumnDefinitions>
-      <StackPanel VerticalAlignment="Center" MinWidth="0">
-        <TextBlock x:Name="CpuInfoLabel" Text="已识别处理器" Style="{StaticResource ColAside}" />
-        <TextBlock Text="{Binding CpuDisplayName}" FontSize="15" FontWeight="SemiBold"
-                   Foreground="{DynamicResource Theme.Brush.TextPrimary}"
-                   Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
-        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-          <TextBlock Text="{Binding ArchLabel}" Style="{StaticResource ColAside}" />
-          <TextBlock Text=" · " Style="{StaticResource ColAside}" />
-          <TextBlock Text="{Binding CoreCountLabel}" Style="{StaticResource ColAside}" />
+    <!-- ═══ 编辑式页头 ═══ -->
+    <StackPanel Grid.Row="0">
+      <StackPanel Orientation="Horizontal">
+        <TextBlock Text="系统工具" FontSize="11.5" Foreground="{StaticResource Theme.Brush.BackupEditorial.Gray2}" />
+        <TextBlock Text="›" FontSize="12" Foreground="{StaticResource Theme.Brush.BackupEditorial.Gray3}" Margin="10,0" />
+        <TextBlock Text="CPU 核心管理" FontSize="11.5" Foreground="{StaticResource Theme.Brush.BackupEditorial.Gray1}" />
+      </StackPanel>
+      <Grid Margin="0,16,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel MinWidth="0">
+          <TextBlock Text="CPU 核心" FontSize="30" FontWeight="SemiBold" />
+          <StackPanel Orientation="Horizontal" Margin="0,9,0,0">
+            <TextBlock x:Name="CpuInfoLabel" Text="已识别处理器" Style="{StaticResource SwissLabel}" />
+            <TextBlock Text="{Binding CpuDisplayName}" FontSize="13" FontWeight="Medium"
+                       Margin="10,0,0,0" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+            <TextBlock Text="{Binding ArchLabel}" Style="{StaticResource SwissMeta}" />
+            <TextBlock Text=" · " Style="{StaticResource SwissMeta}" />
+            <TextBlock Text="{Binding CoreCountLabel}" Style="{StaticResource SwissMeta}" />
+            <TextBlock Text=" · " Style="{StaticResource SwissMeta}" />
+            <TextBlock Text="{Binding StatusText}" Style="{StaticResource SwissMeta}" TextTrimming="CharacterEllipsis" MaxWidth="360" />
+          </StackPanel>
         </StackPanel>
-      </StackPanel>
-      <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
-        <TextBlock Text="{Binding StatusText}" FontSize="12.5" FontWeight="SemiBold"
-                   Foreground="{DynamicResource Theme.Brush.TextPrimary}"
-                   HorizontalAlignment="Right" TextTrimming="CharacterEllipsis" MaxWidth="280" />
-      </StackPanel>
-    </Grid>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="32,0,0,4">
+          <StackPanel MinWidth="90">
+            <TextBlock Text="{Binding SelectedCount}" FontSize="30" FontWeight="Medium" Foreground="{StaticResource Theme.Brush.BackupEditorial.Accent}" />
+            <TextBlock Text="已选核心" Style="{StaticResource SwissLabel}" Margin="0,8,0,0" />
+          </StackPanel>
+          <Border Width="1" Background="{StaticResource Theme.Brush.BackupEditorial.Line}" Margin="4,6,24,6" />
+          <StackPanel MinWidth="90">
+            <TextBlock Text="{Binding ProcessList.Count}" FontSize="30" FontWeight="Medium" />
+            <TextBlock Text="可配置进程" Style="{StaticResource SwissLabel}" Margin="0,8,0,0" />
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+      <!-- 页签 -->
+      <Grid Margin="0,24,0,0">
+        <Border Height="1" Background="{StaticResource Theme.Brush.BackupEditorial.Line}" VerticalAlignment="Bottom" />
+        <StackPanel Orientation="Horizontal">
+          <ToggleButton Content="实时绑定" Style="{StaticResource SwissTab}"
+                        Command="{Binding SelectTabCommand}" CommandParameter="0"
+                        IsChecked="{Binding IsLiveTabActive, Mode=OneWay}" />
+          <ToggleButton Content="配置文件" Style="{StaticResource SwissTab}"
+                        Command="{Binding SelectTabCommand}" CommandParameter="1"
+                        IsChecked="{Binding IsProfileTabActive, Mode=OneWay}" Margin="0" />
+        </StackPanel>
+      </Grid>
+    </StackPanel>
 
-    <Grid x:Name="WorkspaceHost" Grid.Row="1" MinHeight="0">
+    <!-- ═══ 工作区 ═══ -->
+    <Grid x:Name="WorkspaceHost" Grid.Row="2" MinHeight="0" Margin="0,18,0,0">
 
       <!-- ========== 实时绑定 ========== -->
-      <Grid x:Name="LiveWorkspace" Visibility="Visible" MinHeight="0">
+      <Grid x:Name="LiveWorkspace" MinHeight="0"
+            Visibility="{Binding IsLiveTabActive, Converter={StaticResource BoolToVis}}">
         <Grid x:Name="LiveWorkspaceGrid" MinHeight="0">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300" />
-            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="330" />
+            <ColumnDefinition Width="33" />
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
 
           <!-- 左：可配置进程 -->
-          <Border x:Name="ProcessWorkspace" Grid.Column="0" Style="{StaticResource ProcessCard}" Padding="12,10" MinHeight="0">
-            <Grid>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="32" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-              </Grid.RowDefinitions>
+          <Grid x:Name="ProcessWorkspace" Grid.Column="0" MinHeight="0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-              <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*" />
-                  <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                  <TextBlock Text="可配置进程" Style="{StaticResource ColHead}" />
-                  <TextBlock Text="{Binding ProcessList.Count}" Style="{StaticResource ColAside}" Margin="6,0,0,0" />
-                </StackPanel>
-                <Button x:Name="RefreshBtn" Grid.Column="1"
-                        Command="{Binding RefreshProcessesCommand}"
-                        Style="{StaticResource QuietButton}"
-                        ToolTip="重新读取可见窗口进程">
-                  <TextBlock x:Name="RefreshBtnText" Text="刷新" />
-                </Button>
-              </Grid>
-
-              <Grid Grid.Row="1" Margin="0,8,0,0">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*" />
-                  <ColumnDefinition Width="8" />
-                  <ColumnDefinition Width="112" />
-                </Grid.ColumnDefinitions>
-                <TextBox x:Name="ProcessSearchBox" TextChanged="ProcessSearchBox_TextChanged"
-                         Padding="10,7,10,7" VerticalContentAlignment="Center"
-                         ToolTip="按应用名称或窗口标题搜索" />
-                <ComboBox x:Name="ProcessFilterBox" Grid.Column="2" SelectionChanged="ProcessFilterBox_SelectionChanged" SelectedIndex="0">
-                  <ComboBoxItem Content="全部进程" Tag="all" />
-                  <ComboBoxItem Content="有窗口标题" Tag="window" />
-                  <ComboBoxItem Content="当前选择" Tag="selected" />
-                </ComboBox>
-              </Grid>
-
-              <Grid Grid.Row="2" MinHeight="0" Margin="0,6,0,0">
-                <ListBox x:Name="ProcessListBox"
-                         ItemsSource="{Binding ProcessList}"
-                         SelectedItem="{Binding SelectedProcess, Mode=TwoWay}"
-                         Background="Transparent"
-                         BorderThickness="0"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.CanContentScroll="True">
-                  <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                      <Setter Property="Padding" Value="8,8" />
-                      <Setter Property="Margin" Value="0,0,0,2" />
-                      <Setter Property="Template">
-                        <Setter.Value>
-                          <ControlTemplate TargetType="ListBoxItem">
-                            <Border x:Name="Bd" Background="Transparent" Padding="{TemplateBinding Padding}">
-                              <ContentPresenter />
-                            </Border>
-                            <ControlTemplate.Triggers>
-                              <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBackground}" />
-                              </Trigger>
-                              <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccent}" />
-                                <Setter Property="Foreground" Value="{DynamicResource Theme.Brush.TextOnAccent}" />
-                              </Trigger>
-                            </ControlTemplate.Triggers>
-                          </ControlTemplate>
-                        </Setter.Value>
-                      </Setter>
-                    </Style>
-                  </ListBox.ItemContainerStyle>
-                  <ListBox.ItemTemplate>
-                    <DataTemplate>
-                      <Grid>
-                        <Grid.ColumnDefinitions>
-                          <ColumnDefinition Width="*" MinWidth="0" />
-                          <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" MinWidth="0">
-                          <TextBlock FontSize="13" FontWeight="SemiBold"
-                                     TextTrimming="CharacterEllipsis"
-                                     Foreground="{DynamicResource Theme.Brush.TextPrimary}">
-                            <Run Text="{Binding Name, Mode=OneWay}" /><Run Text=".exe" />
-                          </TextBlock>
-                          <TextBlock Text="{Binding WindowTitle}" FontSize="11"
-                                     Foreground="{DynamicResource Theme.Brush.TextMuted}"
-                                     TextTrimming="CharacterEllipsis" Margin="0,1,0,0"
-                                     MaxHeight="18" />
-                        </StackPanel>
-                        <TextBlock Grid.Column="1" Text="{Binding Id}" FontSize="11" FontFamily="Consolas"
-                                   Foreground="{DynamicResource Theme.Brush.TextMuted}"
-                                   Margin="8,0,0,0" VerticalAlignment="Center" />
-                      </Grid>
-                    </DataTemplate>
-                  </ListBox.ItemTemplate>
-                </ListBox>
-                <controls:EmptyState Title="没有可配置进程"
-                                     Description="{Binding ProcessListMessage}"
-                                     ActionText="重新读取"
-                                     ActionCommand="{Binding RefreshProcessesCommand}"
-                                     Visibility="{Binding HasNoProcesses, Converter={StaticResource BoolToVis}}" />
-              </Grid>
+            <Grid Grid.Row="0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="7" Height="7" Background="{StaticResource Theme.Brush.BackupEditorial.Accent}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBlock Text="可配置进程" FontSize="14" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding ProcessList.Count}" Style="{StaticResource SwissMeta}" Margin="8,0,0,0" />
+              </StackPanel>
+              <Button x:Name="RefreshBtn" Grid.Column="1"
+                      Command="{Binding RefreshProcessesCommand}"
+                      Style="{StaticResource SwissTextButton}">
+                <TextBlock x:Name="RefreshBtnText" Text="刷新" />
+              </Button>
             </Grid>
-          </Border>
+
+            <Grid Grid.Row="1" Margin="0,10,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="112" />
+              </Grid.ColumnDefinitions>
+              <TextBox x:Name="ProcessSearchBox" TextChanged="ProcessSearchBox_TextChanged"
+                       Padding="10,7,10,7" VerticalContentAlignment="Center" Height="34"
+                       Background="{StaticResource Theme.Brush.BackupEditorial.Input}"
+                       BorderBrush="{StaticResource Theme.Brush.BackupEditorial.LineStrong}" BorderThickness="1"
+                       Foreground="{DynamicResource Theme.Brush.TextPrimary}"
+                       ToolTip="按应用名称或窗口标题搜索" />
+              <ComboBox x:Name="ProcessFilterBox" Grid.Column="2" SelectionChanged="ProcessFilterBox_SelectionChanged" SelectedIndex="0" Height="34">
+                <ComboBoxItem Content="全部进程" Tag="all" />
+                <ComboBoxItem Content="有窗口标题" Tag="window" />
+                <ComboBoxItem Content="当前选择" Tag="selected" />
+              </ComboBox>
+            </Grid>
+
+            <Grid Grid.Row="2" MinHeight="0" Margin="0,8,0,0">
+              <ListBox x:Name="ProcessListBox"
+                       ItemsSource="{Binding ProcessList}"
+                       SelectedItem="{Binding SelectedProcess, Mode=TwoWay}"
+                       ItemContainerStyle="{StaticResource EditorialRow}"
+                       Background="Transparent"
+                       BorderThickness="0"
+                       ScrollViewer.VerticalScrollBarVisibility="Auto"
+                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                       ScrollViewer.CanContentScroll="True">
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="0" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <StackPanel Grid.Column="0" MinWidth="0">
+                        <TextBlock FontSize="13" FontWeight="SemiBold"
+                                   TextTrimming="CharacterEllipsis">
+                          <Run Text="{Binding Name, Mode=OneWay}" /><Run Text=".exe" />
+                        </TextBlock>
+                        <TextBlock Text="{Binding WindowTitle}" FontSize="11"
+                                   Foreground="{StaticResource Theme.Brush.BackupEditorial.Gray3}"
+                                   TextTrimming="CharacterEllipsis" Margin="0,3,0,0"
+                                   MaxHeight="18" />
+                      </StackPanel>
+                      <TextBlock Grid.Column="1" Text="{Binding Id}" FontSize="10.5" FontFamily="Consolas"
+                                 Foreground="{StaticResource Theme.Brush.BackupEditorial.Gray3}"
+                                 Opacity="0.7"
+                                 Margin="10,0,0,0" VerticalAlignment="Top" />
+                    </Grid>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+              <controls:EmptyState Title="没有可配置进程"
+                                   Description="{Binding ProcessListMessage}"
+                                   ActionText="重新读取"
+                                   ActionCommand="{Binding RefreshProcessesCommand}"
+                                   Visibility="{Binding HasNoProcesses, Converter={StaticResource BoolToVis}}" />
+            </Grid>
+          </Grid>
+
+          <!-- 发丝线分隔 -->
+          <Border Grid.Column="1" Width="1" Background="{StaticResource Theme.Brush.BackupEditorial.Line}"
+                  HorizontalAlignment="Right" />
 
           <!-- 右：CPU 核心分配 -->
-          <Border x:Name="LiveCoreWorkspace" Grid.Column="2" Style="{StaticResource TopologyCard}" Padding="14,10" MinHeight="0">
-            <Grid>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="32" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-              </Grid.RowDefinitions>
+          <Grid x:Name="LiveCoreWorkspace" Grid.Column="2" MinHeight="0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-              <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*" />
-                  <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" MinWidth="0">
-                  <TextBlock x:Name="CoreTopologyTitle" Text="CPU 核心分配" Style="{StaticResource ColHead}" />
-                  <TextBlock Text=" · " Style="{StaticResource ColAside}" />
-                  <TextBlock Text="当前目标：" Style="{StaticResource ColAside}" />
-                  <TextBlock Text="{Binding SelectedProcess.DisplayName, TargetNullValue=未选择进程, FallbackValue=未选择进程}"
-                             Style="{StaticResource ColAside}" TextTrimming="CharacterEllipsis" MaxWidth="200" />
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                  <TextBlock x:Name="SelectedLabel" Text="已选 " Style="{StaticResource ColAside}" />
-                  <TextBlock Text="{Binding SelectedCount}" FontSize="16" FontWeight="SemiBold"
-                             Foreground="{DynamicResource Theme.Brush.TextPrimary}" />
-                </StackPanel>
-              </Grid>
-
-              <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,6">
-                <Button Command="{Binding SelectAllCommand}" Style="{StaticResource QuietButton}">
-                  <TextBlock x:Name="SelectAllBtn" Text="全选" />
-                </Button>
-                <Button Command="{Binding ClearAllCommand}" Style="{StaticResource QuietButton}">
-                  <TextBlock x:Name="ClearAllBtn" Text="清空" />
-                </Button>
-                <Button Command="{Binding InvertSelectionCommand}" Style="{StaticResource QuietButton}">
-                  <TextBlock x:Name="InvertBtn" Text="反选" />
-                </Button>
+            <Grid Grid.Row="0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center" MinWidth="0">
+                <Border Width="7" Height="7" Background="{StaticResource Theme.Brush.BackupEditorial.Accent}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBlock x:Name="CoreTopologyTitle" Text="CPU 核心分配" FontSize="14" FontWeight="SemiBold" />
+                <TextBlock Text=" · " Style="{StaticResource SwissMeta}" />
+                <TextBlock Text="当前目标：" Style="{StaticResource SwissMeta}" />
+                <TextBlock Text="{Binding SelectedProcess.DisplayName, TargetNullValue=未选择进程, FallbackValue=未选择进程}"
+                           Style="{StaticResource SwissMeta}" TextTrimming="CharacterEllipsis" MaxWidth="220" />
               </StackPanel>
-
-              <Grid Grid.Row="2" MinHeight="0">
-                <ScrollViewer x:Name="TopologyScrollViewer"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
-                              Visibility="{Binding HasUsableTopology, Converter={StaticResource BoolToVis}}">
-                  <ItemsControl ItemsSource="{Binding CoreGroups}" HorizontalAlignment="Left">
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate>
-                        <StackPanel Margin="0,0,0,10">
-                          <Grid Margin="0,0,0,4" MaxWidth="960">
-                            <Grid.ColumnDefinitions>
-                              <ColumnDefinition Width="*" />
-                              <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding GroupName}" Style="{StaticResource ColAside}" />
-                            <Button Grid.Column="1"
-                                    Command="{Binding DataContext.SelectGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                    CommandParameter="{Binding}"
-                                    Style="{StaticResource QuietButton}"
-                                    Padding="6,2" FontSize="11"
-                                    Content="只选本组" />
-                          </Grid>
-                          <ItemsControl ItemsSource="{Binding Cores}" HorizontalAlignment="Left">
-                            <ItemsControl.ItemsPanel>
-                              <ItemsPanelTemplate>
-                                <WrapPanel />
-                              </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate>
-                                <ToggleButton IsChecked="{Binding IsSelected, Mode=TwoWay}" Style="{StaticResource CoreToggle}" />
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </StackPanel>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
-                </ScrollViewer>
-                <controls:EmptyState Title="核心拓扑不可用"
-                                     Description="{Binding AffinitySupportMessage}"
-                                     ActionText="重新读取"
-                                     ActionCommand="{Binding RefreshProcessesCommand}"
-                                     Visibility="{Binding HasUsableTopology, Converter={StaticResource InverseBoolToVis}}" />
-              </Grid>
-
-              <!-- 预览只放这里一处，底栏不再重复进程名 -->
-              <TextBlock Grid.Row="3" x:Name="GuideLabel"
-                         Text="选择进程与至少一个核心后才能应用。"
-                         Style="{StaticResource ColAside}" TextWrapping="Wrap" Margin="0,8,0,0" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <TextBlock x:Name="SelectedLabel" Text="已选 " Style="{StaticResource SwissMeta}" />
+                <TextBlock Text="{Binding SelectedCount}" FontSize="15" FontWeight="SemiBold"
+                           Foreground="{StaticResource Theme.Brush.BackupEditorial.Accent}" />
+              </StackPanel>
             </Grid>
-          </Border>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,6,0,8">
+              <Button Command="{Binding SelectAllCommand}" Style="{StaticResource SwissTextButton}">
+                <TextBlock x:Name="SelectAllBtn" Text="全选" />
+              </Button>
+              <Button Command="{Binding ClearAllCommand}" Style="{StaticResource SwissTextButton}">
+                <TextBlock x:Name="ClearAllBtn" Text="清空" />
+              </Button>
+              <Button Command="{Binding InvertSelectionCommand}" Style="{StaticResource SwissTextButton}">
+                <TextBlock x:Name="InvertBtn" Text="反选" />
+              </Button>
+              <Border Width="1" Height="14" Background="{StaticResource Theme.Brush.BackupEditorial.LineStrong}" Margin="10,0" VerticalAlignment="Center" />
+              <ItemsControl ItemsSource="{Binding OptimizationPresets}" VerticalAlignment="Center">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Button Content="{Binding Name}" Command="{Binding DataContext.ApplyOptimizationPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding Key}" Style="{StaticResource SwissGhostPillSmall}" Margin="0,0,6,0"
+                            ToolTip="{Binding Description}" />
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <Button Command="{Binding SaveCurrentAsPresetCommand}" Style="{StaticResource SwissTextButton}" Margin="4,0,0,0">
+                <TextBlock Text="存为预设" />
+              </Button>
+            </StackPanel>
+
+            <Grid Grid.Row="2" MinHeight="0">
+              <ScrollViewer x:Name="TopologyScrollViewer"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled"
+                            Visibility="{Binding HasUsableTopology, Converter={StaticResource BoolToVis}}">
+                <ItemsControl ItemsSource="{Binding CoreGroups}" HorizontalAlignment="Left">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel Margin="0,0,0,16">
+                        <Grid Margin="0,0,0,8" MaxWidth="960">
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                          </Grid.ColumnDefinitions>
+                          <TextBlock Text="{Binding GroupName}" Style="{StaticResource SwissLabel}" />
+                          <Button Grid.Column="1"
+                                  Command="{Binding DataContext.SelectGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}"
+                                  Style="{StaticResource SwissTextButton}"
+                                  Padding="6,0" FontSize="11" Margin="8,0,0,0"
+                                  Content="只选本组" />
+                          <Border Grid.Column="2" Height="1" Background="{StaticResource Theme.Brush.BackupEditorial.Line}"
+                                  VerticalAlignment="Center" Margin="16,0,0,0" />
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Cores}" HorizontalAlignment="Left">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <WrapPanel />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <ToggleButton IsChecked="{Binding IsSelected, Mode=TwoWay}" Style="{StaticResource CoreCell}"
+                                            ToolTip="{Binding DisplayName}" />
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+              <controls:EmptyState Title="核心拓扑不可用"
+                                   Description="{Binding AffinitySupportMessage}"
+                                   ActionText="重新读取"
+                                   ActionCommand="{Binding RefreshProcessesCommand}"
+                                   Visibility="{Binding HasUsableTopology, Converter={StaticResource InverseBoolToVis}}" />
+            </Grid>
+
+            <TextBlock Grid.Row="3" x:Name="GuideLabel"
+                       Text="选择进程与至少一个核心后才能应用。"
+                       Style="{StaticResource SwissMeta}" TextWrapping="Wrap" Margin="0,8,0,0" />
+          </Grid>
         </Grid>
       </Grid>
 
       <!-- ========== 配置文件 ========== -->
-      <Grid x:Name="ProfileWorkspace" Visibility="Collapsed" MinHeight="0">
+      <Grid x:Name="ProfileWorkspace" MinHeight="0"
+            Visibility="{Binding IsProfileTabActive, Converter={StaticResource BoolToVis}}">
         <Grid x:Name="ProfileWorkspaceGrid" MinHeight="0">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300" />
-            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="330" />
+            <ColumnDefinition Width="33" />
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
 
-          <Border x:Name="ProfileListWorkspace" Grid.Column="0" Style="{StaticResource ProcessCard}" Padding="12,10" MinHeight="0">
-            <Grid>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="32" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-              </Grid.RowDefinitions>
-              <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*" />
-                  <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="CPU 配置文件" Style="{StaticResource ColHead}" />
-                <Button Command="{Binding RefreshProfileStatusCommand}" Style="{StaticResource QuietButton}" ToolTip="刷新配置状态">
-                  <TextBlock Text="刷新状态" />
-                </Button>
-              </Grid>
-              <Button Grid.Row="1" Command="{Binding AddProcessCommand}" Margin="0,8,0,8"
-                      Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Left" Padding="12,8">
-                <StackPanel Orientation="Horizontal">
-                  <TextBlock Text="{x:Static constants:IconGlyphs.Add}" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,6,0" />
-                  <TextBlock x:Name="AddProgramBtn" Text="添加程序" />
-                </StackPanel>
+          <Grid x:Name="ProfileListWorkspace" Grid.Column="0" MinHeight="0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="7" Height="7" Background="{StaticResource Theme.Brush.BackupEditorial.Accent}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBlock Text="CPU 配置文件" FontSize="14" FontWeight="SemiBold" />
+              </StackPanel>
+              <Button Command="{Binding RefreshProfileStatusCommand}" Style="{StaticResource SwissTextButton}" ToolTip="刷新配置状态">
+                <TextBlock Text="刷新状态" />
               </Button>
-              <Grid Grid.Row="2" MinHeight="0">
-                <ListBox ItemsSource="{Binding Profiles}"
-                         SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
-                         Background="Transparent" BorderThickness="0"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                  <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                      <Setter Property="Padding" Value="8,8" />
-                      <Setter Property="Margin" Value="0,0,0,2" />
-                      <Setter Property="Template">
-                        <Setter.Value>
-                          <ControlTemplate TargetType="ListBoxItem">
-                            <Border x:Name="Bd" Background="Transparent" Padding="{TemplateBinding Padding}">
-                              <ContentPresenter />
-                            </Border>
-                            <ControlTemplate.Triggers>
-                              <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.CardBackground}" />
-                              </Trigger>
-                              <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Theme.Brush.ControlAccent}" />
-                              </Trigger>
-                            </ControlTemplate.Triggers>
-                          </ControlTemplate>
-                        </Setter.Value>
-                      </Setter>
-                    </Style>
-                  </ListBox.ItemContainerStyle>
-                  <ListBox.ItemTemplate>
-                    <DataTemplate>
-                      <Grid>
-                        <Grid.ColumnDefinitions>
-                          <ColumnDefinition Width="*" />
-                          <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel MinWidth="0">
-                          <TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold"
-                                     Foreground="{DynamicResource Theme.Brush.TextPrimary}"
-                                     TextTrimming="CharacterEllipsis" />
-                          <TextBlock Text="{Binding AffinityDescription}" FontSize="11.5"
-                                     Foreground="{DynamicResource Theme.Brush.TextMuted}"
-                                     Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
-                        <TextBlock Grid.Column="1" Text="{Binding StatusText}" Foreground="{Binding StatusColor}"
-                                   FontSize="11.5" Margin="10,0,0,0" VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis" MaxWidth="100" />
-                      </Grid>
-                    </DataTemplate>
-                  </ListBox.ItemTemplate>
-                </ListBox>
-                <controls:EmptyState x:Name="NoConfigState" Title="暂无配置"
-                                     Description="添加程序后可保存核心偏好。"
-                                     ActionText="添加程序"
-                                     ActionCommand="{Binding AddProcessCommand}"
-                                     Visibility="{Binding HasProfiles, Converter={StaticResource InverseBoolToVis}}" />
-              </Grid>
             </Grid>
-          </Border>
+            <Button Grid.Row="1" Command="{Binding AddProcessCommand}" Margin="0,12,0,10"
+                    Style="{StaticResource SwissPrimaryPillSmall}" HorizontalAlignment="Left" Padding="14,0" Height="30">
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{x:Static constants:IconGlyphs.Add}" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+                <TextBlock x:Name="AddProgramBtn" Text="添加程序" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Grid Grid.Row="2" MinHeight="0">
+              <ListBox ItemsSource="{Binding Profiles}"
+                       SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
+                       ItemContainerStyle="{StaticResource EditorialRow}"
+                       Background="Transparent" BorderThickness="0"
+                       ScrollViewer.VerticalScrollBarVisibility="Auto"
+                       ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <StackPanel MinWidth="0">
+                        <TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding AffinityDescription}" FontSize="11.5"
+                                   Foreground="{StaticResource Theme.Brush.BackupEditorial.Gray3}"
+                                   Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
+                      </StackPanel>
+                      <TextBlock Grid.Column="1" Text="{Binding StatusText}" Foreground="{Binding StatusColor}"
+                                 FontSize="11.5" Margin="10,0,0,0" VerticalAlignment="Center"
+                                 TextTrimming="CharacterEllipsis" MaxWidth="100" />
+                    </Grid>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+              <controls:EmptyState x:Name="NoConfigState" Title="暂无配置"
+                                   Description="添加程序后可保存核心偏好。"
+                                   ActionText="添加程序"
+                                   ActionCommand="{Binding AddProcessCommand}"
+                                   Visibility="{Binding HasProfiles, Converter={StaticResource InverseBoolToVis}}" />
+            </Grid>
+          </Grid>
 
-          <Border x:Name="ProfilePreviewWorkspace" Grid.Column="2" Style="{StaticResource TopologyCard}" Padding="14,10" MinHeight="0">
-            <Grid>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="32" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-              </Grid.RowDefinitions>
-              <TextBlock Grid.Row="0" Text="配置预览" Style="{StaticResource ColHead}" />
-              <StackPanel Grid.Row="1" Margin="0,6,0,6">
-                <TextBlock Text="{Binding SelectedProfile.DisplayName, TargetNullValue=未选择配置文件, FallbackValue=未选择配置文件}"
-                           FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Theme.Brush.TextPrimary}"
-                           TextTrimming="CharacterEllipsis" />
-                <TextBlock Text="{Binding SelectedProfile.AffinityDescription}" Style="{StaticResource ColAside}" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
-                <TextBlock Text="{Binding SelectedProfile.StatusText}" Foreground="{Binding SelectedProfile.StatusColor}"
-                           Style="{StaticResource ColAside}" Margin="0,2,0,0" />
-              </StackPanel>
-              <Grid Grid.Row="2" MinHeight="0">
-                <ScrollViewer x:Name="ProfileCorePreview" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
-                  <ItemsControl ItemsSource="{Binding CoreGroups}" HorizontalAlignment="Left">
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate>
-                        <StackPanel Margin="0,0,0,10">
-                          <TextBlock Text="{Binding GroupName}" Style="{StaticResource ColAside}" Margin="0,0,0,4" />
-                          <ItemsControl ItemsSource="{Binding Cores}" HorizontalAlignment="Left">
-                            <ItemsControl.ItemsPanel>
-                              <ItemsPanelTemplate>
-                                <WrapPanel />
-                              </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate>
-                                <ToggleButton IsChecked="{Binding IsSelected}" IsEnabled="False" Style="{StaticResource CoreToggle}" />
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </StackPanel>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
-                </ScrollViewer>
-                <controls:EmptyState x:Name="ProfileTopologyUnavailable" Title="核心拓扑不可用" Description="{Binding AffinitySupportMessage}" Visibility="Collapsed" />
-                <controls:EmptyState x:Name="NoProfileSelectedState" Title="选择一个配置文件" Description="配置预览会显示该规则保存的核心分配；未选择时不显示默认核心。" Visibility="Visible" />
-              </Grid>
-              <StackPanel x:Name="ProfileActions" Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,0" Visibility="Collapsed">
-                <Button Command="{Binding EditProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource CompactButton}">编辑</Button>
-                <Button Command="{Binding ApplySingleProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource CompactButton}" Margin="8,0,0,0">应用</Button>
-                <Button Command="{Binding RestoreProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource CompactButton}" Margin="8,0,0,0">恢复</Button>
-                <Button Command="{Binding DeleteProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource DangerButtonStyle}" Margin="8,0,0,0">删除</Button>
-              </StackPanel>
+          <Border Grid.Column="1" Width="1" Background="{StaticResource Theme.Brush.BackupEditorial.Line}"
+                  HorizontalAlignment="Right" />
+
+          <Grid x:Name="ProfilePreviewWorkspace" Grid.Column="2" MinHeight="0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+              <Border Width="7" Height="7" Background="{StaticResource Theme.Brush.BackupEditorial.Accent}" VerticalAlignment="Center" Margin="0,0,8,0" />
+              <TextBlock Text="配置预览" FontSize="14" FontWeight="SemiBold" />
+            </StackPanel>
+            <StackPanel Grid.Row="1" Margin="0,8,0,8">
+              <TextBlock Text="{Binding SelectedProfile.DisplayName, TargetNullValue=未选择配置文件, FallbackValue=未选择配置文件}"
+                         FontSize="14" FontWeight="SemiBold"
+                         TextTrimming="CharacterEllipsis" />
+              <TextBlock Text="{Binding SelectedProfile.AffinityDescription}" Style="{StaticResource SwissMeta}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
+              <TextBlock Text="{Binding SelectedProfile.StatusText}" Foreground="{Binding SelectedProfile.StatusColor}"
+                         Style="{StaticResource SwissMeta}" Margin="0,2,0,0" />
+            </StackPanel>
+            <Grid Grid.Row="2" MinHeight="0">
+              <ScrollViewer x:Name="ProfileCorePreview" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
+                <ItemsControl ItemsSource="{Binding CoreGroups}" HorizontalAlignment="Left">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="{Binding GroupName}" Style="{StaticResource SwissLabel}" Margin="0,0,0,8" />
+                        <ItemsControl ItemsSource="{Binding Cores}" HorizontalAlignment="Left">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <WrapPanel />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <ToggleButton IsChecked="{Binding IsSelected}" IsEnabled="False" Style="{StaticResource CoreCell}"
+                                            ToolTip="{Binding DisplayName}" />
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+              <controls:EmptyState x:Name="ProfileTopologyUnavailable" Title="核心拓扑不可用" Description="{Binding AffinitySupportMessage}" Visibility="Collapsed" />
+              <controls:EmptyState x:Name="NoProfileSelectedState" Title="选择一个配置文件" Description="配置预览会显示该规则保存的核心分配；未选择时不显示默认核心。" Visibility="Visible" />
             </Grid>
-          </Border>
+            <StackPanel x:Name="ProfileActions" Grid.Row="3" Orientation="Horizontal" Margin="0,10,0,0" Visibility="Collapsed">
+              <Button Content="编辑" Command="{Binding EditProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource SwissGhostPillSmall}" />
+              <Button Content="应用" Command="{Binding ApplySingleProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource SwissGhostPillSmall}" Margin="8,0,0,0" />
+              <Button Content="恢复" Command="{Binding RestoreProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource SwissGhostPillSmall}" Margin="8,0,0,0" />
+              <Button Content="删除" Command="{Binding DeleteProfileCommand}" CommandParameter="{Binding SelectedProfile}" Style="{StaticResource SwissTextButton}" Margin="8,0,0,0"
+                      Foreground="{DynamicResource Theme.Brush.Error}" />
+            </StackPanel>
+          </Grid>
         </Grid>
       </Grid>
     </Grid>
 
-    <!-- 底栏：实时 -->
-    <Border x:Name="LiveCommandBar" Grid.Row="2" Style="{StaticResource ConsoleCard}" Margin="0,8,0,0" Padding="12,10">
+    <!-- ═══ 底栏：实时绑定 ═══ -->
+    <Border x:Name="LiveCommandBar" Grid.Row="3" BorderThickness="0,1,0,0" BorderBrush="{StaticResource Theme.Brush.BackupEditorial.LineStrong}" Margin="0,14,0,0" Padding="0,14,0,0"
+            Visibility="{Binding IsLiveTabActive, Converter={StaticResource BoolToVis}}">
       <Grid VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <TextBlock Text="{Binding SelectedProcess.DisplayName, TargetNullValue=未选择进程, FallbackValue=未选择进程}"
-                   Style="{StaticResource ColAside}" VerticalAlignment="Center"
-                   TextTrimming="CharacterEllipsis" MaxWidth="320" />
+                   Style="{StaticResource SwissMeta}" VerticalAlignment="Center"
+                   TextTrimming="CharacterEllipsis" MaxWidth="360" />
         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-          <Button Command="{Binding RestoreDefaultCommand}" Style="{StaticResource CompactButton}">
+          <Button Command="{Binding RestoreDefaultCommand}" Style="{StaticResource SwissGhostPillSmall}" Height="34">
             <TextBlock x:Name="RestoreDefaultBtn" Text="恢复默认" />
           </Button>
-          <Button Click="ProfilesButton_Click" Style="{StaticResource CompactButton}" Margin="8,0,0,0">配置文件</Button>
           <Button Command="{Binding StopAccelerateCommand}" IsEnabled="{Binding IsAccelerating}"
-                  Style="{StaticResource CompactButton}" Margin="8,0,0,0">
+                  Style="{StaticResource SwissGhostPillSmall}" Margin="8,0,0,0" Height="34">
             <TextBlock x:Name="StopBtnText" Text="停止并恢复" />
           </Button>
           <Button Command="{Binding StartAccelerateCommand}" IsEnabled="{Binding CanStartAccelerate}"
-                  Style="{StaticResource PrimaryButtonStyle}" Margin="8,0,0,0" Padding="16,8">
+                  Style="{StaticResource SwissPrimaryPill}" Margin="10,0,0,0" Height="38">
             <StackPanel Orientation="Horizontal">
-              <TextBlock Text="{x:Static constants:IconGlyphs.Boost}" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,5,0" />
+              <TextBlock Text="{x:Static constants:IconGlyphs.Boost}" FontFamily="Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0" />
               <TextBlock x:Name="StartBtnText" Text="应用到该进程" VerticalAlignment="Center" />
             </StackPanel>
           </Button>
@@ -525,18 +650,18 @@
       </Grid>
     </Border>
 
-    <!-- 底栏：配置 -->
-    <Border x:Name="ProfileCommandBar" Grid.Row="2" Style="{StaticResource ConsoleCard}" Margin="0,8,0,0" Padding="12,10" Visibility="Collapsed">
+    <!-- ═══ 底栏：配置文件 ═══ -->
+    <Border x:Name="ProfileCommandBar" Grid.Row="3" BorderThickness="0,1,0,0" BorderBrush="{StaticResource Theme.Brush.BackupEditorial.LineStrong}" Margin="0,14,0,0" Padding="0,14,0,0"
+            Visibility="{Binding IsProfileTabActive, Converter={StaticResource BoolToVis}}">
       <Grid VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <TextBlock Text="每个程序会使用自己的核心选择；应用前软件会再次确认目标程序是否正确。"
-                   Style="{StaticResource ColAside}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                   Style="{StaticResource SwissMeta}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
         <StackPanel Grid.Column="1" Orientation="Horizontal">
-          <Button Click="BackToLiveButton_Click" Style="{StaticResource CompactButton}">返回实时绑定</Button>
-          <Button Command="{Binding ApplyAllProfilesCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="8,0,0,0" Padding="16,8">应用全部配置</Button>
+          <Button Content="应用全部配置" Command="{Binding ApplyAllProfilesCommand}" Style="{StaticResource SwissPrimaryPill}" Height="38" />
         </StackPanel>
       </Grid>
     </Border>

@@ -72,8 +72,11 @@ public sealed class ScheduledTaskChangeCapability : IChangeCapability
         var snapshot = await _accessor.ReadAsync(_definition.TaskPath, cancellationToken).ConfigureAwait(false);
         ValidateStableSnapshot(snapshot);
         var payload = JsonSerializer.Serialize(snapshot);
+        // Why: 指纹只覆盖语义字段 {TaskPath, Exists, Enabled}。平台 /CHANGE
+        // 会重写任务 XML 并把 State 从 Ready 翻成 Disabled，全负载指纹在
+        // 合法的写入后永远无法匹配冻结目标，导致应用与恢复被错误判定为漂移。
         return new StateObservation(
-            scope, payload, Fingerprint(payload), _timeProvider.GetUtcNow(),
+            scope, payload, SemanticFingerprint(snapshot), _timeProvider.GetUtcNow(),
             "Task Scheduler", "Authoritative");
     }
 
@@ -97,7 +100,7 @@ public sealed class ScheduledTaskChangeCapability : IChangeCapability
             current.Payload,
             current.Fingerprint,
             canonicalTarget,
-            Fingerprint(canonicalTarget),
+            SemanticFingerprint(target),
             Descriptor.ResourceKey));
     }
 
@@ -151,7 +154,7 @@ public sealed class ScheduledTaskChangeCapability : IChangeCapability
             || !string.Equals(change.DefinitionVersion, Descriptor.DefinitionVersion, StringComparison.Ordinal)
             || !string.Equals(change.ResourceKey, Descriptor.ResourceKey, StringComparison.Ordinal))
             throw new InvalidDataException("冻结计划与计划任务能力定义不一致。");
-        if (!string.Equals(Fingerprint(change.TargetPayload), change.TargetFingerprint, StringComparison.Ordinal))
+        if (!string.Equals(SemanticFingerprint(DeserializeSnapshot(change.TargetPayload)), change.TargetFingerprint, StringComparison.Ordinal))
             throw new InvalidDataException("冻结计划任务目标与其指纹不一致。");
     }
 
@@ -187,4 +190,7 @@ public sealed class ScheduledTaskChangeCapability : IChangeCapability
 
     private static string Fingerprint(string payload) =>
         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(payload)));
+
+    private static string SemanticFingerprint(ScheduledTaskStateSnapshot snapshot) =>
+        Fingerprint(JsonSerializer.Serialize(new { snapshot.TaskPath, snapshot.Exists, snapshot.Enabled }));
 }

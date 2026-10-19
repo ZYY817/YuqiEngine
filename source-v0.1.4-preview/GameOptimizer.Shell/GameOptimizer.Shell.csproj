@@ -38,10 +38,10 @@
     <AssemblyTitle>宇奇引擎</AssemblyTitle>
     <Description>游戏性能优化工具</Description>
     <Copyright>© 2026 宇奇</Copyright>
-    <Version>0.1.4-preview</Version>
-    <FileVersion>0.1.4.0</FileVersion>
-    <AssemblyVersion>0.1.4.0</AssemblyVersion>
-    <AssemblyInformationalVersion>0.1.4-preview</AssemblyInformationalVersion>
+    <Version>0.1.5</Version>
+    <FileVersion>0.1.5.0</FileVersion>
+    <AssemblyVersion>0.1.5.0</AssemblyVersion>
+    <AssemblyInformationalVersion>0.1.5</AssemblyInformationalVersion>
     <!-- 自定义 Main 入口，禁用 WPF 自动生成的 Main -->
     <StartupObject>GameOptimizer.Shell.Program</StartupObject>
   </PropertyGroup>
@@ -71,6 +71,13 @@
     <Resource Include="Assets\Fonts\*.otf" />
     <None Remove="Assets\Fonts\OFL-1.1.txt" />
     <Content Include="Assets\Fonts\OFL-1.1.txt" CopyToOutputDirectory="PreserveNewest" />
+    <!-- AI 助手默认提示词/Skill/诊断脚本：首次运行播种到用户配置目录供查看编辑 -->
+    <Content Include="Assets\Ai\system-prompt.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\Ai\SKILL.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\Ai\ITEMS.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\Ai\SAFETY.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\Ai\scripts\collect-diagnostics.ps1" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\Ai\scripts\collect-baseline.ps1" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
